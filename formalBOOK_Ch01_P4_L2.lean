@@ -67,13 +67,12 @@ theorem PNat.le_iff_eq_or_le_sub_one: x = b ∨ x ≤ b - 1 ↔ x ≤ b := by
     · exact Or.inr (PNat.le_sub_one_of_lt h₂)
 
 /- Interval manipulations with bounds in PNat, should go in PNat/Interval.lean -/
-theorem PNat.mem_insert_Icc_sub_one (hab : a < b): x ∈ insert b (Icc a (b - 1))
-    → a ≤ x ∧ x ≤ b := by
-  rw [mem_insert, mem_Icc]
+theorem PNat.mem_insert_Icc_sub_one (hab : a < b) (hins : x ∈ insert b (Icc a (b - 1))):
+    a ≤ x ∧ x ≤ b := by
+  rw [mem_insert, mem_Icc] at hins
   apply le_of_lt at hab
-  intro hh
-  rcases hh with hh | hh
-  · rw [hh] ; exact ⟨ hab, Eq.le rfl ⟩
+  rcases hins with hh | hh
+  · rw [hh]; exact ⟨ hab, Eq.le rfl ⟩
   · exact ⟨ hh.1, PNat.le_of_le_sub_one hh.2 ⟩
 
 theorem PNat.Icc_sub_one_right_not_mem (hb: 1 < b): b ∉ Icc a (b - 1) := by
@@ -85,16 +84,11 @@ theorem PNat.insert_Icc_sub_one_right (hab : a < b) : insert b (Icc a (b - 1)) =
   ext x
   constructor
   · intro h
-    apply PNat.mem_insert_Icc_sub_one hab at h
     rw [mem_Icc]
-    exact h
+    exact PNat.mem_insert_Icc_sub_one hab h
   · intro hh
-    rw [mem_insert, mem_Icc]
     rw [mem_Icc] at hh
-    have hl: x = b ∨ a ≤ x ∧ x ≤ b - 1 ↔ (x = b ∨ a ≤ x) ∧ (x = b ∨ x ≤ b - 1) :=
-      Iff.intro (Or.rec (fun ha => ⟨.inl ha, .inl ha⟩) (.imp .inr .inr))
-            (And.rec <| .rec (fun _ => .inl ·) (.imp_right ∘ .intro))
-    rw [hl]
+    rw [mem_insert, mem_Icc, or_and_left]
     constructor
     · exact Or.inr hh.1
     · rw [PNat.le_iff_eq_or_le_sub_one]
