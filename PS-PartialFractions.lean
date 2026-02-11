@@ -136,24 +136,19 @@ theorem inv_linear_pow_eq_geom_series_term (L : Type*) [Field L]
   have h1r_ne : (1 - RatFunc.C (1 / r) * RatFunc.X) ^ k ≠ 0 := by
     convert RatFunc.one_sub_C_inv_mul_X_pow_ne_zero L r hr k using 2
     rw [one_div]
-  -- Use the factorization: X - C r = -C r * (1 - C(1/r) * X)
   have factor : RatFunc.X - RatFunc.C r = -RatFunc.C r * (1 - RatFunc.C (1/r) * RatFunc.X) := by
     convert RatFunc.X_sub_C_factor L r hr using 2
     rw [one_div]
-  -- Show the coefficient identity
   have hcoef : ((-1 / r) ^ k : L) * (-r) ^ k = 1 := by
     rw [← mul_pow]
     have h_base : (-1 / r) * (-r) = (1 : L) := by field_simp
     rw [h_base, one_pow]
-  -- Helper: (-C r)^k = C((-r)^k)
   have neg_C_pow : (-RatFunc.C r) ^ k = RatFunc.C ((-r) ^ k) := by
     have h1 : -RatFunc.C r = RatFunc.C (-r) := by simp [map_neg]
     rw [h1, ← map_pow]
-  -- Helper: ((-r)^k)⁻¹ = (-1/r)^k
   have inv_neg_pow : ((-r) ^ k)⁻¹ = ((-1 / r) ^ k : L) := by
     have h1 : -1 / r = (-r)⁻¹ := by field_simp
     rw [h1, ← inv_pow]
-  -- Main calculation
   calc (1 : RatFunc L) / (RatFunc.X - RatFunc.C r) ^ k
       = 1 / (-RatFunc.C r * (1 - RatFunc.C (1/r) * RatFunc.X)) ^ k := by rw [factor]
     _ = 1 / ((-RatFunc.C r) ^ k * (1 - RatFunc.C (1/r) * RatFunc.X) ^ k) := by rw [mul_pow]
@@ -177,21 +172,14 @@ theorem inv_prod_linear_induction (L : Type*) [Field L]
   intro roots
   induction roots with
   | nil =>
-    -- Empty list: product is 1, inverse is 1
     simp only [List.map_nil, List.prod_nil, inv_one]
     exact h_one
   | cons r tail ih =>
-    -- roots = r :: tail
-    -- product = (X - C r) * (tail product)
-    -- inverse = (tail product)⁻¹ / (X - C r)
     simp only [List.map_cons, List.prod_cons]
-    -- Goal: P (((X - C r) * tail_prod)⁻¹)
-    -- Rewrite using mul_inv and div
     have h_linear_ne : RatFunc.X - RatFunc.C r ≠ 0 := by
       intro h
       exact RatFunc.X_ne_C L r (sub_eq_zero.mp h)
     rw [mul_inv, mul_comm, ← div_eq_mul_inv]
-    -- Goal: P (tail_prod⁻¹ / (X - C r))
     exact h_step _ r ih
 
 /-!
@@ -208,8 +196,6 @@ lemma root_ne_zero_of_coeff_zero_ne_zero (Q : Polynomial K) (hQ_const : Q.coeff 
     r ≠ 0 := by
   intro h_r_zero
   rw [h_r_zero, Polynomial.IsRoot, Polynomial.eval_map, Polynomial.eval₂_at_zero] at hr
-  -- hr : algebraMap K L (Q.coeff 0) = 0
-  -- Since algebraMap from a field is injective (ring homs from fields have trivial kernel)
   rw [map_eq_zero_iff _ (algebraMap K L).injective] at hr
   exact hQ_const hr
 
@@ -224,9 +210,7 @@ lemma standardToGenFunc_eq (L : Type*) [Field L] (t : StandardPartialFraction L)
     (let g := standardToGenFunc t hr
      RatFunc.C g.c / (1 - RatFunc.C g.alpha * RatFunc.X) ^ g.k) := by
   unfold standardToGenFunc
-  -- Use inv_linear_pow_eq_geom_series_term
   have h := inv_linear_pow_eq_geom_series_term L t.root hr t.k
-  -- h : 1 / (X - C r)^k = C((-1/r)^k) / (1 - C(1/r) * X)^k
   calc RatFunc.C t.c / (RatFunc.X - RatFunc.C t.root) ^ t.k
       = RatFunc.C t.c * (1 / (RatFunc.X - RatFunc.C t.root) ^ t.k) := by rw [mul_one_div]
     _ = RatFunc.C t.c * (RatFunc.C ((-1 / t.root) ^ t.k) /
@@ -240,30 +224,23 @@ theorem exists_partial_fraction_form_inv_poly
     (Q : Polynomial K) (hQ_const : Q.coeff 0 ≠ 0)
     (L : Type*) [Field L] [Algebra K L] [IsSplittingField K L Q] :
     ∃ (terms : List (GenFuncPartialFraction L)),
-      -- The decomposition holds in the Rational Function field
       (1 : RatFunc L) / (Q.map (algebraMap K L) : RatFunc L) =
       (terms.map fun (t : GenFuncPartialFraction L) =>
         (RatFunc.C t.c) / ((1 : RatFunc L) - RatFunc.C t.alpha * RatFunc.X) ^ t.k
       ).sum := by
-  -- Q ≠ 0 follows from Q(0) ≠ 0
   have hQ_ne : Q ≠ 0 := by
     intro h
     rw [h, Polynomial.coeff_zero] at hQ_const
     exact hQ_const rfl
-  -- Get the standard partial fraction decomposition
   obtain ⟨std_terms, h_roots, _, h_decomp⟩ :=
     standard_partial_fractions_exists Q hQ_ne hQ_const L
-  -- All roots are non-zero because Q(0) ≠ 0
   have h_roots_ne : ∀ t ∈ std_terms, t.root ≠ 0 := fun t ht =>
     root_ne_zero_of_coeff_zero_ne_zero Q hQ_const L t.root (h_roots t ht)
-  -- Define the conversion function (with a default for the impossible case)
   let toGenFunc : StandardPartialFraction L → GenFuncPartialFraction L := fun t =>
     if hr : t.root ≠ 0 then standardToGenFunc t hr
-    else ⟨0, 0, 0⟩  -- unreachable for our terms
+    else ⟨0, 0, 0⟩
   use std_terms.map toGenFunc
-  -- Prove the equality
   rw [h_decomp, List.map_map]
-  -- Show the sums are equal
   congr 1
   apply List.map_congr_left
   intro t ht
