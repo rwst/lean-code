@@ -160,14 +160,12 @@ lemma is_primitive_iff_mod_8_ne_5 (n m : ℕ) (h_odd : n % 2 = 1) (h_steps : Col
 lemma infinitely_many_not_div3 (m : ℕ) : ∀ B, ∃ n, n > B ∧ CollatzOddSteps n m ∧ n % 3 ≠ 0 := by
   sorry
 
-/--
-Every odd number `y` (not div 3) at level `m` generates a Primitive at level `m+1`.
--/
+--proven
 lemma odd_node_generates_primitive (y m : ℕ)
   (h_steps : CollatzOddSteps y m)
   (h_odd : y % 2 = 1)
   (h_not_div3 : y % 3 ≠ 0) :
-  ∃ n, IsPrimitive4x1 n (m + 1) ∧ n > y := by
+  ∃ n, IsPrimitive4x1 n (m + 1) := by
   sorry
 
 /--

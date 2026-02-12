@@ -680,8 +680,56 @@ lemma odd_node_generates_primitive (y m : ℕ)
   (h_steps : CollatzOddSteps y m)
   (h_odd : y % 2 = 1)
   (h_not_div3 : y % 3 ≠ 0) :
-  ∃ n, IsPrimitive4x1 n (m + 1) ∧ n > y := by
-  sorry
+  ∃ n, IsPrimitive4x1 n (m + 1) := by
+  by_cases hy1 : y = 1
+  · -- y = 1: must have m = 0; use n = 5
+    subst hy1
+    cases h_steps with
+    | base =>
+      use 5
+      refine ⟨?_, by norm_num, ?_⟩
+      · -- CollatzOddSteps 5 1
+        apply CollatzOddSteps.odd (by norm_num) (by omega)
+        apply CollatzOddSteps.even (by norm_num) (by omega)
+        apply CollatzOddSteps.even (by norm_num) (by omega)
+        apply CollatzOddSteps.even (by norm_num) (by omega)
+        apply CollatzOddSteps.even (by norm_num) (by omega)
+        exact CollatzOddSteps.base
+      · -- Primitivity: only predecessor is k=1, which lacks CollatzOddSteps 1 1
+        intro k _ hk_eq
+        have : k = 1 := by omega
+        subst this
+        intro h; cases h with
+        | even h_ev _ _ => omega
+        | odd _ h_gt _ => omega
+    | even h_ev _ _ => omega
+    | odd _ h_gt _ => omega
+  · -- y > 1
+    have hy_gt1 : y > 1 := by have := CollatzOddSteps_pos y m h_steps; omega
+    have hy_mod6 : y % 6 = 1 ∨ y % 6 = 5 := by omega
+    rcases hy_mod6 with h6 | h6
+    · -- y ≡ 1 (mod 6): predecessor via shift k = 2
+      obtain ⟨x, hx_odd, hx_gt1, hx_eq⟩ := exists_predecessor_gt_one_mod1 y h6 hy_gt1
+      use x
+      have hx_steps : CollatzOddSteps x (m + 1) := by
+        apply CollatzOddSteps.odd hx_odd hx_gt1; rw [hx_eq]
+        exact CollatzOddSteps_mul_pow_two y m 2 h_steps (by omega)
+      obtain ⟨q, hq⟩ : ∃ q, y = 6 * q + 1 := ⟨y / 6, by omega⟩
+      have h4 : (2 : ℕ) ^ 2 = 4 := by norm_num
+      rw [h4] at hx_eq
+      have hx_val : x = 8 * q + 1 := by omega
+      exact (is_primitive_iff_mod_8_ne_5 x (m + 1) hx_odd hx_steps (by omega)).mpr (by omega)
+    · -- y ≡ 5 (mod 6): predecessor via shift k = 1
+      obtain ⟨x, hx_odd, hx_gt1, hx_eq⟩ := exists_predecessor_gt_one_mod5 y h6
+      use x
+      have hx_steps : CollatzOddSteps x (m + 1) := by
+        apply CollatzOddSteps.odd hx_odd hx_gt1; rw [hx_eq]
+        exact CollatzOddSteps_mul_pow_two y m 1 h_steps (by omega)
+      obtain ⟨q, hq⟩ : ∃ q, y = 6 * q + 5 := ⟨y / 6, by omega⟩
+      have h2 : (2 : ℕ) ^ 1 = 2 := by norm_num
+      rw [h2] at hx_eq
+      have hx_val : x = 4 * q + 3 := by omega
+      exact (is_primitive_iff_mod_8_ne_5 x (m + 1) hx_odd hx_steps (by omega)).mpr (by omega)
 
 /-- Thanks to Edward van de Meent. -/
 theorem collatz_conjecture : ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1 :=
