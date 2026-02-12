@@ -229,7 +229,6 @@ lemma exists_predecessor_gt_one_mod1 (y : ℕ) (hy_mod6 : y % 6 = 1) (hy_gt : y 
       have hy_mod3 : y % 3 = 1 := by omega
       simp [Nat.mul_mod, hy_mod3]
     omega
-  have hval : (4 * y - 1) / 3 = (4 * y - 1) / 3 := rfl
   -- Show it's odd
   have hmod6 : (4 * y - 1) % 6 = 3 := by omega
   have hform : ∃ q, 4 * y - 1 = 6 * q + 3 := by
@@ -256,10 +255,7 @@ lemma exists_predecessor_gt_one_mod1 (y : ℕ) (hy_mod6 : y % 6 = 1) (hy_gt : y 
       have := Nat.div_add_mod (4 * y - 1) 3
       have hmod : (4 * y - 1) % 3 = 0 := Nat.dvd_iff_mod_eq_zero.mp hdiv3
       omega
-    simp only [pow_two]
-    ring_nf
-    ring_nf at this
-    exact this
+    simp only [show (2:ℕ)^2 = 4 from by norm_num]; exact this
 
 /-- For y ≡ 5 (mod 6), there exists x > 1 odd such that 3x+1 = 2y -/
 lemma exists_predecessor_gt_one_mod5 (y : ℕ) (hy_mod6 : y % 6 = 5) :
@@ -298,8 +294,7 @@ lemma exists_predecessor_gt_one_mod5 (y : ℕ) (hy_mod6 : y % 6 = 5) :
       have := Nat.div_add_mod (2 * y - 1) 3
       have hmod : (2 * y - 1) % 3 = 0 := Nat.dvd_iff_mod_eq_zero.mp hdiv3
       omega
-    simp only [pow_one]
-    exact this
+    simpa only [pow_one]
 
 /-- Main helper: for odd y not div by 3 and y > 1, exists x > 1 odd with 3x+1 = 2^k * y -/
 lemma exists_predecessor_of_odd_gt_one (y : ℕ) (h_odd : y % 2 = 1) (h_not_div3 : y % 3 ≠ 0) (h_gt : y > 1) :
@@ -835,6 +830,20 @@ lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ Is
     · -- x > B: from 3x+1 = 2y and y ≥ 3B+4
       omega
     · exact (is_primitive_iff_mod_8_ne_5 x m hx_odd hx_steps (by omega)).mpr (by omega)
+
+/-- The odd Collatz successor of an odd number n is the odd part of 3n+1,
+    i.e., (3n+1) / 2^v₂(3n+1). This exceeds n only when n ≡ 3 (mod 4). -/
+lemma odd_collatz_successor_gt_iff_mod4 (n : ℕ) (h_mod4 : n % 4 = 3)
+    (k : ℕ) (hk : k ≥ 1) (hk_val : (3 * n + 1) = 2 ^ k * ((3 * n + 1) / 2 ^ k))
+    (hk_odd : (3 * n + 1) / 2 ^ k % 2 = 1) :
+    ((3 * n + 1) / 2 ^ k > n ↔ n % 4 = 3) := by
+  refine ⟨fun _ => h_mod4, fun _ => ?_⟩
+  have hk_eq : k = 1 := by
+    by_contra hne
+    have : (4 : ℕ) ∣ (3 * n + 1) :=
+      hk_val ▸ dvd_mul_of_dvd_left (by simpa using Nat.pow_dvd_pow 2 (show k ≥ 2 by omega)) _
+    omega
+  subst hk_eq; simp only [pow_one] at hk_val ⊢; omega
 
 theorem collatz_conjecture : ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1 :=
   sorry
