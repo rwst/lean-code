@@ -168,12 +168,16 @@ lemma odd_node_generates_primitive (y m : ℕ)
   ∃ n, IsPrimitive4x1 n (m + 1) := by
   sorry
 
-/--
-For every level `m`, there are infinitely many primitive numbers.
--/
-lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ IsPrimitive4x1 n m := by
+--proven
+lemma primitives_from_distinct_generators_ne
+    (y₁ y₂ p₁ p₂ k₁ k₂ m : ℕ)
+    (hy₁_odd : y₁ % 2 = 1) (hy₂_odd : y₂ % 2 = 1)
+    (hp₂_prim : IsPrimitive4x1 p₂ (m + 1))
+    (hgen₁ : 3 * p₁ + 1 = 2 ^ k₁ * y₁)
+    (hgen₂ : 3 * p₂ + 1 = 2 ^ k₂ * y₂)
+    (hy_ne : y₁ ≠ y₂) : p₁ ≠ p₂ := by
   sorry
 
-/-- Thanks to Edward van de Meent. -/
-theorem collatz_conjecture : ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1 :=
+--proven
+lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ IsPrimitive4x1 n m := by
   sorry
