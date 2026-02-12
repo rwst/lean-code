@@ -610,7 +610,7 @@ def IsPrimitive4x1 (n m : ℕ) : Prop :=
 
 /--
 Lemma: The definition of a primitive simplifies to a modular arithmetic check.
-If `n` is odd and has step count `m`, it is primitive if and only if `n % 8 ≠ 5` and `n = 5`.
+If `n` is odd and has step count `m`, it is primitive if and only if `n % 8 ≠ 5` or `n = 5`.
 -/
 lemma is_primitive_iff_mod_8_ne_5 (n m : ℕ) (h_odd : n % 2 = 1) (h_steps : CollatzOddSteps n m)
     (h_ne5 : n ≠ 5) : IsPrimitive4x1 n m ↔ n % 8 ≠ 5 := by
@@ -649,6 +649,29 @@ lemma is_primitive_iff_mod_8_ne_5 (n m : ℕ) (h_odd : n % 2 = 1) (h_steps : Col
     refine ⟨h_steps, h_odd, fun k hk_odd h_map => absurd ?_ h_mod8_ne_5⟩
     have := (Nat.div_add_mod k 2).symm; rw [hk_odd] at this; omega
 
+/--
+For every level `m`, there are infinitely many members not divisible by 3.
+-/
+lemma infinitely_many_not_div3 (m : ℕ) : ∀ B, ∃ n, n > B ∧ CollatzOddSteps n m ∧ n % 3 ≠ 0 := by
+  intro B
+  obtain ⟨n₀, h_steps, h_mod3, _⟩ := exists_n_with_m_odd_steps_not_div3 m
+  have h_pos := CollatzOddSteps_pos n₀ m h_steps
+  use 2 ^ (B + 1) * n₀
+  refine ⟨?_, CollatzOddSteps_mul_pow_two n₀ m (B + 1) h_steps (by omega), ?_⟩
+  · -- 2^(B+1) * n₀ > B
+    have h_2pow : 2 ^ (B + 1) ≥ B + 1 := by
+      have := Nat.lt_two_pow_self (n := B + 1)
+      omega
+    nlinarith
+  · -- (2^(B+1) * n₀) % 3 ≠ 0
+    rw [Nat.mul_mod]
+    have h2k : 2 ^ (B + 1) % 3 = 1 ∨ 2 ^ (B + 1) % 3 = 2 := by
+      have := pow_two_mod_three (B + 1) (by omega)
+      split_ifs at this <;> omega
+    have hn0 : n₀ % 3 = 1 ∨ n₀ % 3 = 2 := by
+      have := Nat.mod_lt n₀ (show (0 : ℕ) < 3 by omega)
+      omega
+    rcases h2k with h1 | h1 <;> rcases hn0 with h2 | h2 <;> simp [h1, h2]
 
 /--
 Every odd number `y` (not div 3) at level `m` generates a Primitive at level `m+1`.
@@ -658,18 +681,6 @@ lemma odd_node_generates_primitive (y m : ℕ)
   (h_odd : y % 2 = 1)
   (h_not_div3 : y % 3 ≠ 0) :
   ∃ n, IsPrimitive4x1 n (m + 1) ∧ n > y := by
-  sorry
-
-/--
-For every level `m`, there are infinitely many members not divisible by 3.
--/
-lemma infinitely_many_not_div3 (m : ℕ) : ∀ B, ∃ n, n > B ∧ CollatzOddSteps n m ∧ n % 3 ≠ 0 := by
-  sorry
-
-/--
-For every level `m`, there are infinitely many primitive numbers.
--/
-lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ IsPrimitive4x1 n m := by
   sorry
 
 /-- Thanks to Edward van de Meent. -/
