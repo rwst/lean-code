@@ -54,10 +54,7 @@ lemma collatz_iter_pow_two_ne_one (l k : ℕ) (hk : k < l) : collatz_iter k (2^l
 
 lemma exists_collatz_reverse_strict (l : ℕ) :
   ∃ n : ℕ, collatz_iter l n = 1 ∧ ∀ k, k < l → collatz_iter k n ≠ 1 := by
-  use 2^l
-  constructor
-  · exact collatz_iter_pow_two l
-  · exact collatz_iter_pow_two_ne_one l
+  exact ⟨2^l, collatz_iter_pow_two l, collatz_iter_pow_two_ne_one l⟩
 
 /--
 Relation asserting that `n` reaches 1 with exactly `m` steps of the form `3n+1`.
@@ -156,8 +153,7 @@ lemma exists_predecessor_of_odd (y : ℕ) (h_odd : y % 2 = 1) (h_not_div3 : y % 
         have := Nat.div_add_mod (2 * y - 1) 3
         have hmod : (2 * y - 1) % 3 = 0 := Nat.dvd_iff_mod_eq_zero.mp hdiv
         omega
-      simp only [pow_one]
-      exact this
+      simpa only [pow_one]
 
 /--
 If `y` is a multiple of 3, it implies there is no number `n`
@@ -239,19 +235,11 @@ lemma exists_predecessor_gt_one_mod1 (y : ℕ) (hy_mod6 : y % 6 = 1) (hy_gt : y 
   have hdiv_eq : (4 * y - 1) / 3 = 2 * q + 1 := by
     rw [hq, show 6 * q + 3 = 3 * (2 * q + 1) by ring]
     exact Nat.mul_div_cancel_left (2 * q + 1) (by norm_num : 0 < 3)
-  constructor
-  · -- odd
-    rw [hdiv_eq]; omega
-  constructor
-  · -- > 1
-    rw [hdiv_eq]
-    have hq_pos : q ≥ 1 := by
-      have : 4 * y - 1 ≥ 7 := by omega
-      rw [hq] at this
-      omega
-    omega
-  · -- 3x + 1 = 4y
-    have : 3 * ((4 * y - 1) / 3) + 1 = 4 * y := by
+  refine ⟨by rw [hdiv_eq]; omega, ?_, ?_⟩
+  · rw [hdiv_eq]
+    have : 4 * y - 1 ≥ 7 := by omega
+    rw [hq] at this; omega
+  · have : 3 * ((4 * y - 1) / 3) + 1 = 4 * y := by
       have := Nat.div_add_mod (4 * y - 1) 3
       have hmod : (4 * y - 1) % 3 = 0 := Nat.dvd_iff_mod_eq_zero.mp hdiv3
       omega
@@ -278,19 +266,11 @@ lemma exists_predecessor_gt_one_mod5 (y : ℕ) (hy_mod6 : y % 6 = 5) :
   have hdiv_eq : (2 * y - 1) / 3 = 2 * q + 1 := by
     rw [hq, show 6 * q + 3 = 3 * (2 * q + 1) by ring]
     exact Nat.mul_div_cancel_left (2 * q + 1) (by norm_num : 0 < 3)
-  constructor
-  · -- odd
-    rw [hdiv_eq]; omega
-  constructor
-  · -- > 1
-    rw [hdiv_eq]
-    have hq_pos : q ≥ 1 := by
-      have : 2 * y - 1 ≥ 9 := by omega
-      rw [hq] at this
-      omega
-    omega
-  · -- 3x + 1 = 2y
-    have : 3 * ((2 * y - 1) / 3) + 1 = 2 * y := by
+  refine ⟨by rw [hdiv_eq]; omega, ?_, ?_⟩
+  · rw [hdiv_eq]
+    have : 2 * y - 1 ≥ 9 := by omega
+    rw [hq] at this; omega
+  · have : 3 * ((2 * y - 1) / 3) + 1 = 2 * y := by
       have := Nat.div_add_mod (2 * y - 1) 3
       have hmod : (2 * y - 1) % 3 = 0 := Nat.dvd_iff_mod_eq_zero.mp hdiv3
       omega
@@ -508,29 +488,10 @@ lemma CollatzOddSteps_4n_add_1 (n m : ℕ) (h_odd : n % 2 = 1) (h_gt1 : n > 1)
     -- h_next : CollatzOddSteps (3 * n + 1) m_prev
     -- Goal: CollatzOddSteps (4 * n + 1) (m_prev + 1)
 
-    -- Apply odd constructor to 4n+1
-    apply CollatzOddSteps.odd
-    · -- 4n+1 is odd
-      omega
-    · -- 4n+1 > 1
-      omega
-
-    -- Goal: CollatzOddSteps (3 * (4*n+1) + 1) m_prev = CollatzOddSteps (12n+4) m_prev
-    -- 12n + 4 is even
-    apply CollatzOddSteps.even
-    · omega
-    · omega
-
-    -- Goal: CollatzOddSteps ((12n+4)/2) m_prev = CollatzOddSteps (6n+2) m_prev
-    -- 6n + 2 is even
-    apply CollatzOddSteps.even
-    · omega
-    · omega
-
-    -- Goal: CollatzOddSteps ((6n+2)/2) m_prev = CollatzOddSteps (3n+1) m_prev
-    -- This is exactly h_next
-    convert h_next using 1
-    omega
+    apply CollatzOddSteps.odd (by omega) (by omega)
+    apply CollatzOddSteps.even (by omega) (by omega)
+    apply CollatzOddSteps.even (by omega) (by omega)
+    convert h_next using 1; omega
 
 /-- Sequence: iterate (4*x + 1) starting from n₀ -/
 def iter_4n_plus_1 (n₀ : ℕ) : ℕ → ℕ
@@ -576,20 +537,14 @@ lemma infinitely_many_collatz_odd_steps (m : ℕ) : ∀ k, ∃ n, n > k ∧ Coll
     obtain ⟨n₀, h_steps, _, h_cond⟩ := exists_n_with_m_odd_steps_not_div3 (m_prev + 1)
     have ⟨h_odd, h_gt1⟩ := h_cond (by omega : m_prev + 1 > 0)
 
-    use iter_4n_plus_1 n₀ k
-    constructor
-    · -- Growth: iter_4n_plus_1 n₀ k > k
-      have := iter_4n_plus_1_growth n₀ (by omega : n₀ ≥ 1) k
-      omega
-    · -- CollatzOddSteps (iter_4n_plus_1 n₀ k) (m_prev + 1)
-      induction k with
-      | zero => simp [iter_4n_plus_1]; exact h_steps
-      | succ i ih =>
-        simp [iter_4n_plus_1]
-        apply CollatzOddSteps_4n_add_1
-        · exact iter_4n_plus_1_odd n₀ h_odd i
-        · exact iter_4n_plus_1_gt_one n₀ h_gt1 i
-        · exact ih
+    refine ⟨iter_4n_plus_1 n₀ k,
+      by have := iter_4n_plus_1_growth n₀ (by omega : n₀ ≥ 1) k; omega, ?_⟩
+    induction k with
+    | zero => simp [iter_4n_plus_1]; exact h_steps
+    | succ i ih =>
+      simp [iter_4n_plus_1]
+      exact CollatzOddSteps_4n_add_1 _ _ (iter_4n_plus_1_odd n₀ h_odd i)
+        (iter_4n_plus_1_gt_one n₀ h_gt1 i) ih
 
 /--
 A "primitive" for step count `m` is an odd number `n` that reaches 1 in `m` steps,
@@ -811,10 +766,7 @@ lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ Is
     have h4 : (2 : ℕ) ^ 2 = 4 := by norm_num
     rw [h4] at hx_eq
     have hx_val : x = 8 * q + 1 := by omega
-    constructor
-    · -- x > B: from 3x+1 = 4y and y ≥ 3B+4
-      omega
-    · exact (is_primitive_iff_mod_8_ne_5 x m hx_odd hx_steps (by omega)).mpr (by omega)
+    exact ⟨by omega, (is_primitive_iff_mod_8_ne_5 x m hx_odd hx_steps (by omega)).mpr (by omega)⟩
   · -- y ≡ 5 (mod 6): primitive x with 3x+1 = 2y
     obtain ⟨x, hx_odd, hx_gt1, hx_eq⟩ := exists_predecessor_gt_one_mod5 y h6
     use x
@@ -826,10 +778,7 @@ lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ Is
     have h2 : (2 : ℕ) ^ 1 = 2 := by norm_num
     rw [h2] at hx_eq
     have hx_val : x = 4 * q + 3 := by omega
-    constructor
-    · -- x > B: from 3x+1 = 2y and y ≥ 3B+4
-      omega
-    · exact (is_primitive_iff_mod_8_ne_5 x m hx_odd hx_steps (by omega)).mpr (by omega)
+    exact ⟨by omega, (is_primitive_iff_mod_8_ne_5 x m hx_odd hx_steps (by omega)).mpr (by omega)⟩
 
 /-- The odd Collatz successor of an odd number n is the odd part of 3n+1,
     i.e., (3n+1) / 2^v₂(3n+1). This exceeds n only when n ≡ 3 (mod 4). -/
