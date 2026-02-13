@@ -794,5 +794,162 @@ lemma odd_collatz_successor_gt_iff_mod4 (n : ℕ) (h_mod4 : n % 4 = 3)
     omega
   subst hk_eq; simp only [pow_one] at hk_val ⊢; omega
 
+-- Helper lemmas for cycle_implies_not_collatz
+
+lemma collatz_iter_add (a b n : ℕ) :
+    collatz_iter (a + b) n = collatz_iter a (collatz_iter b n) := by
+  induction b generalizing n with
+  | zero => rfl
+  | succ b ih => exact ih (collatz_step n)
+
+lemma collatz_iter_mul_cycle (k n m : ℕ) (h : collatz_iter k n = n) :
+    collatz_iter (m * k) n = n := by
+  induction m with
+  | zero => simp [collatz_iter]
+  | succ m ih => rw [Nat.succ_mul, collatz_iter_add, h, ih]
+
+private lemma collatz_iter_mem_124 (i n : ℕ) (hn : n = 1 ∨ n = 2 ∨ n = 4) :
+    collatz_iter i n = 1 ∨ collatz_iter i n = 2 ∨ collatz_iter i n = 4 := by
+  induction i generalizing n with
+  | zero => exact hn
+  | succ i ih =>
+    simp only [collatz_iter]
+    apply ih
+    rcases hn with rfl | rfl | rfl <;> native_decide
+
+lemma collatz_iter_one_le_four (i : ℕ) : collatz_iter i 1 ≤ 4 := by
+  rcases collatz_iter_mem_124 i 1 (Or.inl rfl) with h | h | h <;> omega
+
+/-- If some number greater than 4 is a fixed point of `collatz_iter k` (i.e., it lies on a
+nontrivial cycle), then the Collatz conjecture fails: not every positive natural number
+eventually reaches 1. -/
+lemma cycle_implies_not_collatz (n k : ℕ) (hn : n > 4) (hk : k ≥ 1)
+    (hcycle : collatz_iter k n = n) :
+    ¬ ∀ (m : ℕ), m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  intro h
+  rcases h n with rfl | ⟨j, hj⟩
+  · omega
+  · -- n reaches 1 at step j, use cycle to show n = collatz_iter _ 1, then n ≤ 4
+    have h_cycle := collatz_iter_mul_cycle k n (j + 1) hcycle
+    have hjle : j ≤ (j + 1) * k := by nlinarith
+    have h1 := collatz_iter_add ((j + 1) * k - j) j n
+    rw [Nat.sub_add_cancel hjle, hj] at h1
+    -- h1 : collatz_iter ((j + 1) * k) n = collatz_iter ((j + 1) * k - j) 1
+    rw [h_cycle] at h1
+    -- h1 : n = collatz_iter ((j + 1) * k - j) 1
+    linarith [collatz_iter_one_le_four ((j + 1) * k - j)]
+
+@[simp] lemma collatz_step_zero : collatz_step 0 = 0 := by native_decide
+
+lemma collatz_iter_zero (k : ℕ) : collatz_iter k 0 = 0 := by
+  induction k with
+  | zero => rfl
+  | succ k ih => simp [collatz_iter, ih]
+
+/-- If some orbit is unbounded, the Collatz conjecture fails. -/
+lemma unbounded_orbit_implies_not_collatz (n : ℕ)
+    (h_unbounded : ∀ B, ∃ k, collatz_iter k n > B) :
+    ¬ ∀ (m : ℕ), m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  intro h
+  rcases h n with rfl | ⟨j, hj⟩
+  · -- n = 0: orbit is constantly 0, contradicts unboundedness
+    obtain ⟨k, hk⟩ := h_unbounded 0
+    simp [collatz_iter_zero] at hk
+  · -- collatz_iter j n = 1: orbit is bounded, contradicts unboundedness
+    have h_after : ∀ i, collatz_iter (j + i) n ≤ 4 := by
+      intro i; rw [show j + i = i + j from by omega, collatz_iter_add, hj]
+      exact collatz_iter_one_le_four i
+    -- Bound: all orbit values ≤ B
+    set B := (Finset.range j).sup (fun i => collatz_iter i n) + 4 with hB_def
+    have h_bound : ∀ k, collatz_iter k n ≤ B := by
+      intro k
+      by_cases hk : k < j
+      · calc collatz_iter k n
+            ≤ (Finset.range j).sup (fun i => collatz_iter i n) :=
+              Finset.le_sup (f := fun i => collatz_iter i n) (Finset.mem_range.mpr hk)
+          _ ≤ B := by omega
+      · push_neg at hk
+        obtain ⟨i, rfl⟩ := Nat.exists_eq_add_of_le hk
+        calc collatz_iter (j + i) n ≤ 4 := h_after i
+          _ ≤ B := by omega
+    obtain ⟨k, hk⟩ := h_unbounded B
+    linarith [h_bound k]
+
+/-- If no number above 4 lies on a nontrivial cycle and every orbit is bounded,
+    then every positive natural number eventually reaches 1. -/
+lemma bounded_no_cycle_implies_collatz
+    (h_no_cycle : ∀ n k, n > 4 → k ≥ 1 → collatz_iter k n ≠ n)
+    (h_bounded  : ∀ n, ∃ B, ∀ k, collatz_iter k n ≤ B) :
+    ∀ m, m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  -- Helper: collatz_step preserves positivity
+  have collatz_step_pos : ∀ n, n ≥ 1 → collatz_step n ≥ 1 := by
+    intro n hn; simp only [collatz_step, beq_iff_eq]; split_ifs <;> omega
+  -- Helper: collatz_iter preserves positivity
+  have collatz_iter_pos : ∀ i n, n ≥ 1 → collatz_iter i n ≥ 1 := by
+    intro i; induction i with
+    | zero => intro n hn; exact hn
+    | succ i ih => intro n hn; exact ih _ (collatz_step_pos n hn)
+  intro m
+  by_cases hm : m = 0
+  · exact Or.inl hm
+  · right
+    have hm_pos : m ≥ 1 := Nat.pos_of_ne_zero hm
+    -- Boundedness gives finite range
+    obtain ⟨B, hB⟩ := h_bounded m
+    -- Pigeonhole: ℕ → Fin (B+1) must have a collision
+    have ⟨i, j, hij, heq⟩ := Finite.exists_ne_map_eq_of_infinite
+      (fun k : ℕ => (⟨collatz_iter k m, by exact Nat.lt_succ_of_le (hB k)⟩ : Fin (B + 1)))
+    simp only [Fin.mk.injEq] at heq
+    -- Ensure i < j (symmetric)
+    rcases Nat.lt_or_gt_of_ne hij with h_lt | h_lt
+    · -- Case i < j: cycle point is collatz_iter i m, period j - i
+      set c := collatz_iter i m with hc_def
+      have hp : j - i ≥ 1 := by omega
+      have h_cycle : collatz_iter (j - i) c = c := by
+        have : j - i + i = j := Nat.sub_add_cancel (le_of_lt h_lt)
+        calc collatz_iter (j - i) c
+            = collatz_iter (j - i) (collatz_iter i m) := by rfl
+          _ = collatz_iter (j - i + i) m := by rw [collatz_iter_add]
+          _ = collatz_iter j m := by rw [this]
+          _ = c := heq.symm
+      -- c must be ≤ 4 (otherwise h_no_cycle gives contradiction)
+      have hc_le : c ≤ 4 := by
+        by_contra h
+        push_neg at h
+        exact h_no_cycle c (j - i) h hp h_cycle
+      -- c ≥ 1 since m ≥ 1
+      have hc_pos : c ≥ 1 := collatz_iter_pos i m hm_pos
+      -- Every value in {1,2,3,4} reaches 1
+      have ⟨j', hj'⟩ : ∃ j', collatz_iter j' c = 1 := by
+        interval_cases c
+        · exact ⟨0, rfl⟩       -- c = 1
+        · exact ⟨1, by native_decide⟩  -- c = 2
+        · exact ⟨7, by native_decide⟩  -- c = 3
+        · exact ⟨2, by native_decide⟩  -- c = 4
+      -- Compose: m reaches c in i steps, c reaches 1 in j' steps
+      exact ⟨j' + i, by rw [collatz_iter_add, ← hc_def, hj']⟩
+    · -- Case j < i: symmetric
+      set c := collatz_iter j m with hc_def
+      have hp : i - j ≥ 1 := by omega
+      have h_cycle : collatz_iter (i - j) c = c := by
+        have : i - j + j = i := Nat.sub_add_cancel (le_of_lt h_lt)
+        calc collatz_iter (i - j) c
+            = collatz_iter (i - j) (collatz_iter j m) := by rfl
+          _ = collatz_iter (i - j + j) m := by rw [collatz_iter_add]
+          _ = collatz_iter i m := by rw [this]
+          _ = c := heq
+      have hc_le : c ≤ 4 := by
+        by_contra h
+        push_neg at h
+        exact h_no_cycle c (i - j) h hp h_cycle
+      have hc_pos : c ≥ 1 := collatz_iter_pos j m hm_pos
+      have ⟨j', hj'⟩ : ∃ j', collatz_iter j' c = 1 := by
+        interval_cases c
+        · exact ⟨0, rfl⟩
+        · exact ⟨1, by native_decide⟩
+        · exact ⟨7, by native_decide⟩
+        · exact ⟨2, by native_decide⟩
+      exact ⟨j' + j, by rw [collatz_iter_add, ← hc_def, hj']⟩
+
 theorem collatz_conjecture : ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1 :=
   sorry

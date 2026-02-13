@@ -181,3 +181,64 @@ lemma primitives_from_distinct_generators_ne
 --proven
 lemma infinite_primitives (m : ℕ) (h2le: 2 ≤ m) : ∀ B, ∃ n, n > B ∧ IsPrimitive4x1 n m := by
   sorry
+
+/-- The odd Collatz successor of an odd number n is the odd part of 3n+1,
+    i.e., (3n+1) / 2^v₂(3n+1). This exceeds n only when n ≡ 3 (mod 4). -/
+--proven
+lemma odd_collatz_successor_gt_iff_mod4 (n : ℕ) (h_mod4 : n % 4 = 3)
+    (k : ℕ) (hk : k ≥ 1) (hk_val : (3 * n + 1) = 2 ^ k * ((3 * n + 1) / 2 ^ k))
+    (hk_odd : (3 * n + 1) / 2 ^ k % 2 = 1) :
+    ((3 * n + 1) / 2 ^ k > n ↔ n % 4 = 3) := by
+  sorry
+
+lemma collatz_iter_add (a b n : ℕ) :
+    collatz_iter (a + b) n = collatz_iter a (collatz_iter b n) := by
+  induction b generalizing n with
+  | zero => rfl
+  | succ b ih => exact ih (collatz_step n)
+
+lemma collatz_iter_mul_cycle (k n m : ℕ) (h : collatz_iter k n = n) :
+    collatz_iter (m * k) n = n := by
+  induction m with
+  | zero => simp [collatz_iter]
+  | succ m ih => rw [Nat.succ_mul, collatz_iter_add, h, ih]
+
+--proven
+private lemma collatz_iter_mem_124 (i n : ℕ) (hn : n = 1 ∨ n = 2 ∨ n = 4) :
+    collatz_iter i n = 1 ∨ collatz_iter i n = 2 ∨ collatz_iter i n = 4 := by
+  sorry
+
+lemma collatz_iter_one_le_four (i : ℕ) : collatz_iter i 1 ≤ 4 := by
+  rcases collatz_iter_mem_124 i 1 (Or.inl rfl) with h | h | h <;> omega
+
+/-- If some number greater than 4 is a fixed point of `collatz_iter k` (i.e., it lies on a
+nontrivial cycle), then the Collatz conjecture fails: not every positive natural number
+eventually reaches 1. -/
+--proven
+lemma cycle_implies_not_collatz (n k : ℕ) (hn : n > 4) (hk : k ≥ 1)
+    (hcycle : collatz_iter k n = n) :
+    ¬ ∀ (m : ℕ), m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  sorry
+
+@[simp] lemma collatz_step_zero : collatz_step 0 = 0 := by native_decide
+
+lemma collatz_iter_zero (k : ℕ) : collatz_iter k 0 = 0 := by
+  induction k with
+  | zero => rfl
+  | succ k ih => simp [collatz_iter, ih]
+
+/-- If some orbit is unbounded, the Collatz conjecture fails. -/
+--proven
+lemma unbounded_orbit_implies_not_collatz (n : ℕ)
+    (h_unbounded : ∀ B, ∃ k, collatz_iter k n > B) :
+    ¬ ∀ (m : ℕ), m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  sorry
+
+/-- If no number above 4 lies on a nontrivial cycle and every orbit is bounded,
+    then every positive natural number eventually reaches 1. -/
+--proven
+lemma bounded_no_cycle_implies_collatz
+    (h_no_cycle : ∀ n k, n > 4 → k ≥ 1 → collatz_iter k n ≠ n)
+    (h_bounded  : ∀ n, ∃ B, ∀ k, collatz_iter k n ≤ B) :
+    ∀ m, m = 0 ∨ ∃ j, collatz_iter j m = 1 := by
+  sorry
