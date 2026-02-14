@@ -3,7 +3,7 @@ import Mathlib
 set_option autoImplicit false
 
 open Finset Nat BigOperators PNat
-namespace PNat
+--namespace PNat
 variable {α M : Type*}
 variable [PartialOrder α] [CommMonoid M] {f : α → M} {a b : α}
 variable [LocallyFiniteOrder α]
