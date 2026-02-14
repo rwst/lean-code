@@ -11,3 +11,7 @@ require mathlib from git
 lean_lib «A087719-existence» where
   -- add library configuration options here
 
+lean_lib C1
+
+lean_lib C2
+
