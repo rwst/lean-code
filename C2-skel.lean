@@ -52,6 +52,14 @@ noncomputable def stopping_time (n : ℕ) : ℕ∞ :=
   else
     ⊤
 
+/-- The total stopping time of `n` under `T` is the least positive `k` such that `T_iter k n = 1`,
+    or `⊤` if no such `k` exists. -/
+noncomputable def total_stopping_time (n : ℕ) : ℕ∞ :=
+  if h : ∃ k : ℕ, k ≥ 1 ∧ T_iter k n = 1 then
+    (Nat.find h : ℕ∞)
+  else
+    ⊤
+
 private lemma T_pos {n : ℕ} (hn : n ≥ 1) : T n ≥ 1 := by
   rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · rw [T_even (by omega)]; omega
@@ -115,50 +123,17 @@ lemma finite_stopping_time_iff_collatz :
   sorry
 
 
--- proven
-/-- The Collatz graph of `T`: a directed graph on `ℕ` with an edge from `n` to `T n`. -/
-def collatz_graph : Digraph ℕ where
-  Adj n m := m = T n
+/-- Theorem A (Terras). The set `Sₖ = {n : σ(n) ≤ k}` has limiting asymptotic density `F(k)`,
+    i.e., `F(k) = lim_{x→∞} (1/x) · #{n ≤ x : σ(n) ≤ k}` exists.
+    In addition, `F(k) → 1` as `k → ∞`, so that almost all integers have a finite
+    stopping time. Terras, Riho. "On the existence of a density."
+    Acta Arithmetica 35.1 (1979): 101-102. -/
 
--- proven
-private lemma T_zero : T 0 = 0 := by rw [T_even (by omega)]
-
-private lemma T_one : T 1 = 2 := by rw [T_odd (by omega)]
-
-private lemma T_two : T 2 = 1 := by rw [T_even (by omega)]
-
--- proven
--- proven
-private lemma T_iter_one_cycle (j : ℕ) : T_iter j 1 = 1 ∨ T_iter j 1 = 2 := by
-  sorry
-
-private lemma collatz_graph_adj_iff (a b : ℕ) :
-    collatz_graph.toSimpleGraphInclusive.Adj a b ↔ a ≠ b ∧ (b = T a ∨ a = T b) := by
-  simp [Digraph.toSimpleGraphInclusive, SimpleGraph.fromRel_adj, collatz_graph]
--- proven
-
--- proven
-private lemma T_iter_reachable (k n : ℕ) :
-    collatz_graph.toSimpleGraphInclusive.Reachable n (T_iter k n) := by
-  sorry
-
--- proven
-private lemma confluence_step (i j : ℕ) (a b c : ℕ)
-    (hij : T_iter i a = T_iter j b)
-    (hadj : collatz_graph.toSimpleGraphInclusive.Adj b c) :
-    ∃ i' j', T_iter i' a = T_iter j' c := by
-  sorry
-
--- proven
-private lemma confluence_of_reachable (a b : ℕ) :
-    collatz_graph.toSimpleGraphInclusive.Reachable a b →
-    ∃ i j, T_iter i a = T_iter j b := by
-  sorry
-
-/-- The Collatz graph restricted to the positive integers is weakly connected
-    iff the Collatz conjecture holds. -/
--- proven
-lemma collatz_graph_weakly_connected_iff_collatz :
-    (∀ a b : ℕ, a ≥ 1 → b ≥ 1 → collatz_graph.toSimpleGraphInclusive.Reachable a b) ↔
-    (∀ n : ℕ, n = 0 ∨ ∃ k, collatz_iter k n = 1) := by
+theorem terras_theorem_A :
+    ∃ F : ℕ → ℝ,
+      (∀ k : ℕ, Filter.Tendsto
+        (fun x : ℕ => ((Finset.filter
+          (fun n => stopping_time n ≤ ↑k) (Finset.range x)).card : ℝ) / x)
+        Filter.atTop (nhds (F k))) ∧
+      Filter.Tendsto F Filter.atTop (nhds 1) := by
   sorry
