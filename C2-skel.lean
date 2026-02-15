@@ -126,7 +126,7 @@ lemma finite_stopping_time_iff_collatz :
 /-- Theorem A (Terras). The set `Sₖ = {n : σ(n) ≤ k}` has limiting asymptotic density `F(k)`,
     i.e., `F(k) = lim_{x→∞} (1/x) · #{n ≤ x : σ(n) ≤ k}` exists.
     In addition, `F(k) → 1` as `k → ∞`, so that almost all integers have a finite
-    stopping time. Terras, Riho. "On the existence of a density."
+    stopping time. Proved in Terras, Riho. "On the existence of a density."
     Acta Arithmetica 35.1 (1979): 101-102. -/
 
 theorem terras_theorem_A :
@@ -137,3 +137,70 @@ theorem terras_theorem_A :
         Filter.atTop (nhds (F k))) ∧
       Filter.Tendsto F Filter.atTop (nhds 1) := by
   sorry
+
+
+/-- `X_vec k n` is the `BitVec` of length `k` whose `i`-th bit (from the LSB) is `X(T^i(n))`,
+    i.e., the parity of the `i`-th iterate. -/
+def X_vec (k : ℕ) (n : ℕ) : BitVec k :=
+  BitVec.ofFnLE (fun i : Fin k => X (T_iter i.val n) == 1)
+
+@[simp]
+lemma X_vec_getElem (k n : ℕ) (i : ℕ) (hi : i < k) :
+    (X_vec k n)[i] = (X (T_iter i n) == 1) := by
+  simp [X_vec]
+
+/-- The number of odd iterates among the first `k` steps starting from `n`. -/
+def num_odd_steps (k n : ℕ) : ℕ :=
+  (Finset.range k).sum (fun i => X (T_iter i n))
+
+/-- The Garner correction term: `Q(0) = 0`, `Q(k+1) = 3^{x_k} · Q(k) + 2^k · x_k`,
+    where `x_k = X(T^k(n))`. -/
+def garner_correction : ℕ → ℕ → ℕ
+  | 0, _     => 0
+  | k + 1, n => 3 ^ X (T_iter k n) * garner_correction k n + 2 ^ k * X (T_iter k n)
+
+private lemma T_expand (m : ℕ) : 2 * T m = 3 ^ X m * m + X m := by
+  rcases Nat.even_or_odd m with ⟨k, rfl⟩ | ⟨k, rfl⟩
+  · rw [T_even (by omega), X_even (by omega)]; omega
+  · rw [T_odd (by omega), X_odd (by omega)]; omega
+
+/-- **Garner's formula** [Gar81]. After `k` steps of the Collatz map `T`,
+    `2^k · T^k(n) = 3^{S_k} · n + Q_k`
+    where `S_k` is the number of odd iterates and `Q_k` is the accumulated correction. -/
+lemma garner_formula (k n : ℕ) :
+    2 ^ k * T_iter k n = 3 ^ num_odd_steps k n * n + garner_correction k n := by
+  induction k with
+  | zero => simp [T_iter, num_odd_steps, garner_correction]
+  | succ k ih =>
+    simp only [T_iter, num_odd_steps, garner_correction, Finset.sum_range_succ]
+    have hexp : 2 ^ (k + 1) = 2 * 2 ^ k := by ring
+    rw [hexp]
+    have hT := T_expand (T_iter k n)
+    calc 2 * 2 ^ k * T (T_iter k n)
+        = 2 ^ k * (2 * T (T_iter k n)) := by ring
+      _ = 2 ^ k * (3 ^ X (T_iter k n) * T_iter k n + X (T_iter k n)) := by rw [hT]
+      _ = 3 ^ X (T_iter k n) * (2 ^ k * T_iter k n) + 2 ^ k * X (T_iter k n) := by ring
+      _ = 3 ^ X (T_iter k n) * (3 ^ num_odd_steps k n * n + garner_correction k n)
+          + 2 ^ k * X (T_iter k n) := by rw [ih]
+      _ = 3 ^ (num_odd_steps k n + X (T_iter k n)) * n
+          + (3 ^ X (T_iter k n) * garner_correction k n + 2 ^ k * X (T_iter k n)) := by
+        rw [pow_add]; ring
+
+private lemma X_eq_beq_toNat (m : ℕ) : X m = (X m == 1).toNat := by
+  rcases Nat.even_or_odd m with ⟨k, rfl⟩ | ⟨k, rfl⟩
+  · rw [X_even (by omega)]; simp
+  · rw [X_odd (by omega)]; simp
+
+/-- The popcount of a `BitVec` (sum of its bits). -/
+def bv_popcount (v : BitVec k) : ℕ :=
+  (Finset.range k).sum (fun i => if h : i < k then (v[i]).toNat else 0)
+
+lemma num_odd_steps_eq_bv_popcount (k n : ℕ) :
+    num_odd_steps k n = bv_popcount (X_vec k n) := by
+  unfold num_odd_steps bv_popcount
+  apply Finset.sum_congr rfl
+  intro i hi
+  rw [Finset.mem_range] at hi
+  rw [dif_pos hi, X_vec_getElem _ _ _ hi]
+  exact X_eq_beq_toNat (T_iter i n)
+
