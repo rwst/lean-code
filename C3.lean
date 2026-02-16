@@ -1,4 +1,3 @@
-import C1
 import C2
 import ParityVector
 
@@ -98,4 +97,3 @@ lemma E_step_strict_mono (x : ℕ) (a b : ℚ) (hab : a < b) :
     (3 ^ x : ℚ) / 2 * a + (x : ℚ) / 2 < (3 ^ x : ℚ) / 2 * b + (x : ℚ) / 2 := by
   have h3 : (3 ^ x : ℚ) / 2 > 0 := by positivity
   linarith [mul_lt_mul_of_pos_left hab h3]
-

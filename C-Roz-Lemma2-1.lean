@@ -1,4 +1,3 @@
-import C1
 import C2
 import C3
 import ParityVector
