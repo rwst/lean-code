@@ -1,5 +1,5 @@
 import C2
-import ParityVector
+import POListBool
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -14,7 +14,7 @@ open Classical
 
 /-- `V j n` is the parity vector of length `j` for the Collatz sequence starting at `n`:
     the `i`-th entry is `true` (= 1) when `T^i(n)` is odd, `false` (= 0) when even. -/
-def V (j n : ℕ) : ParityVector :=
+def V (j n : ℕ) : POListBool :=
   (List.finRange j).map (fun i => decide (X (T_iter i.val n) = 1))
 
 @[simp]

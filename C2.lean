@@ -17,12 +17,12 @@ def X (n : ℕ) : ℕ := ((1 - (-1 : ℤ)^n) / 2).toNat
 
 lemma X_even {n : ℕ} (h : n % 2 = 0) : X n = 0 := by
   obtain ⟨k, rfl⟩ := Nat.dvd_of_mod_eq_zero h
-  simp [X, pow_mul]
+  simp [X, pow_mul, Int.one_pow]
 
 lemma X_odd {n : ℕ} (h : n % 2 = 1) : X n = 1 := by
   obtain ⟨k, hk⟩ := Nat.odd_iff.mpr h
   subst hk
-  simp [X, pow_succ, pow_mul]
+  simp [X, pow_succ, pow_mul, Int.one_pow]
 
 lemma X_eq_mod (n : ℕ) : X n = n % 2 := by
   rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
