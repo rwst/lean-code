@@ -498,6 +498,66 @@ theorem exists_elementary_step_of_majorized_ne {v v' : ParityVector}
     exact hsum k hk
 
 
+-- The moment of a parity vector: sum of indices where the entry is true.
+-- An elementary swap moves a 1 leftward by one position, so moment decreases by exactly 1.
+private def moment (v : ParityVector) : ℕ :=
+  (v.mapIdx fun i b => if b then i else 0).sum
+
+-- An elementary swap moves a true entry one position left, strictly decreasing the moment
+private lemma ElementaryPrecedes_moment_lt {v u : ParityVector}
+    (h : ElementaryPrecedes v u) : moment u < moment v := by
+  obtain ⟨w1, w2⟩ := h
+  simp only [moment, List.mapIdx_append, List.sum_append, List.mapIdx_cons]
+  simp only [List.mapIdx_nil, List.sum_nil, List.sum_cons]
+  simp +arith
+
+-- Forward direction: v ≼ v' implies majorization.
+-- By induction on ReflTransGen: the refl case is trivial; for the tail case,
+-- use ElementaryPrecedes_q_eq and ElementaryPrecedes_partialSum_le at each step,
+-- then chain inequalities by transitivity.
+private lemma precedes_implies_majorization {v v' : ParityVector}
+    (h : v ≼ v') (hlen : v.length = v'.length) :
+    (∀ k, k + 2 ≤ v.length → partialSum v k ≤ partialSum v' k) ∧ q v = q v' := by
+  unfold Precedes at h
+  induction h with
+  | refl =>
+    exact ⟨fun _ _ => le_refl _, rfl⟩
+  | tail hab hstep ih =>
+    have hlen_step := ElementaryPrecedes_length_eq hstep
+    obtain ⟨ih_sum, ih_q⟩ := ih (by omega)
+    refine ⟨fun k hk => ?_, ?_⟩
+    · exact le_trans (ih_sum k hk) (ElementaryPrecedes_partialSum_le hstep k)
+    · exact ih_q.trans (ElementaryPrecedes_q_eq hstep)
+
+-- Backward direction: majorization implies v ≼ v'.
+-- By well-founded induction on moment v: if v = v' use refl; otherwise
+-- exists_elementary_step_of_majorized_ne gives u with v ≺ u and u still majorized by v';
+-- ElementaryPrecedes_moment_lt gives moment u < moment v, so IH applies to u ≼ v';
+-- transitivity then gives v ≼ v'.
+private lemma majorization_implies_precedes {v v' : ParityVector}
+    (hlen : v.length = v'.length)
+    (hsum : ∀ k, k + 2 ≤ v.length → partialSum v k ≤ partialSum v' k)
+    (hq : q v = q v') : v ≼ v' := by
+  suffices ∀ n, ∀ w : ParityVector, moment w = n → w.length = v'.length →
+      (∀ k, k + 2 ≤ w.length → partialSum w k ≤ partialSum v' k) →
+      q w = q v' → w ≼ v' from
+    this (moment v) v rfl hlen hsum hq
+  intro n
+  induction n using Nat.strong_induction_on with
+  | _ n ih =>
+    intro w hwn hlen' hsum' hq'
+    by_cases hne : w = v'
+    · subst hne; exact Relation.ReflTransGen.refl
+    · obtain ⟨u, hep, hu_sum⟩ := exists_elementary_step_of_majorized_ne hlen' hsum' hq' hne
+      have hlen_u : u.length = v'.length :=
+        (ElementaryPrecedes_length_eq hep).symm ▸ hlen'
+      have hq_u : q u = q v' :=
+        (ElementaryPrecedes_q_eq hep) ▸ hq'
+      have hmom : moment u < moment w := ElementaryPrecedes_moment_lt hep
+      have hu_prec : u ≼ v' :=
+        ih (moment u) (hwn ▸ hmom) u rfl hlen_u hu_sum hq_u
+      exact Relation.ReflTransGen.head hep hu_prec
+
 /-- **Unordered majorization characterization.** For two parity vectors `v` and `v'` of the
     same length `j`, we have `v ≼ v'` if and only if:
     (i)  `∑_{i=0}^{k} vᵢ ≤ ∑_{i=0}^{k} v'ᵢ` for all `0 ≤ k ≤ j - 2`, and
@@ -506,8 +566,9 @@ theorem exists_elementary_step_of_majorized_ne {v v' : ParityVector}
 theorem precedes_iff_majorization (v v' : ParityVector) (hlen : v.length = v'.length) :
     v ≼ v' ↔
       (∀ k, k + 2 ≤ v.length → partialSum v k ≤ partialSum v' k) ∧
-      q v = q v' := by
-  sorry
+      q v = q v' :=
+  ⟨fun h => precedes_implies_majorization h hlen,
+   fun ⟨hsum, hq⟩ => majorization_implies_precedes hlen hsum hq⟩
 
 -- Weight metric: sum of indices where v[i] = true
 -- W(v) = Σ {i | v[i] = true}
@@ -580,17 +641,50 @@ instance : PartialOrder ParityVector where
 
 /-- `ElementaryPrecedes` is irreflexive: no parity vector precedes itself. -/
 theorem elementaryPrecedes_irrefl (v : ParityVector) : ¬ ElementaryPrecedes v v := by
-  sorry
+  intro h
+  exact Nat.lt_irrefl _ (elementary_weight_decrease h)
 
 /-- `ElementaryPrecedes` is acyclic: there is no non-trivial cycle. -/
 theorem elementaryPrecedes_acyclic (v : ParityVector) :
     ¬ Relation.TransGen ElementaryPrecedes v v := by
-  sorry
+  intro h
+  exact Nat.lt_irrefl _ (transGen_weight_lt h)
 
 /-- `ElementaryPrecedes` is well-founded, i.e., there are no infinite descending chains.
     Together with the directed edges of `ElementaryPrecedes`, this makes the associated
     graph a finite directed acyclic graph (DAG). -/
+private theorem weightFrom_le (n : ℕ) (v : List Bool) :
+    weightFrom n v ≤ (n + v.length) * v.length := by
+  induction v generalizing n with
+  | nil => simp [weightFrom]
+  | cons b bs ih =>
+    simp only [weightFrom, List.length_cons]
+    have hih := ih (n + 1)
+    split
+    · -- b = true, contributes n
+      calc n + weightFrom (n + 1) bs
+          ≤ n + (n + 1 + bs.length) * bs.length := by omega
+        _ ≤ (n + (bs.length + 1)) * (bs.length + 1) := by nlinarith
+    · -- b = false, contributes 0
+      calc 0 + weightFrom (n + 1) bs
+          ≤ (n + 1 + bs.length) * bs.length := by omega
+        _ ≤ (n + (bs.length + 1)) * (bs.length + 1) := by nlinarith
+
+private theorem weight_le (v : ParityVector) : weight v ≤ v.length * v.length := by
+  have := weightFrom_le 0 v
+  simp [weight] at this ⊢
+  linarith
+
 theorem elementaryPrecedes_wellFounded : WellFounded ElementaryPrecedes := by
-  sorry
+  apply Subrelation.wf (r := InvImage (· < ·) fun v => v.length * v.length - weight v)
+  · intro a b hab
+    have hlen := ElementaryPrecedes_length_eq hab
+    have hwt := elementary_weight_decrease hab
+    have ha_bound := weight_le a
+    have hb_bound := weight_le b
+    dsimp only [InvImage]
+    rw [hlen]
+    exact Nat.sub_lt_sub_left (Nat.lt_of_lt_of_le hwt (hlen ▸ ha_bound)) hwt
+  · exact InvImage.wf _ Nat.lt_wfRel.wf
 
 end ParityVector
