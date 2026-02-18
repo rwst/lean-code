@@ -397,10 +397,76 @@ theorem elementary_step_partialSum_change {v : ParityVector} {j : ℕ}
     (h0 : v[j - 1]'(by omega) = false) (h1 : v[j] = true) :
     ∃ u, ParityVector.ElementaryPrecedes v u ∧
          (∀ k, ParityVector.partialSum u k = if k = j - 1 then ParityVector.partialSum v k + 1 else ParityVector.partialSum v k) := by
-  sorry
+  -- Decompose v into w1 ++ [false, true] ++ w2
+  have hdrop1 : v.drop (j - 1) = v[j - 1]'(by omega) :: v.drop j := by
+    have h_idx : j - 1 < v.length := by omega
+    have : v.drop (j - 1) = v[j - 1] :: v.drop ((j - 1) + 1) := List.drop_eq_getElem_cons h_idx
+    simpa [show (j - 1) + 1 = j by omega] using this
+  have hdrop2 : v.drop j = v[j] :: v.drop (j + 1) := by
+    exact List.drop_eq_getElem_cons hj
+  have hv_eq : (v : List Bool) = v.take (j - 1) ++ [false, true] ++ v.drop (j + 1) := by
+    conv_lhs => rw [← List.take_append_drop (j - 1) v]
+    rw [hdrop1, h0, hdrop2, h1]
+    simp [List.append_assoc]
+  -- Use w1, w2 as abbreviations (not set, to avoid simp recursion issues)
+  -- We work directly with the existing proof idiom from ElementaryPrecedes_partialSum_le
+  refine ⟨v.take (j - 1) ++ [true, false] ++ v.drop (j + 1), ?_, ?_⟩
+  · conv_lhs => rw [hv_eq]
+    exact ElementaryPrecedes.swap _ _
+  · -- Partial sum analysis
+    -- Abstract v.take/v.drop into w1/w2 to avoid simp recursion
+    have hw1len : (v.take (j - 1)).length = j - 1 := by simp; omega
+    -- Suffices to show a statement about abstract w1, w2
+    suffices hsuff : ∀ (w1 w2 : List Bool), w1.length = j - 1 →
+        ∀ k, partialSum (w1 ++ [true, false] ++ w2) k =
+          if k = j - 1 then partialSum (w1 ++ [false, true] ++ w2) k + 1
+          else partialSum (w1 ++ [false, true] ++ w2) k by
+      intro k
+      rw [hsuff (v.take (j - 1)) (v.drop (j + 1)) hw1len k, ← hv_eq]
+    intro w1 w2 hw1 k
+    unfold partialSum
+    rcases le_or_gt (k + 1) w1.length with hk | hk
+    · have hkne : k ≠ j - 1 := by omega
+      simp only [hkne, if_false]
+      congr 2
+      rw [List.append_assoc, List.append_assoc,
+          List.take_append_of_le_length hk, List.take_append_of_le_length hk]
+    · rcases n : k + 1 - w1.length with _ | _ | n
+      · omega
+      · have hkeq : k = j - 1 := by omega
+        subst hkeq
+        simp only [if_true]
+        rw [show j - 1 + 1 = w1.length + 1 from by omega]
+        rw [List.append_assoc, List.append_assoc,
+            List.take_append (l₁ := w1), List.take_append (l₁ := w1)]
+        simp only [List.take_of_length_le (Nat.le_succ _),
+                   List.map_append, List.sum_append]
+        norm_num [toNat_true, toNat_false]
+      · have hkne : k ≠ j - 1 := by omega
+        simp only [hkne, if_false]
+        have h2 : 2 ≤ k + 1 - w1.length := by omega
+        have hw1le : w1.length ≤ k + 1 := by omega
+        have h1_eq : List.take (k + 1) (w1 ++ [true, false] ++ w2) = w1 ++ [true, false] ++ List.take (k + 1 - w1.length - 2) w2 := by
+          rw [List.append_assoc, List.append_assoc, List.take_append (l₁ := w1),
+              List.take_of_length_le hw1le, List.take_append (l₁ := [true, false]),
+              List.take_of_length_le h2]
+          simp
+        have h2_eq : List.take (k + 1) (w1 ++ [false, true] ++ w2) = w1 ++ [false, true] ++ List.take (k + 1 - w1.length - 2) w2 := by
+          rw [List.append_assoc, List.append_assoc, List.take_append (l₁ := w1),
+              List.take_of_length_le hw1le, List.take_append (l₁ := [false, true]),
+              List.take_of_length_le h2]
+          simp
+        rw [h1_eq, h2_eq]
+        simp [List.map_append, List.sum_append, toNat_true, toNat_false]
 
 /-
 If `v` is majorized by `v'` (and `v ≠ v'`), there exists a vector `u` such that `v ≺ u` (elementary step) and `u` is still majorized by `v'`.
+
+Helper lemmas used (all proved above):
+- `exists_first_diff_zero_one`: finds index i where v[i]=0, v'[i]=1 and agree before i
+- `exists_swap_index_of_first_diff`: finds swap index j>i with v[j]=1, v[j-1]=0, strict ineq on [i,j)
+- `elementary_step_partialSum_change`: constructs u via elementary swap at j-1,j; partialSum u k = partialSum v k + 1 at k=j-1, unchanged elsewhere
+- `ElementaryPrecedes_length_eq`: swap preserves length (so u.length = v.length)
 -/
 theorem exists_elementary_step_of_majorized_ne {v v' : ParityVector}
     (hlen : v.length = v'.length)
@@ -408,7 +474,28 @@ theorem exists_elementary_step_of_majorized_ne {v v' : ParityVector}
     (hq : ParityVector.q v = ParityVector.q v')
     (hne : v ≠ v') :
     ∃ u, ParityVector.ElementaryPrecedes v u ∧ (∀ k, k + 2 ≤ u.length → ParityVector.partialSum u k ≤ ParityVector.partialSum v' k) := by
-  sorry
+  -- Step 1: Find first differing index i where v[i]=0, v'[i]=1
+  obtain ⟨i, hi_le, hi_val, hi_val', hi_prev⟩ := exists_first_diff_zero_one hlen hsum hq hne
+  -- Step 2: Find swap index j>i with v[j]=1, v[j-1]=0, strict partial sum ineq on [i,j)
+  obtain ⟨j, hj, hij, hjval, hj1val, hstrict⟩ :=
+    exists_swap_index_of_first_diff hlen hq i hi_le hi_val hi_val' hi_prev
+  -- Step 3: Construct u via elementary swap at positions j-1, j
+  obtain ⟨u, hep, hpsum⟩ := elementary_step_partialSum_change hj (by omega) hj1val hjval
+  -- Step 4: Verify majorization for u
+  refine ⟨u, hep, ?_⟩
+  have hlen_u : u.length = v.length := (ElementaryPrecedes_length_eq hep).symm
+  intro k hk
+  rw [hlen_u] at hk
+  rw [hpsum k]
+  split_ifs with heq
+  · -- k = j-1: partialSum u (j-1) = partialSum v (j-1) + 1
+    --   hstrict gives partialSum v (j-1) < partialSum v' (j-1), so +1 still fits
+    subst heq
+    have hstrict_at : partialSum v (j - 1) < partialSum v' (j - 1) :=
+      hstrict (j - 1) ⟨by omega, by omega⟩
+    omega
+  · -- k ≠ j-1: partialSum u k = partialSum v k, apply hsum directly
+    exact hsum k hk
 
 
 /-- **Unordered majorization characterization.** For two parity vectors `v` and `v'` of the
