@@ -212,7 +212,7 @@ private lemma T_expand (m : ℕ) : 2 * T m = 3 ^ X m * m + X m := by
   · rw [T_even (by omega), X_even (by omega)]; omega
   · rw [T_odd (by omega), X_odd (by omega)]; omega
 
-/-- **Garner's formula** [Gar81]. After `k` steps of the Collatz map `T`,
+/-- **Gar(k : ℕ) ner's formula** [Gar81]. After `k` steps of the Collatz map `T`,
     `2^k · T^k(n) = 3^{S_k} · n + Q_k`
     where `S_k` is the number of odd iterates and `Q_k` is the accumulated correction. -/
 lemma garner_formula (k n : ℕ) :
@@ -240,11 +240,11 @@ private lemma X_eq_beq_toNat (m : ℕ) : X m = (X m == 1).toNat := by
   · rw [X_odd (by omega)]; simp
 
 /-- The popcount of a `BitVec` (sum of its bits). -/
-def bv_popcount (v : BitVec k) : ℕ :=
+def bv_popcount (k : ℕ) (v : BitVec k) : ℕ :=
   (Finset.range k).sum (fun i => if h : i < k then (v[i]).toNat else 0)
 
 lemma num_odd_steps_eq_bv_popcount (k n : ℕ) :
-    num_odd_steps k n = bv_popcount (X_vec k n) := by
+    num_odd_steps k n = bv_popcount k (X_vec k n) := by
   unfold num_odd_steps bv_popcount
   apply Finset.sum_congr rfl
   intro i hi
@@ -294,7 +294,7 @@ lemma garner_correction_eq_sum (k n : ℕ) :
 /-- **Garner's formula** (BitVec form). `2^k · T^k(n) = 3^{popcount(X_vec k n)} · n + Q_k`. -/
 lemma garner_formula' (k n : ℕ) :
     2 ^ k * T_iter k n =
-      3 ^ bv_popcount (X_vec k n) * n + garner_correction k n := by
+      3 ^ bv_popcount k (X_vec k n) * n + garner_correction k n := by
   rw [← num_odd_steps_eq_bv_popcount]; exact garner_formula k n
 
 /-- **Garner's formula** (fully expanded). `2^k · T^k(n) = 3^{S_k} · n +

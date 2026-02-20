@@ -1,6 +1,6 @@
 import C2
 import CRoz
-import ParityVector
+import POListBool
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -25,8 +25,7 @@ lemma E_suffix_preserves_lt (k j m n : ℕ) (hkj : k ≤ j)
     by_cases hkj' : k ≤ j
     · have hX := hsuf j hkj' (by omega)
       rw [E_succ, E_succ, hX]
-      exact E_step_strict_mono _ (by rw [X_eq_mod]; omega)
-        _ _ (ih hkj' fun i hi1 hi2 => hsuf i hi1 (by omega))
+      exact E_step_strict_mono _ _ _ (ih hkj' fun i hi1 hi2 => hsuf i hi1 (by omega))
     · have : k = j + 1 := by omega
       subst this; exact hE
 
@@ -185,7 +184,7 @@ private lemma E_step_strict_mono' (b : Bool) (a1 a2 : ℚ) (h : a1 < a2) :
     E_step a1 b < E_step a2 b := by
   simp only [E_step]
   have : (0 : ℚ) < (3 : ℚ) ^ b.toNat / 2 := by positivity
-  linarith [mul_lt_mul_of_pos_left h this]
+  nlinarith [sq_nonneg (3 : ℚ)]
 
 /-- foldl E_step preserves strict inequality. -/
 private lemma foldl_E_step_lt (xs : List Bool) (a1 a2 : ℚ) (h : a1 < a2) :
@@ -207,12 +206,6 @@ private lemma E_pv_elementary_lt {v1 v2 : ParityVector}
     simp only [E_step, Bool.toNat_false, Bool.toNat_true]
     norm_num; linarith
 
-/-- `V (j+1) n` is `V j n` with one more parity bit appended. -/
-private lemma V_succ (j n : ℕ) :
-    (V (j + 1) n : List Bool) = (V j n : List Bool) ++ [decide (X (T_iter j n) = 1)] := by
-  simp only [V, List.finRange_succ_last, List.map_append, List.map_map,
-    Function.comp, Fin.val_castSucc, List.map_cons, Fin.val_last, List.map_nil]
-
 /-- `(decide (x = 1)).toNat = x` when `x ≤ 1`. -/
 private lemma bool_toNat_eq_X (x : ℕ) (hx : x ≤ 1) :
     (decide (x = 1)).toNat = x := by
@@ -223,7 +216,28 @@ private lemma E_pv_eq_E (j n : ℕ) : E_pv (V j n) = E j n := by
   induction j with
   | zero => simp [E_pv, V, E_zero]
   | succ j ih =>
-    show (V (j + 1) n : List Bool).foldl E_step 0 = E (j + 1) n
+    set b := decide (X (T_iter j n) = 1) with hb_def
+    set g : Fin (j + 1) → Bool := fun i => decide (X (T_iter i.val n) = 1) with hg_def
+    -- Key: V (j+1) n as a list equals ofFn g
+    have hV_ofFn : (V (j + 1) n : List Bool) = List.ofFn g := by
+      rw [V, List.ofFn_eq_map]
+    -- Split using ofFn_succ'
+    have hV_split : (V (j + 1) n : List Bool) =
+        List.ofFn (fun i : Fin j => g (Fin.castSucc i)) ++ [g (Fin.last j)] := by
+      rw [hV_ofFn, List.ofFn_succ', List.concat_eq_append]
+    -- The prefix is V j n
+    have hprefix : List.ofFn (fun i : Fin j => g (Fin.castSucc i)) = (V j n : List Bool) := by
+      simp [V, List.ofFn_eq_map, g, Fin.castSucc]
+    -- The last element is b
+    have hlast : g (Fin.last j) = b := by simp [g, b, Fin.last]
+    -- Now compute
+    unfold E_pv
+    rw [hV_split, hprefix, hlast, List.foldl_append, List.foldl_cons, List.foldl_nil]
+    change E_step (E_pv (V j n)) b = E (j + 1) n
+    rw [ih, E_succ, E_step]
+    have hbnat : b.toNat = X (T_iter j n) :=
+      bool_toNat_eq_X _ (by rw [X_eq_mod]; omega)
+    simp only [hbnat]
 
 /-- TransGen of ElementaryPrecedes strictly decreases E_pv. -/
 private lemma E_pv_transGen_lt {v1 v2 : ParityVector}

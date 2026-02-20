@@ -14,7 +14,7 @@ open Classical
 
 /-- `V j n` is the parity vector of length `j` for the Collatz sequence starting at `n`:
     the `i`-th entry is `true` (= 1) when `T^i(n)` is odd, `false` (= 0) when even. -/
-def V (j n : ℕ) : POListBool :=
+def V (j n : ℕ) : ParityVector :=
   (List.finRange j).map (fun i => decide (X (T_iter i.val n) = 1))
 
 @[simp]
@@ -96,4 +96,4 @@ lemma E_eq_of_V_prefix_eq (k j m n : ℕ) (hk : k ≤ j)
 lemma E_step_strict_mono (x : ℕ) (a b : ℚ) (hab : a < b) :
     (3 ^ x : ℚ) / 2 * a + (x : ℚ) / 2 < (3 ^ x : ℚ) / 2 * b + (x : ℚ) / 2 := by
   have h3 : (3 ^ x : ℚ) / 2 > 0 := by positivity
-  linarith [mul_lt_mul_of_pos_left hab h3]
+  nlinarith [sq_nonneg (3 : ℚ)]
