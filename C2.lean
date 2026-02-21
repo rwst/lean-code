@@ -60,12 +60,12 @@ noncomputable def total_stopping_time (n : ℕ) : ℕ∞ :=
   else
     ⊤
 
-private lemma T_pos {n : ℕ} (hn : n ≥ 1) : T n ≥ 1 := by
+lemma T_pos {n : ℕ} (hn : n ≥ 1) : T n ≥ 1 := by
   rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · rw [T_even (by omega)]; omega
   · rw [T_odd (by omega)]; omega
 
-private lemma T_iter_pos {n : ℕ} (hn : n ≥ 1) (k : ℕ) : T_iter k n ≥ 1 := by
+lemma T_iter_pos {n : ℕ} (hn : n ≥ 1) (k : ℕ) : T_iter k n ≥ 1 := by
   induction k with
   | zero => exact hn
   | succ k ih => exact T_pos ih
@@ -76,14 +76,14 @@ lemma T_iter_add (a b n : ℕ) : T_iter (a + b) n = T_iter a (T_iter b n) := by
   | succ a ih =>
     simp only [Nat.succ_add, T_iter, ih]
 
-private lemma collatz_step_even' {n : ℕ} (h : n % 2 = 0) : collatz_step n = n / 2 := by
+lemma collatz_step_even' {n : ℕ} (h : n % 2 = 0) : collatz_step n = n / 2 := by
   simp [collatz_step, h]
 
-private lemma collatz_step_odd' {n : ℕ} (h : n % 2 = 1) : collatz_step n = 3 * n + 1 := by
+lemma collatz_step_odd' {n : ℕ} (h : n % 2 = 1) : collatz_step n = 3 * n + 1 := by
   simp [collatz_step]; omega
 
 /-- One T step equals one or two collatz_steps. -/
-private lemma T_step_collatz (n : ℕ) :
+lemma T_step_collatz (n : ℕ) :
     ∃ j, j ≥ 1 ∧ collatz_iter j n = T n := by
   rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · exact ⟨1, le_refl _, by simp only [collatz_iter, collatz_step_even' (by omega : (k+k)%2=0),
@@ -127,7 +127,7 @@ lemma collatz_iter_to_T_iter (j n : ℕ) (hn : n ≥ 1) (hj : collatz_iter j n =
       rw [hsplit, T_iter_add _ 1] at hk'; simp only [T_iter] at hk'
       rwa [T_even (by omega)] at hk'
 
-private lemma stopping_time_ne_top_iff (n : ℕ) :
+lemma stopping_time_ne_top_iff (n : ℕ) :
     stopping_time n ≠ ⊤ ↔ ∃ k : ℕ, k ≥ 1 ∧ T_iter k n < n := by
   simp only [stopping_time]; constructor
   · intro h; split at h
@@ -137,7 +137,7 @@ private lemma stopping_time_ne_top_iff (n : ℕ) :
     · exact WithTop.natCast_ne_top _
     · rename_i h; exact absurd ⟨k, hk1, hklt⟩ h
 
-private lemma finite_stopping_descent
+lemma finite_stopping_descent
     (h : ∀ n ≥ 2, stopping_time n ≠ ⊤) (n : ℕ) (hn : n ≥ 1) :
     ∃ k, T_iter k n = 1 := by
   induction n using Nat.strongRecOn with
@@ -207,7 +207,7 @@ def garner_correction : ℕ → ℕ → ℕ
   | 0, _     => 0
   | k + 1, n => 3 ^ X (T_iter k n) * garner_correction k n + 2 ^ k * X (T_iter k n)
 
-private lemma T_expand (m : ℕ) : 2 * T m = 3 ^ X m * m + X m := by
+lemma T_expand (m : ℕ) : 2 * T m = 3 ^ X m * m + X m := by
   rcases Nat.even_or_odd m with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · rw [T_even (by omega), X_even (by omega)]; omega
   · rw [T_odd (by omega), X_odd (by omega)]; omega
@@ -234,7 +234,7 @@ lemma garner_formula (k n : ℕ) :
           + (3 ^ X (T_iter k n) * garner_correction k n + 2 ^ k * X (T_iter k n)) := by
         rw [pow_add]; ring
 
-private lemma X_eq_beq_toNat (m : ℕ) : X m = (X m == 1).toNat := by
+lemma X_eq_beq_toNat (m : ℕ) : X m = (X m == 1).toNat := by
   rcases Nat.even_or_odd m with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · rw [X_even (by omega)]; simp
   · rw [X_odd (by omega)]; simp
@@ -252,12 +252,12 @@ lemma num_odd_steps_eq_bv_popcount (k n : ℕ) :
   rw [dif_pos hi, X_vec_getElem _ _ _ hi]
   exact X_eq_beq_toNat (T_iter i n)
 
-private lemma num_odd_steps_mono {j k : ℕ} (hjk : j ≤ k) (n : ℕ) :
+lemma num_odd_steps_mono {j k : ℕ} (hjk : j ≤ k) (n : ℕ) :
     num_odd_steps j n ≤ num_odd_steps k n := by
   unfold num_odd_steps
   exact Finset.sum_le_sum_of_subset (Finset.range_mono hjk)
 
-private lemma num_odd_steps_succ (k n : ℕ) :
+lemma num_odd_steps_succ (k n : ℕ) :
     num_odd_steps (k + 1) n = num_odd_steps k n + X (T_iter k n) := by
   simp [num_odd_steps, Finset.sum_range_succ]
 
@@ -337,7 +337,7 @@ lemma garner_formula_E (k n : ℕ) :
   exact Finset.sum_range (fun j : ℕ => X (T_iter j n) * 2 ^ j *
     3 ^ (num_odd_steps k n - num_odd_steps (j + 1) n))
 
-private lemma num_odd_steps_eq_Iic_sum (k n : ℕ) (j : Fin k) :
+lemma num_odd_steps_eq_Iic_sum (k n : ℕ) (j : Fin k) :
     num_odd_steps (j.val + 1) n = (Finset.Iic j).sum (E_vec k n) := by
   simp only [num_odd_steps, E_vec]
   apply (Finset.sum_nbij (fun i => i.val) _ _ _ _).symm
@@ -363,29 +363,29 @@ lemma garner_formula_E' (k n : ℕ) :
 
 -- ===== Helper lemmas for terras_periodicity =====
 
-private lemma T_iter_succ_right (i n : ℕ) : T_iter (i + 1) n = T_iter i (T n) := by
+lemma T_iter_succ_right (i n : ℕ) : T_iter (i + 1) n = T_iter i (T n) := by
   rw [T_iter_add i 1 n]; rfl
 
-private lemma E_vec_head (k n : ℕ) :
+lemma E_vec_head (k n : ℕ) :
     E_vec (k + 1) n ⟨0, Nat.zero_lt_succ k⟩ = X n := by
   simp [E_vec_apply, T_iter]
 
-private lemma E_vec_tail (k n : ℕ) (i : Fin k) :
+lemma E_vec_tail (k n : ℕ) (i : Fin k) :
     E_vec (k + 1) n ⟨i.val + 1, Nat.succ_lt_succ i.isLt⟩ = E_vec k (T n) i := by
   simp only [E_vec_apply, T_iter_succ_right]
 
-private lemma X_congr {m n : ℕ} (h : m % 2 = n % 2) : X m = X n := by
+lemma X_congr {m n : ℕ} (h : m % 2 = n % 2) : X m = X n := by
   rw [X_eq_mod, X_eq_mod, h]
 
-private lemma int_dvd_sub_of_mod_eq {a b c : ℕ} (h : a % c = b % c) :
+lemma int_dvd_sub_of_mod_eq {a b c : ℕ} (h : a % c = b % c) :
     (c : ℤ) ∣ ((a : ℤ) - (b : ℤ)) :=
   Int.dvd_iff_emod_eq_zero.mpr (Int.emod_eq_emod_iff_emod_sub_eq_zero.mp (by exact_mod_cast h))
 
-private lemma nat_mod_eq_of_int_dvd_sub {a b c : ℕ} (h : (c : ℤ) ∣ ((a : ℤ) - (b : ℤ))) :
+lemma nat_mod_eq_of_int_dvd_sub {a b c : ℕ} (h : (c : ℤ) ∣ ((a : ℤ) - (b : ℤ))) :
     a % c = b % c := by
   exact_mod_cast Int.emod_eq_emod_iff_emod_sub_eq_zero.mpr (Int.dvd_iff_emod_eq_zero.mp h)
 
-private lemma parity_of_mod_pow_succ {k m n : ℕ} (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
+lemma parity_of_mod_pow_succ {k m n : ℕ} (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
     m % 2 = n % 2 := by
   have h1 : m % 2 ^ (k + 1) % 2 = m % 2 :=
     Nat.mod_mod_of_dvd m (dvd_pow_self 2 (Nat.succ_ne_zero k))
@@ -393,7 +393,7 @@ private lemma parity_of_mod_pow_succ {k m n : ℕ} (h : m % 2 ^ (k + 1) = n % 2 
     Nat.mod_mod_of_dvd n (dvd_pow_self 2 (Nat.succ_ne_zero k))
   omega
 
-private lemma T_congr (k m n : ℕ) (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
+lemma T_congr (k m n : ℕ) (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
     T m % 2 ^ k = T n % 2 ^ k := by
   have hparity := parity_of_mod_pow_succ h
   have hX : X m = X n := X_congr hparity
@@ -414,7 +414,7 @@ private lemma T_congr (k m n : ℕ) (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
   exact nat_mod_eq_of_int_dvd_sub h_dvd_final
 
 -- Backward direction: m % 2^k = n % 2^k → E_vec k m = E_vec k n
-private lemma terras_backward (k : ℕ) : ∀ m n : ℕ, m % 2 ^ k = n % 2 ^ k →
+lemma terras_backward (k : ℕ) : ∀ m n : ℕ, m % 2 ^ k = n % 2 ^ k →
     E_vec k m = E_vec k n := by
   induction k with
   | zero => intro m n _; ext i; exact i.elim0
@@ -434,13 +434,13 @@ private lemma terras_backward (k : ℕ) : ∀ m n : ℕ, m % 2 ^ k = n % 2 ^ k �
       simpa [E_vec_apply] using this
 
 -- E_vec restriction: equal on k+1 implies equal on k
-private lemma E_vec_restrict (k m n : ℕ) (h : E_vec (k + 1) m = E_vec (k + 1) n) :
+lemma E_vec_restrict (k m n : ℕ) (h : E_vec (k + 1) m = E_vec (k + 1) n) :
     E_vec k m = E_vec k n := by
   ext ⟨i, hi⟩
   have := congr_fun h ⟨i, by omega⟩
   simpa [E_vec_apply] using this
 
-private lemma num_odd_steps_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
+lemma num_odd_steps_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
     num_odd_steps k m = num_odd_steps k n := by
   simp only [num_odd_steps]
   apply Finset.sum_congr rfl
@@ -449,7 +449,7 @@ private lemma num_odd_steps_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec 
   have := congr_fun h ⟨i, hi⟩
   simpa [E_vec_apply] using this
 
-private lemma garner_correction_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
+lemma garner_correction_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
     garner_correction k m = garner_correction k n := by
   induction k with
   | zero => simp [garner_correction]
@@ -461,11 +461,11 @@ private lemma garner_correction_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_
       simpa [E_vec_apply] using this
     rw [hXk, ih hk]
 
-private lemma coprime_pow_three_pow_two (s k : ℕ) : Nat.Coprime (3 ^ s) (2 ^ k) := by
+lemma coprime_pow_three_pow_two (s k : ℕ) : Nat.Coprime (3 ^ s) (2 ^ k) := by
   apply Nat.Coprime.pow; decide
 
 -- Forward direction: E_vec k m = E_vec k n → m % 2^k = n % 2^k
-private lemma terras_forward (k m n : ℕ) (_hm : m ≥ 1) (_hn : n ≥ 1)
+lemma terras_forward (k m n : ℕ) (_hm : m ≥ 1) (_hn : n ≥ 1)
     (h : E_vec k m = E_vec k n) : m % 2 ^ k = n % 2 ^ k := by
   have hS := num_odd_steps_eq_of_E_vec_eq k m n h
   have hQ := garner_correction_eq_of_E_vec_eq k m n h
@@ -547,19 +547,19 @@ theorem terras_CST_conjecture :
 
 /-- The CST conjecture implies there are no non-trivial cycles under `T`. -/
 -- Helper: T preserves positivity (reproved since T_pos is private in C2)
-private lemma T_pos' {n : ℕ} (hn : n ≥ 1) : T n ≥ 1 := by
+lemma T_pos' {n : ℕ} (hn : n ≥ 1) : T n ≥ 1 := by
   rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
   · rw [T_even (by omega)]; omega
   · rw [T_odd (by omega)]; omega
 
 -- Helper: T_iter preserves positivity
-private lemma T_iter_pos' {n : ℕ} (hn : n ≥ 1) (k : ℕ) : T_iter k n ≥ 1 := by
+lemma T_iter_pos' {n : ℕ} (hn : n ≥ 1) (k : ℕ) : T_iter k n ≥ 1 := by
   induction k with
   | zero => exact hn
   | succ k ih => exact T_pos' ih
 
 -- Helper: T_iter on values ≤ 2 stays ≤ 2
-private lemma T_iter_le_two {n : ℕ} (hn : n ≤ 2) (k : ℕ) : T_iter k n ≤ 2 := by
+lemma T_iter_le_two {n : ℕ} (hn : n ≤ 2) (k : ℕ) : T_iter k n ≤ 2 := by
   induction k with
   | zero => simpa [T_iter]
   | succ k ih =>

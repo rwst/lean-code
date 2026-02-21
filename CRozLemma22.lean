@@ -57,7 +57,6 @@ lemma R_succ_odd (q : ℕ) : R (q + 1) = (3 * R q + 1) / 2 := by
     For every positive integers `j` and `n`, writing `q = num_odd_steps j n`,
     we have `(3^q - 2^q) / 2^j ≤ E_j(n) ≤ (3^q - 2^q) / 2^q`. -/
 theorem E_bounds (j n : ℕ) (hj : 0 < j) :
-theorem E_bounds (j n : ℕ) (hj : 0 < j) :
     let q := num_odd_steps j n
     L j q ≤ E j n ∧ E j n ≤ R q := by
   induction j with
