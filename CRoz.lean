@@ -494,8 +494,39 @@ lemma dens_strict_mono (v : ℝ) (h_irr : Irrational v) (n : ℕ) (hn : 1 ≤ n)
       have h_dm2 : 0 < (GenContFract.of v).dens (m + 2) := dens_pos v (m + 2)
       nlinarith
 
-lemma convs_even_lt_xi (n : ℕ) : (GenContFract.of ξ).convs (2 * n) < ξ :=
-  sorry
+lemma convs_even_lt_xi (n : ℕ) : (GenContFract.of ξ).convs (2 * n) < ξ := by
+  have h_stream_some : ∃ ifp, GenContFract.IntFractPair.stream ξ (2 * n) = some ifp := by
+    rcases n with _ | n'
+    · exact ⟨GenContFract.IntFractPair.of ξ, rfl⟩
+    · have h := not_terminated ξ irrational_xi (2 * n' + 1)
+      have h2 : GenContFract.IntFractPair.stream ξ (2 * n' + 1 + 1) ≠ none := mt GenContFract.of_terminatedAt_n_iff_succ_nth_intFractPair_stream_eq_none.mpr h
+      have h3 : GenContFract.IntFractPair.stream ξ (2 * (n' + 1)) ≠ none := by
+        have : 2 * n' + 1 + 1 = 2 * (n' + 1) := by omega
+        rwa [this] at h2
+      rw [← Option.ne_none_iff_exists']
+      exact h3
+  obtain ⟨ifp, h_ifp⟩ := h_stream_some
+  have h_not_term := not_terminated ξ irrational_xi (2 * n)
+  have h_fr_ne_zero : ifp.fr ≠ 0 := by
+    intro h_zero
+    have h_stream_succ : GenContFract.IntFractPair.stream ξ (2 * n + 1) = none := by
+      simp [GenContFract.IntFractPair.stream, h_ifp, h_zero]
+    exact h_not_term (GenContFract.of_terminatedAt_n_iff_succ_nth_intFractPair_stream_eq_none.mpr h_stream_succ)
+  have h_eq := GenContFract.sub_convs_eq h_ifp
+  have h_sub_pos : 0 < ξ - (GenContFract.of ξ).convs (2 * n) := by
+    rw [h_eq]
+    rw [if_neg h_fr_ne_zero]
+    have h_sign : (-1 : ℝ) ^ (2 * n) = 1 := by simp
+    rw [h_sign]
+    apply one_div_pos.mpr
+    have hB : 0 < ((GenContFract.of ξ).contsAux (2 * n + 1)).b := dens_pos ξ (2 * n)
+    have hpB : 0 ≤ ((GenContFract.of ξ).contsAux (2 * n)).b := GenContFract.zero_le_of_contsAux_b
+    have h_fr_pos : 0 < ifp.fr⁻¹ := by
+      have h1 : 0 ≤ ifp.fr := GenContFract.IntFractPair.nth_stream_fr_nonneg h_ifp
+      have h2 : 0 < ifp.fr := lt_of_le_of_ne h1 h_fr_ne_zero.symm
+      positivity
+    positivity
+  linarith
 
 lemma tendsto_convs (v : ℝ) : Filter.Tendsto (fun n => (GenContFract.of v).convs n) Filter.atTop (nhds v) := by
   exact GenContFract.of_convergence v
@@ -517,10 +548,10 @@ lemma approximation_ineq (n : ℕ) (hn : 1 ≤ n) :
     This follows from the alternating nature of continued fraction convergents. -/
 lemma infinite_rat_approx_from_below :
     {q : ℚ | (q : ℝ) < ξ ∧ |ξ - q| < 1 / (q.den : ℝ) ^ 2}.Infinite := by
-  let f : ℕ → ℚ := fun k => Classical.choose (convergent_rat_exists ξ irrational_xi (2 * k + 2))
+  let f : ℕ → ℚ := fun k => Classical.choose (convergent_rat_exists ξ (2 * k + 2))
   have hf : ∀ k, (f k : ℝ) = (GenContFract.of ξ).convs (2 * k + 2) ∧ ((f k).den : ℝ) ≤ (GenContFract.of ξ).dens (2 * k + 2) := by
     intro k
-    exact Classical.choose_spec (convergent_rat_exists ξ irrational_xi (2 * k + 2))
+    exact Classical.choose_spec (convergent_rat_exists ξ (2 * k + 2))
 
   have hinS : ∀ k, f k ∈ {q : ℚ | (q : ℝ) < ξ ∧ |ξ - q| < 1 / (q.den : ℝ) ^ 2} := by
     intro k
@@ -544,7 +575,7 @@ lemma infinite_rat_approx_from_below :
 
   have htendsto : Filter.Tendsto (fun k => (f k : ℝ)) Filter.atTop (nhds ξ) := by
     have h1 : Filter.Tendsto (fun k => (GenContFract.of ξ).convs (2 * k + 2)) Filter.atTop (nhds ξ) :=
-      Filter.Tendsto.comp (tendsto_convs ξ irrational_xi) (Filter.tendsto_atTop_mono (fun k => by linarith : ∀ k, k ≤ 2 * k + 2) Filter.tendsto_id)
+      Filter.Tendsto.comp (tendsto_convs ξ) (Filter.tendsto_atTop_mono (fun k => by linarith : ∀ k, k ≤ 2 * k + 2) Filter.tendsto_id)
     convert h1 using 1
     ext k
     exact (hf k).1
