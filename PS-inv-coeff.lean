@@ -17,6 +17,10 @@ open Polynomial PowerSeries BigOperators
 
 variable {K : Type*} [Field K]
 
+/-~!
+NOTE. This code would greatly benefit if RatFunc were an abbrev. Search Zulip for that.
+-/
+
 /-! This code bridges the gap between RatFunc (where partial fractions happen) and PowerSeries
 (where you want the coefficients), and introduces the specific polynomials required for
 the "coefficient formula."
