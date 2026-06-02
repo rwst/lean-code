@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ralf/lean-code/schema/theoremdb.schema.json",
+  "title": "Theorem database extract",
+  "description": "Canonical JSON artifact produced by the Lean extractor. Normalized node/edge form: declarations and informal-results are nodes; states_with / formal_uses / informal_uses are edges. SQLite and Kuzu are both loaded from this single artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated", "declarations", "informal_results", "groups", "edges"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Semantic version of THIS schema. Bump on any breaking change to record shapes.",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "examples": ["1.0"]
+    },
+    "generated": {
+      "type": "object",
+      "description": "Provenance of this extract.",
+      "additionalProperties": false,
+      "required": ["git_commit", "lean_toolchain"],
+      "properties": {
+        "git_commit": { "type": "string", "description": "Commit of the corpus the extract was built from." },
+        "lean_toolchain": { "type": "string", "examples": ["leanprover/lean4:v4.27.0"] },
+        "timestamp": { "type": "string", "format": "date-time", "description": "ISO-8601 build time (optional)." }
+      }
+    },
+    "declarations": {
+      "type": "array",
+      "description": "Primary nodes: one per Lean theorem/lemma/def. Custom defs targeted by states_with also appear here.",
+      "items": { "$ref": "#/$defs/declaration" }
+    },
+    "informal_results": {
+      "type": "array",
+      "description": "Second node class: registry stubs for real-world results not yet formalized.",
+      "items": { "$ref": "#/$defs/informalResult" }
+    },
+    "groups": {
+      "type": "array",
+      "description": "Deduplicated rollup of problem-level facts (ref / attribution / extern) by group key, plus drift detection. Derived; not authored.",
+      "items": { "$ref": "#/$defs/group" }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Single source of truth for dependency edges. A declaration's deps are recovered by filtering on `from`. Not duplicated inline on declarations.",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "stats": {
+      "type": "object",
+      "description": "Optional summary counts for sanity-checking an extract.",
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+    "leanName": {
+      "type": "string",
+      "description": "Fully-qualified Lean declaration name.",
+      "minLength": 1,
+      "examples": ["Erdos124.erdos124.zero", "Erdos124.sumsOfDistinctPowers"]
+    },
+
+    "attribution": {
+      "type": "object",
+      "description": "A who/when credit. `who` is a plain string (person-name fragmentation accepted; see plan.md). `year` optional.",
+      "additionalProperties": false,
+      "required": ["who"],
+      "properties": {
+        "who": { "type": "string", "minLength": 1 },
+        "year": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "decl_kind", "module", "formalization"],
+      "properties": {
+        "name": { "$ref": "#/$defs/leanName", "description": "Primary key." },
+        "decl_kind": {
+          "type": "string",
+          "enum": ["theorem", "lemma", "def", "abbrev", "example", "instance"],
+          "description": "Lean declaration keyword."
+        },
+        "module": { "type": "string", "description": "Source module, e.g. Corpus.ErdosProblems.124." },
+        "category": {
+          "anyOf": [{ "$ref": "#/$defs/category" }, { "type": "null" }],
+          "description": "null when the declaration carries no `category` attribute (e.g. a bare def)."
+        },
+        "ams": {
+          "type": "array",
+          "description": "AMS subject codes (the integers from @[AMS n]).",
+          "items": { "type": "integer", "minimum": 0, "maximum": 97 },
+          "uniqueItems": true
+        },
+        "statement_tex": {
+          "type": ["string", "null"],
+          "description": "The /-- docstring -/ verbatim: the LaTeX statement and gloss. `refs` pin its provenance."
+        },
+        "type": {
+          "type": ["string", "null"],
+          "description": "Pretty-printed Lean type of the declaration."
+        },
+        "refs": {
+          "type": "array",
+          "description": "Opaque reference strings from @[ref \"...\"]. Decoration, NOT graph nodes; no validation, may fragment.",
+          "items": { "type": "string" }
+        },
+        "extern": {
+          "type": "array",
+          "description": "Typed external identifiers from @[extern ...], e.g. \"erdosproblems.com/124\", \"OEIS:A000045\".",
+          "items": { "type": "string" }
+        },
+        "group": {
+          "type": ["string", "null"],
+          "description": "Variant-cluster key from @[group \"...\"]. null for a standalone declaration."
+        },
+        "conjectured_by": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/attribution" }
+        },
+        "solved_by": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/attribution" }
+        },
+        "formalization": { "$ref": "#/$defs/formalization" }
+      }
+    },
+
+    "category": {
+      "type": "object",
+      "description": "Inherited from the formal-conjectures `category` attribute.",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["textbook", "research", "test", "API"]
+        },
+        "status": {
+          "type": ["string", "null"],
+          "enum": ["open", "solved", null],
+          "description": "Required when kind=research (open|solved); null otherwise."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "research" } } },
+          "then": { "properties": { "status": { "enum": ["open", "solved"] } }, "required": ["status"] }
+        }
+      ]
+    },
+
+    "formalization": {
+      "type": "object",
+      "description": "Auto-derived from the kernel; never authored. Sourced from `#print axioms`.",
+      "additionalProperties": false,
+      "required": ["uses_sorry", "status", "axioms"],
+      "properties": {
+        "uses_sorry": {
+          "type": "boolean",
+          "description": "True iff the proof term depends on `sorryAx` (the machine-checkable 'stated only' flag)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["stated_only", "proved"],
+          "description": "'stated_only' iff uses_sorry; else 'proved'."
+        },
+        "axioms": {
+          "type": "array",
+          "description": "Axioms the proof depends on, e.g. sorryAx, propext, Classical.choice, Quot.sound.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "informalResult": {
+      "type": "object",
+      "description": "Registry node: a real-world result with no Lean Name (yet). Target of informal_uses edges.",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Canonical registry key, e.g. \"riemann-hypothesis\". Primary key. informal_uses references this.",
+          "minLength": 1
+        },
+        "statement_tex": { "type": ["string", "null"] },
+        "refs": { "type": "array", "items": { "type": "string" } },
+        "formalized_as": {
+          "anyOf": [{ "$ref": "#/$defs/leanName" }, { "type": "null" }],
+          "description": "Once promoted/formalized, the Lean declaration that now states this. Links the string node to a real declaration."
+        }
+      }
+    },
+
+    "group": {
+      "type": "object",
+      "description": "Derived rollup of one variant cluster. Problem-level facts are authored on every member declaration; the extractor deduplicates them here and reports disagreement in `conflicts`.",
+      "additionalProperties": false,
+      "required": ["key", "members"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "members": {
+          "type": "array",
+          "description": "Declaration names in this group.",
+          "items": { "$ref": "#/$defs/leanName" },
+          "minItems": 1
+        },
+        "refs": { "type": "array", "items": { "type": "string" }, "description": "Union of member refs." },
+        "extern": { "type": "array", "items": { "type": "string" } },
+        "conjectured_by": { "type": "array", "items": { "$ref": "#/$defs/attribution" } },
+        "solved_by": { "type": "array", "items": { "$ref": "#/$defs/attribution" } },
+        "conflicts": {
+          "type": "array",
+          "description": "Group-consistency lint output: problem-level fields whose values disagree across members.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "values"],
+            "properties": {
+              "field": { "type": "string", "enum": ["refs", "extern", "conjectured_by", "solved_by"] },
+              "values": {
+                "type": "object",
+                "description": "Map of member name -> that member's value for the conflicting field.",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "from", "to", "to_type", "resolved"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["states_with", "formal_uses", "informal_uses"],
+          "description": "states_with: auto, from type's custom constants. formal_uses: manual, proof-level, Name target. informal_uses: manual, registry-key target."
+        },
+        "from": { "$ref": "#/$defs/leanName", "description": "The declaration the edge originates from." },
+        "to": {
+          "type": "string",
+          "description": "A Lean Name (states_with, formal_uses) or an informal-result registry key (informal_uses)."
+        },
+        "to_type": {
+          "type": "string",
+          "enum": ["declaration", "informal_result"],
+          "description": "Which node class `to` references. declaration for states_with/formal_uses; informal_result for informal_uses."
+        },
+        "resolved": {
+          "type": "boolean",
+          "description": "True iff `to` resolves to an existing node. Always true for states_with/formal_uses (build enforces). May be false for informal_uses (unknown registry key -> build warning)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "enum": ["states_with", "formal_uses"] } } },
+          "then": { "properties": { "to_type": { "const": "declaration" }, "resolved": { "const": true } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "informal_uses" } } },
+          "then": { "properties": { "to_type": { "const": "informal_result" } } }
+        }
+      ]
+    }
+  }
+}

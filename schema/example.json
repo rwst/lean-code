@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0",
+  "generated": {
+    "git_commit": "0000000000000000000000000000000000000000",
+    "lean_toolchain": "leanprover/lean4:v4.27.0",
+    "timestamp": "2026-06-02T00:00:00Z"
+  },
+
+  "declarations": [
+    {
+      "name": "Corpus.Erdos124.sumsOfDistinctPowers",
+      "decl_kind": "def",
+      "module": "Corpus.ErdosProblems.124",
+      "category": { "kind": "API", "status": null },
+      "ams": [11],
+      "statement_tex": "The set of integers which are the sum of distinct powers $d^i$ with $i \\ge k$.",
+      "type": "ℕ → ℕ → Set ℕ",
+      "refs": [],
+      "extern": [],
+      "group": "erdos124",
+      "conjectured_by": [],
+      "solved_by": [],
+      "formalization": { "uses_sorry": false, "status": "proved", "axioms": [] }
+    },
+    {
+      "name": "Corpus.Erdos124.erdos124.zero",
+      "decl_kind": "lemma",
+      "module": "Corpus.ErdosProblems.124",
+      "category": { "kind": "research", "status": "solved" },
+      "ams": [11],
+      "statement_tex": "Let $3 \\le d_1 < d_2 < \\dots < d_r$ be integers such that $\\sum_{1 \\le i \\le r}\\frac{1}{d_i-1} \\ge 1$. Can all sufficiently large integers be written as a sum $\\sum_i c_i a_i$ where $c_i \\in \\{0,1\\}$ and $a_i$ has only the digits $0,1$ in base $d_i$? Conjectured by Erdős, solved by Boris Alexeev using Aristotle.",
+      "type": "answer(True) ↔ ∀ D : Finset ℕ, (∀ d ∈ D, 3 ≤ d) → 1 ≤ ∑ d ∈ D, (d - 1 : ℚ)⁻¹ → ∀ᶠ n in atTop, n ∈ ∑ d ∈ D, sumsOfDistinctPowers d 0",
+      "refs": ["Er97"],
+      "extern": ["erdosproblems.com/124"],
+      "group": "erdos124",
+      "conjectured_by": [{ "who": "Erdős", "year": 1997 }],
+      "solved_by": [{ "who": "Boris Alexeev", "year": 2024 }],
+      "formalization": { "uses_sorry": true, "status": "stated_only", "axioms": ["sorryAx"] }
+    },
+    {
+      "name": "Corpus.Erdos124.erdos124.ne_zero",
+      "decl_kind": "lemma",
+      "module": "Corpus.ErdosProblems.124",
+      "category": { "kind": "research", "status": "open" },
+      "ams": [11],
+      "statement_tex": "Let $k \\ne 0$ and $3 \\le d_1 < \\dots < d_r$ be integers of gcd $1$ such that $\\sum_i \\frac{1}{d_i-1} \\ge 1$. Can all sufficiently large integers be written as $\\sum_i c_i a_i$ with $c_i \\in \\{0,1\\}$ and $a_i$ divisible by $d_i^k$ with only digits $0,1$ in base $d_i$? Conjectured by Burr, Erdős, Graham, and Li.",
+      "type": "answer(sorry) ↔ ∀ k ≠ 0, ∀ D : Finset ℕ, (∀ d ∈ D, 3 ≤ d) → 1 ≤ ∑ d ∈ D, (d - 1 : ℚ)⁻¹ → D.gcd id = 1 → ∀ᶠ n in atTop, n ∈ ∑ d ∈ D, sumsOfDistinctPowers d k",
+      "refs": ["BEGL96"],
+      "extern": ["erdosproblems.com/124"],
+      "group": "erdos124",
+      "conjectured_by": [
+        { "who": "Burr", "year": 1996 },
+        { "who": "Erdős", "year": 1996 },
+        { "who": "Graham", "year": 1996 },
+        { "who": "Li", "year": 1996 }
+      ],
+      "solved_by": [],
+      "formalization": { "uses_sorry": true, "status": "stated_only", "axioms": ["sorryAx"] }
+    }
+  ],
+
+  "informal_results": [
+    {
+      "key": "pomerance-base-density-converse",
+      "statement_tex": "If $3 \\le d_1 < \\dots < d_r$ are such that all large integers are representable, then $\\sum_i \\frac{1}{d_i-1} \\ge 1$.",
+      "refs": ["BEGL96"],
+      "formalized_as": null
+    }
+  ],
+
+  "groups": [
+    {
+      "key": "erdos124",
+      "members": [
+        "Corpus.Erdos124.sumsOfDistinctPowers",
+        "Corpus.Erdos124.erdos124.zero",
+        "Corpus.Erdos124.erdos124.ne_zero"
+      ],
+      "refs": ["Er97", "BEGL96"],
+      "extern": ["erdosproblems.com/124"],
+      "conjectured_by": [
+        { "who": "Erdős", "year": 1997 },
+        { "who": "Erdős", "year": 1996 },
+        { "who": "Burr", "year": 1996 },
+        { "who": "Graham", "year": 1996 },
+        { "who": "Li", "year": 1996 }
+      ],
+      "solved_by": [{ "who": "Boris Alexeev", "year": 2024 }],
+      "conflicts": []
+    }
+  ],
+
+  "edges": [
+    {
+      "kind": "states_with",
+      "from": "Corpus.Erdos124.erdos124.zero",
+      "to": "Corpus.Erdos124.sumsOfDistinctPowers",
+      "to_type": "declaration",
+      "resolved": true
+    },
+    {
+      "kind": "states_with",
+      "from": "Corpus.Erdos124.erdos124.ne_zero",
+      "to": "Corpus.Erdos124.sumsOfDistinctPowers",
+      "to_type": "declaration",
+      "resolved": true
+    },
+    {
+      "kind": "formal_uses",
+      "from": "Corpus.Erdos124.erdos124.ne_zero",
+      "to": "Corpus.Erdos124.erdos124.zero",
+      "to_type": "declaration",
+      "resolved": true
+    },
+    {
+      "kind": "informal_uses",
+      "from": "Corpus.Erdos124.erdos124.ne_zero",
+      "to": "pomerance-base-density-converse",
+      "to_type": "informal_result",
+      "resolved": true
+    }
+  ],
+
+  "stats": {
+    "declarations": 3,
+    "informal_results": 1,
+    "groups": 1,
+    "edges": { "states_with": 2, "formal_uses": 1, "informal_uses": 1 },
+    "by_status": { "stated_only": 2, "proved": 1 }
+  }
+}
