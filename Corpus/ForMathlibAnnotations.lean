@@ -7,6 +7,8 @@ import ForMathlib.Analysis.Equidistribution.ModOne
 import ForMathlib.Data.Real.NearestInt
 import ForMathlib.NumberTheory.Lacunary
 import ForMathlib.NumberTheory.PisotNumber
+import ForMathlib.LinearAlgebra.Matrix.Hankel
+import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 import ForMathlib.RingTheory.PowerSeries.Rationality
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
@@ -20,8 +22,11 @@ depend on the corpus annotation attributes. This file applies the database
 command, so they extract as annotated nodes without coupling `ForMathlib` to
 `Corpus.Util.Attributes`.
 
-All are tagged `category API` (supporting notions/lemmas for the corpus) with subject
-`AMS 11` (number theory; the power-series block is linear-recurrence theory, 11B37).
+All are tagged `category API` (supporting notions/lemmas for the corpus). The subject is
+`AMS 11` (number theory; the power-series block is linear-recurrence theory, 11B37), except the
+pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`. The
+linear-algebra and power-series blocks additionally carry the literature reference `ref "Ber92"`
+(Bertin, *Pisot and Salem Numbers*, 1992; the key is expanded in the relevant module docstrings).
 
 Exception: `ForMathlib/NumberTheory/ContinuedFractions/Lagrange.lean` carries its
 annotations in-file (`lagrange` is `research solved`), so it is not listed here.
@@ -41,10 +46,20 @@ attribute [category API, AMS 11]
 -- `ForMathlib/NumberTheory/PisotNumber.lean`
 attribute [category API, AMS 11] IsPisot isPisot_goldenRatio
 
+-- `ForMathlib/LinearAlgebra/Matrix/Hankel.lean`
+-- [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
+attribute [category API, AMS 15, ref "Ber92"]
+  Matrix.hankel Matrix.hankel_apply Matrix.hankel_isSymm
+  Matrix.kroneckerDet Matrix.kroneckerDet_def
+
+-- `ForMathlib/LinearAlgebra/Matrix/Determinant/AntiDiagonal.lean`
+attribute [category API, AMS 15, ref "Ber92"] Matrix.det_eq_unit_mul_pow_of_antidiag_const
+
 -- `ForMathlib/RingTheory/PowerSeries/Rationality.lean`
-attribute [category API, AMS 11]
+-- [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
+attribute [category API, AMS 11, ref "Ber92"]
   IsRationalSeries coeff_coe_mul IsRationalSeries.exists_recurrence
   exists_recurrence.isRationalSeries isRationalSeries_iff_exists_recurrence
-  hankelMatrix hankelMatrix_apply kroneckerDet det_eq_unit_mul_pow_of_antidiag_const
+  hankelMatrix hankelMatrix_apply kroneckerDet
   kroneckerDet_step eq_zero_of_forall_kroneckerDet_eq_zero
   isRationalSeries_iff_kroneckerDet_eventually_zero

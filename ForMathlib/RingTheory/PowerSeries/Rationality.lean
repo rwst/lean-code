@@ -11,8 +11,7 @@ series* if and only if its coefficients eventually satisfy a linear recurrence
 
 `q₀ aₙ + q₁ aₙ₋₁ + ⋯ + q_s aₙ₋ₛ = 0`   for all `n ≥ n₀`,   with `q₀ ≠ 0`.   (∗)
 
-Reference: M.-J. Bertin et al., *Pisot and Salem Numbers*, Proposition 1.1
-(statement and proof transcribed from the source).
+Reference: Bertin [Ber92], Proposition 1.1 (statement and proof transcribed from the source).
 
 Proof (transcribed from the source):
 * If `F` is a rational series it can be written `F = P/Q` with `P Q : K[X]`, `Q(0) ≠ 0`,
@@ -27,6 +26,10 @@ even a ring structure is needed; the argument is purely combinatorial on coeffic
 do not assume the chosen denominator has nonzero constant term: the forward direction reads the
 recurrence off `Q F = P` after shifting indices by `Q.natTrailingDegree`, which makes the
 leading coefficient `Q`'s trailing coefficient (`≠ 0`).
+
+## References
+
+* [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
 -/
 import Mathlib.RingTheory.PowerSeries.Trunc
 import Mathlib.RingTheory.PowerSeries.Basic
@@ -34,9 +37,9 @@ import Mathlib.Algebra.Polynomial.Degree.TrailingDegree
 import Mathlib.Algebra.Polynomial.Coeff
 import Mathlib.Algebra.BigOperators.NatAntidiagonal
 import Mathlib.Algebra.BigOperators.Intervals
-import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
-import Mathlib.LinearAlgebra.Matrix.Block
+import ForMathlib.LinearAlgebra.Matrix.Hankel
+import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 
 open scoped Polynomial PowerSeries
 
@@ -166,9 +169,10 @@ a `CommSemiring`.) -/
 variable {K : Type*} [CommRing K]
 
 /-- The `(n+1) × (n+1)` **Hankel matrix** of `F`: its `(i, j)` entry is
-`a_{i+j} = PowerSeries.coeff (i + j) F` (rows and columns indexed `0 … n`). It is symmetric. -/
+`a_{i+j} = PowerSeries.coeff (i + j) F` (rows and columns indexed `0 … n`). It is symmetric.
+This is the generic `Matrix.hankel` of the coefficient sequence `k ↦ PowerSeries.coeff k F`. -/
 noncomputable def hankelMatrix (F : K⟦X⟧) (n : ℕ) : Matrix (Fin (n + 1)) (Fin (n + 1)) K :=
-  Matrix.of fun i j => PowerSeries.coeff (i.val + j.val) F
+  Matrix.hankel (fun k => PowerSeries.coeff k F) n
 
 @[simp] theorem hankelMatrix_apply (F : K⟦X⟧) (n : ℕ) (i j : Fin (n + 1)) :
     hankelMatrix F n i j = PowerSeries.coeff (i.val + j.val) F := rfl
@@ -183,49 +187,10 @@ series `F = ∑ aₖ Xᵏ ∈ K⟦X⟧` (with `aₖ = PowerSeries.coeff k F`) is
 Dₙ(F) = ⎢ ⋮     ⋮     ⋱   ⋮    ⎥ .
         ⎣ aₙ    aₙ₊₁  ⋯   a₂ₙ  ⎦
 ```
--/
+It is the generic `Matrix.kroneckerDet` of the coefficient sequence `k ↦ PowerSeries.coeff k F`. -/
 noncomputable def kroneckerDet (F : K⟦X⟧) (n : ℕ) : K := (hankelMatrix F n).det
 
 end Kronecker
-
-section AntiDiagDet
-
-/-- A square matrix that vanishes strictly above its anti-diagonal (`T i j = 0` when `i + j < K`)
-and is constantly `c` on the anti-diagonal (`T i i.rev = c`) has determinant `± c ^ (K+1)`: reverse
-the columns to make it lower-triangular with diagonal `c`, then `det_permute'` supplies the sign. -/
-theorem det_eq_unit_mul_pow_of_antidiag_const {R : Type*} [CommRing R] {K : ℕ}
-    (T : Matrix (Fin (K + 1)) (Fin (K + 1)) R) (c : R)
-    (hbelow : ∀ i j : Fin (K + 1), (i : ℕ) + (j : ℕ) < K → T i j = 0)
-    (hdiag : ∀ i : Fin (K + 1), T i i.rev = c) :
-    ∃ u : R, IsUnit u ∧ T.det = u * c ^ (K + 1) := by
-  set rev : Equiv.Perm (Fin (K + 1)) := ⟨Fin.rev, Fin.rev, Fin.rev_rev, Fin.rev_rev⟩ with hrev
-  have hcoe : ⇑rev = Fin.rev := rfl
-  -- Reversing the rows makes the matrix upper-triangular with diagonal `c`.
-  have hut : Matrix.BlockTriangular (T.submatrix rev id) id := by
-    intro i j hij
-    simp only [id_eq] at hij
-    rw [Matrix.submatrix_apply, id_eq]
-    apply hbelow
-    have hr : (rev i).val = K - i.val := by rw [hcoe, Fin.val_rev]; omega
-    have hji : (j : ℕ) < (i : ℕ) := hij
-    have hi : (i : ℕ) < K + 1 := i.isLt
-    omega
-  have hdet' : (T.submatrix rev id).det = c ^ (K + 1) := by
-    rw [Matrix.det_of_upperTriangular hut]
-    have hd : ∀ i : Fin (K + 1), (T.submatrix rev id) i i = c := fun i => by
-      rw [Matrix.submatrix_apply, id_eq, hcoe]
-      have hi := hdiag (Fin.rev i)
-      rwa [Fin.rev_rev] at hi
-    simp only [hd, Finset.prod_const, Finset.card_univ, Fintype.card_fin]
-  rw [Matrix.det_permute rev T] at hdet'
-  rcases Int.units_eq_one_or (Equiv.Perm.sign rev) with h | h <;> rw [h] at hdet' <;>
-    push_cast at hdet'
-  · refine ⟨1, isUnit_one, ?_⟩
-    rw [one_mul] at hdet'; rw [one_mul]; exact hdet'
-  · refine ⟨-1, isUnit_one.neg, ?_⟩
-    rw [neg_one_mul] at hdet'; rw [neg_one_mul, ← hdet', neg_neg]
-
-end AntiDiagDet
 
 section KroneckerStep
 
@@ -335,7 +300,7 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     simp only [Matrix.submatrix_apply, Function.comp_apply, hankelMatrix_apply]
     rw [hBentry, if_pos (by rw [heL]; omega), heL, heL, finCongr_apply_coe, finCongr_apply_coe]
   -- The bottom-right block is anti-triangular with `v_{t+s}` on its anti-diagonal.
-  obtain ⟨u, hu, hBR⟩ := det_eq_unit_mul_pow_of_antidiag_const
+  obtain ⟨u, hu, hBR⟩ := Matrix.det_eq_unit_mul_pow_of_antidiag_const
     ((hankelMatrix F t * U).submatrix (e ∘ Sum.inr) (e ∘ Sum.inr))
     (∑ l ∈ Finset.range (s + 1), q l * PowerSeries.coeff (t + s - l) F)
     (fun i j hij => by
@@ -367,7 +332,7 @@ theorem eq_zero_of_forall_kroneckerDet_eq_zero {F : K⟦X⟧}
   rw [map_zero]
   induction k using Nat.strong_induction_on with
   | _ k ih =>
-    obtain ⟨u, hu, hdet⟩ := det_eq_unit_mul_pow_of_antidiag_const (hankelMatrix F k)
+    obtain ⟨u, hu, hdet⟩ := Matrix.det_eq_unit_mul_pow_of_antidiag_const (hankelMatrix F k)
       (PowerSeries.coeff k F)
       (fun i j hij => by rw [hankelMatrix_apply]; exact ih _ hij)
       (fun i => by
