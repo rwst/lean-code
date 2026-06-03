@@ -197,21 +197,26 @@ section KroneckerStep
 variable {K : Type*} [CommRing K]
 
 /-- **Inductive step of Kronecker's theorem (the determinant identity).** Write `vₙ` for
-`∑_{i≤s} qᵢ a_{n-i}`. If `q 0 = 1` and `vₖ = 0` for `s ≤ k < t + s`, then the principal Hankel
-determinant `D_t` is, up to a unit, `D_{s-1}` times a power of `v_{t+s}`. Bertin's column operations
-`Aⱼ ↦ ∑_{i≤s} qᵢ A_{j-i}` are realized as right multiplication by a unitriangular matrix `U`
-(so `det (Hₜ · U) = D_t`); `Hₜ · U` is block-triangular with top-left block `H_{s-1}` and an
-anti-triangular bottom-right block with `v_{t+s}` on the anti-diagonal. -/
+`∑_{i≤s} qᵢ a_{n-i}`. If `vₖ = 0` for `s ≤ k < t + s`, then — scaled by powers of the leading
+coefficient `q 0` — the principal Hankel determinant `D_t` is, up to a unit, `D_{s-1}` times a power
+of `v_{t+s}`:
+`q₀ ^ (t+1) · D_t = ± q₀ ^ s · D_{s-1} · v_{t+s} ^ (t-s+1)`.
+No assumption `q 0 = 1` is made; this is the honest `CommRing` identity. (Over an integral domain
+the `q₀` powers are nonzero, so when `D_t = 0` and `D_{s-1} ≠ 0` one still gets `v_{t+s} = 0`.)
+Bertin's column operations `Aⱼ ↦ ∑_{i≤s} qᵢ A_{j-i}` are realized as right multiplication by an
+upper-triangular matrix `U` with diagonal `q 0` (so `det (Hₜ · U) = q₀ ^ (t+1) · D_t`); `Hₜ · U` is
+block-triangular with top-left block `q 0 · H_{s-1}` and an anti-triangular bottom-right block with
+`v_{t+s}` on the anti-diagonal. -/
 theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
-    (hq0 : q 0 = 1) (hs : 1 ≤ s) (hst : s ≤ t)
+    (hs : 1 ≤ s) (hst : s ≤ t)
     (hv : ∀ k, s ≤ k → k < t + s →
       (∑ i ∈ Finset.range (s + 1), q i * PowerSeries.coeff (k - i) F) = 0) :
-    ∃ u : K, IsUnit u ∧ kroneckerDet F t =
-      u * kroneckerDet F (s - 1) *
+    ∃ u : K, IsUnit u ∧ q 0 ^ (t + 1) * kroneckerDet F t =
+      u * q 0 ^ s * kroneckerDet F (s - 1) *
         (∑ i ∈ Finset.range (s + 1), q i * PowerSeries.coeff (t + s - i) F) ^ (t - s + 1) := by
   classical
   -- `U` encodes the column operations: column `j` becomes `∑_{i≤s} qᵢ·(column j-i)` for `j ≥ s`,
-  -- and stays put for `j < s`. It is upper-triangular with unit diagonal.
+  -- and stays put for `j < s`. It is upper-triangular with diagonal `q 0`.
   set U : Matrix (Fin (t + 1)) (Fin (t + 1)) K :=
     Matrix.of fun k j =>
       if (k : ℕ) ≤ (j : ℕ) ∧ (j : ℕ) ≤ (k : ℕ) + s ∧ (s ≤ (j : ℕ) ∨ (k : ℕ) = (j : ℕ))
@@ -220,17 +225,16 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     intro i j hij
     simp only [id_eq] at hij
     rw [hU, Matrix.of_apply, if_neg (by rintro ⟨h1, -, -⟩; omega)]
-  have hdetU : U.det = 1 := by
+  have hdetU : U.det = q 0 ^ (t + 1) := by
     rw [Matrix.det_of_upperTriangular hbt]
-    apply Finset.prod_eq_one
-    intro i _
-    rw [hU, Matrix.of_apply, if_pos ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩,
-      Nat.sub_self, hq0]
-  have hdetHU : (hankelMatrix F t * U).det = kroneckerDet F t := by
-    simp only [Matrix.det_mul, hdetU, mul_one, kroneckerDet]
+    have hdiagU : ∀ i : Fin (t + 1), U i i = q 0 := fun i => by
+      rw [hU, Matrix.of_apply, if_pos ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self]
+    simp only [hdiagU, Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+  have hdetHU : (hankelMatrix F t * U).det = q 0 ^ (t + 1) * kroneckerDet F t := by
+    rw [Matrix.det_mul, hdetU, kroneckerDet]; ring
   -- Entry formula for `B = Hₜ · U`: Hankel for `j < s`, the recurrence value `vₙ` for `j ≥ s`.
   have hBentry : ∀ i j : Fin (t + 1), (hankelMatrix F t * U) i j =
-      if (j : ℕ) < s then PowerSeries.coeff ((i : ℕ) + (j : ℕ)) F
+      if (j : ℕ) < s then q 0 * PowerSeries.coeff ((i : ℕ) + (j : ℕ)) F
       else ∑ l ∈ Finset.range (s + 1), q l * PowerSeries.coeff ((i : ℕ) + (j : ℕ) - l) F := by
     intro i j
     rw [Matrix.mul_apply]
@@ -238,8 +242,8 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     by_cases hj : (j : ℕ) < s
     · rw [if_pos hj,
         Finset.sum_eq_single_of_mem j (Finset.mem_univ j)
-          (fun k _ hkj => by rw [if_neg (by rintro ⟨-, -, (h | h)⟩ <;> omega), mul_zero])]
-      simp [hq0]
+          (fun k _ hkj => by rw [if_neg (by rintro ⟨-, -, (h | h)⟩ <;> omega), mul_zero]),
+        if_pos ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self, mul_comm]
     · rw [if_neg hj]
       have hsj : s ≤ (j : ℕ) := not_lt.mp hj
       simp only [eq_true hsj, true_or, and_true]
@@ -292,13 +296,15 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     rw [← Matrix.det_submatrix_equiv_self e, hfb, Matrix.det_fromBlocks_zero₁₂]
   -- The top-left block is the Hankel matrix `H_{s-1}`.
   have hTL : ((hankelMatrix F t * U).submatrix (e ∘ Sum.inl) (e ∘ Sum.inl)).det =
-      kroneckerDet F (s - 1) := by
+      q 0 ^ s * kroneckerDet F (s - 1) := by
     have hcast : s = s - 1 + 1 := by omega
-    rw [kroneckerDet, ← Matrix.det_submatrix_equiv_self (finCongr hcast)]
-    congr 1
-    ext i j
-    simp only [Matrix.submatrix_apply, Function.comp_apply, hankelMatrix_apply]
-    rw [hBentry, if_pos (by rw [heL]; omega), heL, heL, finCongr_apply_coe, finCongr_apply_coe]
+    have hTLeq : (hankelMatrix F t * U).submatrix (e ∘ Sum.inl) (e ∘ Sum.inl) =
+        q 0 • ((hankelMatrix F (s - 1)).submatrix (finCongr hcast) (finCongr hcast)) := by
+      ext i j
+      simp only [Matrix.submatrix_apply, Function.comp_apply, Matrix.smul_apply, smul_eq_mul,
+        hankelMatrix_apply, finCongr_apply_coe]
+      rw [hBentry, if_pos (by rw [heL]; omega), heL, heL]
+    rw [hTLeq, Matrix.det_smul, Fintype.card_fin, Matrix.det_submatrix_equiv_self, kroneckerDet]
   -- The bottom-right block is anti-triangular with `v_{t+s}` on its anti-diagonal.
   obtain ⟨u, hu, hBR⟩ := Matrix.det_eq_unit_mul_pow_of_antidiag_const
     ((hankelMatrix F t * U).submatrix (e ∘ Sum.inr) (e ∘ Sum.inr))
@@ -321,11 +327,14 @@ end KroneckerStep
 
 section KroneckerTheorem
 
-variable {K : Type*} [Field K]
+-- The sufficiency argument needs `D_{s-1} ≠ 0` to force `vₘ = 0` from a product being zero, so it
+-- needs no zero divisors; the kernel-vector step (`Matrix.exists_mulVec_eq_zero_iff`) needs the
+-- same. An integral domain is exactly enough — no field division is used.
+variable {K : Type*} [CommRing K] [IsDomain K]
 
 /-- If every Kronecker determinant of `F` vanishes then `F = 0`. Strong induction: once
 `a₀ = ⋯ = a_{k-1} = 0`, the Hankel matrix `Hₖ` vanishes above its anti-diagonal and is constantly
-`aₖ` on it, so `Dₖ = ± aₖ ^ (k+1)`; as `Dₖ = 0` in a field, `aₖ = 0`. -/
+`aₖ` on it, so `Dₖ = ± aₖ ^ (k+1)`; as `Dₖ = 0` in an integral domain, `aₖ = 0`. -/
 theorem eq_zero_of_forall_kroneckerDet_eq_zero {F : K⟦X⟧}
     (h : ∀ k, kroneckerDet F k = 0) : F = 0 := by
   ext k
@@ -399,11 +408,12 @@ private theorem isRationalSeries_of_eventually_kroneckerDet_zero {F : K⟦X⟧}
         simp only [hankelMatrix_apply, Fin.val_castSucc, hlast, mul_zero, add_zero] at h
         show ∑ j : Fin (s₀ + 1), hankelMatrix F s₀ i j * w j.castSucc = 0
         simpa only [hankelMatrix_apply, Fin.val_castSucc] using h
-    -- Normalize so the leading coefficient is `1`.
-    set q : ℕ → K := fun l => (w (Fin.last (s₀ + 1)))⁻¹ * w ⟨s₀ + 1 - l, by omega⟩ with hq
-    have hq0 : q 0 = 1 := by
+    -- Over a domain no normalization is needed: take the kernel coefficients directly. Their
+    -- leading coefficient `q 0` is `w`'s last entry, which is nonzero.
+    set q : ℕ → K := fun l => w ⟨s₀ + 1 - l, by omega⟩ with hq
+    have hq0 : q 0 ≠ 0 := by
       simp only [hq, Nat.sub_zero]
-      exact inv_mul_cancel₀ hwlast
+      exact hwlast
     -- Base case: the recurrence holds on `[s, 2s]` (rows of the kernel relation).
     have hbase : ∀ i : Fin (s₀ + 2),
         ∑ l ∈ Finset.range (s₀ + 2), q l * PowerSeries.coeff ((i : ℕ) + (s₀ + 1) - l) F = 0 := by
@@ -411,25 +421,19 @@ private theorem isRationalSeries_of_eventually_kroneckerDet_zero {F : K⟦X⟧}
       have hrow : ∑ j : Fin (s₀ + 2), PowerSeries.coeff ((i : ℕ) + (j : ℕ)) F * w j = 0 := by
         have h : ∑ j : Fin (s₀ + 2), hankelMatrix F (s₀ + 1) i j * w j = 0 := congrFun hw0 i
         simpa only [hankelMatrix_apply] using h
-      have key : ∑ l ∈ Finset.range (s₀ + 2), q l * PowerSeries.coeff ((i : ℕ) + (s₀ + 1) - l) F =
-          (w (Fin.last (s₀ + 1)))⁻¹ *
-            ∑ j : Fin (s₀ + 2), PowerSeries.coeff ((i : ℕ) + (j : ℕ)) F * w j := by
-        rw [Finset.mul_sum]
-        refine Finset.sum_bij' (fun l _ => (⟨s₀ + 1 - l, by omega⟩ : Fin (s₀ + 2)))
-          (fun j _ => s₀ + 1 - (j : ℕ)) (fun l _ => Finset.mem_univ _)
-          (fun j _ => Finset.mem_range.mpr (by omega))
-          (fun l hl => by rw [Finset.mem_range] at hl; show s₀ + 1 - (s₀ + 1 - l) = l; omega)
-          (fun j _ => by apply Fin.ext; show s₀ + 1 - (s₀ + 1 - (j : ℕ)) = (j : ℕ); omega)
-          (fun l hl => by
-            rw [Finset.mem_range] at hl
-            simp only [hq]
-            show (w (Fin.last (s₀ + 1)))⁻¹ * w ⟨s₀ + 1 - l, by omega⟩ *
-                PowerSeries.coeff ((i : ℕ) + (s₀ + 1) - l) F =
-              (w (Fin.last (s₀ + 1)))⁻¹ *
-                (PowerSeries.coeff ((i : ℕ) + (s₀ + 1 - l)) F * w ⟨s₀ + 1 - l, by omega⟩)
-            rw [show (i : ℕ) + (s₀ + 1) - l = (i : ℕ) + (s₀ + 1 - l) from by omega]
-            ring)
-      rw [key, hrow, mul_zero]
+      rw [← hrow]
+      refine Finset.sum_bij' (fun l _ => (⟨s₀ + 1 - l, by omega⟩ : Fin (s₀ + 2)))
+        (fun j _ => s₀ + 1 - (j : ℕ)) (fun l _ => Finset.mem_univ _)
+        (fun j _ => Finset.mem_range.mpr (by omega))
+        (fun l hl => by rw [Finset.mem_range] at hl; show s₀ + 1 - (s₀ + 1 - l) = l; omega)
+        (fun j _ => by apply Fin.ext; show s₀ + 1 - (s₀ + 1 - (j : ℕ)) = (j : ℕ); omega)
+        (fun l hl => by
+          rw [Finset.mem_range] at hl
+          simp only [hq]
+          show w ⟨s₀ + 1 - l, by omega⟩ * PowerSeries.coeff ((i : ℕ) + (s₀ + 1) - l) F =
+            PowerSeries.coeff ((i : ℕ) + (s₀ + 1 - l)) F * w ⟨s₀ + 1 - l, by omega⟩
+          rw [show (i : ℕ) + (s₀ + 1) - l = (i : ℕ) + (s₀ + 1 - l) from by omega]
+          ring)
     -- Propagate to all `n ≥ s` by strong induction, using the determinant identity.
     have hall : ∀ n, s₀ + 1 ≤ n →
         ∑ l ∈ Finset.range (s₀ + 2), q l * PowerSeries.coeff (n - l) F = 0 := by
@@ -443,27 +447,28 @@ private theorem isRationalSeries_of_eventually_kroneckerDet_zero {F : K⟦X⟧}
             have hval : ((⟨n - (s₀ + 1), by omega⟩ : Fin (s₀ + 2)) : ℕ) = n - (s₀ + 1) := rfl
             omega] at h
           exact h
-        · obtain ⟨u, hu, hstep⟩ := kroneckerDet_step F q (s₀ + 1) (n - (s₀ + 1)) hq0
+        · obtain ⟨u, hu, hstep⟩ := kroneckerDet_step F q (s₀ + 1) (n - (s₀ + 1))
             (by omega) (by omega) (fun k hk1 hk2 => ih k (by omega) hk1)
-          rw [hzero (n - (s₀ + 1)) (by omega)] at hstep
+          rw [hzero (n - (s₀ + 1)) (by omega), mul_zero] at hstep
+          -- `hstep : 0 = u * q 0 ^ (s₀+1) * D_{s₀} * vₙ ^ k`; the prefactor is nonzero in a domain.
+          have hAne : u * q 0 ^ (s₀ + 1) * kroneckerDet F (s₀ + 1 - 1) ≠ 0 :=
+            mul_ne_zero (mul_ne_zero hu.ne_zero (pow_ne_zero _ hq0)) hDs₀
           have hvexp : (∑ i ∈ Finset.range (s₀ + 1 + 1),
               q i * PowerSeries.coeff (n - (s₀ + 1) + (s₀ + 1) - i) F) ^
               (n - (s₀ + 1) - (s₀ + 1) + 1) = 0 := by
             rcases mul_eq_zero.mp hstep.symm with h | h
-            · rcases mul_eq_zero.mp h with h' | h'
-              · exact absurd h' hu.ne_zero
-              · exact absurd h' hDs₀
+            · exact absurd h hAne
             · exact h
           have hv0 := (pow_eq_zero_iff (by omega : n - (s₀ + 1) - (s₀ + 1) + 1 ≠ 0)).mp hvexp
           rw [show n - (s₀ + 1) + (s₀ + 1) = n from by omega] at hv0
           exact hv0
-    exact ⟨s₀ + 1, s₀ + 1, q, by rw [hq0]; exact one_ne_zero, le_rfl, hall⟩
+    exact ⟨s₀ + 1, s₀ + 1, q, hq0, le_rfl, hall⟩
 
-/-- **Theorem 1.1.1 (Kronecker; Bertin).** A formal power series `F ∈ K⟦X⟧` over a field is a
-rational series if and only if its Kronecker (Hankel) determinants vanish from some index on.
+/-- **Theorem 1.1.1 (Kronecker; Bertin).** A formal power series `F ∈ K⟦X⟧` over an integral domain
+is a rational series if and only if its Kronecker (Hankel) determinants vanish from some index on.
 (The right-hand side is `∀ᶠ n in Filter.atTop, kroneckerDet F n = 0` spelled out.)
 
-Proof (transcribed from Bertin; needs an integral domain — stated here over a field):
+Proof (transcribed from Bertin), over an integral domain `K`:
 
 * **(⇒) Necessity.** By `IsRationalSeries.exists_recurrence` there are `s`, `n₀` and `q` with
   `q 0 ≠ 0` and `∑_{i ≤ s} qᵢ · a_{n-i} = 0` for all `n ≥ n₀`. Fix `n ≥ max n₀ s` and let
@@ -475,13 +480,14 @@ Proof (transcribed from Bertin; needs an integral domain — stated here over a 
   then `F = 0` (each `aₖ = 0` by induction on the principal minors), which is rational. Otherwise
   pick `s` minimal with `D_{s-1}(F) ≠ 0` and `Dₙ(F) = 0` for all `n ≥ s`. A nonzero kernel vector
   of `H_s` (from `exists_mulVec_eq_zero_iff`) has nonzero last entry — else it would kill the
-  nonsingular `H_{s-1}` — so after scaling we get `q₁ … q_s` with
-  `vₙ := aₙ + ∑_{i=1}^{s} qᵢ · a_{n-i} = 0` for `s ≤ n ≤ 2s`. Strong induction on `n`: from
+  nonsingular `H_{s-1}` — and its reversed entries give coefficients `q₀ … q_s` with `q₀ ≠ 0`
+  (no normalization, hence no division, is needed) and
+  `vₙ := ∑_{i=0}^{s} qᵢ · a_{n-i} = 0` for `s ≤ n ≤ 2s`. Strong induction on `n`: from
   `D_{m-s}(F) = 0`, the column operations `Aⱼ ↦ ∑_{i≤s} qᵢ A_{j-i}` — realized as right
-  multiplication by a unitriangular matrix (`kroneckerDet_step`) — put the matrix in block form
-  whose determinant is `± D_{s-1}(F) · vₘ ^ (m+1-2s)`; since `D_{s-1}(F) ≠ 0` in a domain,
-  `vₘ = 0`. So the recurrence holds for every `n ≥ s`, and `exists_recurrence.isRationalSeries`
-  yields rationality. -/
+  multiplication by an upper-triangular matrix with diagonal `q₀` (`kroneckerDet_step`) — put the
+  matrix in block form, giving `q₀ ^ (m-s+1) · D_{m-s} = ± q₀ ^ s · D_{s-1}(F) · vₘ ^ (m+1-2s)`;
+  since `q₀ ≠ 0` and `D_{s-1}(F) ≠ 0` in a domain, `vₘ = 0`. So the recurrence holds for every
+  `n ≥ s`, and `exists_recurrence.isRationalSeries` yields rationality. -/
 theorem isRationalSeries_iff_kroneckerDet_eventually_zero (F : K⟦X⟧) :
     IsRationalSeries F ↔ ∃ N, ∀ n, N ≤ n → kroneckerDet F n = 0 := by
   constructor
