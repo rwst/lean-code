@@ -48,11 +48,6 @@ recorded at the level of "what notion the proof needs" rather than precise
 lemmas. Registry-keyed so the `informal_uses` edges below share canonical
 nodes. -/
 
-informal_result "cf-quadratic-periodicity"
-  latex "Lagrange's theorem: a real number is a quadratic irrational iff its continued fraction expansion is eventually periodic; hence quadratic irrationals have bounded partial quotients."
-  refs "Bug12"
-  formalized_as lagrange
-
 informal_result "measure-rigidity-diagonal"
   latex "Einsiedler-Katok-Lindenstrauss measure rigidity: classification of invariant measures for higher-rank diagonalizable (Cartan) actions on homogeneous spaces, forcing positive-entropy ergodic components to be homogeneous (Haar)."
   refs "EK07"
@@ -90,7 +85,7 @@ rational $\xi$ has minimal polynomial of degree $1$.
 -/
 @[category research solved, AMS 11, group "bugeaud_10_8",
   ref "Bug12" "dMT04", conjectured_by "de Mathan" "Teulié" 2004,
-  solved_by "de Mathan" "Teulié" 2004, informal_uses "cf-quadratic-periodicity"]
+  solved_by "de Mathan" "Teulié" 2004, formal_uses quadratic_partialQuotients_bounded]
 theorem problem_10_8.variants.quadratic (ξ : ℝ) (p : ℕ) (hp : p.Prime)
     (hξ : (minpoly ℚ ξ).natDegree = 2) :
     sInf {x : ℝ | ∃ q : ℕ, 1 ≤ q ∧
