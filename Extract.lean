@@ -1,5 +1,7 @@
 /-
-Copyright 2026 The lean-code Authors. Licensed under the Apache License, v2.0.
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Lean
 import Corpus.Util.Attributes.Database
@@ -30,8 +32,11 @@ open Lean Meta TheoremDB
 
 namespace TheoremDB.Extract
 
-/-- Namespaces holding corpus content (as opposed to mathlib/Lean dependencies). -/
-def corpusRoots : List Name := [`Corpus, `DistributionModOne]
+/-- Namespaces holding corpus content (as opposed to mathlib/Lean dependencies).
+`ForMathlib` holds our bespoke notions (Pisot, lacunary, equidistribution, Lagrange,
+…); it is corpus content too, so its declarations become nodes and valid
+`states_with` targets. -/
+def corpusRoots : List Name := [`Corpus, `DistributionModOne, `ForMathlib]
 
 /-- A module whose declarations are corpus nodes: under a corpus root, but not
 the `Corpus.Util` infrastructure. -/

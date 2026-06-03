@@ -1,4 +1,9 @@
 /-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+/-
 # Rational formal power series and linear recurrences (Bertin, Proposition 1.1)
 
 A formal series `F = ∑ aₙ Xⁿ`, an element of `K⟦X⟧` over a commutative semiring `K`, is a *rational

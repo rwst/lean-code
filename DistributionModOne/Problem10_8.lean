@@ -19,6 +19,7 @@ import Mathlib.FieldTheory.Minpoly.Basic
 import Mathlib.NumberTheory.Padics.PadicNorm
 import Mathlib.Topology.MetricSpace.HausdorffDimension
 import ForMathlib.Data.Real.NearestInt
+import ForMathlib.NumberTheory.ContinuedFractions.Lagrange
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
@@ -50,6 +51,7 @@ nodes. -/
 informal_result "cf-quadratic-periodicity"
   latex "Lagrange's theorem: a real number is a quadratic irrational iff its continued fraction expansion is eventually periodic; hence quadratic irrationals have bounded partial quotients."
   refs "Bug12"
+  formalized_as lagrange
 
 informal_result "measure-rigidity-diagonal"
   latex "Einsiedler-Katok-Lindenstrauss measure rigidity: classification of invariant measures for higher-rank diagonalizable (Cartan) actions on homogeneous spaces, forcing positive-entropy ergodic components to be homogeneous (Haar)."
