@@ -19,3 +19,6 @@ lean_lib Corpus where
 lean_lib DistributionModOne where
   globs := #[.submodules `DistributionModOne]
 
+lean_lib ForMathlib where
+  globs := #[.submodules `ForMathlib]
+

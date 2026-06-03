@@ -100,7 +100,12 @@ def extractCore : MetaM (List (String × Json)) := do
   for (modName, modData) in env.header.moduleNames.zip env.header.moduleData do
     if isCorpusModule modName then
       for cn in modData.constNames do
-        if cn.isInternalDetail then continue
+        -- Skip compiler-generated declarations. `isInternalDetail` catches the
+        -- `_`-marked auxiliaries (`._sunfold`, `.match_1`, and `.eq_1`/`.eq_2`…),
+        -- but the equation lemma `f.eq_def` emitted by a recursive def is *not*
+        -- flagged internal; `isReservedName` catches it (and only ever matches
+        -- auto-reserved names, never authored declarations).
+        if cn.isInternalDetail || isReservedName env cn then continue
         let some ci := env.find? cn | continue
         let some _ := declKind ci | continue
         nodes := nodes.push (modName, cn, ci)
