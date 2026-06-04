@@ -27,3 +27,6 @@ lean_lib DistributionModOne where
 lean_lib ForMathlib where
   globs := #[.submodules `ForMathlib]
 
+lean_lib BertinPisot where
+  globs := #[.submodules `BertinPisot]
+

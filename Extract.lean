@@ -16,7 +16,9 @@ Walks the imported environment and emits JSON conforming to
 * **declarations** — every non-internal theorem/def in a corpus module, with its
   category (TODO: pending the inherited `category` attribute), refs, extern ids,
   group, attribution, LaTeX (docstring), pretty type, and the *auto-derived*
-  `formalization` block (`uses_sorry` via `collectAxioms` → `sorryAx`).
+  `formalization` block (`uses_sorry` via `collectAxioms` → `sorryAx`; the
+  `status` is `proved` / `cited` / `stated_only`, where `cited` means every
+  non-standard axiom carries a literature `@[ref]`).
 * **informal_results** — the registry stub nodes.
 * **groups** — problem-level facts rolled up by `group` key (`conflicts` is the
   deferred linter, emitted empty for now).
@@ -36,7 +38,7 @@ namespace TheoremDB.Extract
 `ForMathlib` holds our bespoke notions (Pisot, lacunary, equidistribution, Lagrange,
 …); it is corpus content too, so its declarations become nodes and valid
 `states_with` targets. -/
-def corpusRoots : List Name := [`Corpus, `DistributionModOne, `ForMathlib]
+def corpusRoots : List Name := [`Corpus, `DistributionModOne, `ForMathlib, `BertinPisot]
 
 /-- A module whose declarations are corpus nodes: under a corpus root, but not
 the `Corpus.Util` infrastructure. -/
@@ -44,11 +46,17 @@ def isCorpusModule (n : Name) : Bool :=
   corpusRoots.any (·.isPrefixOf n) && !(`Corpus.Util).isPrefixOf n
 
 /-- The declaration kind we record (Lean erases the `lemma`/`theorem`
-distinction, so both surface as `theorem`). -/
+distinction, so both surface as `theorem`). An `axiom` records a result asserted
+on the authority of its `@[ref]` literature citation (a literature-proved theorem
+we have not yet formalized), so it is a first-class node too. -/
 def declKind : ConstantInfo → Option String
   | .thmInfo _ => some "theorem"
   | .defnInfo _ => some "def"
+  | .axiomInfo _ => some "axiom"
   | _ => none
+
+/-- The foundational axioms a fully formalized (`proved`) term may depend on. -/
+def standardAxioms : List Name := [`propext, `Classical.choice, `Quot.sound]
 
 def jStrs (xs : List String) : Json := Json.arr (xs.toArray.map Json.str)
 
@@ -123,12 +131,25 @@ def extractCore : MetaM (List (String × Json)) := do
   let mut iuCount := 0
 
   for (modName, cn, ci) in nodes do
-    -- formalization (auto-derived)
+    -- formalization (auto-derived). `status` is three-way:
+    --   • `proved`      — depends only on the standard foundational axioms;
+    --   • `cited`       — every non-standard axiom carries a literature `@[ref]`
+    --                     (the result is asserted on the authority of its citation,
+    --                     e.g. a published theorem recorded as an `axiom`);
+    --   • `stated_only` — depends on `sorryAx`, or on a custom axiom with no
+    --                     `@[ref]` — a genuine, unbacked gap.
     let axs ← collectAxioms cn
     let usesSorry := axs.contains `sorryAx
+    let nonStandard := axs.toList.filter (!standardAxioms.contains ·)
+    -- A non-standard axiom is *unbacked* if it is `sorryAx` or carries no `@[ref]`.
+    let unbacked := nonStandard.filter (fun a => a == `sorryAx || (refsOf a).isEmpty)
+    let status :=
+      if nonStandard.isEmpty then "proved"
+      else if unbacked.isEmpty then "cited"
+      else "stated_only"
     let formalization := Json.mkObj [
       ("uses_sorry", Json.bool usesSorry),
-      ("status", Json.str (if usesSorry then "stated_only" else "proved")),
+      ("status", Json.str status),
       ("axioms", jStrs (axs.toList.map (·.toString)))]
     -- LaTeX (docstring) and pretty type
     let tex := (← findDocString? env cn).elim Json.null Json.str
@@ -240,7 +261,7 @@ unsafe def main (args : List String) : IO Unit := do
     ("lean_toolchain", Json.str toolchain),
     ("timestamp", Json.str timestamp)]
   let json := Json.mkObj <|
-    [("schema_version", Json.str "1.0"), ("generated", generated)] ++ core
+    [("schema_version", Json.str "1.1"), ("generated", generated)] ++ core
   let out := "theoremdb.json"
   IO.FS.writeFile out json.pretty
   IO.println s!"wrote {out}"

@@ -70,9 +70,8 @@ $(\{\xi m_n\})_{n \ge 1}$ is *not* dense modulo one has full Hausdorff dimension
 @[category research solved, AMS 11, group "bugeaud_10_6",
   ref "Bug12" "Pol79" "Mat80", solved_by "Pollington" 1979, solved_by "de Mathan" 1980,
   informal_uses "hausdorff-dimension-cantor-construction"]
-theorem pollington_de_mathan (m : ℕ → ℕ) (hm : ∀ n, 0 < m n) (hlac : IsLacunary m) :
-    dimH {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ)))} = 1 := by
-  sorry
+axiom pollington_de_mathan (m : ℕ → ℕ) (hm : ∀ n, 0 < m n) (hlac : IsLacunary m) :
+    dimH {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ)))} = 1
 
 /-- The Pollington–de Mathan theorem implies that a lacunary sequence cannot answer
 Problem 10.6. -/
@@ -106,10 +105,9 @@ one. -/
 @[category research solved, AMS 11, group "bugeaud_10_6",
   ref "Bug12" "Fur67", solved_by "Furstenberg" 1967,
   informal_uses "furstenberg-x2x3-rigidity"]
-theorem furstenberg_two_three (ξ : ℝ) (hξ : Irrational ξ) :
+axiom furstenberg_two_three (ξ : ℝ) (hξ : Irrational ξ) :
     Dense {x : AddCircle (1 : ℝ) |
-      ∃ m n : ℕ, 0 < m ∧ 0 < n ∧ x = ↑(ξ * (2 ^ m * 3 ^ n : ℕ))} := by
-  sorry
+      ∃ m n : ℕ, 0 < m ∧ 0 < n ∧ x = ↑(ξ * (2 ^ m * 3 ^ n : ℕ))}
 
 /-- **Boshernitzan's theorem** [Bos94]. Given a real sublacunary sequence $r$, the set of
 real numbers $\xi$ for which $(\{\xi r_n\})_{n \ge 1}$ is *not* dense modulo one has
@@ -117,10 +115,9 @@ Hausdorff dimension zero. -/
 @[category research solved, AMS 11, group "bugeaud_10_6",
   ref "Bug12" "Bos94", solved_by "Boshernitzan" 1994,
   informal_uses "sublacunary-density-mod-one"]
-theorem boshernitzan (r : ℕ → ℝ) (hr : ∀ n, 0 < r n) (hunb : ¬ BddAbove (Set.range r))
+axiom boshernitzan (r : ℕ → ℝ) (hr : ∀ n, 0 < r n) (hunb : ¬ BddAbove (Set.range r))
     (hsub : Tendsto (fun n => r (n + 1) / r n) atTop (nhds 1)) :
-    dimH {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * r n) : AddCircle (1 : ℝ)))} = 0 := by
-  sorry
+    dimH {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * r n) : AddCircle (1 : ℝ)))} = 0
 
 /-- The sequence defined by $m_0 = 2$ and $m_{n+1} = \lceil m_n (1 + 1/\log n) \rceil$. -/
 @[category API, AMS 11, group "bugeaud_10_6"]

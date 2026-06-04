@@ -86,11 +86,10 @@ rational $\xi$ has minimal polynomial of degree $1$.
 @[category research solved, AMS 11, group "bugeaud_10_8",
   ref "Bug12" "dMT04", conjectured_by "de Mathan" "Teulié" 2004,
   solved_by "de Mathan" "Teulié" 2004, formal_uses quadratic_partialQuotients_bounded]
-theorem problem_10_8.variants.quadratic (ξ : ℝ) (p : ℕ) (hp : p.Prime)
+axiom problem_10_8.variants.quadratic (ξ : ℝ) (p : ℕ) (hp : p.Prime)
     (hξ : (minpoly ℚ ξ).natDegree = 2) :
     sInf {x : ℝ | ∃ q : ℕ, 1 ≤ q ∧
-      x = q * padicNorm p q * distToNearestInt (q * ξ)} = 0 := by
-  sorry
+      x = q * padicNorm p q * distToNearestInt (q * ξ)} = 0
 
 /--
 The exceptional set for Problem 10.8 has Hausdorff dimension zero.
@@ -106,9 +105,8 @@ dimension $0$). Here the failure is phrased as the liminf-based formulation
   ref "Bug12" "EK07", conjectured_by "de Mathan" "Teulié" 2004,
   solved_by "Einsiedler" "Kleinbock" 2007,
   informal_uses "measure-rigidity-diagonal" "dani-correspondence"]
-theorem problem_10_8.variants.exceptional_set_dimH_zero (p : ℕ) (hp : p.Prime) :
+axiom problem_10_8.variants.exceptional_set_dimH_zero (p : ℕ) (hp : p.Prime) :
     dimH {ξ : ℝ | Filter.atTop.liminf
-      (fun q : ℕ ↦ q * padicNorm p q * distToNearestInt (q * ξ)) ≠ 0} = 0 := by
-  sorry
+      (fun q : ℕ ↦ q * padicNorm p q * distToNearestInt (q * ξ)) ≠ 0} = 0
 
 end Bugeaud

@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Semantic version of THIS schema. Bump on any breaking change to record shapes.",
       "pattern": "^[0-9]+\\.[0-9]+$",
-      "examples": ["1.0"]
+      "examples": ["1.1"]
     },
     "generated": {
       "type": "object",
@@ -78,8 +78,8 @@
         "name": { "$ref": "#/$defs/leanName", "description": "Primary key." },
         "decl_kind": {
           "type": "string",
-          "enum": ["theorem", "lemma", "def", "abbrev", "example", "instance"],
-          "description": "Lean declaration keyword."
+          "enum": ["theorem", "lemma", "def", "abbrev", "example", "instance", "axiom"],
+          "description": "Lean declaration keyword. `axiom` records a literature-proved result asserted on the authority of its `@[ref]` citation (not yet formalized)."
         },
         "module": { "type": "string", "description": "Source module, e.g. Corpus.ErdosProblems.124." },
         "category": {
@@ -152,22 +152,22 @@
 
     "formalization": {
       "type": "object",
-      "description": "Auto-derived from the kernel; never authored. Sourced from `#print axioms`.",
+      "description": "Auto-derived; never authored. `uses_sorry` and `axioms` come from `#print axioms`; `status` additionally consults each non-standard axiom's `@[ref]` tags to decide whether it is literature-backed.",
       "additionalProperties": false,
       "required": ["uses_sorry", "status", "axioms"],
       "properties": {
         "uses_sorry": {
           "type": "boolean",
-          "description": "True iff the proof term depends on `sorryAx` (the machine-checkable 'stated only' flag)."
+          "description": "True iff the proof term depends on `sorryAx` (the machine-checkable genuine-gap flag)."
         },
         "status": {
           "type": "string",
-          "enum": ["stated_only", "proved"],
-          "description": "'stated_only' iff uses_sorry; else 'proved'."
+          "enum": ["stated_only", "cited", "proved"],
+          "description": "'proved' iff every axiom is one of the standard foundational axioms (propext, Classical.choice, Quot.sound). 'cited' iff there is ≥1 non-standard axiom and every non-standard axiom carries a literature `@[ref]` (a result asserted on the authority of its citation, e.g. a published theorem recorded as an `axiom`). 'stated_only' otherwise: depends on `sorryAx`, or on a custom axiom with no `@[ref]` — a genuine gap."
         },
         "axioms": {
           "type": "array",
-          "description": "Axioms the proof depends on, e.g. sorryAx, propext, Classical.choice, Quot.sound.",
+          "description": "Axioms the proof depends on, e.g. sorryAx, propext, Classical.choice, Quot.sound, or a literature-backed corpus axiom. Drives `status`.",
           "items": { "type": "string" }
         }
       }

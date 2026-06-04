@@ -63,3 +63,4 @@ attribute [category API, AMS 11, ref "Ber92"]
   hankelMatrix hankelMatrix_apply kroneckerDet
   kroneckerDet_step eq_zero_of_forall_kroneckerDet_eq_zero
   isRationalSeries_iff_kroneckerDet_eventually_zero
+  multiplierCoeff multiplierMatrix multiplierMatrix_apply

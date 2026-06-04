@@ -6,6 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 
 import Mathlib.Algebra.ContinuedFractions.Computation.Basic
 import Mathlib.Algebra.ContinuedFractions.Computation.Translations
+import Mathlib.Algebra.ContinuedFractions.Computation.ApproximationCorollaries
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.NumberTheory.Real.Irrational
@@ -32,9 +33,11 @@ separate lemmas and combined into `lagrange`:
   fact the Problem 10.8 application actually needs — without the pigeonhole step.
 
 The hard direction follows the substitution/bounded-coefficient/pigeonhole proof common to
-Hardy–Wright, Niven–Zuckerman–Montgomery, and Khinchin (the one that maps cleanly onto the
-existing Mathlib continued-fraction API: `GenContFract.determinant`, `abs_sub_convs_le`,
-`sub_convs_eq`), not the reduced-surd/Galois route of Olds.
+Hardy–Wright, Niven–Zuckerman–Montgomery, and Khinchin, not the reduced-surd/Galois route of
+Olds. The bounded-coefficient core (`qCoeffs_bounded`) is developed self-contained on integer
+continuant pairs (`qConv`): the convergent/Möbius relation (`qConv_mobius`) and the unimodular
+determinant (`qConv_det`) are proved directly from the complete-quotient recursion
+`ξₙ = ⌊ξₙ⌋ + 1/ξₙ₊₁`, rather than routed through Mathlib's `GenContFract` convergent API.
 
 *References:*
   - [HW79] Hardy, G.H. and Wright, E.M. *An Introduction to the Theory of Numbers.*
@@ -51,20 +54,6 @@ irrational `ξ` this sequence is infinite, so the condition is non-vacuous.) -/
 def IsEventuallyPeriodicContFrac (ξ : ℝ) : Prop :=
   ∃ N p : ℕ, 0 < p ∧ ∀ n : ℕ, N ≤ n →
     (GenContFract.of ξ).s.get? (n + p) = (GenContFract.of ξ).s.get? n
-
-/-- **Euler's direction** (the easy half, 1737). If `ξ` is irrational and its continued
-fraction expansion is eventually periodic, then `ξ` is a quadratic irrational:
-`(minpoly ℚ ξ).natDegree = 2`.
-
-*Idea.* Over one period the convergent recurrence expresses `ξ` as a fractional-linear
-(Möbius) transform of itself, `ξ = (A·ξ + B)/(C·ξ + D)` with integer `A, B, C, D`; clearing
-denominators yields an integer quadratic with `ξ` as a root, so `ξ` is algebraic of degree
-`≤ 2`, and irrationality rules out degree `≤ 1`. -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Euler" 1737]
-theorem euler_periodic_imp_quadratic {ξ : ℝ} (hirr : Irrational ξ)
-    (hper : IsEventuallyPeriodicContFrac ξ) :
-    (minpoly ℚ ξ).natDegree = 2 := by
-  sorry
 
 /-- The `n`-th **complete quotient** of `ξ`: `ξ₀ = ξ` and `ξₙ₊₁ = 1/{ξₙ}`, the reciprocal of
 the fractional part `{ξₙ} = ξₙ - ⌊ξₙ⌋`. This is exactly the sequence produced by the
@@ -205,16 +194,214 @@ theorem qCoeffs_fst_ne {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A �
   rw [div_eq_iff hbR]
   linear_combination -hquad
 
-/-- **The crux bound.** The `qCoeffs` triples are bounded uniformly in `n`. Via the convergent
-substitution `aₙ = qₙ₋₁² · f(pₙ₋₁/qₙ₋₁)` and the approximation `|ξ − pₙ₋₁/qₙ₋₁| < 1/qₙ₋₁²`
-(`GenContFract.abs_sub_convs_le`), `|aₙ| ≤ |A|(|ξ − ξ'| + 1)`; then `cₙ = aₙ₋₁` and the invariant
-discriminant (`qCoeffs_discrim`) bound `cₙ` and `bₙ`. -/
+/-- Integer continuant pairs `(numₖ, denₖ)` of the continued fraction `[⌊ξ₀⌋; ⌊ξ₁⌋, …]` driven by
+the complete quotients `ξₙ = completeQuotient ξ n`. The seeds `qConv 0 = (0, 1)` and
+`qConv 1 = (1, 0)` are the two virtual convergents `p₋₂/q₋₂ = 0/1` and `p₋₁/q₋₁ = 1/0`, so that
+`qConv (k + 2)` is the genuine `k`-th convergent. By `qCoeffs_eq_qConv`, the leading `qCoeffs`
+coefficient is exactly the binary quadratic form evaluated at the previous convergent. -/
+@[category API, AMS 11]
+noncomputable def qConv (ξ : ℝ) : ℕ → ℤ × ℤ
+  | 0 => (0, 1)
+  | 1 => (1, 0)
+  | n + 2 =>
+    (⌊completeQuotient ξ n⌋ * (qConv ξ (n + 1)).1 + (qConv ξ n).1,
+      ⌊completeQuotient ξ n⌋ * (qConv ξ (n + 1)).2 + (qConv ξ n).2)
+
+/-- The `qCoeffs` triple is exactly the binary quadratic form `(A, B, C)` transported along the
+convergent pairs: `aₙ = A·numₙ₋₁² + B·numₙ₋₁·denₙ₋₁ + C·denₙ₋₁²`, `cₙ` the same at the previous
+convergent, and `bₙ` the associated bilinear cross term. Pure integer induction matching the
+`qCoeffs` recursion to the `qConv` recursion. -/
+@[category API, AMS 11]
+theorem qCoeffs_eq_qConv {ξ : ℝ} {A B C : ℤ} (n : ℕ) :
+    (qCoeffs ξ A B C n).1 = A * (qConv ξ (n + 1)).1 ^ 2
+        + B * (qConv ξ (n + 1)).1 * (qConv ξ (n + 1)).2 + C * (qConv ξ (n + 1)).2 ^ 2
+      ∧ (qCoeffs ξ A B C n).2.1 = 2 * A * (qConv ξ (n + 1)).1 * (qConv ξ n).1
+          + B * ((qConv ξ (n + 1)).1 * (qConv ξ n).2 + (qConv ξ n).1 * (qConv ξ (n + 1)).2)
+          + 2 * C * (qConv ξ (n + 1)).2 * (qConv ξ n).2
+      ∧ (qCoeffs ξ A B C n).2.2 = A * (qConv ξ n).1 ^ 2
+          + B * (qConv ξ n).1 * (qConv ξ n).2 + C * (qConv ξ n).2 ^ 2 := by
+  induction n with
+  | zero => refine ⟨?_, ?_, ?_⟩ <;> simp [qCoeffs, qConv]
+  | succ k IH =>
+    obtain ⟨IH1, IH2, IH3⟩ := IH
+    refine ⟨?_, ?_, ?_⟩ <;> simp only [qCoeffs, qConv, IH1, IH2, IH3] <;> ring
+
+/-- The continuant determinant is `±1`: `numₙ·denₙ₋₁ − numₙ₋₁·denₙ = (−1)ⁿ`. The integer-quadratic
+discriminant is invariant under the convergent substitution precisely because this determinant
+squares to one. -/
+@[category API, AMS 11]
+theorem qConv_det {ξ : ℝ} (n : ℕ) :
+    (qConv ξ (n + 1)).1 * (qConv ξ n).2 - (qConv ξ n).1 * (qConv ξ (n + 1)).2 = (-1) ^ n := by
+  induction n with
+  | zero => simp [qConv]
+  | succ k IH =>
+    simp only [qConv]
+    linear_combination -IH
+
+/-- Every complete quotient past the first is `≥ 1`: `ξₙ₊₁ = 1/{ξₙ}` and the fractional part of an
+irrational lies in `(0, 1)`. -/
+@[category API, AMS 11]
+theorem completeQuotient_one_le {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
+    1 ≤ completeQuotient ξ (n + 1) := by
+  show 1 ≤ (Int.fract (completeQuotient ξ n))⁻¹
+  have hpos : 0 < Int.fract (completeQuotient ξ n) :=
+    Int.fract_pos.mpr ((completeQuotient_irrational hirr n).ne_int _)
+  exact (one_le_inv₀ hpos).mpr (Int.fract_lt_one _).le
+
+/-- The convergent denominators are nonnegative, and strictly past the seeds they are `≥ 1`
+(`denₖ ≥ 1` for `k ≥ 2`). Drives the denominator positivity behind the approximation bound. -/
+@[category API, AMS 11]
+theorem qConv_den {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
+    0 ≤ (qConv ξ (n + 1)).2 ∧ 1 ≤ (qConv ξ (n + 2)).2 := by
+  induction n with
+  | zero => refine ⟨?_, ?_⟩ <;> simp [qConv]
+  | succ k IH =>
+    obtain ⟨IH1, IH2⟩ := IH
+    have hfloor : (1 : ℤ) ≤ ⌊completeQuotient ξ (k + 1)⌋ :=
+      Int.le_floor.mpr (by exact_mod_cast completeQuotient_one_le hirr k)
+    refine ⟨?_, ?_⟩
+    · exact zero_le_one.trans IH2
+    · have hrec : (qConv ξ (k + 1 + 2)).2
+          = ⌊completeQuotient ξ (k + 1)⌋ * (qConv ξ (k + 2)).2 + (qConv ξ (k + 1)).2 := rfl
+      rw [hrec]
+      nlinarith [IH1, IH2, hfloor, mul_nonneg (sub_nonneg.mpr hfloor) (sub_nonneg.mpr IH2)]
+
+/-- The convergent/Möbius relation: `ξ = (ξₙ·numₙ₋₁ + numₙ₋₂)/(ξₙ·denₙ₋₁ + denₙ₋₂)`, written
+cleared of denominators. Induction on `n` via `ξₙ = ⌊ξₙ⌋ + 1/ξₙ₊₁`. -/
+@[category API, AMS 11]
+theorem qConv_mobius {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
+    ξ * (completeQuotient ξ n * ((qConv ξ (n + 1)).2 : ℝ) + ((qConv ξ n).2 : ℝ))
+      = completeQuotient ξ n * ((qConv ξ (n + 1)).1 : ℝ) + ((qConv ξ n).1 : ℝ) := by
+  induction n with
+  | zero => simp [qConv, completeQuotient]
+  | succ n IH =>
+    have hs : completeQuotient ξ (n + 1) ≠ 0 :=
+      (lt_of_lt_of_le one_pos (completeQuotient_one_le hirr n)).ne'
+    have hsub : completeQuotient ξ n
+        = (⌊completeQuotient ξ n⌋ : ℝ) + (completeQuotient ξ (n + 1))⁻¹ := by
+      rw [show (completeQuotient ξ (n + 1))⁻¹ = Int.fract (completeQuotient ξ n) from inv_inv _]
+      exact (Int.floor_add_fract _).symm
+    simp only [qConv]
+    push_cast
+    rw [hsub] at IH
+    field_simp [hs] at IH ⊢
+    linear_combination IH
+
+/-- The leading `qCoeffs` coefficients `aₙ` are uniformly bounded. The Möbius relation and the
+`±1` determinant give the approximation `|ξ·denₙ₋₁ − numₙ₋₁| = 1/(ξₙ·denₙ₋₁ + denₙ₋₂) ≤ 1/denₙ₋₁`,
+whence `aₙ = −denₙ₋₁(ξ·denₙ₋₁ − numₙ₋₁)(A·cₙ + A·ξ + B)` is bounded by `|A|(2|ξ| + 1) + |B|`. -/
+@[category API, AMS 11]
+theorem qCoeffs_fst_le {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
+    (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) :
+    ∃ M : ℤ, ∀ n, |(qCoeffs ξ A B C n).1| ≤ M := by
+  have hNξ : |ξ| ≤ (⌊|ξ|⌋ : ℝ) + 1 := le_of_lt (Int.lt_floor_add_one |ξ|)
+  have hNξ0 : (0 : ℤ) ≤ ⌊|ξ|⌋ + 1 := by positivity
+  -- Uniform bound on the binary quadratic form at convergent index `≥ 2`.
+  have key : ∀ k : ℕ, |A * (qConv ξ (k + 2)).1 ^ 2
+      + B * (qConv ξ (k + 2)).1 * (qConv ξ (k + 2)).2
+      + C * (qConv ξ (k + 2)).2 ^ 2| ≤ |A| * (2 * (⌊|ξ|⌋ + 1) + 1) + |B| := by
+    intro k
+    have hq1 : (1 : ℤ) ≤ (qConv ξ (k + 2)).2 := (qConv_den hirr k).2
+    have hq'0 : (0 : ℤ) ≤ (qConv ξ (k + 1)).2 := (qConv_den hirr k).1
+    have ht1 : (1 : ℝ) ≤ completeQuotient ξ (k + 1) := completeQuotient_one_le hirr k
+    have hmob : ξ * (completeQuotient ξ (k + 1) * ((qConv ξ (k + 2)).2 : ℝ)
+          + ((qConv ξ (k + 1)).2 : ℝ))
+        = completeQuotient ξ (k + 1) * ((qConv ξ (k + 2)).1 : ℝ) + ((qConv ξ (k + 1)).1 : ℝ) :=
+      qConv_mobius hirr (k + 1)
+    have hdet : ((qConv ξ (k + 2)).1 : ℝ) * ((qConv ξ (k + 1)).2 : ℝ)
+        - ((qConv ξ (k + 1)).1 : ℝ) * ((qConv ξ (k + 2)).2 : ℝ) = (-1) ^ (k + 1) := by
+      exact_mod_cast qConv_det (ξ := ξ) (k + 1)
+    rw [← Int.cast_le (R := ℝ), Int.cast_abs]
+    push_cast
+    have hQ1 : (1 : ℝ) ≤ ((qConv ξ (k + 2)).2 : ℝ) := by exact_mod_cast hq1
+    have hQ'0 : (0 : ℝ) ≤ ((qConv ξ (k + 1)).2 : ℝ) := by exact_mod_cast hq'0
+    have hQ0 : (0 : ℝ) ≤ ((qConv ξ (k + 2)).2 : ℝ) := le_trans zero_le_one hQ1
+    set P : ℝ := ((qConv ξ (k + 2)).1 : ℝ)
+    set Q : ℝ := ((qConv ξ (k + 2)).2 : ℝ)
+    set P' : ℝ := ((qConv ξ (k + 1)).1 : ℝ)
+    set Q' : ℝ := ((qConv ξ (k + 1)).2 : ℝ)
+    set t : ℝ := completeQuotient ξ (k + 1)
+    have hdpos : (0 : ℝ) < t * Q + Q' := by nlinarith [ht1, hQ1, hQ'0]
+    have hdQ : Q ≤ t * Q + Q' := by nlinarith [ht1, hQ1, hQ'0]
+    have heq : (ξ * Q - P) * (t * Q + Q') = -((-1) ^ (k + 1)) := by
+      linear_combination Q * hmob - hdet
+    have hone : |ξ * Q - P| * (t * Q + Q') = 1 := by
+      rw [← abs_of_pos hdpos, ← abs_mul, heq]
+      simp
+    have hdq1 : |ξ * Q - P| ≤ 1 := by nlinarith [hone, hdQ, hQ1, abs_nonneg (ξ * Q - P)]
+    have hdqQ : |ξ * Q - P| * Q ≤ 1 := by nlinarith [hone, hdQ, abs_nonneg (ξ * Q - P)]
+    have hquad : (A : ℝ) * P ^ 2 + B * P * Q + C * Q ^ 2
+        = -(ξ * Q - P) * (A * P + A * ξ * Q + B * Q) := by
+      linear_combination Q ^ 2 * h0
+    rw [hquad, abs_mul, abs_neg]
+    have hfac : |(A : ℝ) * P + A * ξ * Q + B * Q|
+        ≤ |2 * (A : ℝ) * ξ + B| * Q + |(A : ℝ)| * |ξ * Q - P| := by
+      have hPe : (A : ℝ) * P + A * ξ * Q + B * Q
+          = (2 * A * ξ + B) * Q + (-(A * (ξ * Q - P))) := by ring
+      rw [hPe]
+      calc |(2 * (A : ℝ) * ξ + B) * Q + (-(A * (ξ * Q - P)))|
+          ≤ |(2 * (A : ℝ) * ξ + B) * Q| + |(-(A * (ξ * Q - P)))| := abs_add_le _ _
+        _ = |2 * (A : ℝ) * ξ + B| * Q + |(A : ℝ)| * |ξ * Q - P| := by
+            rw [abs_neg, abs_mul, abs_mul, abs_of_nonneg hQ0]
+    calc |ξ * Q - P| * |(A : ℝ) * P + A * ξ * Q + B * Q|
+        ≤ |ξ * Q - P| * (|2 * (A : ℝ) * ξ + B| * Q + |(A : ℝ)| * |ξ * Q - P|) :=
+          mul_le_mul_of_nonneg_left hfac (abs_nonneg _)
+      _ = |2 * (A : ℝ) * ξ + B| * (|ξ * Q - P| * Q)
+            + |(A : ℝ)| * (|ξ * Q - P| * |ξ * Q - P|) := by ring
+      _ ≤ |2 * (A : ℝ) * ξ + B| * 1 + |(A : ℝ)| * 1 := by
+          gcongr
+          · nlinarith [hdq1, abs_nonneg (ξ * Q - P)]
+      _ = |2 * (A : ℝ) * ξ + B| + |(A : ℝ)| := by ring
+      _ ≤ |(A : ℝ)| * (2 * ((⌊|ξ|⌋ : ℝ) + 1) + 1) + |(B : ℝ)| := by
+          have htri : |2 * (A : ℝ) * ξ + B| ≤ 2 * |(A : ℝ)| * |ξ| + |(B : ℝ)| := by
+            calc |2 * (A : ℝ) * ξ + B| ≤ |2 * (A : ℝ) * ξ| + |(B : ℝ)| := abs_add_le _ _
+              _ = 2 * |(A : ℝ)| * |ξ| + |(B : ℝ)| := by rw [abs_mul, abs_mul]; norm_num
+          nlinarith [htri, mul_nonneg (abs_nonneg (A : ℝ)) (sub_nonneg.mpr hNξ),
+            abs_nonneg (A : ℝ)]
+  -- Assemble: index `0` gives `A`; indices `≥ 1` are covered by `key`.
+  refine ⟨|A| * (2 * (⌊|ξ|⌋ + 1) + 1) + |B|, fun n => ?_⟩
+  rw [(qCoeffs_eq_qConv n).1]
+  cases n with
+  | zero =>
+    simp only [qConv]
+    have : A * (1 : ℤ) ^ 2 + B * 1 * 0 + C * 0 ^ 2 = A := by ring
+    rw [this]
+    nlinarith [abs_nonneg A, abs_nonneg B, mul_nonneg (abs_nonneg A) hNξ0]
+  | succ k => exact key k
+
+/-- **The crux bound.** The `qCoeffs` triples are bounded uniformly in `n`. The leading
+coefficients `aₙ` are bounded by `qCoeffs_fst_le` (convergent substitution + the approximation
+`|ξ − numₙ₋₁/denₙ₋₁| ≤ 1/denₙ₋₁²`); then `cₙ = aₙ₋₁` and the invariant discriminant
+(`qCoeffs_discrim`, `bₙ² = (B² − 4AC) + 4aₙcₙ`) bound `cₙ` and `bₙ`. -/
 @[category API, AMS 11]
 theorem qCoeffs_bounded {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) :
     ∃ M : ℤ, ∀ n, |(qCoeffs ξ A B C n).1| ≤ M ∧ |(qCoeffs ξ A B C n).2.1| ≤ M
       ∧ |(qCoeffs ξ A B C n).2.2| ≤ M := by
-  sorry
+  obtain ⟨M₁, hM₁⟩ := qCoeffs_fst_le hirr hA h0
+  have hM₁0 : (0 : ℤ) ≤ M₁ := le_trans (abs_nonneg _) (hM₁ 0)
+  -- `cₙ` bound: `c₀ = C` and `cₙ₊₁ = aₙ`.
+  have hc : ∀ n, |(qCoeffs ξ A B C n).2.2| ≤ max |C| M₁ := by
+    intro n
+    cases n with
+    | zero => exact le_max_left _ _
+    | succ k => exact (hM₁ k).trans (le_max_right _ _)
+  -- `bₙ` bound from the invariant discriminant `bₙ² = (B² − 4AC) + 4aₙcₙ`.
+  have hb : ∀ n, |(qCoeffs ξ A B C n).2.1| ≤ |B ^ 2 - 4 * A * C| + 4 * M₁ * max |C| M₁ := by
+    intro n
+    have hdisc := qCoeffs_discrim (ξ := ξ) (A := A) (B := B) (C := C) n
+    have ha := hM₁ n
+    have hcc := hc n
+    have hsq : (qCoeffs ξ A B C n).2.1 ^ 2 ≤ |B ^ 2 - 4 * A * C| + 4 * M₁ * max |C| M₁ := by
+      nlinarith [hdisc, le_abs_self (B ^ 2 - 4 * A * C),
+        le_abs_self ((qCoeffs ξ A B C n).1 * (qCoeffs ξ A B C n).2.2),
+        abs_mul ((qCoeffs ξ A B C n).1) ((qCoeffs ξ A B C n).2.2),
+        mul_le_mul ha hcc (abs_nonneg _) hM₁0]
+    exact (Int.abs_eq_natAbs _ ▸ Int.natAbs_le_self_sq _).trans hsq
+  refine ⟨max M₁ (max (max |C| M₁) (|B ^ 2 - 4 * A * C| + 4 * M₁ * max |C| M₁)),
+    fun n => ⟨(hM₁ n).trans (le_max_left _ _), ?_, ?_⟩⟩
+  · exact (hb n).trans ((le_max_right _ _).trans (le_max_right _ _))
+  · exact (hc n).trans ((le_max_left _ _).trans (le_max_right _ _))
 
 /-- A real of minimal-polynomial degree two is the root of an integer quadratic with nonzero
 leading coefficient (clear the denominators of the rational `minpoly ℚ ξ`). -/
@@ -450,6 +637,177 @@ theorem lagrange_quadratic_imp_periodic {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDe
   refine ⟨hirr, ?_⟩
   obtain ⟨m, n, hmn, h⟩ := completeQuotient_eq_of_quadratic hξ
   exact isEventuallyPeriodicContFrac_of_completeQuotient_eq hirr hmn h
+
+/-- The complete-quotient operator composes additively: the `j`-th complete quotient of the
+`m`-th complete quotient of `ξ` is the `(m + j)`-th complete quotient of `ξ`. -/
+@[category API, AMS 11]
+theorem completeQuotient_add (ξ : ℝ) (m j : ℕ) :
+    completeQuotient (completeQuotient ξ m) j = completeQuotient ξ (m + j) := by
+  induction j with
+  | zero => rfl
+  | succ k IH =>
+    show (Int.fract (completeQuotient (completeQuotient ξ m) k))⁻¹
+      = (Int.fract (completeQuotient ξ (m + k)))⁻¹
+    rw [IH]
+
+/-- An irrational root of an integer quadratic `a X² + b X + c` with `a ≠ 0` is a quadratic
+irrational: `(minpoly ℚ ξ).natDegree = 2` (`≤ 2` as a root of the degree-two polynomial, `≠ 1`
+by irrationality, `≠ 0` by integrality). The finisher for Euler's direction. -/
+@[category API, AMS 11]
+theorem minpoly_natDegree_two_of_irrational_quadratic {ξ : ℝ} (hirr : Irrational ξ)
+    {a b c : ℤ} (ha : a ≠ 0) (hr : (a : ℝ) * ξ ^ 2 + b * ξ + c = 0) :
+    (minpoly ℚ ξ).natDegree = 2 := by
+  set p : Polynomial ℚ := Polynomial.C (a : ℚ) * Polynomial.X ^ 2
+    + Polynomial.C (b : ℚ) * Polynomial.X + Polynomial.C (c : ℚ) with hp
+  have hpdeg : p.natDegree = 2 := by rw [hp]; compute_degree!
+  have hp0 : p ≠ 0 := fun h0 => by rw [h0, Polynomial.natDegree_zero] at hpdeg; norm_num at hpdeg
+  have haeval : Polynomial.aeval ξ p = 0 := by
+    rw [hp]
+    simp only [map_add, map_mul, map_pow, Polynomial.aeval_C, Polynomial.aeval_X, eq_ratCast]
+    push_cast; linear_combination hr
+  have hint : IsIntegral ℚ ξ := IsAlgebraic.isIntegral ⟨p, hp0, haeval⟩
+  have hle : (minpoly ℚ ξ).natDegree ≤ 2 := by
+    rw [← hpdeg]; exact Polynomial.natDegree_le_of_dvd (minpoly.dvd ℚ ξ haeval) hp0
+  have hpos : 0 < (minpoly ℚ ξ).natDegree := minpoly.natDegree_pos hint
+  have hne1 : (minpoly ℚ ξ).natDegree ≠ 1 := by
+    intro h1
+    have hev : Polynomial.aeval ξ (minpoly ℚ ξ) = 0 := minpoly.aeval ℚ ξ
+    have hform : minpoly ℚ ξ = Polynomial.C ((minpoly ℚ ξ).coeff 1) * Polynomial.X
+        + Polynomial.C ((minpoly ℚ ξ).coeff 0) :=
+      Polynomial.eq_X_add_C_of_natDegree_le_one (by omega)
+    have hcoeff : (minpoly ℚ ξ).coeff 1 = 1 := by
+      have hm := (minpoly.monic hint).coeff_natDegree; rw [h1] at hm; exact hm
+    rw [hform, hcoeff] at hev
+    simp only [map_add, Polynomial.aeval_C, Polynomial.aeval_X, map_one, one_mul, eq_ratCast]
+      at hev
+    exact hirr ⟨-(minpoly ℚ ξ).coeff 0, by push_cast; linarith [hev]⟩
+  omega
+
+/-- For irrational `v`, the `n`-th term of `GenContFract.of v` is the pair `⟨1, ⌊vₙ₊₁⌋⟩`: its
+partial denominator is the `(n+1)`-th partial quotient `⌊completeQuotient v (n + 1)⌋`. -/
+@[category API, AMS 11]
+theorem of_s_get?_eq {v : ℝ} (hirr : Irrational v) (n : ℕ) :
+    (GenContFract.of v).s.get? n = some ⟨1, (⌊completeQuotient v (n + 1)⌋ : ℝ)⟩ := by
+  exact GenContFract.get?_of_eq_some_of_succ_get?_intFractPair_stream
+    (intFractPair_stream_eq hirr (n + 1))
+
+/-- **Complete quotients are eventually periodic** (the analytic heart of Euler's direction). If
+the continued-fraction terms of an irrational `ξ` are eventually periodic, then two complete
+quotients coincide, `ξ_M = ξ_{M+p}`: the equal partial-quotient tails make
+`GenContFract.of ξ_M = GenContFract.of ξ_{M+p}` (identical floor data), and continued-fraction
+convergence (`GenContFract.of_convergence`) forces the two limits to agree. -/
+@[category API, AMS 11]
+theorem completeQuotient_eq_of_isEvPeriodic {ξ : ℝ} (hirr : Irrational ξ)
+    (hper : IsEventuallyPeriodicContFrac ξ) :
+    ∃ M p : ℕ, 0 < M ∧ 0 < p ∧ completeQuotient ξ M = completeQuotient ξ (M + p) := by
+  obtain ⟨N, p, hp, hper⟩ := hper
+  have hpq : ∀ m, N + 1 ≤ m → ⌊completeQuotient ξ (m + p)⌋ = ⌊completeQuotient ξ m⌋ := by
+    intro m hm
+    obtain ⟨k, rfl⟩ : ∃ k, m = k + 1 := ⟨m - 1, by omega⟩
+    have hget := hper k (by omega)
+    rw [of_s_get?_eq hirr (k + p), of_s_get?_eq hirr k] at hget
+    simp only [Option.some.injEq, GenContFract.Pair.mk.injEq, Int.cast_inj] at hget
+    rw [show k + 1 + p = k + p + 1 from by omega]
+    exact hget.2
+  refine ⟨N + 1, p, Nat.succ_pos N, hp, ?_⟩
+  set M := N + 1 with hM
+  have hiu : Irrational (completeQuotient ξ M) := completeQuotient_irrational hirr M
+  have hiw : Irrational (completeQuotient ξ (M + p)) := completeQuotient_irrational hirr (M + p)
+  have hfloor : ∀ j, ⌊completeQuotient (completeQuotient ξ M) j⌋
+      = ⌊completeQuotient (completeQuotient ξ (M + p)) j⌋ := by
+    intro j
+    rw [completeQuotient_add, completeQuotient_add, show M + p + j = M + j + p from by omega]
+    exact (hpq (M + j) (by omega)).symm
+  have hof : GenContFract.of (completeQuotient ξ M)
+      = GenContFract.of (completeQuotient ξ (M + p)) := by
+    apply GenContFract.ext
+    · rw [GenContFract.of_h_eq_floor, GenContFract.of_h_eq_floor]
+      exact_mod_cast (hpq M (by omega)).symm
+    · apply Stream'.Seq.ext
+      intro n
+      rw [of_s_get?_eq hiu n, of_s_get?_eq hiw n, hfloor (n + 1)]
+  have h1 := GenContFract.of_convergence (completeQuotient ξ M)
+  have h2 := GenContFract.of_convergence (completeQuotient ξ (M + p))
+  rw [hof] at h1
+  exact tendsto_nhds_unique h1 h2
+
+/-- **Euler's direction** (the easy half, 1737). If `ξ` is irrational and its continued
+fraction expansion is eventually periodic, then `ξ` is a quadratic irrational:
+`(minpoly ℚ ξ).natDegree = 2`.
+
+*Idea.* Eventual periodicity yields two coinciding complete quotients `ξ_M = ξ_{M+p}`
+(`completeQuotient_eq_of_isEvPeriodic`). Applying the convergent/Möbius relation `qConv_mobius`
+to `ξ_M` over the period (using `ξ_{M+p} = ξ_M`) makes `ξ_M` a root of an integer quadratic with
+nonzero leading coefficient; substituting `ξ = (ξ_M·numₘ + numₘ₋₁)/(ξ_M·denₘ + denₘ₋₁)` then
+yields an integer quadratic for `ξ`, whose leading coefficient is nonzero because `ξ_M` is
+irrational (so that quadratic has no rational root). The finisher is
+`minpoly_natDegree_two_of_irrational_quadratic`. -/
+@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Euler" 1737]
+theorem euler_periodic_imp_quadratic {ξ : ℝ} (hirr : Irrational ξ)
+    (hper : IsEventuallyPeriodicContFrac ξ) :
+    (minpoly ℚ ξ).natDegree = 2 := by
+  obtain ⟨M, p, hM0, hp, hMp⟩ := completeQuotient_eq_of_isEvPeriodic hirr hper
+  have hiw : Irrational (completeQuotient ξ M) := completeQuotient_irrational hirr M
+  -- `ξ_M`'s integer quadratic, from `qConv_mobius` over the period (`ξ_{M+p} = ξ_M`).
+  have hmobw := qConv_mobius hiw p
+  have hcqw : completeQuotient (completeQuotient ξ M) p = completeQuotient ξ M := by
+    rw [completeQuotient_add]; exact hMp.symm
+  rw [hcqw] at hmobw
+  set Cw := (qConv (completeQuotient ξ M) (p + 1)).2 with hCw
+  set Dw := (qConv (completeQuotient ξ M) p).2 with hDw
+  set Aw := (qConv (completeQuotient ξ M) (p + 1)).1 with hAw
+  set Bw := (qConv (completeQuotient ξ M) p).1 with hBw
+  have hquadw : (Cw : ℝ) * completeQuotient ξ M ^ 2
+      + ((Dw : ℝ) - Aw) * completeQuotient ξ M - Bw = 0 := by linear_combination hmobw
+  have hCw1 : (1 : ℤ) ≤ Cw := by
+    obtain ⟨q, hq⟩ := Nat.exists_eq_succ_of_ne_zero hp.ne'
+    rw [hCw, hq]; exact (qConv_den hiw q).2
+  -- `ξ = (ξ_M·numₘ + numₘ₋₁)/(ξ_M·denₘ + denₘ₋₁)`.
+  have hmobξ := qConv_mobius hirr M
+  set e := (qConv ξ (M + 1)).1 with he
+  set f := (qConv ξ M).1 with hf
+  set g := (qConv ξ (M + 1)).2 with hg
+  set hh := (qConv ξ M).2 with hhh
+  have hg1 : (1 : ℤ) ≤ g := by
+    obtain ⟨q, hq⟩ : ∃ q, M = q + 1 := ⟨M - 1, by omega⟩
+    rw [hg, hq]; exact (qConv_den hirr q).2
+  have hgR : (0 : ℝ) < g := by exact_mod_cast (by omega : 0 < g)
+  have hge : (g : ℝ) * ξ - e ≠ 0 := by
+    intro h0
+    refine hirr ⟨(e : ℚ) / g, ?_⟩
+    rw [Rat.cast_div]; push_cast; rw [div_eq_iff hgR.ne']; linear_combination -h0
+  have hsub : (f : ℝ) - hh * ξ = completeQuotient ξ M * ((g : ℝ) * ξ - e) := by
+    linear_combination -hmobξ
+  -- Eliminate `ξ_M`: an integer quadratic for `ξ`.
+  have hξquad : ((Cw * hh ^ 2 - (Dw - Aw) * hh * g - Bw * g ^ 2 : ℤ) : ℝ) * ξ ^ 2
+      + ((-2 * Cw * f * hh + (Dw - Aw) * (f * g + hh * e) + 2 * Bw * g * e : ℤ) : ℝ) * ξ
+      + ((Cw * f ^ 2 - (Dw - Aw) * f * e - Bw * e ^ 2 : ℤ) : ℝ) = 0 := by
+    have hexp : ((Cw * hh ^ 2 - (Dw - Aw) * hh * g - Bw * g ^ 2 : ℤ) : ℝ) * ξ ^ 2
+        + ((-2 * Cw * f * hh + (Dw - Aw) * (f * g + hh * e) + 2 * Bw * g * e : ℤ) : ℝ) * ξ
+        + ((Cw * f ^ 2 - (Dw - Aw) * f * e - Bw * e ^ 2 : ℤ) : ℝ)
+        = (Cw : ℝ) * ((f : ℝ) - hh * ξ) ^ 2
+          + ((Dw : ℝ) - Aw) * ((f : ℝ) - hh * ξ) * ((g : ℝ) * ξ - e)
+          - (Bw : ℝ) * ((g : ℝ) * ξ - e) ^ 2 := by push_cast; ring
+    rw [hexp, hsub]; linear_combination ((g : ℝ) * ξ - e) ^ 2 * hquadw
+  -- Leading coefficient is nonzero (else `ξ_M` would be rational).
+  have hα : (Cw * hh ^ 2 - (Dw - Aw) * hh * g - Bw * g ^ 2 : ℤ) ≠ 0 := by
+    intro h0
+    have h0R : (Cw : ℝ) * (hh : ℝ) ^ 2 - ((Dw : ℝ) - Aw) * hh * g - Bw * (g : ℝ) ^ 2 = 0 := by
+      exact_mod_cast h0
+    have hgne : (g : ℝ) ≠ 0 := hgR.ne'
+    have hCwR : (Cw : ℝ) ≠ 0 := by
+      have : (0 : ℝ) < Cw := by exact_mod_cast (by omega : (0 : ℤ) < Cw)
+      exact this.ne'
+    have hfac : ((g : ℝ) * completeQuotient ξ M + hh)
+        * ((Cw : ℝ) * ((g : ℝ) * completeQuotient ξ M - hh) + ((Dw : ℝ) - Aw) * g) = 0 := by
+      linear_combination (g : ℝ) ^ 2 * hquadw - h0R
+    rcases mul_eq_zero.mp hfac with h1 | h2
+    · refine hiw ⟨-(hh : ℚ) / g, ?_⟩
+      rw [Rat.cast_div]; push_cast; rw [div_eq_iff hgne]; linear_combination -h1
+    · refine hiw ⟨((Cw : ℚ) * hh - (Dw - Aw) * g) / (Cw * g), ?_⟩
+      rw [Rat.cast_div]; push_cast; rw [div_eq_iff (mul_ne_zero hCwR hgne)]
+      linear_combination -h2
+  exact minpoly_natDegree_two_of_irrational_quadratic hirr hα hξquad
 
 /-- **Lagrange's theorem.** A real number `ξ` is a quadratic irrational — algebraic of
 degree exactly two over `ℚ`, i.e. `(minpoly ℚ ξ).natDegree = 2` — if and only if it is

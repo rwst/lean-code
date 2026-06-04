@@ -38,6 +38,7 @@ import Mathlib.Algebra.Polynomial.Coeff
 import Mathlib.Algebra.BigOperators.NatAntidiagonal
 import Mathlib.Algebra.BigOperators.Intervals
 import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
+import Mathlib.Analysis.Complex.Basic
 import ForMathlib.LinearAlgebra.Matrix.Hankel
 import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 
@@ -533,3 +534,50 @@ theorem isRationalSeries_iff_kroneckerDet_eventually_zero (F : K⟦X⟧) :
   · exact isRationalSeries_of_eventually_kroneckerDet_zero
 
 end KroneckerTheorem
+
+section MultiplierCriterion
+
+/-! ## Bertin's multiplier criterion (Theorem 1.1.2)
+
+A refinement of Kronecker's criterion for *integer* series. Here `F ∈ ℤ⟦X⟧` is tested against a
+**multiplier** polynomial `T ∈ ℂ[X]` with constant term `1`, and rationality is forced by a single
+modulus bound `|det A(T, L_r, F)| < 1` holding across *all* index sequences `L_r ∈ ℒ_r` of one
+fixed size `r + 1`.
+
+`ℒ_r` — Bertin's strictly increasing sequences `(l₀ < l₁ < ⋯ < l_r)` of `r + 1` naturals — is
+encoded as strictly monotone maps `L : Fin (r + 1) → ℕ` (`StrictMono L`).
+
+Bertin's matrix `A(T, L_r, F)` has `(i, j)` entry `x_{lᵢ, lⱼ}`, where
+`x_{m,n} = ∑_{0 ≤ i ≤ m} ∑_{0 ≤ j ≤ n} tᵢ tⱼ a_{m+n-(i+j)}`. Substituting `i ↦ m - i`, `j ↦ n - j`
+shows `x_{m,n} = (U · H · Uᵀ)_{m,n}`, the congruence of the Hankel matrix `H` of `F` by the
+lower-triangular Toeplitz matrix `U` of `T`. Since `t₀ = 1` makes `U` unit lower-triangular, the
+special sequence `L = (0, 1, …, r)` gives `det A(T, L_r, F) = D_r(F)`, the integer Kronecker
+determinant of Definition 1.1 — the bridge to `isRationalSeries_iff_kroneckerDet_eventually_zero`.
+-/
+
+/-- The `(m, n)` entry `x_{m,n}` of Bertin's matrix `A(T, L_r, F)` (Theorem 1.1.2): for a multiplier
+polynomial `T = ∑ tₖ Xᵏ ∈ ℂ[X]` and `F = ∑ aₖ Xᵏ ∈ ℤ⟦X⟧`,
+`x_{m,n} = ∑_{0 ≤ i ≤ m} ∑_{0 ≤ j ≤ n} tᵢ tⱼ a_{m+n-(i+j)}` (the integer coefficients `aₖ` cast to
+`ℂ`). Equivalently `x_{m,n} = (U · H · Uᵀ)_{m,n}`, the Toeplitz-congruence of the Hankel matrix of
+`F` by the lower-triangular Toeplitz matrix of `T`. -/
+noncomputable def multiplierCoeff (T : ℂ[X]) (F : ℤ⟦X⟧) (m n : ℕ) : ℂ :=
+  ∑ i ∈ Finset.range (m + 1), ∑ j ∈ Finset.range (n + 1),
+    T.coeff i * T.coeff j * ((PowerSeries.coeff (m + n - (i + j)) F : ℤ) : ℂ)
+
+/-- **Bertin's matrix `A(T, L_r, F)`** (Theorem 1.1.2). Given a strictly increasing index sequence
+`L = (l₀ < ⋯ < l_r) ∈ ℒ_r`, this is the `(r+1) × (r+1)` complex matrix whose `(i, j)` entry is
+`x_{lᵢ, lⱼ} = multiplierCoeff T F (L i) (L j)`. For `T = 1` it is the Hankel minor `H(L_r, F)`; for
+`T = 1` and `L = (0, 1, …, r)` its determinant is the Kronecker determinant `D_r(F)`. -/
+noncomputable def multiplierMatrix (T : ℂ[X]) (F : ℤ⟦X⟧) {r : ℕ} (L : Fin (r + 1) → ℕ) :
+    Matrix (Fin (r + 1)) (Fin (r + 1)) ℂ :=
+  Matrix.of fun i j => multiplierCoeff T F (L i) (L j)
+
+@[simp] theorem multiplierMatrix_apply (T : ℂ[X]) (F : ℤ⟦X⟧) {r : ℕ} (L : Fin (r + 1) → ℕ)
+    (i j : Fin (r + 1)) : multiplierMatrix T F L i j = multiplierCoeff T F (L i) (L j) := rfl
+
+-- `isRationalSeries_of_multiplierMatrix_det_lt_one` (Bertin, Theorem 1.1.2) is *not* stated here:
+-- its proof is not yet formalized, and `ForMathlib/` is kept strictly `sorry`- and axiom-free. It is
+-- recorded as a literature `axiom` in `BertinPisot/MultiplierCriterion.lean`, where it consumes the
+-- `multiplierMatrix` construction defined above.
+
+end MultiplierCriterion
