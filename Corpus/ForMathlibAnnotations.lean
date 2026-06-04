@@ -10,6 +10,8 @@ import ForMathlib.NumberTheory.PisotNumber
 import ForMathlib.LinearAlgebra.Matrix.Hankel
 import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 import ForMathlib.RingTheory.PowerSeries.Rationality
+import ForMathlib.Analysis.Complex.HardySpace
+import ForMathlib.Analysis.InnerProductSpace.Hadamard
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
@@ -22,11 +24,14 @@ depend on the corpus annotation attributes. This file applies the database
 command, so they extract as annotated nodes without coupling `ForMathlib` to
 `Corpus.Util.Attributes`.
 
-All are tagged `category API` (supporting notions/lemmas for the corpus). The subject is
+Most are tagged `category API` (supporting notions/lemmas for the corpus). The subject is
 `AMS 11` (number theory; the power-series block is linear-recurrence theory, 11B37), except the
-pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`. The
-linear-algebra and power-series blocks additionally carry the literature reference `ref "Ber92"`
-(Bertin, *Pisot and Salem Numbers*, 1992; the key is expanded in the relevant module docstrings).
+pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`, and the
+Hardy-space block, which carries `AMS 30` (complex analysis, Hardy spaces 30H10). The
+linear-algebra, power-series, and Hardy-space blocks additionally carry the literature reference
+`ref "Ber92"` (Bertin, *Pisot and Salem Numbers*, 1992; the key is expanded in the relevant module
+docstrings). The headline Hardy `H²` characterisation `Complex.memHardy_two_iff_summable` is tagged
+`research solved` (a proved, named result), in the spirit of the Lagrange exception below.
 
 Exception: `ForMathlib/NumberTheory/ContinuedFractions/Lagrange.lean` carries its
 annotations in-file (`lagrange` is `research solved`), so it is not listed here.
@@ -64,3 +69,11 @@ attribute [category API, AMS 11, ref "Ber92"]
   kroneckerDet_step eq_zero_of_forall_kroneckerDet_eq_zero
   isRationalSeries_iff_kroneckerDet_eventually_zero
   multiplierCoeff multiplierMatrix multiplierMatrix_apply
+
+-- `ForMathlib/Analysis/Complex/HardySpace.lean`
+-- [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
+attribute [category API, AMS 30, ref "Ber92"] Complex.hardyIntegralMean Complex.MemHardy
+attribute [category research solved, AMS 30, ref "Ber92"] Complex.memHardy_two_iff_summable
+
+-- `ForMathlib/Analysis/InnerProductSpace/Hadamard.lean` — Hadamard's determinant inequality
+attribute [category API, AMS 15] OrthonormalBasis.norm_det_le_prod_norm
