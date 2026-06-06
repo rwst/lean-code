@@ -76,4 +76,5 @@ attribute [category API, AMS 30, ref "Ber92"] Complex.hardyIntegralMean Complex.
 attribute [category research solved, AMS 30, ref "Ber92"] Complex.memHardy_two_iff_summable
 
 -- `ForMathlib/Analysis/InnerProductSpace/Hadamard.lean` — Hadamard's determinant inequality
-attribute [category API, AMS 15] OrthonormalBasis.norm_det_le_prod_norm
+attribute [category API, AMS 15]
+  OrthonormalBasis.norm_det_le_prod_norm Matrix.norm_det_le_prod_col_norm

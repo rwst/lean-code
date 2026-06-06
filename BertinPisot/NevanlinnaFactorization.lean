@@ -14,9 +14,12 @@ import Corpus.Util.Attributes.Basic
 /-!
 # Nevanlinna-class factorization on the unit disk (Bertin §1.2) — literature axioms
 
-This file records three classical factorization results from Bertin, *Pisot and Salem Numbers*,
-§1.2 ("Criteria of rationality in ℂ"). The first two are recorded as **literature axioms**; the
-third is **proved** here as a corollary of them.
+This file records the §1.2 results of Bertin, *Pisot and Salem Numbers* ("Criteria of rationality
+in ℂ"): three Nevanlinna-class factorization results (Propositions 1.2.1–1.2.3), the bridge Lemma
+1.2.1 to the §1.1 Kronecker machinery, the headline rationality Theorem 1.2.1, and two sufficient
+conditions for bounded characteristic (Propositions 1.2.4–1.2.5). Propositions 1.2.1, 1.2.2, 1.2.4
+and Lemma 1.2.1 are recorded as **literature axioms**; Propositions 1.2.3, 1.2.5 and Theorem 1.2.1
+are **proved** from them.
 
 * `Complex.hasBoundedCharacteristic_iff_isBoundedAnalyticQuotient` — **Proposition 1.2.1**
   (Tsuji): a meromorphic function on `D(0,1)` has *bounded characteristic* iff it is a quotient
@@ -28,6 +31,23 @@ third is **proved** here as a corollary of them.
   characteristic is equivalent to being a quotient of two `Hᵖ` functions (any `p > 0`, e.g. `H²`).
   This is **proved** from 1.2.1 and 1.2.2 (its only non-standard axioms), using `H^∞ ⊆ Hᵖ` and the
   identity principle to reconcile the two notions of quotient.
+* `Complex.boundedCharacteristic_kroneckerDet_root_tendsto_zero` — **Lemma 1.2.1** (Bertin): for `f`
+  of bounded characteristic with no pole at `0`, the Kronecker/Hankel determinants `Dₙ(S(f))` of its
+  Taylor series satisfy `‖Dₙ‖ ^ (1/n) → 0`. A literature axiom (its published proof uses the Hardy
+  `ℓ²` coefficients of a quotient representation and Hadamard's inequality); the bridge from the
+  factorization results to the §1.1 Kronecker determinants.
+* `Complex.isRationalSeries_of_boundedCharacteristic_intCoeffs` — **Theorem 1.2.1** (Bertin): a
+  function of bounded characteristic with no pole at `0` whose Taylor coefficients are **integers**
+  is a rational function — its Taylor series `S(f)` is a rational series. **Proved** from Lemma 1.2.1
+  and Kronecker's criterion: the integer determinants `Dₙ` have modulus `< 1` from some index on,
+  hence vanish, forcing rationality.
+* `Complex.hasBoundedCharacteristic_of_bddAway` — **Proposition 1.2.4** (Bertin): if `f` is
+  meromorphic on `D(0,1)` and stays bounded away from some value `α` on an annulus `η ≤ |z| < 1` near
+  the boundary (`|f - α| ≥ δ > 0`), then `f` has bounded characteristic. A literature axiom (its proof
+  applies the disk Nevanlinna characteristic and the First Main Theorem to `1/(f - α)`).
+* `Complex.hasBoundedCharacteristic_of_re_le` — **Proposition 1.2.5** (Bertin): if `Re f ≤ k` near
+  the boundary (on an annulus `η ≤ |z| < 1`), then `f` has bounded characteristic. **Proved** from
+  1.2.4 by avoiding `α = k + 1` with margin `δ = 1`.
 
 The first two results' published proofs run through the Poisson–Jensen formula, the Nevanlinna
 characteristic, and
@@ -229,5 +249,101 @@ axiom boundedCharacteristic_kroneckerDet_root_tendsto_zero {f : ℂ → ℂ} {a 
     (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ) :
     Filter.Tendsto (fun n => ‖kroneckerDet (PowerSeries.mk a) n‖ ^ (n : ℝ)⁻¹)
       Filter.atTop (nhds 0)
+
+/-- **Theorem 1.2.1** (Bertin). A meromorphic function `f` on the unit disk `D(0,1)` with bounded
+characteristic and no pole at the origin — so near `0` it is analytic with Taylor series
+`S(f) = ∑ aₖ Xᵏ` — whose Taylor coefficients are **integers** (`a k ∈ ℤ`) is a *rational function*:
+its Taylor series `S(f)` is a rational series (`IsRationalSeries`, the power-series expansion of a
+ratio of polynomials; over the field `ℂ` this is exactly "the expansion of a rational function").
+
+Proof (Bertin). The Kronecker/Hankel determinants `Dₙ(S(f)) = kroneckerDet (mk a) n` are integers,
+being determinants of integer Hankel matrices. By **Lemma 1.2.1**
+(`boundedCharacteristic_kroneckerDet_root_tendsto_zero`) their geometric means `‖Dₙ‖ ^ (1/n)` tend to
+`0`, so `‖Dₙ‖ < 1` from some index on; an integer of modulus `< 1` is `0`, hence `Dₙ = 0` eventually,
+and the **Kronecker criterion** (`isRationalSeries_iff_kroneckerDet_eventually_zero`) makes `S(f)`
+rational. This is the rationality criterion the whole section builds toward; its only non-standard
+axiom is Lemma 1.2.1. -/
+@[category research solved, AMS 30, ref "Ber92", formal_uses
+  boundedCharacteristic_kroneckerDet_root_tendsto_zero
+  isRationalSeries_iff_kroneckerDet_eventually_zero]
+theorem isRationalSeries_of_boundedCharacteristic_intCoeffs {f : ℂ → ℂ} {a : ℕ → ℂ} {ρ : ENNReal}
+    (hf : HasBoundedCharacteristic f)
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ)
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ)) :
+    IsRationalSeries (PowerSeries.mk a) := by
+  classical
+  choose b hb using hint
+  -- The Kronecker determinants of `S(f)` are integers: casts of the integer Hankel determinants.
+  have hcast : ∀ n, kroneckerDet (PowerSeries.mk a) n
+      = ((kroneckerDet (PowerSeries.mk b) n : ℤ) : ℂ) := by
+    intro n
+    have hmap : hankelMatrix (PowerSeries.mk a) n
+        = (hankelMatrix (PowerSeries.mk b) n).map (Int.castRingHom ℂ) := by
+      ext i j
+      simp only [hankelMatrix_apply, PowerSeries.coeff_mk, Matrix.map_apply, Int.coe_castRingHom, hb]
+    show (hankelMatrix (PowerSeries.mk a) n).det
+        = (((hankelMatrix (PowerSeries.mk b) n).det : ℤ) : ℂ)
+    rw [hmap, ← RingHom.mapMatrix_apply, ← RingHom.map_det, Int.coe_castRingHom]
+  -- By Lemma 1.2.1 the integer determinants have modulus `< 1` eventually, hence vanish.
+  have hev : ∀ᶠ n : ℕ in Filter.atTop, kroneckerDet (PowerSeries.mk a) n = 0 := by
+    have hroot := boundedCharacteristic_kroneckerDet_root_tendsto_zero hf hfp
+    have h1 : ∀ᶠ n : ℕ in Filter.atTop,
+        ‖kroneckerDet (PowerSeries.mk a) n‖ ^ (n : ℝ)⁻¹ < 1 :=
+      hroot.eventually (eventually_lt_nhds (by norm_num))
+    filter_upwards [h1, Filter.eventually_ge_atTop 1] with n hn1 hn
+    have hne : n ≠ 0 := by omega
+    have hx0 : (0 : ℝ) ≤ ‖kroneckerDet (PowerSeries.mk a) n‖ := norm_nonneg _
+    have hnorm : ‖kroneckerDet (PowerSeries.mk a) n‖ < 1 :=
+      calc ‖kroneckerDet (PowerSeries.mk a) n‖
+          = (‖kroneckerDet (PowerSeries.mk a) n‖ ^ (n : ℝ)⁻¹) ^ n :=
+            (Real.rpow_inv_natCast_pow hx0 hne).symm
+        _ < 1 := pow_lt_one₀ (Real.rpow_nonneg hx0 _) hn1 hne
+    have hzero : kroneckerDet (PowerSeries.mk b) n = 0 := by
+      rw [hcast n, Complex.norm_intCast] at hnorm
+      exact Int.abs_lt_one_iff.mp (by exact_mod_cast hnorm)
+    rw [hcast n, hzero, Int.cast_zero]
+  exact (isRationalSeries_iff_kroneckerDet_eventually_zero (PowerSeries.mk a)).mpr
+    (Filter.eventually_atTop.mp hev)
+
+/-- **Proposition 1.2.4** (Bertin). Let `f` be meromorphic on the unit disk `D(0,1)`. If `f` stays
+bounded away from some value `α ∈ ℂ` on an annulus `η ≤ |z| < 1` near the boundary — there are
+`η ∈ [0,1)` and `δ > 0` with `|f(z) - α| ≥ δ` for every `z` with `η ≤ |z| < 1` — then `f` has bounded
+characteristic.
+
+The published proof passes to `g = 1 / (f - α)`, which is analytic and bounded (`|g| ≤ 1/δ`) on the
+annulus, hence of bounded proximity there; its counting function is controlled by the finitely many
+poles of `f` inside `|z| ≤ η`, so `T(r, g)` stays bounded, and the First Main Theorem gives
+`T(r, f) = T(r, g) + O(1)`. The Nevanlinna machinery this needs — the characteristic on the disk and
+the First Main Theorem near the boundary — is not in Mathlib, so the result is recorded as a
+literature axiom on the authority of [Ber92], Proposition 1.2.4. -/
+@[category research solved, AMS 30, ref "Ber92",
+  informal_uses "poisson-jensen" "nevanlinna-characteristic"]
+axiom hasBoundedCharacteristic_of_bddAway {f : ℂ → ℂ} (hf : MeromorphicOn f (ball 0 1))
+    {α : ℂ} {η δ : ℝ} (hη : η ∈ Ico (0 : ℝ) 1) (hδ : 0 < δ)
+    (hbound : ∀ z : ℂ, η ≤ ‖z‖ → ‖z‖ < 1 → δ ≤ ‖f z - α‖) :
+    HasBoundedCharacteristic f
+
+/-- **Proposition 1.2.5** (Bertin). Let `f` be meromorphic on the unit disk `D(0,1)`. If the real
+part of `f` is bounded above near the boundary — there are `k ∈ ℝ` and `η ∈ [0,1)` with
+`Re f(z) ≤ k` for every `z` with `η ≤ |z| < 1` — then `f` has bounded characteristic.
+
+This is a **corollary of Proposition 1.2.4**: with the real part bounded by `k`, the value
+`α = k + 1` is avoided with margin `δ = 1`, since
+`|f(z) - α| ≥ |Re(f(z) - α)| = (k + 1) - Re f(z) ≥ 1` on the annulus. Geometrically, `f` maps the
+annulus into the half-plane `{Re w ≤ k}`, which stays a fixed distance from `k + 1`. -/
+@[category research solved, AMS 30, ref "Ber92", formal_uses hasBoundedCharacteristic_of_bddAway]
+theorem hasBoundedCharacteristic_of_re_le {f : ℂ → ℂ} (hf : MeromorphicOn f (ball 0 1))
+    {k η : ℝ} (hη : η ∈ Ico (0 : ℝ) 1)
+    (hbound : ∀ z : ℂ, η ≤ ‖z‖ → ‖z‖ < 1 → (f z).re ≤ k) :
+    HasBoundedCharacteristic f := by
+  refine hasBoundedCharacteristic_of_bddAway hf hη (α := (k : ℂ) + 1) (δ := 1) one_pos ?_
+  intro z hz1 hz2
+  have hre : (f z - ((k : ℂ) + 1)).re ≤ -1 := by
+    simp only [Complex.sub_re, Complex.add_re, Complex.one_re, Complex.ofReal_re]
+    linarith [hbound z hz1 hz2]
+  calc (1 : ℝ) = -(-1) := by ring
+    _ ≤ -(f z - ((k : ℂ) + 1)).re := by linarith
+    _ ≤ |(f z - ((k : ℂ) + 1)).re| := neg_le_abs _
+    _ ≤ ‖f z - ((k : ℂ) + 1)‖ := Complex.abs_re_le_norm _
 
 end Complex

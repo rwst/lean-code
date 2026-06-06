@@ -19,7 +19,9 @@ orthonormal basis `b` the determinant is `∏ i, ⟪b i, v i⟫` (an upper-trian
 factor bounded by `‖v i‖` via Cauchy–Schwarz since `‖b i‖ = 1`; the determinant in any other
 orthonormal basis has the same norm because the change-of-basis matrix is unitary
 (`OrthonormalBasis.det_to_matrix_orthonormalBasis`). For the real, oriented analogue via the volume
-form see `Orientation.abs_volumeForm_apply_le`.
+form see `Orientation.abs_volumeForm_apply_le`. The matrix specialisation
+`Matrix.norm_det_le_prod_col_norm` bounds `‖det X‖` by the product of the Euclidean norms of the
+columns of `X`.
 -/
 
 open Finset InnerProductSpace
@@ -47,3 +49,21 @@ theorem norm_det_le_prod_norm (a : OrthonormalBasis (Fin n) 𝕜 E) (v : Fin n �
     _ = ‖v i‖ := by rw [b.orthonormal.1 i, one_mul]
 
 end OrthonormalBasis
+
+/-- **Hadamard's inequality, matrix form.** The determinant of a square matrix over `𝕜 = ℝ` or `ℂ`
+is bounded in modulus by the product of the Euclidean norms of its columns:
+`‖det X‖ ≤ ∏ j, √(∑ i, ‖X i j‖²)`. This specialises `OrthonormalBasis.norm_det_le_prod_norm` to the
+standard orthonormal basis of `EuclideanSpace 𝕜 (Fin n)`, in which the determinant of the column
+family of `X` is `Matrix.det X`. -/
+theorem Matrix.norm_det_le_prod_col_norm {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
+    (X : Matrix (Fin n) (Fin n) 𝕜) :
+    ‖X.det‖ ≤ ∏ j, Real.sqrt (∑ i, ‖X i j‖ ^ 2) := by
+  let v : Fin n → EuclideanSpace 𝕜 (Fin n) :=
+    fun j => (EuclideanSpace.equiv (Fin n) 𝕜).symm (fun i => X i j)
+  have hdet : (EuclideanSpace.basisFun (Fin n) 𝕜).toBasis.det v = X.det := by
+    rw [Module.Basis.det_apply]; congr 1
+  have hnorm : ∀ j, ‖v j‖ = Real.sqrt (∑ i, ‖X i j‖ ^ 2) := fun j => by
+    rw [EuclideanSpace.norm_eq]; rfl
+  calc ‖X.det‖ = ‖(EuclideanSpace.basisFun (Fin n) 𝕜).toBasis.det v‖ := by rw [hdet]
+    _ ≤ ∏ j, ‖v j‖ := (EuclideanSpace.basisFun (Fin n) 𝕜).norm_det_le_prod_norm v
+    _ = ∏ j, Real.sqrt (∑ i, ‖X i j‖ ^ 2) := by simp only [hnorm]
