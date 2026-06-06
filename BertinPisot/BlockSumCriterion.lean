@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import ForMathlib.RingTheory.PowerSeries.Rationality
 import ForMathlib.Analysis.InnerProductSpace.Hadamard
+import ForMathlib.Algebra.BigOperators.Dyadic
 import BertinPisot.NevanlinnaFactorization
 import Mathlib.Analysis.Analytic.Basic
 import Mathlib.Analysis.Analytic.OfScalars
@@ -38,23 +39,27 @@ rational. It is stated as the capstone `theorem`, with the three technical lemma
 * `blockNormSq_littleO_asymptotics` — **Lemma 1.2.4**: from `∑_{m=n}^{2n-1} |vₘ|² = o(n^{-γ})`, three
   asymptotic estimates for the partial sums follow (parts i–iii). Its `ρᵢ = sup_{n≥i} ∑ |vₕ|²` is
   precisely Lemma 1.2.3's `δ` for `yₙ = |vₙ|²`, so the two lemmas chain.
-* `norm_det_lt_one_of_sum_normSq_lt` — **Lemma 1.2.5**: a square matrix `X` of order `n+1` with
-  `∑_{i,j} |x_{i,j}|² < n+1` has `|det X| < 1`. This is Hadamard's inequality
-  (`OrthonormalBasis.norm_det_le_prod_norm`, in `ForMathlib`) plus AM–GM.
+* `Matrix.norm_det_lt_one_of_sum_normSq_lt` (in `ForMathlib`) — **Lemma 1.2.5**: a square matrix `X`
+  of order `n+1` with `∑_{i,j} |x_{i,j}|² < n+1` has `|det X| < 1`. This is Hadamard's inequality
+  (`Matrix.norm_det_le_prod_col_norm`) plus AM–GM, both in
+  `ForMathlib/Analysis/InnerProductSpace/Hadamard.lean`.
 
 ## Status
 
-* **Lemma 1.2.5** (Hadamard/AM–GM estimate) is **proved**.
+* **Lemma 1.2.5** (Hadamard/AM–GM estimate) is **proved** — extracted to `ForMathlib`, generalised
+  to `RCLike 𝕜` (`Matrix.norm_det_lt_one_of_sum_normSq_lt`).
 * **Lemma 1.2.4** is **fully proved** (all of parts (i)–(iii), both `γ ≷ 1` regimes): part **(i)**
   (`part_i`); **(ii)** via `part_ii_ge` (`γ > 1`, Cauchy–Schwarz) and `part_ii_lt` (`γ < 1`, dyadic
   Cauchy–Schwarz `ℓ¹`-block bound summed with geometric weights `s = 2^{(1-γ)/2} > 1` over levels up
   to `Nat.log 2 r`, then squared); **(iii)** via `part_iii_ge` (`γ > 1`, supremum bound + `p`-series)
   and `part_iii_lt` (`γ < 1`, `ρᵢ = o(i^{-γ})` + `psum_le` + ε-summation). Reusable helpers:
-  `sum_Ico_one_two_pow` (dyadic grouping), `exists_global_bound` (globalising the `o`-bound),
-  `exists_block_geom_bound` (geometric block decay), `partialSum_bounded` (dyadic→bounded sums),
-  `psum_le` (`p`-series bound via integral comparison), `cast_two_pow_rpow`, `block_l1_sq_le`.
+  `Finset.sum_Ico_one_two_pow` (dyadic grouping, now in `ForMathlib`), `exists_global_bound`
+  (globalising the `o`-bound), `exists_block_geom_bound` (geometric block decay),
+  `partialSum_bounded` (dyadic→bounded sums), `psum_le` (`p`-series bound via integral comparison),
+  `cast_two_pow_rpow`, `block_l1_sq_le`.
 * **Lemma 1.2.3** (doubling-block covering count) is **proved** (constant `6 ≤ 8`), via the helpers
-  `sum_dilate_le`, `sum_Ico_anchored`, `window_cover`, `cover_sum_le`, `window_double_sum_tail_le`.
+  `sum_dilate_le`, `Finset.sum_Ico_two_pow_mul` (`ForMathlib`), `window_cover`, `cover_sum_le`,
+  `window_double_sum_tail_le`.
 * **Theorem 1.2.2** is **proved**. Case `α, β > 0` routes through Theorem 1.2.1 (`s, t ∈ H²` ⟹ bounded
   characteristic). Case `{α=0<1<β} ∪ {1<α, β=0}` is the multiplier-determinant argument, assembled
   from Lemmas 1.2.3/1.2.4/1.2.5, the Kronecker criterion, and three cited `[Ber92]` axioms for the
@@ -76,8 +81,8 @@ accounting (the explicit `Γ`-regrouping of Bertin's text is replaced by an orde
 
 * `sum_dilate_le` — a discrete dilation/averaging bound: `c · ∑_{h<H} δ(c(h+1)) ≤ ∑_{j<cH} δ(j+1)`
   for antitone `δ` (each `δ(c(h+1))` is dominated by the `c`-block of `δ` ending at `c(h+1)`).
-* `sum_Ico_anchored` — the doubling blocks `[2ᵗa, 2ᵗ⁺¹a)`, `t ≤ P`, tile the interval
-  `[a, 2^(P+1)·a)`.
+* `Finset.sum_Ico_two_pow_mul` (extracted to `ForMathlib`) — the doubling blocks `[2ᵗa, 2ᵗ⁺¹a)`,
+  `t ≤ P`, tile the interval `[a, 2^(P+1)·a)`.
 * `window_cover` — a length-`(s+1)` window `[a, a+s]` (with `a ≥ 1`) is covered by the doubling
   blocks anchored at `a` up to scale `P = log₂((a+s)/a)`, so its `y`-sum is `≤ ∑_{t≤P} δ(2ᵗa)`.
 * `cover_sum_le` — that cover sum is itself `≤ ∑_{j≤s} δⱼ` (since the scales `2ᵗa ≥ t` and `P ≤ s`).
@@ -106,18 +111,6 @@ private lemma sum_dilate_le {δ : ℕ → ℝ} (hδanti : Antitone δ) {c : ℕ}
         ← Finset.sum_Ico_consecutive (fun j => δ (j + 1)) (Nat.zero_le _) hle]
     rw [hsplitR]; exact add_le_add ih key
 
-/-- The doubling blocks `[2ᵗa, 2ᵗ⁺¹a)`, `t = 0, …, P`, tile `[a, 2^(P+1)·a)`. -/
-private lemma sum_Ico_anchored (y : ℕ → ℝ) (a P : ℕ) :
-    ∑ i ∈ Finset.Ico a (2 ^ (P + 1) * a), y i
-      = ∑ t ∈ Finset.range (P + 1), ∑ i ∈ Finset.Ico (2 ^ t * a) (2 ^ (t + 1) * a), y i := by
-  induction P with
-  | zero => simp
-  | succ P ih =>
-    rw [Finset.sum_range_succ, ← ih]
-    refine (Finset.sum_Ico_consecutive y ?_ ?_).symm
-    · exact Nat.le_mul_of_pos_left a (by positivity)
-    · gcongr <;> omega
-
 /-- A length-`(s+1)` window `[a, a+s]` (with `a ≥ 1`) is covered by the doubling blocks anchored at
 `a`, giving `∑_{m≤s} y(a+m) ≤ ∑_{t≤P} δ(2ᵗa)` with `P = log₂((a+s)/a)`. -/
 private lemma window_cover {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n) {δ : ℕ → ℝ}
@@ -139,7 +132,7 @@ private lemma window_cover {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n) {δ : ℕ �
     _ ≤ ∑ i ∈ Finset.Ico a (2 ^ (P + 1) * a), y i :=
         Finset.sum_le_sum_of_subset_of_nonneg (Finset.Ico_subset_Ico_right hcover) (fun i _ _ => hy i)
     _ = ∑ t ∈ Finset.range (P + 1), ∑ i ∈ Finset.Ico (2 ^ t * a) (2 ^ (t + 1) * a), y i :=
-        sum_Ico_anchored y a P
+        Finset.sum_Ico_two_pow_mul y a P
     _ ≤ ∑ t ∈ Finset.range (P + 1), δ (2 ^ t * a) := by
         refine Finset.sum_le_sum (fun t _ => ?_)
         have h := hδub (2 ^ t * a) (2 ^ t * a) (le_refl _)
@@ -336,18 +329,6 @@ private lemma window_sum_le_eight_delta_sum
   rw [Finset.sum_range_succ']
   linarith [hPA, hF0, hsum_nn]
 
-/-- Dyadic grouping: the sum over `[1, 2^(K+1))` splits into the doubling blocks `[2^k, 2^(k+1))`,
-`k = 0, …, K`. -/
-private lemma sum_Ico_one_two_pow (a : ℕ → ℝ) (K : ℕ) :
-    ∑ i ∈ Finset.Ico 1 (2 ^ (K + 1)), a i
-      = ∑ k ∈ Finset.range (K + 1), ∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), a i := by
-  induction K with
-  | zero => simp
-  | succ K ih =>
-    rw [Finset.sum_range_succ, ← ih]
-    exact (Finset.sum_Ico_consecutive a Nat.one_le_two_pow
-      (Nat.pow_le_pow_right (by norm_num) (Nat.le_succ _))).symm
-
 /-- A function that is `o(n^{-γ})` is, globally on `n ≥ 1`, bounded by `C · n^{-γ}` for some `C ≥ 0`
 (the `o`-hypothesis makes `B n · n^γ` a null sequence, hence bounded). -/
 private lemma exists_global_bound {B : ℕ → ℝ} {γ : ℝ}
@@ -391,7 +372,7 @@ private lemma partialSum_bounded {a : ℕ → ℝ} (ha0 : ∀ i, 0 ≤ a i)
         rw [Finset.range_eq_Ico,
           ← Finset.sum_Ico_consecutive _ (Nat.zero_le 1) Nat.one_le_two_pow]; congr 1; simp
     _ = a 0 + ∑ k ∈ Finset.range (R + 1), ∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), a i := by
-        rw [sum_Ico_one_two_pow]
+        rw [Finset.sum_Ico_one_two_pow]
     _ ≤ a 0 + ∑ k ∈ Finset.range (R + 1), D * ρ ^ k := by gcongr with i hi; exact hblock i
     _ ≤ a 0 + D * ∑' k, ρ ^ k := by
         rw [← tsum_mul_left]
@@ -695,7 +676,8 @@ private lemma part_ii_lt {v : ℕ → ℂ} {γ : ℝ} (hγ1 : γ < 1)
             (fun i _ _ => norm_nonneg _)
       _ = ‖v 0‖ + ∑ k ∈ Finset.range (K + 1), ∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), ‖v i‖ := by
           rw [Finset.range_eq_Ico,
-            ← Finset.sum_Ico_consecutive _ (Nat.zero_le 1) Nat.one_le_two_pow, sum_Ico_one_two_pow]
+            ← Finset.sum_Ico_consecutive _ (Nat.zero_le 1) Nat.one_le_two_pow,
+          Finset.sum_Ico_one_two_pow]
           congr 1; simp
       _ = A + ∑ k ∈ Finset.Ico M (K + 1), ∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), ‖v i‖ := by
           rw [hA, add_assoc]; congr 1
@@ -744,45 +726,6 @@ private lemma blockNormSq_littleO_asymptotics {v : ℕ → ℂ} {γ : ℝ} (hγ 
   -- Part (i) and the `γ > 1` cases of (ii), (iii) are proved; the `γ < 1` cases remain.
   ⟨part_i hγ hv, ⟨fun h => part_ii_lt h hv, fun h => part_ii_ge h hv⟩,
     ⟨fun h => part_iii_lt hγ h hv hρ, fun h => part_iii_ge h hv hρ⟩⟩
-
-/-- **Lemma 1.2.5** (Bertin). A square matrix `X` of order `n + 1` over `ℂ` whose squared
-Frobenius norm is strictly below its order, `∑_{i,j} |x_{i,j}|² < n + 1`, has determinant of modulus
-`< 1`. This is Hadamard's inequality `|det X| ≤ ∏ⱼ ‖colⱼ‖` (see `ForMathlib`'s
-`OrthonormalBasis.norm_det_le_prod_norm`) combined with the AM–GM inequality:
-`|det X|² ≤ ∏ⱼ (∑ᵢ |x_{i,j}|²) ≤ ((∑_{i,j} |x_{i,j}|²)/(n+1))^{n+1} < 1`. -/
-private lemma norm_det_lt_one_of_sum_normSq_lt {n : ℕ}
-    (X : Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ) (hX : ∑ j, ∑ i, ‖X i j‖ ^ 2 < (n + 1 : ℝ)) :
-    ‖X.det‖ < 1 := by
-  set c : Fin (n + 1) → ℝ := fun j => ∑ i, ‖X i j‖ ^ 2 with hc
-  have hcnn : ∀ j, 0 ≤ c j := fun j => Finset.sum_nonneg fun i _ => by positivity
-  -- AM–GM: the product of the column squared-norms is `< 1`.
-  have hprodc : ∏ j, c j < 1 := by
-    have hw : ∑ _j : Fin (n + 1), ((n + 1 : ℝ))⁻¹ = 1 := by
-      rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,
-        Nat.cast_add, Nat.cast_one, mul_inv_cancel₀ (by positivity)]
-    have hgm := Real.geom_mean_le_arith_mean_weighted Finset.univ (fun _ => ((n + 1 : ℝ))⁻¹) c
-      (fun i _ => by positivity) hw (fun i _ => hcnn i)
-    rw [Real.finsetProd_rpow Finset.univ c (fun i _ => hcnn i)] at hgm
-    have harith : ∑ j, ((n + 1 : ℝ))⁻¹ * c j < 1 := by
-      rw [← Finset.mul_sum]
-      have hmul : (n + 1 : ℝ)⁻¹ * ∑ j, c j < (n + 1 : ℝ)⁻¹ * (n + 1 : ℝ) :=
-        mul_lt_mul_of_pos_left hX (inv_pos.mpr (by positivity))
-      rwa [inv_mul_cancel₀ (by positivity : (n + 1 : ℝ) ≠ 0)] at hmul
-    have hlt : (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ < 1 := lt_of_le_of_lt hgm harith
-    by_contra hge
-    push Not at hge
-    have h1 : (1 : ℝ) ≤ (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ :=
-      calc (1 : ℝ) = (1 : ℝ) ^ ((n + 1 : ℝ))⁻¹ := (Real.one_rpow _).symm
-        _ ≤ (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ := Real.rpow_le_rpow zero_le_one hge (by positivity)
-    linarith
-  -- Hadamard `‖det X‖ ≤ ∏ⱼ √(cⱼ)`, and `(∏ⱼ √(cⱼ))² = ∏ⱼ cⱼ < 1`.
-  have had : ‖X.det‖ ≤ ∏ j, Real.sqrt (c j) := Matrix.norm_det_le_prod_col_norm X
-  have hsqrtnn : 0 ≤ ∏ j, Real.sqrt (c j) := Finset.prod_nonneg fun j _ => Real.sqrt_nonneg _
-  have hsq : (∏ j, Real.sqrt (c j)) ^ 2 = ∏ j, c j := by
-    rw [← Finset.prod_pow]
-    exact Finset.prod_congr rfl fun j _ => Real.sq_sqrt (hcnn j)
-  have hprodsqrt : ∏ j, Real.sqrt (c j) < 1 := by nlinarith [hsq, hprodc, hsqrtnn]
-  linarith [had, hprodsqrt]
 
 /-! ### Bertin's matrix `A(t, L_r, f)` for the proof of Theorem 1.2.2
 
@@ -1036,7 +979,7 @@ private lemma rational_of_uv_eventually_lt {a sc tc : ℕ → ℂ}
   obtain ⟨N, hN⟩ := eventually_atTop.mp hlt
   refine ⟨N, fun r hr => ?_⟩
   have hdetlt : ‖(uvMatrix sc tc r).det‖ < 1 :=
-    norm_det_lt_one_of_sum_normSq_lt (uvMatrix sc tc r) (hN r hr)
+    Matrix.norm_det_lt_one_of_sum_normSq_lt (uvMatrix sc tc r) (hN r hr)
   have hnorm : ‖kroneckerDet (PowerSeries.mk a) r‖ < 1 := by rw [hdet r]; exact hdetlt
   have hzero : kroneckerDet (PowerSeries.mk b) r = 0 := by
     rw [hcast r, Complex.norm_intCast] at hnorm

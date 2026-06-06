@@ -10,8 +10,10 @@ import ForMathlib.NumberTheory.PisotNumber
 import ForMathlib.LinearAlgebra.Matrix.Hankel
 import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 import ForMathlib.RingTheory.PowerSeries.Rationality
+import ForMathlib.RingTheory.PowerSeries.OrderConvergence
 import ForMathlib.Analysis.Complex.HardySpace
 import ForMathlib.Analysis.InnerProductSpace.Hadamard
+import ForMathlib.Algebra.BigOperators.Dyadic
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
@@ -26,8 +28,10 @@ command, so they extract as annotated nodes without coupling `ForMathlib` to
 
 Most are tagged `category API` (supporting notions/lemmas for the corpus). The subject is
 `AMS 11` (number theory; the power-series block is linear-recurrence theory, 11B37), except the
-pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`, and the
-Hardy-space block, which carries `AMS 30` (complex analysis, Hardy spaces 30H10). The
+pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`, the dyadic
+big-operators identities (`AMS 5`, combinatorics), the power-series order-convergence helper
+(`AMS 13`, formal power series), and the Hardy-space block, which carries `AMS 30`
+(complex analysis, Hardy spaces 30H10). The
 linear-algebra, power-series, and Hardy-space blocks additionally carry the literature reference
 `ref "Ber92"` (Bertin, *Pisot and Salem Numbers*, 1992; the key is expanded in the relevant module
 docstrings). The headline Hardy `H²` characterisation `Complex.memHardy_two_iff_summable` is tagged
@@ -78,3 +82,11 @@ attribute [category research solved, AMS 30, ref "Ber92"] Complex.memHardy_two_i
 -- `ForMathlib/Analysis/InnerProductSpace/Hadamard.lean` — Hadamard's determinant inequality
 attribute [category API, AMS 15]
   OrthonormalBasis.norm_det_le_prod_norm Matrix.norm_det_le_prod_col_norm
+-- Bertin's Lemma 1.2.5 (Hadamard + AM–GM): squared Frobenius norm `< n` forces `‖det‖ < 1`.
+attribute [category API, AMS 15, ref "Ber92"] Matrix.norm_det_lt_one_of_sum_normSq_lt
+
+-- `ForMathlib/Algebra/BigOperators/Dyadic.lean` — dyadic decomposition of `ℕ`-interval sums
+attribute [category API, AMS 5] Finset.sum_Ico_two_pow_mul Finset.sum_Ico_one_two_pow
+
+-- `ForMathlib/RingTheory/PowerSeries/OrderConvergence.lean` — order convergence ⇒ coefficient stabilisation
+attribute [category API, AMS 13] PowerSeries.coeff_eventuallyEq_of_order_tendsto_top

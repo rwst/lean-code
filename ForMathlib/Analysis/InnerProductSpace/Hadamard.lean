@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Mathlib.Analysis.InnerProductSpace.GramSchmidtOrtho
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.MeanInequalities
 
 /-!
 # Hadamard's determinant inequality
@@ -67,3 +68,42 @@ theorem Matrix.norm_det_le_prod_col_norm {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
   calc ‖X.det‖ = ‖(EuclideanSpace.basisFun (Fin n) 𝕜).toBasis.det v‖ := by rw [hdet]
     _ ≤ ∏ j, ‖v j‖ := (EuclideanSpace.basisFun (Fin n) 𝕜).norm_det_le_prod_norm v
     _ = ∏ j, Real.sqrt (∑ i, ‖X i j‖ ^ 2) := by simp only [hnorm]
+
+/-- A square matrix `X` of order `n + 1` over `𝕜 = ℝ` or `ℂ` whose squared Frobenius norm is strictly
+below its order, `∑_{i,j} ‖X i j‖² < n + 1`, has determinant of modulus `< 1`. This combines
+Hadamard's inequality `‖det X‖ ≤ ∏ⱼ ‖colⱼ‖` (`Matrix.norm_det_le_prod_col_norm`) with the
+arithmetic–geometric mean inequality:
+`‖det X‖² ≤ ∏ⱼ (∑ᵢ ‖X i j‖²) ≤ ((∑_{i,j} ‖X i j‖²)/(n+1))^{n+1} < 1`. -/
+theorem Matrix.norm_det_lt_one_of_sum_normSq_lt {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
+    (X : Matrix (Fin (n + 1)) (Fin (n + 1)) 𝕜) (hX : ∑ j, ∑ i, ‖X i j‖ ^ 2 < (n + 1 : ℝ)) :
+    ‖X.det‖ < 1 := by
+  set c : Fin (n + 1) → ℝ := fun j => ∑ i, ‖X i j‖ ^ 2 with hc
+  have hcnn : ∀ j, 0 ≤ c j := fun j => Finset.sum_nonneg fun i _ => by positivity
+  -- AM–GM: the product of the column squared-norms is `< 1`.
+  have hprodc : ∏ j, c j < 1 := by
+    have hw : ∑ _j : Fin (n + 1), ((n + 1 : ℝ))⁻¹ = 1 := by
+      rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,
+        Nat.cast_add, Nat.cast_one, mul_inv_cancel₀ (by positivity)]
+    have hgm := Real.geom_mean_le_arith_mean_weighted Finset.univ (fun _ => ((n + 1 : ℝ))⁻¹) c
+      (fun i _ => by positivity) hw (fun i _ => hcnn i)
+    rw [Real.finsetProd_rpow Finset.univ c (fun i _ => hcnn i)] at hgm
+    have harith : ∑ j, ((n + 1 : ℝ))⁻¹ * c j < 1 := by
+      rw [← Finset.mul_sum]
+      have hmul : (n + 1 : ℝ)⁻¹ * ∑ j, c j < (n + 1 : ℝ)⁻¹ * (n + 1 : ℝ) :=
+        mul_lt_mul_of_pos_left hX (inv_pos.mpr (by positivity))
+      rwa [inv_mul_cancel₀ (by positivity : (n + 1 : ℝ) ≠ 0)] at hmul
+    have hlt : (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ < 1 := lt_of_le_of_lt hgm harith
+    by_contra hge
+    rw [not_lt] at hge
+    have h1 : (1 : ℝ) ≤ (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ :=
+      calc (1 : ℝ) = (1 : ℝ) ^ ((n + 1 : ℝ))⁻¹ := (Real.one_rpow _).symm
+        _ ≤ (∏ j, c j) ^ ((n + 1 : ℝ))⁻¹ := Real.rpow_le_rpow zero_le_one hge (by positivity)
+    linarith
+  -- Hadamard `‖det X‖ ≤ ∏ⱼ √(cⱼ)`, and `(∏ⱼ √(cⱼ))² = ∏ⱼ cⱼ < 1`.
+  have had : ‖X.det‖ ≤ ∏ j, Real.sqrt (c j) := Matrix.norm_det_le_prod_col_norm X
+  have hsqrtnn : 0 ≤ ∏ j, Real.sqrt (c j) := Finset.prod_nonneg fun j _ => Real.sqrt_nonneg _
+  have hsq : (∏ j, Real.sqrt (c j)) ^ 2 = ∏ j, c j := by
+    rw [← Finset.prod_pow]
+    exact Finset.prod_congr rfl fun j _ => Real.sq_sqrt (hcnn j)
+  have hprodsqrt : ∏ j, Real.sqrt (c j) < 1 := by nlinarith [hsq, hprodc, hsqrtnn]
+  linarith [had, hprodsqrt]
