@@ -11,6 +11,7 @@ import ForMathlib.LinearAlgebra.Matrix.Hankel
 import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
 import ForMathlib.RingTheory.PowerSeries.Rationality
 import ForMathlib.RingTheory.PowerSeries.OrderConvergence
+import ForMathlib.RingTheory.Polynomial.CoprimeFractionMap
 import ForMathlib.Analysis.Complex.HardySpace
 import ForMathlib.Analysis.InnerProductSpace.Hadamard
 import ForMathlib.Algebra.BigOperators.Dyadic
@@ -29,8 +30,9 @@ command, so they extract as annotated nodes without coupling `ForMathlib` to
 Most are tagged `category API` (supporting notions/lemmas for the corpus). The subject is
 `AMS 11` (number theory; the power-series block is linear-recurrence theory, 11B37), except the
 pure linear-algebra files (Hankel matrices and determinants), which carry `AMS 15`, the dyadic
-big-operators identities (`AMS 5`, combinatorics), the power-series order-convergence helper
-(`AMS 13`, formal power series), and the Hardy-space block, which carries `AMS 30`
+big-operators identities (`AMS 5`, combinatorics), the power-series order-convergence helper and the
+Gauss coprimality-descent helper (`AMS 13`, formal power series / polynomial rings), and the
+Hardy-space block, which carries `AMS 30`
 (complex analysis, Hardy spaces 30H10). The
 linear-algebra, power-series, and Hardy-space blocks additionally carry the literature reference
 `ref "Ber92"` (Bertin, *Pisot and Salem Numbers*, 1992; the key is expanded in the relevant module
@@ -90,3 +92,6 @@ attribute [category API, AMS 5] Finset.sum_Ico_two_pow_mul Finset.sum_Ico_one_tw
 
 -- `ForMathlib/RingTheory/PowerSeries/OrderConvergence.lean` — order convergence ⇒ coefficient stabilisation
 attribute [category API, AMS 13] PowerSeries.coeff_eventuallyEq_of_order_tendsto_top
+
+-- `ForMathlib/RingTheory/Polynomial/CoprimeFractionMap.lean` — Gauss's lemma: unit gcd in `ℤ[X]` ⇒ coprime images in `ℚ[X]`
+attribute [category API, AMS 13] Polynomial.isCoprime_map_of_isUnit_gcd

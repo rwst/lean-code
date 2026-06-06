@@ -7,6 +7,7 @@ import Mathlib.FieldTheory.RatFunc.Basic
 import Mathlib.RingTheory.LaurentSeries
 import BertinPisot.DenominatorBounds
 import ForMathlib.RingTheory.PowerSeries.OrderConvergence
+import ForMathlib.RingTheory.Polynomial.CoprimeFractionMap
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
@@ -35,8 +36,8 @@ step not yet in Mathlib.
 `exists_coprime_repr_constantCoeff` is **Lemma 2.1.2**: every integer-polynomial representation
 `F = A / B` (`B(0) ≠ 0`) reduces to a coprime one `A₁ / B₁` with the *same* denominator constant
 term `B₁(0) = B(0)` (Gauss's lemma). Specialised to `B(0) = q`, it gives every `F ∈ Φ q` a reduced
-representative with the same `q`. Recorded as a literature axiom (the content/primitive-part theory
-it needs is in Mathlib).
+representative with the same `q`. Proved here, using the Gauss-descent lemma
+`Polynomial.isCoprime_map_of_isUnit_gcd` (in `ForMathlib`).
 
 ## References
 * [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
@@ -95,6 +96,9 @@ axiom mem_Phi_of_tendsto {q : ℕ} {Fs : ℕ → RatFunc ℚ} {F : RatFunc ℚ}
       (M : WithTop ℤ) < ((F : LaurentSeries ℚ) - (Fs n : LaurentSeries ℚ)).orderTop) :
     F ∈ Phi q
 
+section
+open Polynomial
+
 /-- **Lemma 2.1.2** (Bertin). Every integer-polynomial representation of a rational fraction reduces
 to a coprime one with the *same* denominator constant term. If `F = A / B` with `A, B ∈ ℤ[X]` and
 `B(0) ≠ 0`, then there are `A₁, B₁ ∈ ℤ[X]`, relatively prime, with `F = A₁ / B₁` and `B₁(0) = B(0)`.
@@ -105,15 +109,54 @@ degree — equivalently `A₁`, `B₁` share no root); the integer notion would 
 Specialised to `B(0) = q`, this gives every `F ∈ Φ q` (`Phi`) a reduced representative with the same
 `q`.
 
-Proof (Bertin: "easy, uses Gauss's lemma", left to the reader): work in `ℚ[X]`, divide out
-`g = gcd(A, B)` to a coprime pair `a / b = F`, then rescale by a rational unit to clear denominators
-back into `ℤ[X]` while normalising the denominator constant term to `B(0)`; multiplicativity of
-content (Gauss's lemma, `Polynomial.content_mul`) keeps the rescaled pair integral and coprime.
-Recorded as a literature axiom on the authority of [Ber92]; the content/primitive-part theory it
-needs is in Mathlib, so it is formalisable on request. -/
-@[category research solved, AMS 11 12, ref "Ber92"]
-axiom exists_coprime_repr_constantCoeff {F : RatFunc ℚ} {A B : ℤ[X]} (hB : B.coeff 0 ≠ 0)
+Proof (Bertin's "easy, uses Gauss's lemma", here fully formalised): take `g = gcd A B` in `ℤ[X]` and
+write `A = g · A'`, `B = g · B'`; cancelling `g` gives `gcd A' B' = 1`. Setting `A₁ = C (g 0) · A'`
+and `B₁ = C (g 0) · B'` keeps both in `ℤ[X]`, preserves `F = A₁ / B₁` (cancel the common factor `g`,
+resp. `C (g 0)`, in the field `RatFunc ℚ`), and gives `B₁(0) = g(0) · B'(0) = (g · B')(0) = B(0)`.
+Coprimality of the images over `ℚ[X]` is Gauss's lemma `Polynomial.isCoprime_map_of_isUnit_gcd`
+applied to `gcd A' B' = 1` (the unit `C (g 0)` does not affect `ℚ[X]`-coprimality). -/
+@[category research solved, AMS 11 12, ref "Ber92",
+  formal_uses Polynomial.isCoprime_map_of_isUnit_gcd]
+theorem exists_coprime_repr_constantCoeff {F : RatFunc ℚ} {A B : ℤ[X]} (hB : B.coeff 0 ≠ 0)
     (hF : F = (A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (B.map (Int.castRingHom ℚ) : RatFunc ℚ)) :
     ∃ A₁ B₁ : ℤ[X], IsCoprime (A₁.map (Int.castRingHom ℚ)) (B₁.map (Int.castRingHom ℚ)) ∧
       F = (A₁.map (Int.castRingHom ℚ) : RatFunc ℚ) / (B₁.map (Int.castRingHom ℚ) : RatFunc ℚ) ∧
-      B₁.coeff 0 = B.coeff 0
+      B₁.coeff 0 = B.coeff 0 := by
+  have hBne : B ≠ 0 := fun hh => hB (by rw [hh]; simp)
+  set g := gcd A B with hg
+  have hgne : g ≠ 0 := by
+    rw [hg, Ne, gcd_eq_zero_iff]; rintro ⟨-, hb⟩; exact hBne hb
+  obtain ⟨A', hA'⟩ := gcd_dvd_left A B
+  obtain ⟨B', hB'⟩ := gcd_dvd_right A B
+  rw [← hg] at hA' hB'
+  have hcop : IsUnit (gcd A' B') := by
+    have e1 : gcd (g * A') (g * B') = normalize g * gcd A' B' := gcd_mul_left g A' B'
+    have e2 : gcd (g * A') (g * B') = g := by rw [← hA', ← hB', ← hg]
+    have e3 : normalize g = g := by rw [hg]; exact normalize_gcd A B
+    rw [e2, e3] at e1
+    have e4 : g * 1 = g * gcd A' B' := by rw [mul_one]; exact e1
+    have e5 : (1 : ℤ[X]) = gcd A' B' := mul_left_cancel₀ hgne e4
+    rw [← e5]; exact isUnit_one
+  have hc0 : g.coeff 0 ≠ 0 := fun hh => hB (by rw [hB', mul_coeff_zero, hh, zero_mul])
+  have hc0ℚ : (Int.castRingHom ℚ) (g.coeff 0) ≠ 0 := by simpa using hc0
+  have hgm : g.map (Int.castRingHom ℚ) ≠ 0 := by
+    rw [Ne, Polynomial.map_eq_zero_iff (Int.cast_injective)]; exact hgne
+  have hφinj := RatFunc.algebraMap_injective (K := ℚ)
+  have h1 : (algebraMap ℚ[X] (RatFunc ℚ)) (g.map (Int.castRingHom ℚ)) ≠ 0 := fun hh =>
+    hgm (hφinj (hh.trans (map_zero _).symm))
+  have h2 : (algebraMap ℚ[X] (RatFunc ℚ)) (C ((Int.castRingHom ℚ) (g.coeff 0))) ≠ 0 := fun hh =>
+    (by simpa using hc0ℚ : (C ((Int.castRingHom ℚ) (g.coeff 0)) : ℚ[X]) ≠ 0)
+      (hφinj (hh.trans (map_zero _).symm))
+  refine ⟨C (g.coeff 0) * A', C (g.coeff 0) * B', ?_, ?_, ?_⟩
+  · simp only [Polynomial.map_mul, Polynomial.map_C]
+    rw [← gcd_isUnit_iff, gcd_mul_left]
+    have hcc : IsUnit (C ((Int.castRingHom ℚ) (g.coeff 0)) : ℚ[X]) :=
+      isUnit_C.mpr (isUnit_iff_ne_zero.mpr hc0ℚ)
+    rw [normalize_eq_one.mpr hcc, one_mul]
+    exact (gcd_isUnit_iff _ _).mpr (isCoprime_map_of_isUnit_gcd hcop)
+  · rw [hF, hA', hB']
+    simp only [Polynomial.map_mul, Polynomial.map_C, RatFunc.coePolynomial_eq_algebraMap, map_mul]
+    rw [mul_div_mul_left _ _ h1, mul_div_mul_left _ _ h2]
+  · rw [hB', mul_coeff_zero, mul_coeff_zero, coeff_C_zero]
+
+end
