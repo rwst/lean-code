@@ -40,11 +40,18 @@ Usage
   scripts/theoremdb_to_cytoscape.py convert   [theoremdb.json] [-o cytoscape.json]
   scripts/theoremdb_to_cytoscape.py invert    [cytoscape.json] [-o theoremdb.json]
   scripts/theoremdb_to_cytoscape.py roundtrip  [theoremdb.json]   # convert+invert+verify
+  scripts/theoremdb_to_cytoscape.py cx2       [theoremdb.json] [-o theorems.cx2]
+
+The cytoscape.js export (convert) is lossless and round-trips; it is for the web
+viewer / cytoscape.js, where the style lives in the page.  The CX2 export (cx2) is
+a one-file styled network for Cytoscape *Desktop* — lossy (nested fields flattened,
+group containers dropped) because CX2 is a visualisation format, not an archive.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -163,6 +170,192 @@ def from_cytoscape(cy: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- #
+# theoremdb.json  ->  CX2 (.cx2)   for Cytoscape Desktop, style embedded
+# --------------------------------------------------------------------------- #
+# Unlike the cytoscape.js export this is NOT lossless: CX2 attribute values must
+# be scalars or lists of scalars, so the nested `formalization`/`category` objects
+# are flattened into columns, and the compound `group` containers are dropped
+# (CX2/Desktop has no compound-parent concept) — `group` survives as a column.
+#
+# Edit these three maps to restyle the desktop view (they mirror viewer.html):
+_NODE_FILL = {  # DISCRETE on the "vis_class" column
+    "decl_proved": "#86c08a",
+    "decl_cited": "#e2c66b",
+    "decl_stated_only": "#d98c8c",
+    "informal": "#d4b79b",
+    "placeholder": "#eeeeee",
+}
+_NODE_SHAPE = {"declaration": "round-rectangle", "informal_result": "ellipse"}  # DISCRETE on "node_type"
+_EDGE_COLOR = {"states_with": "#7aa7d0", "formal_uses": "#9a7ad0", "informal_uses": "#c08a5a"}  # on "kind"
+
+# Cytoscape Desktop wraps labels only at WHITESPACE, and Lean names have none, so a long
+# dotted name (e.g. Bugeaud.problem_10_3_of_waldschmidt) never wraps under NODE_LABEL_MAX_WIDTH
+# alone.  We pre-insert "\n" (which Cytoscape renders as a line break) at ./_ boundaries,
+# hard-splitting any chunk longer than _WRAP_WIDTH.  Display only — the clean name/key stays
+# in its own column.
+_WRAP_WIDTH = 18
+
+
+def _wrap_label(s: str, width: int = _WRAP_WIDTH) -> str:
+    lines, cur = [], ""
+    for chunk in re.findall(r"[^._]*[._]|[^._]+", s):  # runs ending at '.'/'_', plus a trailing run
+        while len(chunk) > width:                       # chunk itself too long: hard-split it
+            if cur:
+                lines.append(cur)
+                cur = ""
+            lines.append(chunk[:width])
+            chunk = chunk[width:]
+        if cur and len(cur) + len(chunk) > width:
+            lines.append(cur)
+            cur = chunk
+        else:
+            cur += chunk
+    if cur:
+        lines.append(cur)
+    return "\n".join(lines)
+
+# CX2 attribute columns (declared once in attributeDeclarations).
+_CX2_NODE_COLS = {
+    "label": "string", "node_type": "string", "vis_class": "string", "name": "string",
+    "key": "string", "module": "string", "decl_kind": "string", "status": "string",
+    "uses_sorry": "boolean", "category_kind": "string", "category_status": "string",
+    "ams": "string", "refs": "list_of_string", "group": "string",
+    "statement_tex": "string", "type": "string", "formalized_as": "string",
+}
+_CX2_EDGE_COLS = {"kind": "string", "interaction": "string", "to_type": "string", "resolved": "boolean"}
+
+
+def _drop_none(d: dict) -> dict:
+    return {k: v for k, v in d.items() if v is not None}
+
+
+def _cx2_decl_attrs(d: dict) -> dict:
+    f = d.get("formalization") or {}
+    c = d.get("category") or {}
+    status = f.get("status")
+    return _drop_none({
+        "label": _wrap_label(d["name"]),
+        "node_type": "declaration",
+        "vis_class": f"decl_{status}" if status else None,
+        "name": d["name"],
+        "module": d.get("module"),
+        "decl_kind": d.get("decl_kind"),
+        "status": status,
+        "uses_sorry": f.get("uses_sorry"),
+        "category_kind": c.get("kind"),
+        "category_status": c.get("status"),
+        "ams": ",".join(str(a) for a in d.get("ams", [])) or None,
+        "refs": d.get("refs") or None,
+        "group": d.get("group"),
+        "statement_tex": d.get("statement_tex"),
+        "type": d.get("type"),
+    })
+
+
+def _cx2_informal_attrs(r: dict) -> dict:
+    return _drop_none({
+        "label": _wrap_label(r["key"]),
+        "node_type": "informal_result",
+        "vis_class": "informal",
+        "key": r["key"],
+        "refs": r.get("refs") or None,
+        "statement_tex": r.get("statement_tex"),
+        "formalized_as": r.get("formalized_as"),
+    })
+
+
+def _discrete(attr: str, dtype: str, mapping: dict) -> dict:
+    return {"type": "DISCRETE",
+            "definition": {"attribute": attr, "type": dtype,
+                           "map": [{"v": k, "vp": v} for k, v in mapping.items()]}}
+
+
+def to_cx2(db: dict) -> list:
+    import math
+
+    nodes_out: list[dict] = []
+    id_of: dict[str, int] = {}
+
+    def add_node(key: str, attrs: dict) -> None:
+        id_of[key] = len(nodes_out)
+        nodes_out.append({"id": id_of[key], "v": attrs})
+
+    for d in db.get("declarations", []):
+        add_node(d["name"], _cx2_decl_attrs(d))
+    for r in db.get("informal_results", []):
+        add_node(r["key"], _cx2_informal_attrs(r))
+    # placeholders for unresolved informal_uses targets (keep the edge valid)
+    for e in db.get("edges", []):
+        if e["to_type"] == "informal_result" and e["to"] not in id_of:
+            add_node(e["to"], {"label": e["to"], "node_type": "informal_result",
+                               "vis_class": "placeholder", "key": e["to"]})
+
+    edges_out: list[dict] = []
+    dropped = 0
+    for e in db.get("edges", []):
+        s, t = id_of.get(e["from"]), id_of.get(e["to"])
+        if s is None or t is None:  # e.g. an edge into a (dropped) group node
+            dropped += 1
+            continue
+        edges_out.append({"id": len(edges_out), "s": s, "t": t,
+                          "v": {"kind": e["kind"], "interaction": e["kind"],
+                                "to_type": e["to_type"], "resolved": e["resolved"]}})
+    if dropped:
+        print(f"note: {dropped} edge(s) dropped (endpoint not a CX2 node)", file=sys.stderr)
+
+    # simple deterministic grid so the import isn't all stacked at the origin
+    cols = max(1, math.ceil(math.sqrt(len(nodes_out))))
+    for i, n in enumerate(nodes_out):
+        n["x"], n["y"] = (i % cols) * 80, (i // cols) * 80
+
+    visual = {
+        "default": {
+            "network": {"NETWORK_BACKGROUND_COLOR": "#FFFFFF"},
+            "node": {
+                "NODE_SHAPE": "round-rectangle", "NODE_BACKGROUND_COLOR": "#9bb7d4",
+                "NODE_WIDTH": 40.0, "NODE_HEIGHT": 30.0,
+                # NODE_LABEL_MAX_WIDTH is the CX2-file name; the importer maps it to Cytoscape's
+                # internal NODE_LABEL_WIDTH ("Node Label Width" in the Style GUI). Wrapping itself
+                # is forced by the pre-inserted newlines in the "label" column (see _wrap_label).
+                "NODE_LABEL_FONT_SIZE": 6, "NODE_LABEL_MAX_WIDTH": 200.0,
+                "NODE_LABEL_COLOR": "#202020",
+            },
+            "edge": {
+                "EDGE_WIDTH": 1.5, "EDGE_LINE_COLOR": "#bbbbbb",
+                "EDGE_TARGET_ARROW_SHAPE": "triangle", "EDGE_LINE_STYLE": "solid",
+            },
+        },
+        "nodeMapping": {
+            "NODE_LABEL": {"type": "PASSTHROUGH", "definition": {"attribute": "label", "type": "string"}},
+            "NODE_BACKGROUND_COLOR": _discrete("vis_class", "string", _NODE_FILL),
+            "NODE_SHAPE": _discrete("node_type", "string", _NODE_SHAPE),
+        },
+        "edgeMapping": {
+            "EDGE_LINE_COLOR": _discrete("kind", "string", _EDGE_COLOR),
+            "EDGE_LINE_STYLE": _discrete("kind", "string", {"informal_uses": "dashed"}),
+        },
+    }
+
+    return [
+        {"CXVersion": "2.0", "hasFragments": False},
+        {"metaData": [
+            {"name": "attributeDeclarations", "elementCount": 1},
+            {"name": "nodes", "elementCount": len(nodes_out)},
+            {"name": "edges", "elementCount": len(edges_out)},
+            {"name": "visualProperties", "elementCount": 1},
+        ]},
+        {"attributeDeclarations": [{
+            "nodes": {k: {"d": v} for k, v in _CX2_NODE_COLS.items()},
+            "edges": {k: {"d": v} for k, v in _CX2_EDGE_COLS.items()},
+        }]},
+        {"nodes": nodes_out},
+        {"edges": edges_out},
+        {"visualProperties": [visual]},
+        {"status": [{"error": "", "success": True}]},
+    ]
+
+
+# --------------------------------------------------------------------------- #
 # Validators
 # --------------------------------------------------------------------------- #
 def validate_cytoscape_structure(cy: dict) -> list[str]:
@@ -259,6 +452,14 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("input", nargs="?", default="cytoscape.json")
     i.add_argument("-o", "--output")
 
+    x = sub.add_parser("cx2", help="theoremdb.json -> CX2 (.cx2) for Cytoscape Desktop, style embedded")
+    x.add_argument("input", nargs="?", default="theoremdb.json")
+    x.add_argument("-o", "--output", default="theorems.cx2")
+
+    w = sub.add_parser("webjs", help="theoremdb.json -> theorems-cytoscape.js (window.THEOREMDB; loads over file://)")
+    w.add_argument("input", nargs="?", default="theoremdb.json")
+    w.add_argument("-o", "--output", default="theorems-cytoscape.js")
+
     r = sub.add_parser("roundtrip", help="convert+invert+verify lossless")
     r.add_argument("input", nargs="?", default="theoremdb.json")
 
@@ -282,6 +483,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "invert":
         cy = _load(args.input)
         _dump(from_cytoscape(cy), args.output)
+        return 0
+
+    if args.cmd == "webjs":
+        db = _load(args.input)
+        cy = to_cytoscape(db)
+        errs = validate_cytoscape_structure(cy)
+        if errs:
+            for e in errs:
+                print(f"  - {e}", file=sys.stderr)
+            return 1
+        Path(args.output).write_text("window.THEOREMDB = " + json.dumps(cy, ensure_ascii=False) + ";\n")
+        print(f"wrote {args.output} (load via <script>; works when app.html is opened over file://)", file=sys.stderr)
+        return 0
+
+    if args.cmd == "cx2":
+        db = _load(args.input)
+        cx = to_cx2(db)
+        nodes = next(a["nodes"] for a in cx if "nodes" in a)
+        edges = next(a["edges"] for a in cx if "edges" in a)
+        Path(args.output).write_text(json.dumps(cx, ensure_ascii=False) + "\n")
+        print(f"wrote {args.output}: {len(nodes)} nodes, {len(edges)} edges "
+              f"(open in Cytoscape Desktop: File -> Import -> Network from File)", file=sys.stderr)
         return 0
 
     if args.cmd == "roundtrip":

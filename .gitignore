@@ -2,3 +2,8 @@
 .lake/
 theoremdb.json
 cytoscape.json
+theorems-cytoscape.json
+theorems-cytoscape.js
+theorems.cx2
+scripts/viewer.html
+scripts/app.html
