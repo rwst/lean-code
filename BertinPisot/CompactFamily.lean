@@ -7,6 +7,7 @@ import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Analytic.Order
 import Mathlib.Topology.CompactOpen
 import Mathlib.Algebra.BigOperators.Finprod
+import Mathlib.Algebra.Polynomial.Reverse
 import Mathlib.FieldTheory.RatFunc.Basic
 import Mathlib.FieldTheory.RatFunc.AsPolynomial
 import BertinPisot.PhiFamily
@@ -52,6 +53,14 @@ multiplicity. Recorded as a literature axiom: Bertin's proof applies **Rouché's
 `f - λ g` (`λ > 1`) and lets `λ → 1`, after dividing out the boundary zeros of `g`; Rouché's theorem
 is not yet in Mathlib.
 
+`limitPoint_num_ne_reverse_denom` is **Proposition 2.2.1**: if `f = A / Q` (reduced integer
+representation, `Q(0) = q`) is a limit point of `ℱ(q, k, δ)`, then `A ≠ ± Q*`, where `Q* = Q.reverse`
+is the reciprocal polynomial of `Q`. Recorded as a literature axiom; its proof combines **Theorem
+2.2.1** (`Family_isCompact`, convergence of the `Aₙ/Qₙ`) and **Lemma 2.2.1**
+(`le_zeros_ball_of_norm_le_on_circle`): a putative `A = ε Q*` would, via the order/zero-count bounds,
+force a convergent subsequence to be eventually constant equal to `f`, contradicting that a limit
+point is approached by *distinct* members.
+
 ## Encoding
 
 * `f : RatFunc ℚ`, with the representative integer polynomials sent into `RatFunc ℚ` along
@@ -65,6 +74,10 @@ is not yet in Mathlib.
   multiplicity** (`Multiset.card` of the roots filtered into the disk). The open disk `D(0,r)` is
   `‖z‖ < r` and the unit circle is `‖z‖ = 1`. Conditions i)–ii) force every pole of `f` in `D(0,1)`
   into the annulus `δ ≤ |z| < 1`, at most `k` of them counted with multiplicity.
+* The function-space topology of Theorem/Proposition 2.2.1 lives on `C(D(0,δ), ℂ)` (continuous maps,
+  compact-open topology = uniform-on-compacts since `D(0,δ)` is locally compact); members of `ℱ` enter
+  it through `FamilyRealizations` (`f ↦ z ↦ RatFunc.eval (algebraMap ℚ ℂ) z f`), and "limit point" is
+  `AccPt _ (𝓟 (FamilyRealizations q k δ))`. The reciprocal polynomial `Q*` is `Polynomial.reverse Q`.
 
 ## References
 * [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
@@ -93,6 +106,18 @@ def Family (q k : ℕ) (δ : ℝ) : Set (RatFunc ℚ) :=
       ((Q.aroots ℂ).filter (fun z => ‖z‖ < 1)).card ≤ k ∧
       (∀ z : ℂ, (‖z‖ < δ ∨ ‖z‖ = 1) → (aeval z Q : ℂ) ≠ 0) ∧
       (∀ z : ℂ, ‖z‖ = 1 → ‖(aeval z A : ℂ) / (aeval z Q : ℂ)‖ ≤ 1) }
+
+/-- The members of `ℱ(q, k, δ)` **realised as continuous functions on `D(0, δ)`**: the set of
+`g : C(D(0,δ), ℂ)` agreeing with some `f ∈ Family q k δ`, i.e. `g z = f(z)` for all `z ∈ D(0,δ)`,
+where `f(z) = RatFunc.eval (algebraMap ℚ ℂ) z f`. Each member of `ℱ` is holomorphic on `D(0, δ)` (its
+denominator is non-vanishing there, condition ii), hence has such a realisation. This set carries the
+compact-open topology — uniform convergence on the compacts of `D(0, δ)`, as `D(0, δ)` is locally
+compact — in which `ℱ` is compact (`Family_isCompact`, Theorem 2.2.1) and limit points are taken
+(`limitPoint_num_ne_reverse_denom`, Proposition 2.2.1). -/
+@[category API, AMS 11 12 30, ref "Ber92", formal_uses Family]
+def FamilyRealizations (q k : ℕ) (δ : ℝ) : Set C(↥(Metric.ball (0 : ℂ) δ), ℂ) :=
+  { g | ∃ f ∈ Family q k δ, ∀ z : ↥(Metric.ball (0 : ℂ) δ),
+      g z = RatFunc.eval (algebraMap ℚ ℂ) (z : ℂ) f }
 
 /-! ## Informal-result registry
 
@@ -130,11 +155,9 @@ coefficientwise convergence, so the closure of `Φ_q` under formal convergence (
 Theorem 2.1) applies. Montel's theorem and Hurwitz's theorem on zeros are not yet in Mathlib;
 `#print axioms` surfaces this dependency in every downstream proof. -/
 @[category research solved, AMS 11 12 30, ref "Ber92",
-  formal_uses Family mem_Phi_of_tendsto, informal_uses "montel-normal-families" "hurwitz-zeros"]
-axiom Family_isCompact (q k : ℕ) (δ : ℝ) :
-    IsCompact { g : C(↥(Metric.ball (0 : ℂ) δ), ℂ) |
-      ∃ f ∈ Family q k δ, ∀ z : ↥(Metric.ball (0 : ℂ) δ),
-        g z = RatFunc.eval (algebraMap ℚ ℂ) (z : ℂ) f }
+  formal_uses Family FamilyRealizations mem_Phi_of_tendsto,
+  informal_uses "montel-normal-families" "hurwitz-zeros"]
+axiom Family_isCompact (q k : ℕ) (δ : ℝ) : IsCompact (FamilyRealizations q k δ)
 
 /-! ## Lemma 2.2.1 — a Rouché-type lower bound on zeros
 
@@ -173,3 +196,39 @@ axiom le_zeros_ball_of_norm_le_on_circle {f g : ℂ → ℂ} {r : ℝ} {n : ℕ}
     (hi : ∀ z : ℂ, ‖z‖ = 1 → ‖f z‖ ≤ ‖g z‖)
     (hii : analyticOrderAt (fun z => f z - g z) 0 = (n : ℕ∞)) :
     n ≤ ∑ᶠ z ∈ Metric.ball (0 : ℂ) 1, analyticOrderNatAt g z
+
+/-! ## Proposition 2.2.1 — limit points are not (anti)palindromic -/
+
+/-- **Proposition 2.2.1** (Bertin). Let `f = A / Q` be a **limit point** of `ℱ(q, k, δ)`, taken in its
+reduced integer representation — `A, Q ∈ ℤ[X]` with coprime images over `ℚ[X]` (`hcop`) and
+`Q(0) = q` (`hQ0`), and `A / Q ∈ ℱ(q, k, δ)` (`hmem`). Then `A ≠ ± Q*`, where `Q* = Q.reverse` is the
+reciprocal polynomial of `Q` (its coefficients reversed); that is, `A ≠ Q.reverse ∧ A ≠ -Q.reverse`.
+
+The limit point is taken in the function-space realisation of `ℱ`: `gf` is the realisation of `f` on
+`D(0, δ)` (`hgf`, `gf z = RatFunc.eval (algebraMap ℚ ℂ) z (A/Q)`), and `hacc` says `gf` is an
+accumulation point of `FamilyRealizations q k δ` — exactly "`f` is a limit point of `ℱ`" in the
+topology of uniform convergence on the compacts of `D(0, δ)` (Theorem 2.2.1).
+
+Recorded as a literature axiom on the authority of [Ber92]. Proof: a limit point is the limit of a
+sequence of distinct `fₙ = Aₙ / Qₙ ∈ ℱ`, and by (the proof of) Theorem 2.2.1
+(`Family_isCompact`) `Aₙ / Qₙ → A / Q`. Suppose `A = ε Q*` with `ε = ±1`, and set `s = 1 + k + deg Q`.
+Convergence gives `ord (Aₙ Q − ε Q* Qₙ) ≥ s` for all large `n`. Since `fₙ ∈ ℱ`, condition iii) gives
+`|Aₙ(z) Q(z)| ≤ |ε Q*(z) Qₙ(z)|` on `|z| = 1` (using `|Q*| = |Q|` there, as `Q` has real
+coefficients), while `Q* Qₙ` has at most `s − 1` zeros in `D(0,1)` (the `≤ k` poles of `fₙ` plus
+`deg Q`). **Lemma 2.2.1** (`le_zeros_ball_of_norm_le_on_circle`), applied to `Aₙ Q` and `ε Q* Qₙ`,
+then forces `fₙ = f` for all large `n`, contradicting the distinctness of the `fₙ`. Hence
+`A ≠ ± Q*`. -/
+@[category research solved, AMS 11 12 30, ref "Ber92",
+  formal_uses Family FamilyRealizations Family_isCompact le_zeros_ball_of_norm_le_on_circle,
+  informal_uses "rouche-theorem" "montel-normal-families"]
+axiom limitPoint_num_ne_reverse_denom {q k : ℕ} {δ : ℝ} {A Q : ℤ[X]}
+    (hQ0 : Q.coeff 0 = (q : ℤ))
+    (hcop : IsCoprime (A.map (Int.castRingHom ℚ)) (Q.map (Int.castRingHom ℚ)))
+    (hmem : ((A.map (Int.castRingHom ℚ) : RatFunc ℚ) /
+            (Q.map (Int.castRingHom ℚ) : RatFunc ℚ)) ∈ Family q k δ)
+    (gf : C(↥(Metric.ball (0 : ℂ) δ), ℂ))
+    (hgf : ∀ z : ↥(Metric.ball (0 : ℂ) δ), gf z =
+      RatFunc.eval (algebraMap ℚ ℂ) (z : ℂ)
+        ((A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (Q.map (Int.castRingHom ℚ) : RatFunc ℚ)))
+    (hacc : AccPt gf (Filter.principal (FamilyRealizations q k δ))) :
+    A ≠ Q.reverse ∧ A ≠ -Q.reverse
