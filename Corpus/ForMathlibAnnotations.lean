@@ -4,6 +4,8 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import ForMathlib.Analysis.Equidistribution.ModOne
+import ForMathlib.Analysis.Equidistribution.IntegralCriterion
+import ForMathlib.Analysis.Equidistribution.AddCircleWeyl
 import ForMathlib.Data.Real.NearestInt
 import ForMathlib.NumberTheory.Lacunary
 import ForMathlib.NumberTheory.PisotNumber
@@ -95,3 +97,14 @@ attribute [category API, AMS 13] PowerSeries.coeff_eventuallyEq_of_order_tendsto
 
 -- `ForMathlib/RingTheory/Polynomial/CoprimeFractionMap.lean` — Gauss's lemma: unit gcd in `ℤ[X]` ⇒ coprime images in `ℚ[X]`
 attribute [category API, AMS 13] Polynomial.isCoprime_map_of_isUnit_gcd
+
+-- `ForMathlib/Analysis/Equidistribution/IntegralCriterion.lean` — Weyl's Riemann-integral criterion
+-- [Ber92] Bertin, Marie José. *Pisot and Salem Numbers.* Springer Science & Business Media, 1992.
+attribute [category API, AMS 11, ref "Ber92"]
+  pieceLen pieceSet pieceIdx stepFun lowerStep upperStep isRiemann_dct
+attribute [category research solved, AMS 11, ref "Ber92"]
+  tendsto_average_of_indicator_equidistributed
+
+-- `ForMathlib/Analysis/Equidistribution/AddCircleWeyl.lean` — Weyl's criterion on the circle
+attribute [category research solved, AMS 11]
+  tendsto_average_of_tendsto_fourier
