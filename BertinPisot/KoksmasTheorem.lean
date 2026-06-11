@@ -42,6 +42,8 @@ whose right-hand side tends to `1` (the first factor by the hypothesis at the di
 
 *References:*
   - [Ber92] Bertin, Marie José et al. *Pisot and Salem Numbers.* Birkhäuser, 1992. §4.5.
+  - [Kok35] Koksma, J. F. "Ein mengentheoretischer Satz über die Gleichverteilung modulo Eins."
+    *Compositio Mathematica* 2 (1935), 250–258.
 -/
 
 namespace Bertin
@@ -265,7 +267,7 @@ The proof (Koksma) combines the two preliminary lemmas of this file — the subs
 `exists_monotone_tendsto_atTop_summable_mul` (Lemma 2) — with a Borel–Cantelli / second-moment
 (Weyl-sum variance) estimate for the exceptional set; the metric machinery is not available at this
 level, so the theorem is recorded as a cited result. -/
-@[category research solved, AMS 11, ref "Ber92",
+@[category research solved, AMS 11, ref "Ber92" "Kok35",
   formal_uses exists_strictMono_ratio_tendsto_one_summable
     exists_monotone_tendsto_atTop_summable_mul]
 axiom koksma_theorem_4_5_1 (a b : ℝ) (hab : a < b) (f f' : ℕ → ℝ → ℝ)
@@ -292,7 +294,7 @@ is replaced by the simpler uniform lower bound
 continuity and condition (i)'s non-vanishing on the compact interval `[a, b]`, so it is the
 *uniformity* over pairs that gives content here — the classical Koksma hypothesis.) The conclusion is
 the same: `(fₙ(t))` is uniformly distributed modulo one for almost every `t ∈ [a, b]`. -/
-@[category research solved, AMS 11, ref "Ber92",
+@[category research solved, AMS 11, ref "Ber92" "Kok35",
   formal_uses exists_strictMono_ratio_tendsto_one_summable
     exists_monotone_tendsto_atTop_summable_mul]
 axiom koksma_theorem_4_5_1_condition_iii (a b : ℝ) (hab : a < b) (f f' : ℕ → ℝ → ℝ)
