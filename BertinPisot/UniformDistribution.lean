@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import BertinPisot.DistributionModOneBasics
+import ForMathlib.Analysis.Equidistribution.VanDerCorput
 import ForMathlib.Analysis.Equidistribution.IntegralCriterion
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Set
@@ -595,9 +596,12 @@ the Weyl sums of `(xₙ)` in terms of those of the differences — for every `H 
 `|σ_h(N)|² ≤ (N+H)/((H+1)N) + (2/(H+1)) Σ_{k=1}^{H} (1 − k/(H+1)) · Re σ^{(k)}_h(N)`, where
 `σ^{(k)}_h` is the Weyl sum of the `k`-th difference `(xₙ₊ₖ − xₙ)`. By hypothesis and Theorem 4.3.2
 each `σ^{(k)}_h(N) → 0`, so `limsup_N |σ_h(N)|² ≤ 1/(H+1)`; letting `H → ∞` gives `σ_h(N) → 0`,
-i.e. `(xₙ)` is u.d. by Theorem 4.3.2. The fundamental inequality is not in Mathlib and is well beyond
-a short proof, so the theorem is recorded as a cited result. -/
-@[category research solved, AMS 11, ref "Ber92" "vdC31"]
+i.e. `(xₙ)` is u.d. by Theorem 4.3.2. The fundamental inequality is proved (sorry/axiom-free) as
+`vanDerCorput_fundamental_inequality` (`ForMathlib.Analysis.Equidistribution.VanDerCorput`);
+assembling it (applied to the Weyl sums of the differences, with the `H → ∞` limit) into this u.d.
+statement is itself beyond a short proof, so the theorem is recorded as a cited result. -/
+@[category research solved, AMS 11, ref "Ber92" "vdC31",
+  formal_uses vanDerCorput_fundamental_inequality]
 axiom vanDerCorput_theorem_4_4_1 (x : ℕ → ℝ)
     (h : ∀ k : ℕ, 0 < k → UniformlyDistributedModOne (fun n => x (n + k) - x n)) :
     UniformlyDistributedModOne x

@@ -38,7 +38,7 @@ namespace TheoremDB.Extract
 `ForMathlib` holds our bespoke notions (Pisot, lacunary, equidistribution, Lagrange,
 …); it is corpus content too, so its declarations become nodes and valid
 `states_with` targets. -/
-def corpusRoots : List Name := [`Corpus, `DistributionModOne, `ForMathlib, `BertinPisot]
+def corpusRoots : List Name := [`Corpus, `DistributionModOne, `ForMathlib, `BertinPisot, `Bugeaud, `SRS]
 
 /-- A module whose declarations are corpus nodes: under a corpus root, but not
 the `Corpus.Util` infrastructure. -/

@@ -5,14 +5,16 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import BertinPisot.AlphaPowMod1
+import BertinPisot.DistributionModOneBasics
 import BertinPisot.MeromorphicCoeffVanishing
 import ForMathlib.RingTheory.PowerSeries.Rationality
 import Mathlib.RingTheory.Localization.Integral
+import Mathlib.Analysis.Asymptotics.Lemmas
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
 /-!
-# §5.4 — distribution of `λθⁿ` for a Pisot number `θ` (Bertin §5.4)
+# §5.4 — distribution of `λθⁿ` for a Pisot number `θ`; §5.6 — countability of small-residue pairs (Bertin)
 
 Bertin's **§5.4** opens the study of the sequences `(λθⁿ)` for `θ` an `S`-number (Pisot) and `λ` an
 algebraic integer of `ℚ(θ)`:
@@ -38,11 +40,35 @@ With Lemma 1 (`Tr ∈ ℤ`) this gives an integer `k` with `|λθⁿ − k| ≤ 
 ("`(‖λθⁿ‖)` converges to zero geometrically"). The plain limit `‖λθⁿ‖ → 0` is the corollary
 `pisot_smul_pow_tendsto_zero` (a squeeze, exactly as for Theorem 5.3.1).
 
+The file then develops the §5.4 characterizations — Theorem 5.4.1 (`theorem_5_4_1`, algebraic `θ` and
+`‖λθⁿ‖ → 0`), 5.4.2 (`theorem_5_4_2`, the `L²` condition), 5.4.3 (`theorem_5_4_3`, `o(n^{-1/2})`), 5.4.4
+(`theorem_5_4_4`, the explicit `O(n^{-1/2})` threshold) — and closes with §5.6.
+
+## §5.6 — small-residue pairs (Theorem 5.6.1) and the finite-limit-point criterion (Theorem 5.6.2)
+
+Bertin's **Theorem 5.6.1** (§5.6): the set of pairs `(λ, α)`, `λ > 0`, `α > 1`, with
+`sup_{n ≥ n₀} ‖λαⁿ‖ < 1/(2(1+α)²)` for some integer `n₀`, is **countable**. With `uₙ = E(λαⁿ)` the
+small residues force the integer recurrence `u_{n+2} = E(u²_{n+1}/uₙ)` for large `n` (via the proved
+algebraic identity `smul_pow_recurrence_identity`), so each pair is determined by finitely many
+integers; and `α = lim u_{n+1}/uₙ` (`tendsto_round_smul_pow_ratio`, proved) recovers `(λ, α)` from the
+integer sequence `(uₙ)`. Both computational steps are **proved**; the injection-into-a-countable-set
+argument is recorded in the `informal_result` `"good-pairs-countable"`, and `theorem_5_6_1` itself is a
+`cited` axiom.
+
+**Theorem 5.6.2** (`theorem_5_6_2`, cited): an *algebraic* `θ > 1` is Pisot **iff** some `λ ≠ 0` makes
+`(λθⁿ)` have finitely many limit points modulo `1` — the companion of Theorem 5.4.1, with `‖λθⁿ‖ → 0`
+replaced by finite `limitPointsModOne`. Its proof runs Pisot's Theorem 4.1 (`pisot_theorem_4_1`) to an
+integer recurrence; the lead-up lemmas `exists_int_mul_isIntegral_of_isAlgebraic`,
+`int_mul_eps_sub_eps_isInt` (both proved) and `finite_rational_clusterPt_distToNearestInt` (cited) sit
+just before it.
+
 *References:*
-  - [Ber92] Bertin, Marie José et al. *Pisot and Salem Numbers.* Birkhäuser, 1992. §5.4.
+  - [Ber92] Bertin, Marie José et al. *Pisot and Salem Numbers.* Birkhäuser, 1992. §5.4, §5.6.
+  - [Gel41] Gelfond (Guelfond), A. O. *Mat. Sb. (N.S.)* **9(51)** (1941), 721–725.
+  - [Kor84] Korneyei, I. "On a theorem of Pisot." *Publ. Math. Debrecen* (1984), no. 3–4, 169–179.
 -/
 
-open Filter Topology Polynomial IntermediateField
+open Filter Topology Polynomial IntermediateField Asymptotics
 open scoped PowerSeries
 
 namespace Bertin
@@ -382,6 +408,433 @@ theorem pisot_of_smul_pow_tendsto_zero (θ : ℝ) (hθ : 1 < θ)
     (h : ∃ lam : ℝ, lam ≠ 0 ∧
       Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)) :
     θ ∈ S := by
+  sorry
+
+/- The deep (sufficiency) direction of Theorem 5.4.3 (Bertin §5.4), recorded. The `o(n^{-1/2})` decay
+of `‖λθⁿ‖` forces the integer sequence `uₙ = E(λθⁿ)` to have a *rational* generating series — and,
+crucially, **without any algebraicity assumption on `θ`**: that rationality is supplied directly by
+the corollary of Theorem 1.2.2 (a Hankel/L²-block rationality criterion), since the block sums
+`∑_{m=n}^{2n-1}|εₘ|² = o(1)`. The remaining pole/conjugate analysis is then exactly as in
+Theorem 5.4.1. -/
+informal_result "smul-pow-littleO-imp-pisot"
+  latex "Let $\\theta>1$ be real and $\\lambda\\ne 0$ real with $\\|\\lambda\\theta^n\\|=o(n^{-1/2})$. Write $\\lambda\\theta^n=u_n+\\varepsilon_n$ with $u_n=E(\\lambda\\theta^n)\\in\\mathbb{Z}$ the nearest integer and $\\varepsilon_n=\\varepsilon(\\lambda\\theta^n)$, so $|\\varepsilon_n|=\\|\\lambda\\theta^n\\|=o(n^{-1/2})$. This follows directly from the corollary of Theorem 1.2.2: the series $\\sum_{n\\in\\mathbb{N}}t_n X^n$ is a polynomial and the sequence $(s_n)$ satisfies $\\sum_{m=n}^{2n-1}|s_m|^2=o(1)$ (here $s_n=\\varepsilon_n$: from $|\\varepsilon_m|=o(m^{-1/2})$ one gets $|\\varepsilon_m|^2=o(1/m)$, and the $n$ terms $n\\le m<2n$ sum to $o(1)$); thus the series $\\sum_{n\\in\\mathbb{N}}u_n X^n$ is rational. As in Theorem 5.4.1 the only zero of its denominator in $\\overline{D}(0,1)$ is $1/\\theta$, the denominator is the reciprocal of the minimal polynomial of $\\theta$, and every other conjugate has modulus $<1$, i.e. $\\theta\\in S$. No algebraicity of $\\theta$ is assumed --- the $o(n^{-1/2})$ decay supplies the rationality directly. Conversely, if $\\theta\\in S$ then $\\|\\theta^n\\|\\le C\\delta^n$ with $\\delta<1$ decays geometrically, hence $\\|1\\cdot\\theta^n\\|=o(n^{-1/2})$ and $\\lambda=1$ works."
+  refs "Ber92"
+
+/-- A geometric sequence is `o(n^{-1/2})`: for `0 ≤ δ < 1` and any `C`, `n ↦ C·δⁿ = o(n^{-1/2})`.
+(The decay `δⁿ` beats every negative power of `n`; concretely `δⁿ·√n → 0`.) -/
+private lemma geom_isLittleO {δ : ℝ} (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) (C : ℝ) :
+    (fun n : ℕ => C * δ ^ n) =o[atTop] (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ)) := by
+  apply IsLittleO.const_mul_left
+  have hnorm : ‖δ‖ < 1 := by rw [Real.norm_eq_abs, abs_of_nonneg hδ0]; exact hδ1
+  have hmul : Tendsto (fun n : ℕ => (n : ℝ) * δ ^ n) atTop (𝓝 0) := by
+    simpa [pow_one] using
+      (summable_pow_mul_geometric_of_norm_lt_one 1 hnorm).tendsto_atTop_zero
+  have key : Tendsto (fun n : ℕ => δ ^ n * (n : ℝ) ^ (1/2 : ℝ)) atTop (𝓝 0) := by
+    refine squeeze_zero (fun n => by positivity) (fun n => ?_) hmul
+    rcases Nat.eq_zero_or_pos n with h | h
+    · subst h; simp [Real.zero_rpow]
+    · have h1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast h
+      have hle : (n : ℝ) ^ (1/2 : ℝ) ≤ (n : ℝ) := by
+        calc (n : ℝ) ^ (1/2 : ℝ) ≤ (n : ℝ) ^ (1 : ℝ) :=
+              Real.rpow_le_rpow_of_exponent_le h1 (by norm_num)
+          _ = (n : ℝ) := Real.rpow_one _
+      calc δ ^ n * (n : ℝ) ^ (1/2 : ℝ) ≤ δ ^ n * (n : ℝ) :=
+            mul_le_mul_of_nonneg_left hle (by positivity)
+        _ = (n : ℝ) * δ ^ n := by ring
+  have hside : ∀ᶠ n : ℕ in atTop, (n : ℝ) ^ (-(1/2) : ℝ) = 0 → δ ^ n = 0 := by
+    filter_upwards [eventually_ge_atTop 1] with n hn h0
+    have hnpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hn
+    exact absurd h0 (Real.rpow_pos_of_pos hnpos _).ne'
+  rw [isLittleO_iff_tendsto' hside]
+  exact key.congr (fun n => by rw [Real.rpow_neg (Nat.cast_nonneg n), div_inv_eq_mul])
+
+/-- **Theorem 5.4.3, necessity** (Bertin §5.4). If `θ ∈ S` (Pisot) then `λ = 1` already witnesses the
+sharp decay: `‖θⁿ‖ = o(n^{-1/2})`.
+
+**Proved.** `‖θⁿ‖ = distToNearestInt (θⁿ) ≤ C·δⁿ` decays geometrically (`pisot_smul_pow_approx_int`
+with the integral element `μ = 1`, so `λ = 1`), and any geometric sequence is `o(n^{-1/2})`
+(`geom_isLittleO`). -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S]
+theorem pisot_imp_smul_pow_isLittleO (θ : ℝ) (hθ : θ ∈ S) :
+    (fun n : ℕ => distToNearestInt (θ ^ n)) =o[atTop] (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ)) := by
+  obtain ⟨C, δ, hC, hδ0, hδ1, happ⟩ := pisot_smul_pow_approx_int θ hθ 1 isIntegral_one
+  have hnn : ∀ x : ℝ, 0 ≤ distToNearestInt x := fun x => by rw [distToNearestInt]; exact abs_nonneg _
+  have hbound : ∀ n : ℕ, distToNearestInt (θ ^ n) ≤ C * δ ^ n := by
+    intro n
+    obtain ⟨k, hk⟩ := happ n
+    refine (distToNearestInt_le_int (θ ^ n) k).trans ?_
+    simpa using hk
+  have hbig : (fun n : ℕ => distToNearestInt (θ ^ n)) =O[atTop] (fun n : ℕ => C * δ ^ n) := by
+    refine isBigO_of_le atTop (fun n => ?_)
+    rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (hnn _),
+      abs_of_nonneg (mul_nonneg hC (pow_nonneg hδ0 n))]
+    exact hbound n
+  exact hbig.trans_isLittleO (geom_isLittleO hδ0 hδ1 C)
+
+/-- **Theorem 5.4.3, sufficiency (cited).** If `θ > 1` is real — *no algebraicity assumed* — and there
+is a non-zero real `λ` with `‖λθⁿ‖ = o(n^{-1/2})`, then `θ ∈ S` (`θ` is a Pisot number).
+
+This is the deep direction (Bertin §5.4). The `o(n^{-1/2})` decay forces, via the **corollary of
+Theorem 1.2.2** (a Hankel/L²-block rationality criterion), the generating series `∑ₙ E(λθⁿ) Xⁿ` to be
+*rational* — *without* assuming `θ` algebraic, since the block sums `∑_{m=n}^{2n-1}|εₘ|² = o(1)`. From
+the rationality the analysis concludes exactly as in Theorem 5.4.1
+(`pisot_of_rational_round_series`): the denominator's single zero in `D̄(0,1)` is `1/θ`, it is the
+reciprocal of the minimal polynomial of `θ`, and every other conjugate has modulus `< 1`, i.e.
+`θ ∈ S`. The rationality criterion (the corollary of Theorem 1.2.2) is not assembled in the corpus,
+so this is a `cited` axiom. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S,
+  informal_uses "smul-pow-littleO-imp-pisot"]
+axiom theorem_5_4_3_sufficiency (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))) :
+    θ ∈ S
+
+/-- **Theorem 5.4.3** (Bertin §5.4). A real `θ > 1` belongs to `S` (is a Pisot number) **iff** there is
+a non-zero real `λ` with `‖λθⁿ‖ = o(n^{-1/2})` (`distToNearestInt (λθⁿ) = o(n^{-1/2})`).
+
+* **(⟹)** If `θ ∈ S` then `λ = 1` works: `‖θⁿ‖ ≤ C·δⁿ` decays geometrically, and a geometric sequence
+  is `o(n^{-1/2})` (`pisot_imp_smul_pow_isLittleO`). **Proved.**
+* **(⟸)** The converse is `theorem_5_4_3_sufficiency` (cited, via the corollary of Theorem 1.2.2).
+
+Unlike Theorem 5.4.1 (`theorem_5_4_1`), **no algebraicity hypothesis is needed**: the sharper
+`o(n^{-1/2})` decay yields the rationality of `∑ E(λθⁿ) Xⁿ` directly. So Theorem 5.4.3 settles, under
+this stronger hypothesis, the question left open in `pisot_of_smul_pow_tendsto_zero` (where only the
+plain limit `‖λθⁿ‖ → 0` is assumed). -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses S pisot_imp_smul_pow_isLittleO theorem_5_4_3_sufficiency,
+  informal_uses "smul-pow-littleO-imp-pisot"]
+theorem theorem_5_4_3 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ)) := by
+  refine ⟨fun hθS => ⟨1, one_ne_zero, ?_⟩, theorem_5_4_3_sufficiency θ hθ⟩
+  simpa only [one_mul] using pisot_imp_smul_pow_isLittleO θ hθS
+
+/- Theorem 5.4.2 (Bertin §5.4 — Pisot's classical L² characterization) is developed here **after**
+Theorem 5.4.3, since — at the user's request — its proof is *based on* 5.4.3 rather than on Bertin's
+own `H²`/Theorem-1.2.1 argument. Bertin's proof is recorded below for the record. -/
+informal_result "summable-sq-imp-pisot"
+  latex "Let $\\theta>1$ be real and $\\lambda\\ne 0$ real with $\\sum_{n\\in\\mathbb{N}}\\|\\lambda\\theta^n\\|^2<\\infty$. Write $\\lambda\\theta^n=u_n+\\varepsilon_n$ with $u_n=E(\\lambda\\theta^n)\\in\\mathbb{Z}$ and $\\varepsilon_n=\\varepsilon(\\lambda\\theta^n)$, so $|\\varepsilon_n|=\\|\\lambda\\theta^n\\|$ and $\\sum_n\\varepsilon_n^2<\\infty$. The series $\\sum_n\\varepsilon_n^2$ being convergent, the function $\\varepsilon(z)=\\sum_n\\varepsilon_n z^n$ belongs to the Hardy space $H^2$ and is thus of bounded characteristic in the disk $D(0,1)$. The same is true for the function $f(z)=\\sum_n u_n z^n$, whose Taylor expansion has integer coefficients. Then by Theorem 1.2.1 the function $f$ is rational. As in Theorem 5.4.1 the only zero of its denominator in $\\overline{D}(0,1)$ is $1/\\theta$, the denominator is the reciprocal of the minimal polynomial of $\\theta$, and every other conjugate has modulus $<1$, i.e. $\\theta\\in S$ --- no algebraicity of $\\theta$ being assumed. (Equivalently, square-summability gives the block bound $\\sum_{m=n}^{2n-1}\\varepsilon_m^2=o(1)$, which is exactly the hypothesis of the corollary of Theorem 1.2.2 used for Theorem 5.4.3: the two characterizations share the same rational-generating-series core.) Conversely, if $\\theta\\in S$ then $\\|\\theta^n\\|\\le C\\delta^n$ with $\\delta<1$, whence $\\sum_n\\|\\theta^n\\|^2\\le C^2\\sum_n\\delta^{2n}<\\infty$ and $\\lambda=1$ works."
+  refs "Ber92"
+
+/-- **Theorem 5.4.2, necessity** (Bertin §5.4). If `θ ∈ S` (Pisot) then `λ = 1` witnesses
+square-summability: `∑ₙ ‖θⁿ‖² < ∞`.
+
+**Proved.** `‖θⁿ‖ = distToNearestInt (θⁿ) ≤ C·δⁿ` decays geometrically (`pisot_smul_pow_approx_int`
+with the integral element `μ = 1`), so `‖θⁿ‖² ≤ C²·(δ²)ⁿ` is dominated by a convergent geometric
+series (`δ² < 1`). -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S]
+theorem pisot_imp_summable_sq (θ : ℝ) (hθ : θ ∈ S) :
+    Summable (fun n : ℕ => distToNearestInt (θ ^ n) ^ 2) := by
+  obtain ⟨C, δ, hC, hδ0, hδ1, happ⟩ := pisot_smul_pow_approx_int θ hθ 1 isIntegral_one
+  have hnn : ∀ x : ℝ, 0 ≤ distToNearestInt x := fun x => by rw [distToNearestInt]; exact abs_nonneg _
+  have hbound : ∀ n : ℕ, distToNearestInt (θ ^ n) ≤ C * δ ^ n := by
+    intro n
+    obtain ⟨k, hk⟩ := happ n
+    refine (distToNearestInt_le_int (θ ^ n) k).trans ?_
+    simpa using hk
+  have hsummable_geom : Summable (fun n : ℕ => C ^ 2 * (δ ^ 2) ^ n) :=
+    (summable_geometric_of_lt_one (by positivity) (by nlinarith)).mul_left (C ^ 2)
+  refine hsummable_geom.of_nonneg_of_le (fun n => sq_nonneg _) (fun n => ?_)
+  calc distToNearestInt (θ ^ n) ^ 2 ≤ (C * δ ^ n) ^ 2 := pow_le_pow_left₀ (hnn _) (hbound n) 2
+    _ = C ^ 2 * (δ ^ 2) ^ n := by rw [mul_pow, pow_right_comm]
+
+/-- **The deep step of Theorem 5.4.2, cited — and the bridge to Theorem 5.4.3.** From the
+square-summability `∑ₙ ‖λθⁿ‖² < ∞` (some `λ ≠ 0`) one obtains the `o(n^{-1/2})` characterization of
+Theorem 5.4.3 (some `λ' ≠ 0`).
+
+Its mathematical content is **Pisot's theorem**: `∑ₙ ‖λθⁿ‖² < ∞` for a non-zero real `λ` forces
+`θ ∈ S`. Bertin proves it (§5.4) via **Theorem 1.2.1**: the convergence `∑ εₙ² < ∞` puts
+`ε(z) = ∑ εₙ zⁿ` in the Hardy space `H²` — of bounded characteristic on `D(0,1)` — hence so is
+`f(z) = ∑ E(λθⁿ) zⁿ` (integer Taylor coefficients), and Theorem 1.2.1 makes `f` rational; the pole
+analysis then gives `θ ∈ S` exactly as in Theorem 5.4.1, *without* assuming `θ` algebraic. Once
+`θ ∈ S` is known, the `o(n^{-1/2})` decay is the proved `pisot_imp_smul_pow_isLittleO` (`λ' = 1`).
+The `H²`/bounded-characteristic argument (Theorem 1.2.1) is not assembled in the corpus, so this is a
+`cited` axiom; composed with `theorem_5_4_3` it yields `theorem_5_4_2`. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S,
+  informal_uses "summable-sq-imp-pisot"]
+axiom summable_sq_imp_smul_pow_isLittleO (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2)) :
+    ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))
+
+/-- **Theorem 5.4.2, sufficiency** (Pisot's theorem). If `θ > 1` is real and `∑ₙ ‖λθⁿ‖² < ∞` for some
+non-zero real `λ`, then `θ ∈ S`.
+
+**Proved from Theorem 5.4.3.** Square-summability yields the `o(n^{-1/2})` characterization
+(`summable_sq_imp_smul_pow_isLittleO`), to which `theorem_5_4_3` applies. No algebraicity is needed. -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses S summable_sq_imp_smul_pow_isLittleO theorem_5_4_3,
+  informal_uses "summable-sq-imp-pisot"]
+theorem theorem_5_4_2_sufficiency (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2)) :
+    θ ∈ S :=
+  (theorem_5_4_3 θ hθ).mpr (summable_sq_imp_smul_pow_isLittleO θ hθ h)
+
+/-- **Theorem 5.4.2** (Bertin §5.4 — Pisot's classical `L²` characterization). A real `θ > 1` belongs
+to `S` (is a Pisot number) **iff** there is a non-zero real `λ` with `∑ₙ ‖λθⁿ‖² < ∞`
+(`∑ₙ distToNearestInt (λθⁿ)² < ∞`).
+
+* **(⟹)** If `θ ∈ S` then `λ = 1` works: `‖θⁿ‖ ≤ C·δⁿ` decays geometrically, so
+  `∑ ‖θⁿ‖² ≤ C²·∑(δ²)ⁿ < ∞` (`pisot_imp_summable_sq`). **Proved.**
+* **(⟸)** `theorem_5_4_2_sufficiency` (Pisot's theorem), **based on Theorem 5.4.3**.
+
+Like Theorem 5.4.3 — and unlike Theorem 5.4.1 — **no algebraicity hypothesis is needed**. The two are
+companions: the `L²` condition here and the `o(n^{-1/2})` condition of Theorem 5.4.3 are *incomparable*
+as pointwise decay rates, yet each forces (and is forced by) `θ ∈ S`, and both feed the same
+rational-generating-series core. (Placed after Theorem 5.4.3 in the file because its proof invokes
+it.) -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses S pisot_imp_summable_sq theorem_5_4_2_sufficiency,
+  informal_uses "summable-sq-imp-pisot"]
+theorem theorem_5_4_2 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2) := by
+  refine ⟨fun hθS => ⟨1, one_ne_zero, ?_⟩, theorem_5_4_2_sufficiency θ hθ⟩
+  simpa only [one_mul] using pisot_imp_summable_sq θ hθS
+
+/- Theorem 5.4.4 (Bertin §5.4) — added without proof: the screenshot supplies the statement only, so
+it is recorded as a `cited` axiom (the quantitative `O(n^{-1/2})` refinement of Theorems 5.4.2–5.4.3,
+with an explicit threshold on the constant). -/
+informal_result "smul-pow-sqrt-bound-iff-pisot"
+  latex "A real $\\theta>1$ belongs to $S$ if and only if there exist two reals $\\lambda$ and $a$ with $\\lambda>0$ and $0<a<\\dfrac{1}{2\\sqrt{2}\\,(\\theta+1)^2}$ and an integer $n_0\\ge 1$ such that $\\|\\lambda\\theta^n\\|\\le\\dfrac{a}{\\sqrt{n}}$ for all $n\\ge n_0$. (Bertin §5.4: a quantitative refinement of Theorems 5.4.2--5.4.3, pinning the implied constant of the $O(n^{-1/2})$ bound below the explicit threshold $1/(2\\sqrt{2}\\,(\\theta+1)^2)$.)"
+  refs "Ber92"
+
+/-- **Theorem 5.4.4** (Bertin §5.4 — cited, stated without proof). A real `θ > 1` belongs to `S` (is a
+Pisot number) **iff** there exist reals `λ > 0` and `a` with `0 < a < 1/(2√2·(θ+1)²)` and an integer
+`n₀ ≥ 1` such that `‖λθⁿ‖ ≤ a/√n` for all `n ≥ n₀`.
+
+A quantitative sharpening of the `o(n^{-1/2})` characterization (`theorem_5_4_3`): an `O(n^{-1/2})`
+bound on `‖λθⁿ‖` (with `λ > 0`) already forces `θ ∈ S`, *provided* the implied constant `a` lies below
+the explicit threshold `1/(2√2·(θ+1)²)`. Recorded as a `cited` axiom — the screenshot gives the
+statement only; the proof (Bertin §5.4, the same `H²`/rational-generating-series circle as Theorems
+5.4.2–5.4.3) is not formalized. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S,
+  informal_uses "smul-pow-sqrt-bound-iff-pisot"]
+axiom theorem_5_4_4 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam a : ℝ, 0 < lam ∧ 0 < a ∧ a < 1 / (2 * Real.sqrt 2 * (θ + 1) ^ 2) ∧
+      ∃ n₀ : ℕ, 1 ≤ n₀ ∧ ∀ n : ℕ, n₀ ≤ n → distToNearestInt (lam * θ ^ n) ≤ a / Real.sqrt n
+
+/- Gelfond's sharpening of Theorem 5.4.4 (A. O. Gelfond, 1941; rediscovered by Korneyei, 1984),
+recorded from Bertin's §5.6 remark. Same `O(n^{-1/2})` criterion, with the larger admissible constant
+`1/√(2e(θ+1))` in place of `1/(2√2(θ+1)²)`. Stated without proof in [Ber92] (a historical pointer), so
+recorded as a `cited` axiom. -/
+informal_result "gelfond-sharp-sqrt-bound"
+  latex "A real $\\theta>1$ belongs to $S$ if and only if there exist reals $\\lambda>0$ and $a$ with $0<a<\\dfrac{1}{\\sqrt{2e(\\theta+1)}}$ and an integer $n_0\\ge 1$ such that $\\|\\lambda\\theta^n\\|\\le\\dfrac{a}{\\sqrt n}$ for all $n\\ge n_0$. This is Gelfond's theorem (A.~O.~Gelfond, 1941), sharpening Theorem 5.4.4: for $\\theta>1$ the admissible constant $1/\\sqrt{2e(\\theta+1)}$ exceeds the bound $1/(2\\sqrt2(\\theta+1)^2)$ of Theorem 5.4.4, so the criterion applies to a wider range of $a$. Owing to its date, the very small number of copies of the article, and the Russian language in which it was written, Pisot and Salem were unaware of this result; it was rediscovered by Korneyei in 1984."
+  refs "Gel41" "Ber92" "Kor84"
+
+/-- **Gelfond's theorem** (A. O. Gelfond, 1941; rediscovered by Korneyei, 1984 — recorded from Bertin's
+§5.6 remark, cited). A **sharper** form of Theorem 5.4.4: a real `θ > 1` belongs to `S` (is a Pisot
+number) **iff** there exist reals `λ > 0` and `a` with `0 < a < 1/√(2e(θ+1))` and an integer `n₀ ≥ 1`
+such that `‖λθⁿ‖ ≤ a/√n` for all `n ≥ n₀`.
+
+The constant `1/√(2e(θ+1))` improves on Theorem 5.4.4's `1/(2√2(θ+1)²)` (`theorem_5_4_4`): for `θ > 1`
+the former is the larger threshold, so the `O(n^{-1/2})` Pisot criterion holds for a wider range of the
+constant `a`. Bertin notes the result predates [Ber92] but — owing to its date, the scarcity of the
+article, and its Russian language — was unknown to Pisot and Salem, and was rediscovered by Korneyei
+(1984). Recorded as a `cited` axiom. (Reference keys `Gel41`/`Kor84` are placeholders for the exact
+Gelfond 1941 and Korneyei 1984 bibliographic entries.) -/
+@[category research solved, AMS 11, ref "Gel41" "Ber92" "Kor84",
+  formal_uses S theorem_5_4_4, informal_uses "gelfond-sharp-sqrt-bound"]
+axiom gelfond_sqrt_criterion (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam a : ℝ, 0 < lam ∧ 0 < a ∧ a < 1 / Real.sqrt (2 * Real.exp 1 * (θ + 1)) ∧
+      ∃ n₀ : ℕ, 1 ≤ n₀ ∧ ∀ n : ℕ, n₀ ≤ n → distToNearestInt (lam * θ ^ n) ≤ a / Real.sqrt n
+
+/-! ### §5.6 — countability of the pairs `(λ, α)` with small residues (Theorem 5.6.1) -/
+
+/-- **The key algebraic identity of Theorem 5.6.1** (Bertin §5.6). For `uₙ = round (λαⁿ)` and the
+centered residue `εₙ = ε (λαⁿ) = λαⁿ − uₙ`,
+`u_{n+2}·uₙ − u²_{n+1} = −λαⁿ·(α²εₙ − 2αε_{n+1} + ε_{n+2}) + (εₙε_{n+2} − ε²_{n+1})`.
+
+**Proved** — a `ring` identity after substituting `uₘ = λαᵐ − εₘ` (and `λα^{n+1} = α·λαⁿ`,
+`λα^{n+2} = α²·λαⁿ`). Dividing by `uₙ` and bounding the right-hand side by `η = sup |εₙ|` is what
+forces `|u_{n+2} − u²_{n+1}/uₙ| ≤ 1/2`, i.e. `u_{n+2} = E(u²_{n+1}/uₙ)`, the recurrence behind the
+countability in Theorem 5.6.1. -/
+@[category research solved, AMS 11, ref "Ber92"]
+theorem smul_pow_recurrence_identity (lam α : ℝ) (n : ℕ) :
+    (round (lam * α ^ (n + 2)) : ℝ) * (round (lam * α ^ n) : ℝ)
+        - (round (lam * α ^ (n + 1)) : ℝ) ^ 2
+      = -(lam * α ^ n) * (α ^ 2 * ε (lam * α ^ n) - 2 * α * ε (lam * α ^ (n + 1))
+          + ε (lam * α ^ (n + 2)))
+        + (ε (lam * α ^ n) * ε (lam * α ^ (n + 2)) - ε (lam * α ^ (n + 1)) ^ 2) := by
+  have h0 : (round (lam * α ^ n) : ℝ) = lam * α ^ n - ε (lam * α ^ n) := by rw [ε]; ring
+  have h1 : (round (lam * α ^ (n + 1)) : ℝ) = α * (lam * α ^ n) - ε (lam * α ^ (n + 1)) := by
+    rw [ε, pow_succ]; ring
+  have h2 : (round (lam * α ^ (n + 2)) : ℝ) = α ^ 2 * (lam * α ^ n) - ε (lam * α ^ (n + 2)) := by
+    rw [ε, pow_add]; ring
+  rw [h0, h1, h2]; ring
+
+/-- **`α = lim u_{n+1}/uₙ`** — the recovery step of Theorem 5.6.1 (Bertin §5.6). For `λ > 0`, `α > 1`
+and `uₙ = round (λαⁿ)`, the ratios `u_{n+1}/uₙ` converge to `α`.
+
+**Proved.** `uₙ → +∞` (since `λαⁿ → +∞` and `uₙ ≥ λαⁿ − 1/2`), and
+`u_{n+1}/uₙ − α = (αεₙ − ε_{n+1})/uₙ` with `|αεₙ − ε_{n+1}| ≤ (α+1)/2`, so the difference is
+`O(1/uₙ) → 0`. This recovers `α` (and then `λ`) from the integer sequence `(uₙ)` — the injectivity
+underlying the countability of Theorem 5.6.1. -/
+@[category research solved, AMS 11, ref "Ber92"]
+theorem tendsto_round_smul_pow_ratio (lam α : ℝ) (hlam : 0 < lam) (hα : 1 < α) :
+    Tendsto (fun n : ℕ => (round (lam * α ^ (n + 1)) : ℝ) / (round (lam * α ^ n) : ℝ)) atTop (𝓝 α) := by
+  have hpow : Tendsto (fun n : ℕ => lam * α ^ n) atTop atTop :=
+    Tendsto.const_mul_atTop hlam (tendsto_pow_atTop_atTop_of_one_lt hα)
+  have hround : Tendsto (fun n : ℕ => (round (lam * α ^ n) : ℝ)) atTop atTop := by
+    refine tendsto_atTop_mono (fun n => ?_) (tendsto_atTop_add_const_right atTop (-(1 / 2 : ℝ)) hpow)
+    have := (abs_le.mp (abs_sub_round (lam * α ^ n))).2; linarith
+  have hg : Tendsto (fun n : ℕ => (α + 1) / 2 / (round (lam * α ^ n) : ℝ)) atTop (𝓝 0) :=
+    Tendsto.div_atTop tendsto_const_nhds hround
+  have key : Tendsto (fun n : ℕ =>
+      (round (lam * α ^ (n + 1)) : ℝ) / (round (lam * α ^ n) : ℝ) - α) atTop (𝓝 0) := by
+    refine squeeze_zero_norm' ?_ hg
+    filter_upwards [hround.eventually_gt_atTop 0] with n hn
+    have hne : (round (lam * α ^ n) : ℝ) ≠ 0 := ne_of_gt hn
+    have heq : (round (lam * α ^ (n + 1)) : ℝ) / (round (lam * α ^ n) : ℝ) - α
+        = (α * (lam * α ^ n - round (lam * α ^ n))
+            - (lam * α ^ (n + 1) - round (lam * α ^ (n + 1)))) / (round (lam * α ^ n)) := by
+      simp only [pow_succ]; field_simp; ring
+    rw [Real.norm_eq_abs, heq, abs_div, abs_of_pos hn]
+    gcongr
+    have e0 := abs_le.mp (abs_sub_round (lam * α ^ n))
+    have e1 := abs_le.mp (abs_sub_round (lam * α ^ (n + 1)))
+    rw [abs_le]; constructor <;> nlinarith [e0.1, e0.2, e1.1, e1.2, hα]
+  simpa using key.add_const α
+
+/- Bertin's full proof of Theorem 5.6.1 (§5.6), recorded faithfully. The two computational steps —
+the algebraic identity and `α = lim u_{n+1}/uₙ` — are proved (`smul_pow_recurrence_identity`,
+`tendsto_round_smul_pow_ratio`); what remains is the combinatorial injection of admissible pairs into
+a countable set of finitely-generated integer sequences. -/
+informal_result "good-pairs-countable"
+  latex "Let $(\\lambda,\\alpha)$ satisfy $\\lambda>0$, $\\alpha>1$ and $\\sup_{n\\ge n_0}\\|\\lambda\\alpha^n\\|<\\frac{1}{2(1+\\alpha)^2}$ for some $n_0$. Put $u_n=E(\\lambda\\alpha^n)$ and $\\varepsilon_n=\\varepsilon(\\lambda\\alpha^n)=\\lambda\\alpha^n-u_n$, so $\\lambda\\alpha^n=u_n+\\varepsilon_n$; as $\\lambda\\alpha^n\\to+\\infty$, $u_n\\to+\\infty$. The identity $u_{n+2}-\\frac{u_{n+1}^2}{u_n}=-\\frac{\\lambda\\alpha^n}{u_n}\\bigl(\\alpha^2\\varepsilon_n-2\\alpha\\varepsilon_{n+1}+\\varepsilon_{n+2}\\bigr)+\\frac{\\varepsilon_n\\varepsilon_{n+2}-\\varepsilon_{n+1}^2}{u_n}$ holds, so with $\\eta=\\sup_{n\\ge n_0}|\\varepsilon_n|$, $\\bigl|u_{n+2}-\\frac{u_{n+1}^2}{u_n}\\bigr|\\le\\eta\\bigl(1+\\frac{\\eta}{u_n}\\bigr)(\\alpha+1)^2+\\frac{2\\eta^2}{u_n}\\le(\\alpha+1)^2\\eta+c\\,\\frac{\\eta^2}{u_n}$ for $n\\ge n_0$ ($c$ a real constant). Since $\\eta<\\frac{1}{2(1+\\alpha)^2}$ gives $(\\alpha+1)^2\\eta<\\frac12$, and $c\\eta^2/u_n\\to0$, the inequality $\\bigl|u_{n+2}-\\frac{u_{n+1}^2}{u_n}\\bigr|\\le\\frac12$ holds for $n\\ge n_1\\ge n_0$. Hence $u_{n+2}=E\\!\\left(\\frac{u_{n+1}^2}{u_n}\\right)$: $u_{n+2}$ is determined by $u_n,u_{n+1}$, so the whole sequence $(u_n)$ is fixed by its finitely many terms up to $u_{n_1+1}$. Two different pairs $(\\lambda,\\alpha)$ cannot give the same $(u_n)$ (from $(u_n)$ one recovers $\\alpha=\\lim u_{n+1}/u_n$, then $\\lambda$), so $(\\lambda,\\alpha)\\mapsto(u_n)$ is injective into the countable set of integer sequences generated by finite data; the set of admissible pairs is therefore countable. Finally $\\lambda\\alpha^{n+1}=u_{n+1}+\\varepsilon_{n+1}=\\alpha u_n+\\alpha\\varepsilon_n$ gives $\\bigl|\\alpha-\\frac{u_{n+1}}{u_n}\\bigr|=\\frac{|\\varepsilon_{n+1}-\\alpha\\varepsilon_n|}{u_n}\\to0$, so $\\alpha=\\lim_{n\\to\\infty}u_{n+1}/u_n$. $\\qquad\\blacksquare$"
+  refs "Ber92"
+
+/-- **Theorem 5.6.1** (Bertin §5.6 — cited). The set of pairs of reals `(λ, α)` with `λ > 0`, `α > 1`
+for which `sup_{n ≥ n₀} ‖λαⁿ‖ < 1/(2(1+α)²)` holds for some integer `n₀` is **countable**. (The
+condition `sup < 1/(2(1+α)²)` is encoded as `∃ K < 1/(2(1+α)²), ∀ n ≥ n₀, ‖λαⁿ‖ ≤ K`.)
+
+Bertin's mechanism: with `uₙ = E(λαⁿ)`, the uniform smallness of the residues forces — via the proved
+identity `smul_pow_recurrence_identity` — the integer recurrence `u_{n+2} = E(u²_{n+1}/uₙ)` for `n`
+large, so each `(uₙ)` is determined by finitely many integers; and `α = lim u_{n+1}/uₙ`
+(`tendsto_round_smul_pow_ratio`, proved) together with `λ` is recovered from `(uₙ)`, making
+`(λ, α) ↦ (uₙ)` injective into a countable set. The two computational steps are **proved**; the
+injection/countability combinatorics are recorded in the `informal_result` `"good-pairs-countable"`,
+so the result is a `cited` axiom. -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses smul_pow_recurrence_identity tendsto_round_smul_pow_ratio,
+  informal_uses "good-pairs-countable"]
+axiom theorem_5_6_1 :
+    { p : ℝ × ℝ | 0 < p.1 ∧ 1 < p.2 ∧
+        ∃ n₀ : ℕ, ∃ K : ℝ, K < 1 / (2 * (1 + p.2) ^ 2) ∧
+          ∀ n : ℕ, n₀ ≤ n → distToNearestInt (p.1 * p.2 ^ n) ≤ K }.Countable
+
+/-! ### Reduction to finitely many rational residue limit points (Bertin §5, lead-up to Theorem 4.1)
+
+For a Pisot `θ` and `λ ∈ ℚ(θ)`, a non-zero integer `h` makes `hλ` an algebraic integer
+(`exists_int_mul_isIntegral_of_isAlgebraic`); the combination `hε(λθⁿ) − ε(hλθⁿ)` is then an integer
+(`int_mul_eps_sub_eps_isInt`); and if `‖hλθⁿ‖ → 0`, the sequence `(‖λθⁿ‖)` has finitely many limit
+points, all rational (`finite_rational_clusterPt_distToNearestInt`). These supply the hypotheses of
+Pisot's Theorem 4.1 (`Bertin.pisot_theorem_4_1`). -/
+
+/-- **An algebraic real has a non-zero integer multiple that is an algebraic integer** (Bertin §5).
+If `x : ℝ` is algebraic over `ℚ` — e.g. `x = λ ∈ ℚ(θ)` for a Pisot (or any algebraic) `θ` — then there
+is a non-zero integer `h` with `h • x` integral over `ℤ`.
+
+**Proved**: `IsFractionRing.isAlgebraic_iff` turns "algebraic over `ℚ`" into "algebraic over `ℤ`", then
+`IsAlgebraic.exists_integral_multiple`. This is Bertin's "there exists an integer `h` such that `hλ` is
+an algebraic integer". -/
+@[category research solved, AMS 11, ref "Ber92"]
+theorem exists_int_mul_isIntegral_of_isAlgebraic (x : ℝ) (hx : IsAlgebraic ℚ x) :
+    ∃ h : ℤ, h ≠ 0 ∧ IsIntegral ℤ (h • x) :=
+  ((IsFractionRing.isAlgebraic_iff ℤ ℚ ℝ).mpr hx).exists_integral_multiple
+
+/-- **`h·ε(x) − ε(h·x)` is an integer** (Bertin §5). For any integer `h` and real `x`, the centered
+residues satisfy `h·ε(x) − ε(h·x) = round(h·x) − h·round(x) ∈ ℤ`.
+
+**Proved** (`ε y = y − round y`, then `ring`). With `x = λθⁿ` this is Bertin's observation, from
+comparing the residues mod `1` of `λθⁿ` and `hλθⁿ`, that "the real `hε(λθⁿ) − ε(hλθⁿ)` is an
+integer". -/
+@[category research solved, AMS 11, ref "Ber92"]
+theorem int_mul_eps_sub_eps_isInt (h : ℤ) (x : ℝ) :
+    ∃ m : ℤ, (h : ℝ) * ε x - ε ((h : ℝ) * x) = (m : ℝ) :=
+  ⟨round ((h : ℝ) * x) - h * round x, by rw [ε, ε]; push_cast; ring⟩
+
+/- Bertin's argument that `‖hλθⁿ‖ → 0` forces finitely many rational residue limit points, recorded.
+From `int_mul_eps_sub_eps_isInt` and `ε(hλθⁿ) → 0`, `h·ε(λθⁿ)` approaches `ℤ`, i.e. the residues
+`(λθⁿ mod 1)` cluster only at the `h`-torsion points `{k/h}` of the circle — finitely many rationals;
+hence the limit points of `‖λθⁿ‖ = |ε(λθⁿ)|` are finitely many rationals `|k/h|`. -/
+informal_result "smul-pow-finite-rational-limit-points"
+  latex "Let $h\\ne 0$ be an integer with $\\|h\\lambda\\theta^n\\|\\to 0$. Since $\\varepsilon(h\\lambda\\theta^n)=\\pm\\|h\\lambda\\theta^n\\|\\to 0$ and $h\\,\\varepsilon(\\lambda\\theta^n)-\\varepsilon(h\\lambda\\theta^n)\\in\\mathbb{Z}$, the quantity $h\\,\\varepsilon(\\lambda\\theta^n)$ stays within $o(1)$ of $\\mathbb{Z}$; equivalently, in $\\mathbb{R}/\\mathbb{Z}$ the residues of $h\\lambda\\theta^n$ tend to $0$. If $x$ is a limit point of $(\\|\\lambda\\theta^n\\|)$ then $x=\\|r\\|$ for some limit point $r$ of $(\\lambda\\theta^n\\bmod 1)$; as $r\\mapsto h\\,r$ is continuous, $h\\,r$ is a limit point of $(h\\lambda\\theta^n\\bmod 1)$, which converges to $0$, so $h\\,r=0$. Hence every such $r$ lies in the $h$-torsion subgroup of $\\mathbb{R}/\\mathbb{Z}$, which is finite (isomorphic to $\\mathbb{Z}/h\\mathbb{Z}$) and consists of the rational points $k/h$. Therefore $(\\|\\lambda\\theta^n\\|)$ has finitely many limit points, each of the form $|k/h|$ — finitely many rationals. $\\qquad\\blacksquare$"
+  refs "Ber92"
+
+/-- **Finitely many rational residue limit points** (Bertin §5 — cited). If `θ, λ` are real and some
+non-zero integer `h` makes `‖hλθⁿ‖ → 0`, then `(‖λθⁿ‖)` (`= distToNearestInt (λθⁿ)`) has **finitely
+many limit points, every one of which is rational**.
+
+The converse companion of Pisot's Theorem 4.1 (`pisot_theorem_4_1`, which goes from finitely many
+rational limit points to a multiplier `h` with `‖hλθⁿ‖` small): here the small-multiplier hypothesis
+*produces* the finite rational limit-point set. Proof (in `"smul-pow-finite-rational-limit-points"`):
+from `int_mul_eps_sub_eps_isInt` and `ε(hλθⁿ) → 0`, the residues `(λθⁿ mod 1)` cluster only at the
+`h`-torsion points of `ℝ/ℤ` — finitely many rationals. The `h`-torsion finiteness of `AddCircle 1` is
+not packaged shortly, so this is a `cited` axiom; the algebraic ingredients
+(`int_mul_eps_sub_eps_isInt`, and `exists_int_mul_isIntegral_of_isAlgebraic` providing such an `h` for
+`λ ∈ ℚ(θ)`) are proved. -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses int_mul_eps_sub_eps_isInt exists_int_mul_isIntegral_of_isAlgebraic,
+  informal_uses "smul-pow-finite-rational-limit-points"]
+axiom finite_rational_clusterPt_distToNearestInt (lam θ : ℝ) (h : ℤ) (hh : h ≠ 0)
+    (hlim : Tendsto (fun n : ℕ => distToNearestInt ((h : ℝ) * (lam * θ ^ n))) atTop (𝓝 0)) :
+    {x : ℝ | MapClusterPt x atTop (fun n : ℕ => distToNearestInt (lam * θ ^ n))}.Finite ∧
+      ∀ x, MapClusterPt x atTop (fun n : ℕ => distToNearestInt (lam * θ ^ n)) → ∃ q : ℚ, x = (q : ℝ)
+
+/- Bertin's full proof of Theorem 5.6.2 (§5.6), recorded faithfully. The deep (⟸) direction runs the
+Theorem-4.1 reduction (`pisot_theorem_4_1`): finitely many limit points mod 1 yield a multiplier `h`
+with `hλθⁿ = vₙ + ηₙ`, `|ηₙ| ≤ 2/q`; then `P(θ) = 0` forces the integer recurrence `∑ qᵢ v_{n+i} = 0`,
+so `∑ vₙ Xⁿ` is rational and (as in Theorem 5.4.1) `θ ∈ U`, while finiteness of the limit-point set
+excludes the Salem case `T` (Salem powers are dense, Theorem 5.3.2), giving `θ ∈ S`. The easy (⟹)
+direction is `λ = 1` via Theorem 5.3.1. -/
+informal_result "algebraic-finite-limit-points-iff-pisot"
+  latex "($\\Leftarrow$) Suppose $\\theta>1$ is algebraic, a zero of $P=\\sum_{i=0}^{s}q_iX^i\\in\\mathbb{Z}[X]$, and $\\lambda\\ne 0$ is real such that $(\\lambda\\theta^n)$ has finitely many limit points modulo $1$. Let $k$ be the number of irrational limit points of $(\\varepsilon(\\lambda\\theta^n))$, and pick an integer $q>2\\sum_{i=0}^{s}|q_i|$. By Theorem 4.1 there is an integer $h$ with $0<h\\le q^{k}$ such that $h\\lambda\\theta^n=v_n+\\eta_n$ with $v_n\\in\\mathbb{Z}$ and $|\\eta_n|\\le 2/q$ for $n\\ge n_0$. Since $P(\\theta)=0$, $\\sum_{i=0}^{s}q_i\\,h\\lambda\\theta^{n+i}=h\\lambda\\theta^n P(\\theta)=0$, so $\\sum_{i=0}^{s}q_iv_{n+i}=-\\sum_{i=0}^{s}q_i\\eta_{n+i}$ has absolute value $\\le\\big(\\sum_i|q_i|\\big)\\tfrac{2}{q}<1$; being an integer it vanishes, $\\sum_{i=0}^{s}q_iv_{n+i}=0$ for $n\\ge n_0$. Hence the generating series $\\sum_n v_nX^n$ is rational. As in Theorem 5.4.1 this forces $\\theta\\in U$; and $\\theta$ cannot belong to $T$ (a Salem number has $(\\theta^n)$ dense modulo $1$, hence infinitely many limit points, Theorem 5.3.2, contradicting finiteness), so $\\theta\\in S$. ($\\Rightarrow$) If $\\theta\\in S$ then $\\lambda=1$ works: by Theorem 5.3.1 $\\|\\theta^n\\|\\to 0$, so $(\\theta^n)$ has the single limit point $0$ modulo $1$ --- finitely many. $\\qquad\\blacksquare$"
+  refs "Ber92"
+
+/-- **Theorem 5.6.2** (Bertin §5.6 — cited). An **algebraic** real `θ > 1` belongs to `S` (is a Pisot
+number) **iff** there is a non-zero real `λ` such that `(λθⁿ)` has **finitely many limit points modulo
+1** (`(limitPointsModOne (fun n => λθⁿ)).Finite`).
+
+* **(⟸)** the deep direction (Bertin §5.6): finitely many limit points feed Pisot's Theorem 4.1
+  (`pisot_theorem_4_1`) to give a multiplier `h` with `hλθⁿ = vₙ + ηₙ`, `|ηₙ| ≤ 2/q`; `P(θ) = 0` then
+  forces the integer recurrence `∑ qᵢ v_{n+i} = 0`, so `∑ vₙ Xⁿ` is rational and (as in Theorem 5.4.1)
+  `θ ∈ U`; finiteness excludes the Salem case `T` (dense powers, Theorem 5.3.2), so `θ ∈ S`.
+* **(⟹)** `λ = 1`: `‖θⁿ‖ → 0` (Theorem 5.3.1, `theorem_5_3_1`), a single limit point `0` mod 1.
+
+The **algebraicity hypothesis is essential** (it supplies the integer polynomial `P` driving the
+recurrence) — the companion of Theorem 5.4.1, with "`‖λθⁿ‖ → 0`" replaced by "finitely many limit
+points mod 1". Resting on Theorem 4.1 and the rationality/`U\T` analysis (not assembled here), it is a
+`cited` axiom; the proved lead-up lemmas `int_mul_eps_sub_eps_isInt` and
+`finite_rational_clusterPt_distToNearestInt` are its companions, and the complete proof is in the
+`informal_result` `"algebraic-finite-limit-points-iff-pisot"`. -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses S theorem_5_3_1 pisot_theorem_4_1 finite_rational_clusterPt_distToNearestInt,
+  informal_uses "algebraic-finite-limit-points-iff-pisot"]
+axiom theorem_5_6_2 (θ : ℝ) (hθalg : IsAlgebraic ℚ θ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧ (limitPointsModOne (fun n : ℕ => lam * θ ^ n)).Finite
+
+/-- **Open problem** (Bertin §5.6). Let `α > 1` be real, and suppose there is a **non-zero** real `λ`
+such that `(λαⁿ)` has **finitely many limit points modulo 1** (`(limitPointsModOne (fun n => λαⁿ)).Finite`).
+**Must `α` be a Pisot number — `α ∈ S`?**
+
+This is the exact transcendental-case analogue of Theorem 5.6.2 (`theorem_5_6_2`): for **algebraic**
+`α > 1` the answer is *yes* (that is Theorem 5.6.2). What is **open** — in Bertin's words — is the
+existence of a pair `(λ, α)` with `α` **transcendental** and `α > 1` for which `(ε(λαⁿ))` has finitely
+many limit points: it is **unknown whether any such transcendental pair exists**. The expected answer
+is *no* (none exist), in which case the finiteness hypothesis would force `α` algebraic, hence Pisot,
+making the conclusion `α ∈ S` hold unconditionally. It is the finite-limit-point counterpart of the
+open problem `pisot_of_smul_pow_tendsto_zero` (where the hypothesis is the stronger `‖λαⁿ‖ → 0`).
+
+Recorded as a `research open` node: the statement below is the conjectured affirmative answer. It is
+**not** proved (`sorry`) and **must not** be invoked as a lemma — it stands only as the formal
+statement of the question. -/
+@[category research open, AMS 11, ref "Ber92", formal_uses S]
+theorem pisot_of_finite_limitPointsModOne (α : ℝ) (hα : 1 < α)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ (limitPointsModOne (fun n : ℕ => lam * α ^ n)).Finite) :
+    α ∈ S := by
   sorry
 
 end Bertin

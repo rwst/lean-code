@@ -30,6 +30,12 @@ lean_lib ForMathlib where
 lean_lib BertinPisot where
   globs := #[.submodules `BertinPisot]
 
+lean_lib Bugeaud where
+  globs := #[.submodules `Bugeaud]
+
 lean_lib WeylCriteria where
   globs := #[.submodules `WeylCriteria]
+
+lean_lib SRS where
+  globs := #[.submodules `SRS]
 
