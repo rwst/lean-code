@@ -596,15 +596,221 @@ the Weyl sums of `(xₙ)` in terms of those of the differences — for every `H 
 `|σ_h(N)|² ≤ (N+H)/((H+1)N) + (2/(H+1)) Σ_{k=1}^{H} (1 − k/(H+1)) · Re σ^{(k)}_h(N)`, where
 `σ^{(k)}_h` is the Weyl sum of the `k`-th difference `(xₙ₊ₖ − xₙ)`. By hypothesis and Theorem 4.3.2
 each `σ^{(k)}_h(N) → 0`, so `limsup_N |σ_h(N)|² ≤ 1/(H+1)`; letting `H → ∞` gives `σ_h(N) → 0`,
-i.e. `(xₙ)` is u.d. by Theorem 4.3.2. The fundamental inequality is proved (sorry/axiom-free) as
-`vanDerCorput_fundamental_inequality` (`ForMathlib.Analysis.Equidistribution.VanDerCorput`);
-assembling it (applied to the Weyl sums of the differences, with the `H → ∞` limit) into this u.d.
-statement is itself beyond a short proof, so the theorem is recorded as a cited result. -/
+i.e. `(xₙ)` is u.d. by Theorem 4.3.2. This is **proved here in full**: the fundamental inequality is
+`vanDerCorput_fundamental_inequality` (`ForMathlib.Analysis.Equidistribution.VanDerCorput`, axiom-free),
+applied to `uₙ = e^{2πi h xₙ}` with `a = 1`, `L = H+1`; the differences' Weyl sums vanish by the
+hypothesis through Weyl's forward direction (`weylCriterion_of_uniformlyDistributedModOne`); a double
+limit (`N → ∞` then `H → ∞`) gives `σ_h(N) → 0`; and the conclusion uses Weyl's converse
+(`uniformlyDistributedModOne_of_weylCriterion`) — the **only** remaining cited axiom this proof rests
+on. -/
 @[category research solved, AMS 11, ref "Ber92" "vdC31",
-  formal_uses vanDerCorput_fundamental_inequality]
-axiom vanDerCorput_theorem_4_4_1 (x : ℕ → ℝ)
+  formal_uses vanDerCorput_fundamental_inequality weylCriterion_of_uniformlyDistributedModOne
+    uniformlyDistributedModOne_of_weylCriterion]
+theorem vanDerCorput_theorem_4_4_1 (x : ℕ → ℝ)
     (h : ∀ k : ℕ, 0 < k → UniformlyDistributedModOne (fun n => x (n + k) - x n)) :
-    UniformlyDistributedModOne x
+    UniformlyDistributedModOne x := by
+  apply uniformlyDistributedModOne_of_weylCriterion
+  intro m hm
+  set u : ℕ → ℂ := fun n => Complex.exp (2 * Real.pi * Complex.I * ↑m * x n) with hu
+  show Tendsto (fun N => (∑ n ∈ Finset.range N, u n) / (N : ℂ)) atTop (𝓝 0)
+  have hu1 : ∀ n, ‖u n‖ = 1 := fun n => by
+    simp only [hu]
+    rw [show (2 * Real.pi * Complex.I * ↑m * x n)
+        = ((2 * Real.pi * ↑m * x n : ℝ) : ℂ) * Complex.I from by push_cast; ring, Complex.norm_exp]
+    simp
+  have hnormg : ∀ a b : ℝ, ‖Complex.exp (2 * Real.pi * Complex.I * ↑m * ((a : ℂ) - (b : ℂ)))‖ = 1 := by
+    intro a b
+    rw [show (2 * Real.pi * Complex.I * ↑m * ((a : ℂ) - (b : ℂ)))
+        = ((2 * Real.pi * ↑m * (a - b) : ℝ) : ℂ) * Complex.I from by push_cast; ring, Complex.norm_exp]
+    simp
+  have hpt : ∀ ℓ n : ℕ, u n * (starRingEnd ℂ) (u (n + ℓ))
+      = (starRingEnd ℂ) (Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (n + ℓ) - x n))) := by
+    intro ℓ n
+    simp only [hu]
+    have hc : ∀ z : ℂ, (starRingEnd ℂ) z = z →
+        (starRingEnd ℂ) (2 * Real.pi * Complex.I * ↑m * z) = -(2 * Real.pi * Complex.I * ↑m * z) := by
+      intro z hz
+      simp only [map_mul, Complex.conj_I, Complex.conj_ofReal, map_intCast, map_ofNat, hz]; ring
+    rw [← Complex.exp_conj, ← Complex.exp_conj, ← Complex.exp_add,
+      hc (↑(x (n + ℓ))) (Complex.conj_ofReal _),
+      hc (↑(x (n + ℓ)) - ↑(x n)) (by rw [map_sub, Complex.conj_ofReal, Complex.conj_ofReal])]
+    congr 1; ring
+  -- the correlation averages vanish (van der Corput's fundamental inequality is not needed here;
+  -- this uses the hypothesis through Weyl's forward direction).
+  have hClim : ∀ ℓ : ℕ, 1 ≤ ℓ → Tendsto (fun N =>
+      (∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re / (N : ℝ)) atTop (𝓝 0) := by
+    intro ℓ hℓ
+    have hdiff : Tendsto (fun M => (∑ k ∈ Finset.range M,
+        Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))) / (M : ℝ)) atTop (𝓝 0) := by
+      simpa using weylCriterion_of_uniformlyDistributedModOne _ (h ℓ hℓ) m hm
+    have hnormD : Tendsto (fun M => ‖∑ k ∈ Finset.range M,
+        Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖ / (M : ℝ)) atTop (𝓝 0) := by
+      simpa [norm_div, Complex.norm_natCast] using tendsto_zero_iff_norm_tendsto_zero.mp hdiff
+    have hDN : Tendsto (fun N => ‖∑ k ∈ Finset.range (N - ℓ),
+        Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖ / (N : ℝ)) atTop (𝓝 0) := by
+      have htsub : Tendsto (fun N => N - ℓ) atTop atTop :=
+        Filter.tendsto_atTop_atTop.2 (fun b => ⟨b + ℓ, fun n hn => by omega⟩)
+      refine squeeze_zero (fun N => by positivity) (fun N => ?_) (hnormD.comp htsub)
+      simp only [Function.comp_apply]
+      rcases Nat.eq_zero_or_pos (N - ℓ) with h0 | h0
+      · rw [h0]; simp
+      · exact div_le_div_of_nonneg_left (norm_nonneg _) (by exact_mod_cast h0)
+          (by exact_mod_cast Nat.sub_le N ℓ)
+    have hbound : Tendsto (fun N => (‖∑ k ∈ Finset.range (N - ℓ),
+        Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖ + 2) / (N : ℝ)) atTop (𝓝 0) := by
+      have := hDN.add (tendsto_const_div_atTop_nhds_zero_nat 2)
+      rw [add_zero] at this
+      exact this.congr (fun N => by ring)
+    refine squeeze_zero_norm (fun N => ?_) hbound
+    rw [Real.norm_eq_abs, abs_div, Nat.abs_cast]
+    gcongr
+    rw [Finset.sum_congr rfl (fun n _ => hpt ℓ n), ← map_sum, Complex.conj_re]
+    calc |(∑ n ∈ Finset.Icc 1 (N - ℓ),
+            Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (n + ℓ) - x n))).re|
+        ≤ ‖∑ n ∈ Finset.Icc 1 (N - ℓ),
+            Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (n + ℓ) - x n))‖ := Complex.abs_re_le_norm _
+      _ ≤ ‖∑ k ∈ Finset.range (N - ℓ),
+            Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖ + 2 := by
+          set M := N - ℓ with hM
+          have key : (∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k)))
+              + Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (M + ℓ) - x M))
+              = Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (0 + ℓ) - x 0))
+                + ∑ n ∈ Finset.Icc 1 M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (n + ℓ) - x n)) := by
+            rw [← Finset.sum_range_succ,
+              show Finset.range (M + 1) = insert 0 (Finset.Icc 1 M) from by
+                ext k; simp only [Finset.mem_range, Finset.mem_insert, Finset.mem_Icc]; omega,
+              Finset.sum_insert (by simp)]
+          have hsplit : ∑ n ∈ Finset.Icc 1 M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (n + ℓ) - x n))
+              = (∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k)))
+                + Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (M + ℓ) - x M))
+                - Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (0 + ℓ) - x 0)) := by
+            linear_combination -key
+          rw [hsplit]
+          calc ‖(∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k)))
+                  + Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (M + ℓ) - x M))
+                  - Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (0 + ℓ) - x 0))‖
+              ≤ ‖(∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k)))
+                  + Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (M + ℓ) - x M))‖
+                + ‖Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (0 + ℓ) - x 0))‖ := norm_sub_le _ _
+            _ ≤ (‖∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖
+                  + ‖Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (M + ℓ) - x M))‖)
+                + ‖Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (0 + ℓ) - x 0))‖ := by
+                  gcongr; exact norm_add_le _ _
+            _ = ‖∑ k ∈ Finset.range M, Complex.exp (2 * Real.pi * Complex.I * ↑m * (x (k + ℓ) - x k))‖ + 2 := by
+                  rw [hnormg (x (M + ℓ)) (x M), hnormg (x (0 + ℓ)) (x 0)]; ring
+  -- van der Corput's fundamental inequality, normalised:  ‖σ_h(N)‖² ≤ B_H(N)  for  N ≥ H+1.
+  have hSb : ∀ (H N : ℕ), H + 1 ≤ N →
+      ‖(∑ n ∈ Finset.Icc 1 N, u n) / (N : ℂ)‖ ^ 2
+      ≤ ((↑H + 1) * ((N : ℝ) + ↑H) * ↑N
+          + 2 * ((N : ℝ) + ↑H) * (∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) *
+            (∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re))
+          / ((↑H + 1) ^ 2 * (↑N) ^ 2) := by
+    intro H N hN
+    have hfund := vanDerCorput_fundamental_inequality 1 N Nat.one_pos u (H + 1) (by omega) (by omega)
+    have hsumu : ∑ n ∈ Finset.Icc 1 N, ‖u n‖ ^ 2 = (N : ℝ) := by
+      simp_rw [hu1, one_pow]; rw [Finset.sum_const, Nat.card_Icc]; simp
+    simp only [Nat.cast_one, one_mul, Nat.add_sub_cancel, Nat.cast_add] at hfund
+    rw [hsumu] at hfund
+    have hND : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (by omega)
+    have hN2 : (0 : ℝ) < (N : ℝ) ^ 2 := pow_pos hND 2
+    have hD : (0 : ℝ) < ((H : ℝ) + 1) ^ 2 * (N : ℝ) ^ 2 := by positivity
+    rw [norm_div, Complex.norm_natCast, div_pow, div_le_iff₀ hN2, div_mul_eq_mul_div, le_div_iff₀ hD]
+    nlinarith [mul_le_mul_of_nonneg_right hfund (sq_nonneg (N : ℝ))]
+  -- for each fixed `H`,  B_H(N) → 1/(H+1)  as  N → ∞.
+  have hBlim : ∀ H : ℕ, Tendsto (fun (N : ℕ) => ((↑H + 1) * ((N : ℝ) + ↑H) * ↑N
+        + 2 * ((N : ℝ) + ↑H) * (∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) *
+          (∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re))
+        / ((↑H + 1) ^ 2 * (↑N) ^ 2)) atTop (𝓝 (1 / ((H : ℝ) + 1))) := by
+    intro H
+    have hc1 : Tendsto (fun N : ℕ => ((N : ℝ) + ↑H) / ↑N) atTop (𝓝 1) := by
+      have h0 := (tendsto_const_div_atTop_nhds_zero_nat (H : ℝ)).const_add 1
+      rw [add_zero] at h0
+      refine h0.congr' ?_
+      filter_upwards [eventually_gt_atTop 0] with N hN
+      have : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+      field_simp
+    have hTN : Tendsto (fun (N : ℕ) => (∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) *
+        (∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re) / (N : ℝ)) atTop (𝓝 0) := by
+      have hsum : Tendsto (fun N => ∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) *
+          ((∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re / (N : ℝ)))
+          atTop (𝓝 (∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) * 0)) :=
+        tendsto_finsetSum _ (fun ℓ hℓ => by
+          rw [Finset.mem_Icc] at hℓ; exact (hClim ℓ (by omega)).const_mul _)
+      simp only [mul_zero, Finset.sum_const_zero] at hsum
+      refine hsum.congr' ?_
+      filter_upwards with N
+      rw [Finset.sum_div]
+      exact Finset.sum_congr rfl (fun ℓ _ => by rw [mul_div_assoc])
+    have ht1 : Tendsto (fun N : ℕ => ((N : ℝ) + ↑H) / ((↑H + 1) * ↑N)) atTop (𝓝 (1 / ((H : ℝ) + 1))) := by
+      refine (hc1.div_const ((H : ℝ) + 1)).congr' ?_
+      filter_upwards [eventually_gt_atTop 0] with N hN
+      have h1 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+      have h2 : (H : ℝ) + 1 ≠ 0 := by positivity
+      field_simp
+    have ht2 : Tendsto (fun N : ℕ => 2 * ((N : ℝ) + ↑H) * (∑ ℓ ∈ Finset.Icc 1 H, ((H : ℝ) + 1 - ↑ℓ) *
+        (∑ n ∈ Finset.Icc 1 (N - ℓ), u n * (starRingEnd ℂ) (u (n + ℓ))).re)
+        / ((↑H + 1) ^ 2 * (↑N) ^ 2)) atTop (𝓝 0) := by
+      have hfac := (hc1.const_mul 2).div_const (((H : ℝ) + 1) ^ 2)
+      have := hfac.mul hTN
+      rw [show (2 * 1 / ((H : ℝ) + 1) ^ 2) * 0 = 0 by ring] at this
+      refine this.congr' ?_
+      filter_upwards [eventually_gt_atTop 0] with N hN
+      have h1 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+      have h2 : (H : ℝ) + 1 ≠ 0 := by positivity
+      field_simp
+    have hsum := ht1.add ht2
+    rw [add_zero] at hsum
+    refine hsum.congr' ?_
+    filter_upwards [eventually_gt_atTop 0] with N hN
+    have h1 : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+    have h2 : (H : ℝ) + 1 ≠ 0 := by positivity
+    field_simp
+  -- combine: choosing `H` with `1/(H+1) < ε` shows  ‖σ_h(N)‖² → 0.
+  have hStep : Tendsto (fun N => ‖(∑ n ∈ Finset.Icc 1 N, u n) / (N : ℂ)‖ ^ 2) atTop (𝓝 0) := by
+    rw [Metric.tendsto_atTop]
+    intro ε hε
+    obtain ⟨H, hH⟩ := exists_nat_gt (1 / ε)
+    have hHε : 1 / ((H : ℝ) + 1) < ε := by
+      have h1 : 1 < (H : ℝ) * ε := (div_lt_iff₀ hε).mp hH
+      rw [div_lt_iff₀ (by positivity)]; nlinarith [h1, hε]
+    obtain ⟨N₁, hN₁⟩ := (Metric.tendsto_atTop.mp (hBlim H)) (ε - 1 / ((H : ℝ) + 1)) (by linarith)
+    refine ⟨max N₁ (H + 1), fun N hN => ?_⟩
+    have hN1 : N₁ ≤ N := le_trans (le_max_left _ _) hN
+    have hNH : H + 1 ≤ N := le_trans (le_max_right _ _) hN
+    have hB := hN₁ N hN1
+    rw [Real.dist_eq] at hB
+    rw [Real.dist_eq, sub_zero, abs_of_nonneg (sq_nonneg _)]
+    have hBlt := (abs_lt.mp hB).2
+    exact lt_of_le_of_lt (hSb H N hNH) (by linarith)
+  -- ‖·‖² → 0  gives the average over `[1,N]` → 0, and a boundary correction gives `[0,N)`.
+  have hIcc : Tendsto (fun N => (∑ n ∈ Finset.Icc 1 N, u n) / (N : ℂ)) atTop (𝓝 0) := by
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    have hsqrt := (Real.continuous_sqrt.tendsto 0).comp hStep
+    rw [Real.sqrt_zero] at hsqrt
+    exact hsqrt.congr (fun N => Real.sqrt_sq (norm_nonneg _))
+  have hbdy : Tendsto (fun N => (u 0 - u N) / (N : ℂ)) atTop (𝓝 0) := by
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    refine squeeze_zero (fun N => norm_nonneg _) (fun N => ?_) (tendsto_const_div_atTop_nhds_zero_nat 2)
+    rw [norm_div, Complex.norm_natCast]
+    rcases Nat.eq_zero_or_pos N with rfl | hN
+    · simp
+    · gcongr
+      calc ‖u 0 - u N‖ ≤ ‖u 0‖ + ‖u N‖ := norm_sub_le _ _
+        _ = 2 := by rw [hu1, hu1]; norm_num
+  have hbdyeq : ∀ N, 1 ≤ N → (∑ n ∈ Finset.range N, u n) / (N : ℂ)
+      = (∑ n ∈ Finset.Icc 1 N, u n) / (N : ℂ) + (u 0 - u N) / (N : ℂ) := by
+    intro N hN
+    have key : (∑ n ∈ Finset.range N, u n) + u N = u 0 + ∑ n ∈ Finset.Icc 1 N, u n := by
+      rw [← Finset.sum_range_succ,
+        show Finset.range (N + 1) = insert 0 (Finset.Icc 1 N) from by
+          ext k; simp only [Finset.mem_range, Finset.mem_insert, Finset.mem_Icc]; omega,
+        Finset.sum_insert (by simp)]
+    rw [← add_div]; congr 1; linear_combination key
+  have hcomb := hIcc.add hbdy
+  rw [add_zero] at hcomb
+  refine hcomb.congr' ?_
+  filter_upwards [eventually_gt_atTop 0] with N hN
+  exact (hbdyeq N (by omega)).symm
 
 /-- **Theorem 4.4.2** (Fejér). Let `g` have a continuous derivative `g'` on `[1, ∞)` such that
 (i) `g` is increasing with `g(t) → +∞`, and (ii) `g'` is decreasing with `g'(t) → 0` and
