@@ -4,6 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import SRS.Basic
+import SRS.Interpretation
 import SRS.MixedBaseRepresentation
 import Mathlib.Tactic.Ring
 
@@ -204,5 +205,333 @@ theorem rewriteStep_example :
     RewriteStep collatzSRS [lhd, d0, f, d1, rhd] [lhd, d0, d0, t, rhd] := by
   refine ⟨[lhd, d0], [rhd], [f, d1], [d0, t], ?_, rfl, rfl⟩
   exact Or.inr (Or.inl (Or.inr (Or.inl ⟨rfl, rfl⟩)))
+
+/-! ### Lemma 3.15 ([YAH]): `SN(𝒯 ∖ ℬ)` and `SN(𝒯 ∖ 𝒟_T)` by monotone interpretations
+
+Removing *either* of two rule groups makes `𝒯` terminating, each witnessed by a natural-number
+interpretation. The interpretations are read in the leftmost-outermost convention of `strInterp`
+(`[σ₁ ⋯ σₙ] = [σ₁] ∘ ⋯ ∘ [σₙ]`, `SRS.Interpretation`), under which the *reversed* system is oriented;
+ordinary termination of `𝒯 ∖ ·` then follows by reversal invariance (`terminating_reverse_iff`, the
+`S = ∅` case of Lemma 2.8). This mirrors [YAH]'s proof, which exhibits interpretations orienting
+`(𝒯 ∖ ℬ)ʳᵉᵛ` and `(𝒯 ∖ 𝒟_T)ʳᵉᵛ` and concludes by Lemma 2.8. Both lemmas are building blocks of the
+rule-removal termination argument for `𝒯` (Theorem 2.6). -/
+
+/-- The interpretation `𝔄₁` of **Lemma 3.15** proving `SN(𝒯 ∖ ℬ)` ([YAH]): over `ℕ`,
+`[f] = [t] = 2x+1`, `[0] = [1] = [2] = 2x`, `[▷] = x`. The begin marker `[◁]` is irrelevant — no
+rule of `𝒯 ∖ ℬ` mentions it — and is set to the identity (any strictly monotone map would do). -/
+@[category API, AMS 68, ref "YAH", group "collatz_srs"]
+def den_noB : TSym → ℕ → ℕ
+  | f => fun x => 2 * x + 1
+  | t => fun x => 2 * x + 1
+  | d0 => fun x => 2 * x
+  | d1 => fun x => 2 * x
+  | d2 => fun x => 2 * x
+  | lhd => id
+  | rhd => id
+
+/-- The interpretation `𝔄₂` of **Lemma 3.15** proving `SN(𝒯 ∖ 𝒟_T)` ([YAH]): over `ℕ`,
+`[f] = [t] = [◁] = x+1`, `[0] = [1] = [2] = 4x`. The end marker `[▷]` is irrelevant — no rule of
+`𝒯 ∖ 𝒟_T` mentions it — and is set to the identity. -/
+@[category API, AMS 68, ref "YAH", group "collatz_srs"]
+def den_noD : TSym → ℕ → ℕ
+  | f => fun x => x + 1
+  | t => fun x => x + 1
+  | lhd => fun x => x + 1
+  | d0 => fun x => 4 * x
+  | d1 => fun x => 4 * x
+  | d2 => fun x => 4 * x
+  | rhd => id
+
+/-- The common engine of **Lemma 3.15**: a per-symbol `ℕ`-interpretation `den`, strictly monotone in
+each symbol (`hmono`), whose value strictly **drops across every reversed rule** of `Rsub`
+(`[r̄](x) < [ℓ̄](x)` for `ℓ → r ∈ Rsub`, `hrule`), proves `SN(Rsub)`. The interpretation makes the
+induced order `>_𝔄` a reduction order (Theorem 2.12, `interpOrder_isReductionOrder`) that orients
+`Rsubʳᵉᵛ` (Theorem 2.11, `terminating_iff_exists_reductionOrder`); reversal invariance
+(`terminating_reverse_iff`) transfers termination back to `Rsub`. -/
+private theorem sn_of_interp (Rsub : System TSym) (den : TSym → ℕ → ℕ)
+    (hmono : ∀ σ a b, a > b → den σ a > den σ b)
+    (hrule : ∀ ℓ r, Rsub ℓ r → ∀ x, strInterp den r.reverse x < strInterp den ℓ.reverse x) :
+    Terminating (RewriteStep Rsub) := by
+  rw [← terminating_reverse_iff, terminating_iff_exists_reductionOrder]
+  refine ⟨interpOrder den (· > ·),
+    interpOrder_isReductionOrder den (terminating_of_measure (fun n => n) fun _ _ h => h)
+      (fun _ _ _ => gt_trans) hmono, ?_⟩
+  intro ℓ r hrev
+  rw [system_reverse_iff] at hrev
+  obtain ⟨ℓ₀, r₀, hR, rfl, rfl⟩ := hrev
+  exact fun x => hrule ℓ₀ r₀ hR x
+
+/-- **Lemma 3.15** ([YAH]), first half: **`SN(𝒯 ∖ ℬ)`**. Dropping the three `ℬ`-rules
+(`◁0→◁t`, `◁1→◁ff`, `◁2→◁ft`) leaves a terminating system. The interpretation `den_noB`
+(`[f]=[t]=2x+1`, `[0]=[1]=[2]=2x`, `[▷]=x`) strictly decreases across every reversed rule of
+`𝒯 ∖ ℬ` (the `𝒟_T`- and `𝒜`-rules), so `sn_of_interp` applies. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses sn_of_interp den_noB]
+theorem terminating_collatzSRS_diff_auxB :
+    Terminating (RewriteStep (System.diff collatzSRS auxB)) := by
+  refine sn_of_interp _ den_noB ?_ ?_
+  · intro σ a b h
+    cases σ <;> simp only [den_noB, id_eq] <;> omega
+  · rintro ℓ r ⟨hin, hnB⟩ x
+    simp only [collatzSRS, auxRules, System.union] at hin
+    rcases hin with hdyn | hA | hB
+    · simp only [dynRules] at hdyn
+      rcases hdyn with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;>
+        simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+          strInterp, Function.comp_apply, den_noB, id_eq] <;> omega
+    · simp only [auxA] at hA
+      rcases hA with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;>
+        simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+          strInterp, Function.comp_apply, den_noB, id_eq] <;> omega
+    · exact absurd hB hnB
+
+/-- **Lemma 3.15** ([YAH]), second half: **`SN(𝒯 ∖ 𝒟_T)`**. Dropping the two dynamic rules
+(`f▷→▷`, `t▷→2▷`) leaves a terminating system. The interpretation `den_noD`
+(`[f]=[t]=[◁]=x+1`, `[0]=[1]=[2]=4x`) strictly decreases across every reversed rule of `𝒯 ∖ 𝒟_T`
+(the `𝒜`- and `ℬ`-rules), so `sn_of_interp` applies. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses sn_of_interp den_noD]
+theorem terminating_collatzSRS_diff_dynRules :
+    Terminating (RewriteStep (System.diff collatzSRS dynRules)) := by
+  refine sn_of_interp _ den_noD ?_ ?_
+  · intro σ a b h
+    cases σ <;> simp only [den_noD, id_eq] <;> omega
+  · rintro ℓ r ⟨hin, hnD⟩ x
+    simp only [collatzSRS, auxRules, System.union] at hin
+    rcases hin with hdyn | hA | hB
+    · exact absurd hdyn hnD
+    · simp only [auxA] at hA
+      rcases hA with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;>
+        simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+          strInterp, Function.comp_apply, den_noD, id_eq] <;> omega
+    · simp only [auxB] at hB
+      rcases hB with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;>
+        simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+          strInterp, Function.comp_apply, den_noD, id_eq] <;> omega
+
+/-- **Lemma 3.15** ([YAH]). Both `SN(𝒯 ∖ ℬ)` and `SN(𝒯 ∖ 𝒟_T)` hold: removing either the leading
+ternary-rewrite rules `ℬ` or the dynamic rules `𝒟_T` from `𝒯` yields a terminating system. These are
+the two component-termination facts feeding the rule-removal proof that `𝒯` simulates `T` without
+spurious nontermination. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses terminating_collatzSRS_diff_auxB terminating_collatzSRS_diff_dynRules]
+theorem lemma_3_15 :
+    Terminating (RewriteStep (System.diff collatzSRS auxB)) ∧
+      Terminating (RewriteStep (System.diff collatzSRS dynRules)) :=
+  ⟨terminating_collatzSRS_diff_auxB, terminating_collatzSRS_diff_dynRules⟩
+
+/-! ### Lemma 3.16 ([YAH]): reduction to the canonical form `◁(f|t|0|1|2)*▷`
+
+It suffices to prove termination of `𝒯` on **canonical-form initial strings** `◁(f|t|0|1|2)*▷` (the
+well-formed encodings); termination on *all* strings then follows. [YAH] prove this by **type
+introduction** ([SZ17], Sabel–Zantema): give the types `𝕋 = {ρ, σ, τ}` with
+`◁ : σ → τ`, `f,t,0,1,2 : σ → σ`, `▷ : ρ → σ`, under which `𝒯` is well-typed (all rules have
+non-empty left-hand sides), so by **[SZ17, Corollary 3.4]** — *a well-typed SRS is string terminating
+iff it is string terminating in the typed setting* — untyped termination equals typed termination.
+In the typed setting **Lemma 3.15** (`terminating_collatzSRS_diff_auxB` / `_diff_dynRules`) shows a
+string whose source or target type is `σ` cannot start an infinite reduction, so only strings of type
+`ρ → τ` can — and those are exactly the canonical-form strings.
+
+[YAH] also give an **elementary proof in Appendix A**, which is the one formalised here. It is by
+contrapositive: an infinite `𝒯`-derivation is localized — using that markers `◁, ▷` are *walls* never
+created or moved by any rule — to an infinite derivation on a single **marker block** `c N d`
+(`N ∈ {f,t,0,1,2}*`, `c, d ∈ {◁, ▷}`); the four shapes are then dispatched by **Lemma 3.15**:
+* `▷N▷` contains no `◁`, so only `𝒯 ∖ ℬ`-rules fire — `SN(𝒯 ∖ ℬ)` (`terminatingFrom_no_lhd`);
+* `◁N◁` contains no `▷`, so only `𝒯 ∖ 𝒟_T`-rules fire — `SN(𝒯 ∖ 𝒟_T)` (`terminatingFrom_no_rhd`);
+* `▷N◁` has its markers at the wrong ends, so only `𝒜`-rules fire — `SN(𝒜)` (`terminating_auxA`);
+* `◁N▷` is the canonical form — the only block that can loop.
+
+The block-localization bookkeeping is the **cited axiom** `blockLocalization`; the case analysis it
+feeds — the genuine Lemma-3.15 content — is proved (`terminatingFrom_no_lhd`, `terminatingFrom_no_rhd`,
+`terminating_auxA`, and `lemma_3_16` itself). -/
+
+/-- The **canonical form** `◁(f|t|0|1|2)*▷` ([YAH]): a begin marker `◁`, then a (possibly empty) block
+of binary/ternary digits `f,t,0,1,2`, then an end marker `▷`. These are the well-formed encodings of
+natural numbers; Lemma 3.16 reduces termination of `𝒯` to its termination on these. -/
+@[category API, AMS 68, ref "YAH", group "collatz_srs"]
+def canonicalForm (w : List TSym) : Prop :=
+  ∃ mid : List TSym, (∀ s ∈ mid, s = f ∨ s = t ∨ s = d0 ∨ s = d1 ∨ s = d2) ∧
+    w = lhd :: (mid ++ [rhd])
+
+/-- Engine for the elementary cases of Lemma 3.16. If a symbol `c` occurs in the left-hand side of
+every rule of a subsystem `Bad ⊆ 𝒯` (`hBadHas`) and is never *created* by a `c`-free rewrite
+(`hCreate`), then a `𝒯`-rewrite of a `c`-free string is in fact a `𝒯 ∖ Bad`-rewrite and stays
+`c`-free. Iterating, a `c`-free string can only start a `𝒯 ∖ Bad`-derivation. -/
+private theorem step_avoid (c : TSym) (Bad : System TSym)
+    (hBadHas : ∀ ℓ r, Bad ℓ r → c ∈ ℓ)
+    (hCreate : ∀ ℓ r, collatzSRS ℓ r → c ∉ ℓ → c ∉ r)
+    {u v : List TSym} (h : RewriteStep collatzSRS u v) (hu : c ∉ u) :
+    RewriteStep (System.diff collatzSRS Bad) u v ∧ c ∉ v := by
+  obtain ⟨p, q, ℓ, r, hrule, rfl, rfl⟩ := h
+  simp only [List.mem_append, not_or] at hu
+  obtain ⟨⟨hp, hℓ⟩, hq⟩ := hu
+  have hr : c ∉ r := hCreate ℓ r hrule hℓ
+  refine ⟨⟨p, q, ℓ, r, ⟨hrule, fun hB => hℓ (hBadHas ℓ r hB)⟩, rfl, rfl⟩, ?_⟩
+  simp only [List.mem_append, not_or]
+  exact ⟨⟨hp, hr⟩, hq⟩
+
+/-- **Elementary core of Lemma 3.16, no-`◁` case.** A string **not containing the begin marker `◁`**
+cannot start an infinite `𝒯`-derivation: no rule creates `◁` and the `ℬ`-rules all need `◁`, so such
+a derivation uses only `𝒯 ∖ ℬ`-rules — terminating by **Lemma 3.15**
+(`terminating_collatzSRS_diff_auxB`). (Type-theoretically: a string with target type `σ`.) -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses step_avoid terminating_collatzSRS_diff_auxB]
+theorem terminatingFrom_no_lhd :
+    TerminatingFrom (RewriteStep collatzSRS) (fun w => lhd ∉ w) := by
+  have hBadHas : ∀ ℓ r, auxB ℓ r → lhd ∈ ℓ := by
+    intro ℓ r hB; simp only [auxB] at hB
+    rcases hB with ⟨rfl, _⟩ | ⟨rfl, _⟩ | ⟨rfl, _⟩ <;> decide
+  have hCreate : ∀ ℓ r, collatzSRS ℓ r → lhd ∉ ℓ → lhd ∉ r := by
+    intro ℓ r hrule hℓ
+    simp only [collatzSRS, auxRules, System.union] at hrule
+    rcases hrule with hd | hA | hB
+    · simp only [dynRules] at hd
+      rcases hd with ⟨_, rfl⟩ | ⟨_, rfl⟩ <;> decide
+    · simp only [auxA] at hA
+      rcases hA with ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ <;> decide
+    · simp only [auxB] at hB
+      rcases hB with ⟨rfl, _⟩ | ⟨rfl, _⟩ | ⟨rfl, _⟩ <;> simp at hℓ
+  rintro ⟨s, h0, hstep⟩
+  have key : ∀ i, lhd ∉ s i := by
+    intro i
+    induction i with
+    | zero => exact h0
+    | succ k ih => exact (step_avoid lhd auxB hBadHas hCreate (hstep k) ih).2
+  exact terminating_collatzSRS_diff_auxB
+    ⟨s, fun i => (step_avoid lhd auxB hBadHas hCreate (hstep i) (key i)).1⟩
+
+/-- **Elementary core of Lemma 3.16, no-`▷` case.** A string **not containing the end marker `▷`**
+cannot start an infinite `𝒯`-derivation: no rule creates `▷` and the dynamic rules `𝒟_T` all need
+`▷`, so such a derivation uses only `𝒯 ∖ 𝒟_T`-rules — terminating by **Lemma 3.15**
+(`terminating_collatzSRS_diff_dynRules`). (Type-theoretically: a string with source type `σ`.) -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses step_avoid terminating_collatzSRS_diff_dynRules]
+theorem terminatingFrom_no_rhd :
+    TerminatingFrom (RewriteStep collatzSRS) (fun w => rhd ∉ w) := by
+  have hBadHas : ∀ ℓ r, dynRules ℓ r → rhd ∈ ℓ := by
+    intro ℓ r hd; simp only [dynRules] at hd
+    rcases hd with ⟨rfl, _⟩ | ⟨rfl, _⟩ <;> decide
+  have hCreate : ∀ ℓ r, collatzSRS ℓ r → rhd ∉ ℓ → rhd ∉ r := by
+    intro ℓ r hrule hℓ
+    simp only [collatzSRS, auxRules, System.union] at hrule
+    rcases hrule with hd | hA | hB
+    · simp only [dynRules] at hd
+      rcases hd with ⟨rfl, _⟩ | ⟨rfl, _⟩ <;> simp at hℓ
+    · simp only [auxA] at hA
+      rcases hA with ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ <;> decide
+    · simp only [auxB] at hB
+      rcases hB with ⟨_, rfl⟩ | ⟨_, rfl⟩ | ⟨_, rfl⟩ <;> decide
+  rintro ⟨s, h0, hstep⟩
+  have key : ∀ i, rhd ∉ s i := by
+    intro i
+    induction i with
+    | zero => exact h0
+    | succ k ih => exact (step_avoid rhd dynRules hBadHas hCreate (hstep k) ih).2
+  exact terminating_collatzSRS_diff_dynRules
+    ⟨s, fun i => (step_avoid rhd dynRules hBadHas hCreate (hstep i) (key i)).1⟩
+
+/-- `SN(𝒜)` — the auxiliary digit-swap subsystem `𝒜` (= `𝒯 ∖ (ℬ ∪ 𝒟_T)`) is terminating. Since
+`𝒜 ⊆ 𝒯 ∖ ℬ` (every `𝒜`-rule is a rule of `𝒯` and is never a `ℬ`-rule), this is immediate from
+`SN(𝒯 ∖ ℬ)` (**Lemma 3.15**, `terminating_collatzSRS_diff_auxB`) and `terminating_of_subrelation`.
+This is the subsystem of Appendix A's case (iii) (`▷N◁`), where the markers sit at the wrong ends so
+neither `ℬ` nor `𝒟_T` can fire and only `𝒜` rewrites the block. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses terminating_of_subrelation terminating_collatzSRS_diff_auxB]
+theorem terminating_auxA : Terminating (RewriteStep auxA) := by
+  refine terminating_of_subrelation (fun u v h => ?_) terminating_collatzSRS_diff_auxB
+  obtain ⟨p, q, ℓ, r, hrule, rfl, rfl⟩ := h
+  refine ⟨p, q, ℓ, r, ⟨Or.inr (Or.inl hrule), fun hB => ?_⟩, rfl, rfl⟩
+  simp only [auxA] at hrule
+  rcases hrule with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;>
+    simp [auxB] at hB
+
+/-- `SN(𝒳)` — the full auxiliary subsystem `𝒳 = 𝒜 ∪ ℬ` (= `𝒯 ∖ 𝒟_T`) is terminating. Since `𝒳` is
+exactly `𝒯` with the dynamic rules removed (the value-preserving rules are disjoint from `𝒟_T`), this
+is `terminating_collatzSRS_diff_dynRules` (**Lemma 3.15**) read through `terminating_of_subrelation`.
+It is the termination fact [YAH] invoke for the backward direction of **Theorem 3.17**: along any
+infinite `𝒯`-derivation the dynamic rules must fire infinitely often. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses terminating_of_subrelation terminating_collatzSRS_diff_dynRules]
+theorem terminating_auxRules : Terminating (RewriteStep auxRules) := by
+  refine terminating_of_subrelation (fun u v h => ?_) terminating_collatzSRS_diff_dynRules
+  obtain ⟨p, q, ℓ, r, hrule, rfl, rfl⟩ := h
+  refine ⟨p, q, ℓ, r, ⟨Or.inr hrule, fun hdyn => ?_⟩, rfl, rfl⟩
+  rcases hrule with hA | hB
+  · simp only [auxA] at hA
+    rcases hA with ⟨rfl, rfl⟩|⟨rfl, rfl⟩|⟨rfl, rfl⟩|⟨rfl, rfl⟩|⟨rfl, rfl⟩|⟨rfl, rfl⟩ <;>
+      simp [dynRules] at hdyn
+  · simp only [auxB] at hB
+    rcases hB with ⟨rfl, rfl⟩|⟨rfl, rfl⟩|⟨rfl, rfl⟩ <;> simp [dynRules] at hdyn
+
+/-- **Block localization** ([YAH], Appendix A) — the combinatorial core of the elementary proof, a
+**cited axiom**. If some string admits an infinite `𝒯`-derivation, then so does a single *marker
+block* `c N d`: a digit block `N ∈ {f,t,0,1,2}*` flanked by two markers `c, d ∈ {◁, ▷}`, and that
+block is **not** of the shape `▷N◁`.
+
+Justification (Appendix A): pad the looping string to `Z = d₀ N₁ d₁ ⋯ N_k d_k`; since no rule of `𝒯`
+creates, deletes or moves a marker (`ℬ` keeps its `◁`, `𝒟_T` keeps its `▷`, `𝒜` has none), the markers
+are *walls* and every rewrite acts inside a single block — so by pigeonhole (finitely many blocks) some
+block `cNd` loops. A `▷N◁` block can only be rewritten by `𝒜`-rules (`𝒯` has no rule `s◁ → t◁` or
+`▷s → ▷t`), and `SN(𝒜)` (`terminating_auxA`), so it cannot loop; the three surviving shapes `◁N▷`
+(canonical), `▷N▷`, `◁N◁` are returned. Recorded as `cited`: the block-decomposition / pigeonhole
+bookkeeping is not formalised here — but the *case analysis* on the three surviving shapes (below) is,
+via Lemma 3.15. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses terminating_auxA]
+axiom blockLocalization (s : ℕ → List TSym)
+    (h : ∀ i, RewriteStep collatzSRS (s i) (s (i + 1))) :
+    ∃ (s' : ℕ → List TSym) (N : List TSym),
+      (∀ x ∈ N, x = f ∨ x = t ∨ x = d0 ∨ x = d1 ∨ x = d2) ∧
+        (∀ i, RewriteStep collatzSRS (s' i) (s' (i + 1))) ∧
+        (s' 0 = lhd :: (N ++ [rhd]) ∨ s' 0 = rhd :: (N ++ [rhd]) ∨ s' 0 = lhd :: (N ++ [lhd]))
+
+/-- **Lemma 3.16** ([YAH], elementary proof of Appendix A). If `𝒯` is terminating on all initial
+strings of the canonical form `◁(f|t|0|1|2)*▷`, then `𝒯` is terminating on all strings.
+*Contrapositive*: an infinite `𝒯`-derivation localizes to an infinite derivation on a marker block
+`cNd` (`blockLocalization`); its three possible shapes are each dispatched by **Lemma 3.15** —
+`▷N▷` contains no `◁` (`terminatingFrom_no_lhd`, case (i)), `◁N◁` contains no `▷`
+(`terminatingFrom_no_rhd`, case (ii)), and `◁N▷` is *canonical*, contradicting the hypothesis. (Case
+(iii) `▷N◁` was already excluded by `blockLocalization` via `terminating_auxA`. The paper's main text
+instead proves the lemma by type introduction, [SZ17, Corollary 3.4]; see the section note.) -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses blockLocalization terminatingFrom_no_lhd terminatingFrom_no_rhd canonicalForm]
+theorem lemma_3_16 (h : TerminatingFrom (RewriteStep collatzSRS) canonicalForm) :
+    Terminating (RewriteStep collatzSRS) := by
+  rintro ⟨s, hs⟩
+  obtain ⟨s', N, hN, hs', hcase⟩ := blockLocalization s hs
+  have hNl : lhd ∉ N := fun hm => by have := hN lhd hm; simp at this
+  have hNr : rhd ∉ N := fun hm => by have := hN rhd hm; simp at this
+  rcases hcase with h0 | h0 | h0
+  · exact h ⟨s', by rw [h0]; exact ⟨N, hN, rfl⟩, hs'⟩
+  · exact terminatingFrom_no_lhd ⟨s', by rw [h0]; simp [List.mem_append, hNl], hs'⟩
+  · exact terminatingFrom_no_rhd ⟨s', by rw [h0]; simp [List.mem_append, hNr], hs'⟩
+
+/-- **Converse of Lemma 3.16** ([YAH], "the converse is obvious"). If `𝒯` is terminating, then it is
+terminating on all initial strings of any form — in particular on the canonical form
+`◁(f|t|0|1|2)*▷`. This is the trivial restriction `SN(→) → SN(→ from `P`)`
+(`terminatingFrom_of_terminating`). Together with `lemma_3_16`, termination of `𝒯` is *equivalent* to
+termination on canonical-form strings. -/
+@[category research solved, AMS 68, ref "YAH", group "collatz_srs",
+  formal_uses terminatingFrom_of_terminating canonicalForm]
+theorem lemma_3_16_converse (h : Terminating (RewriteStep collatzSRS)) :
+    TerminatingFrom (RewriteStep collatzSRS) canonicalForm :=
+  terminatingFrom_of_terminating canonicalForm h
+
+/-- **`𝒯` simulates the iterated application of `T` (except at 1)** ([YAH], closing remark of §3).
+Putting the pieces together: along any `𝒯`-derivation the represented value (`compFun`) is an
+invariant of the auxiliary rewriting — here in its **iterated** form, preserved along the whole
+reflexive–transitive closure of `→_𝒳` — while each dynamic rewrite advances it by exactly one step of
+the accelerated Collatz map `T` (`dynRules_rewriteStep_applyT`). So a `𝒯`-derivation of canonical
+strings computes the `T`-orbit of the encoded number, the simulation breaking only at the fixed point
+`1` (where the encoding's trailing/leading conventions stop matching a further `T`-step). -/
+@[category research solved, AMS 68 11, ref "YAH", group "collatz_srs",
+  formal_uses auxRules_rewriteStep_preserve dynRules_rewriteStep_applyT]
+theorem collatzSRS_simulates_T :
+    (∀ u v, Relation.ReflTransGen (RewriteStep auxRules) u v → ∀ x, compFun u x = compFun v x) ∧
+      (∀ pre ℓ r, dynRules ℓ r → ∀ x, T (compFun (pre ++ ℓ) x) = compFun (pre ++ r) x) := by
+  refine ⟨fun u v h x => ?_, fun pre ℓ r hr x => dynRules_rewriteStep_applyT pre ℓ r hr x⟩
+  induction h with
+  | refl => rfl
+  | tail _ hstep ih => rw [ih]; exact auxRules_rewriteStep_preserve _ _ hstep x
 
 end StringRewriting.CollatzSRS

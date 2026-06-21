@@ -152,6 +152,24 @@ theorem terminating_of_measure {r : α → α → Prop} (μ : α → ℕ)
   exact (wellFounded_iff_isEmpty_descending_chain.mp wellFounded_lt).elim
     ⟨fun i => μ (s i), fun i => h _ _ (hs i)⟩
 
+/-- **Termination from a restricted set of start states.** `TerminatingFrom r P` holds when no
+infinite `r`-chain `s₀ → s₁ → ⋯` has its *initial* state `s₀` satisfying `P`. It weakens
+`Terminating` by only forbidding infinite chains that begin in `P`; taking `P` always-true recovers
+`Terminating`. This is the shape of a *reduction-to-canonical-forms* hypothesis: "the system
+terminates on every start string of the canonical form `P`". -/
+@[category API, AMS 68, ref "BO93"]
+def TerminatingFrom (r : α → α → Prop) (P : α → Prop) : Prop :=
+  ¬ ∃ s : ℕ → α, P (s 0) ∧ ∀ i, r (s i) (s (i + 1))
+
+/-- A terminating relation is terminating from *any* set of start states — an infinite chain
+beginning in `P` is in particular an infinite chain. (The "obvious" converse whenever one restricts
+the allowed initial strings: `SN(→) → SN(→` from `P`).) -/
+@[category API, AMS 68, ref "BO93"]
+theorem terminatingFrom_of_terminating {r : α → α → Prop} (P : α → Prop)
+    (h : Terminating r) : TerminatingFrom r P := by
+  rintro ⟨s, -, hs⟩
+  exact h ⟨s, hs⟩
+
 /-! ### Examples (Book–Otto §2)
 
 Three rewriting systems over the two-letter alphabet `Sym = {a, b}`, illustrating termination. -/
@@ -548,6 +566,25 @@ theorem ruleReversal (R S : System α) :
       rwa [System.reverse_reverse] at this
     · intro a b; have := rewriteStep_reverse (System.reverse S) a b
       rwa [System.reverse_reverse] at this
+
+/-- **Termination is reversal-invariant**: an SRS `R` is terminating iff its reversal `Rʳᵉᵛ` is —
+`SN(R) ↔ SN(Rʳᵉᵛ)`. This is the ordinary-termination specialisation of **Lemma 2.8**
+(`ruleReversal`, the case `S = ∅`): reversal conjugates the rewrite relation
+(`rewriteStep_reverse`), so reversing every string in an infinite `→_R`-chain produces an infinite
+`→_{Rʳᵉᵛ}`-chain and vice versa (the backward direction using that reversal is an involution,
+`System.reverse_reverse`). -/
+@[category research solved, AMS 68, ref "Zan05",
+  formal_uses rewriteStep_reverse System.reverse_reverse]
+theorem terminating_reverse_iff (R : System α) :
+    Terminating (RewriteStep (System.reverse R)) ↔ Terminating (RewriteStep R) := by
+  have key : ∀ S : System α, Terminating (RewriteStep S) →
+      Terminating (RewriteStep (System.reverse S)) := by
+    intro S hS
+    rintro ⟨f, hf⟩
+    exact hS ⟨fun i => (f i).reverse, fun i => (rewriteStep_reverse S _ _).mp (hf i)⟩
+  refine ⟨fun h => ?_, key R⟩
+  have h2 := key (System.reverse R) h
+  rwa [System.reverse_reverse] at h2
 
 /-! ### Top termination (Book–Otto Definition 2.9) -/
 
