@@ -39,3 +39,12 @@ lean_lib WeylCriteria where
 lean_lib SRS where
   globs := #[.submodules `SRS]
 
+lean_lib CC where
+  globs := #[.submodules `CC]
+
+lean_lib AB where
+  globs := #[.submodules `AB]
+
+lean_lib BL where
+  globs := #[.submodules `BL]
+
