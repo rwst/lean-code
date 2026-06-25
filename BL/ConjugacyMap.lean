@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import BL.Basic
 import BL.SolenoidalMaps
+import BL.ParityVectorMap
 import Mathlib.Analysis.SpecificLimits.Normed
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
@@ -126,25 +127,38 @@ namespace BL
 
 open PadicInt Function Filter
 
-/-- **(cited; Bernstein–Lagarias 1996, also [BFK90].)** A conjugacy satisfying `(1.3)` can be chosen
-with the **normalisation `Φ 0 = 0`**. (The map has been constructed several times in the
-literature.) Existence is cited; uniqueness is proved below. -/
-@[category research solved, AMS 37 11, ref "BL96" "BFK90" "Ber94", group "bl_conjugacy_map"]
-axiom exists_normalized_conjugacy :
-    ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂ ∧ Φ 0 = 0
+-- `exists_normalized_conjugacy` (the cited existence of a normalised conjugacy) now lives in
+-- `BL.ParityVectorMap`, where the explicit `qMap` construction will discharge it; it is available
+-- here by import. See that file for the statement and the construction status.
 
 /-- **The 3x+1 conjugacy map** `Φ : ℤ₂ → ℤ₂`: the unique homeomorphism with `Φ ∘ S ∘ Φ⁻¹ = T₂`
 (`Φ_semiconj`) and `Φ 0 = 0` (`Φ_apply_zero`). -/
 @[category API, AMS 37 11, ref "BL96"]
-noncomputable def Φ : ℤ_[2] ≃ₜ ℤ_[2] := exists_normalized_conjugacy.choose
+noncomputable def Φ : ℤ_[2] ≃ₜ ℤ_[2] := qMapHomeo.symm
 
-/-- `Φ` conjugates the shift `S` to the 3x+1 map `T₂`: `Φ ∘ S = T₂ ∘ Φ` (i.e. `Φ ∘ S ∘ Φ⁻¹ = T₂`). -/
+/-- `Φ` conjugates the shift `S` to the 3x+1 map `T₂`: `Φ ∘ S = T₂ ∘ Φ` (i.e. `Φ ∘ S ∘ Φ⁻¹ = T₂`).
+Proved from `Φ = qMapHomeo⁻¹` and `qMap_semiconj` (`qMap (T₂ x) = S (qMap x)`). -/
 @[category API, AMS 37 11, ref "BL96"]
-theorem Φ_semiconj : Function.Semiconj (⇑Φ) S T₂ := exists_normalized_conjugacy.choose_spec.1
+theorem Φ_semiconj : Function.Semiconj (⇑Φ) S T₂ := by
+  intro z
+  show qMapHomeo.symm (S z) = T₂ (qMapHomeo.symm z)
+  apply qMapHomeo.injective
+  rw [Homeomorph.apply_symm_apply, qMapHomeo_apply, qMap_semiconj (qMapHomeo.symm z),
+      ← qMapHomeo_apply, Homeomorph.apply_symm_apply]
 
-/-- The normalisation `Φ 0 = 0`. -/
+/-- The normalisation `Φ 0 = 0` (from `qMap_apply_zero`). -/
 @[category API, AMS 37 11, ref "BL96"]
-theorem Φ_apply_zero : Φ 0 = 0 := exists_normalized_conjugacy.choose_spec.2
+theorem Φ_apply_zero : Φ 0 = 0 := by
+  show qMapHomeo.symm 0 = 0
+  rw [Homeomorph.symm_apply_eq, qMapHomeo_apply, qMap_apply_zero]
+
+/-- **(1.3), PROVED.** `T₂` is **topologically conjugate** to the shift `S`: there is a homeomorphism
+`Φ` with `Φ ∘ S = T₂ ∘ Φ` (`Function.Semiconj Φ S T₂`). This is the non-normalised form of
+`exists_normalized_conjugacy` (just drop `Φ 0 = 0`); both are now discharged constructively via the
+`qMap = Q∞` construction in `BL.ParityVectorMap`. (Formerly a cited `axiom` in `BL.Basic`.) -/
+@[category research solved, AMS 37 11, ref "BL96" "Ber94" "Ter76", group "bl_conjugacy"]
+theorem exists_conjugacy : ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂ :=
+  ⟨Φ, Φ_semiconj⟩
 
 /-- **Uniqueness of the normalised conjugacy.** Any homeomorphism `Ψ` with `Ψ ∘ S ∘ Ψ⁻¹ = T₂` and
 `Ψ 0 = 0` equals `Φ`. Proof: by `conjugacy_unique`, `Ψ = Φ ∘ ψ` with `ψ ∈ Aut(S) = {id, V}`
@@ -200,10 +214,22 @@ theorem two_dvd_iff_toZMod_eq_zero (z : ℤ_[2]) : (2 : ℤ_[2]) ∣ z ↔ Padic
     rw [PadicInt.ker_toZMod, PadicInt.maximalIdeal_eq_span_p, Ideal.mem_span_singleton] at hk
     simpa using hk
 
-/-- **(cited; Bernstein–Lagarias 1996.)** An important property of `Φ`: it is **solenoidal** — for
-every `n` it induces a map on `ℤ/2ⁿℤ`. -/
+/-- **(PROVED; formerly a cited axiom.)** An important property of `Φ`: it is **solenoidal** — for
+every `n` it induces a map on `ℤ/2ⁿℤ`. Since `Φ = qMapHomeo⁻¹` and `qMap` is a solenoidal bijection
+(`qMap_solenoidal`, `qMap_bijective`), its inverse is solenoidal by `corollary_A3` — using
+`Function.invFun qMap = ⇑Φ`. -/
 @[category research solved, AMS 11 37, ref "BL96", group "bl_conjugacy_map"]
-axiom Φ_solenoidal : Solenoidal (⇑Φ)
+theorem Φ_solenoidal : Solenoidal (⇑Φ) := by
+  have hL : Function.LeftInverse (⇑Φ) qMap := by
+    intro x
+    show qMapHomeo.symm (qMap x) = x
+    rw [← qMapHomeo_apply, Homeomorph.symm_apply_apply]
+  have hinv : Function.invFun qMap = ⇑Φ :=
+    (hL.eq_rightInverse (Function.rightInverse_invFun qMap_bijective.surjective)).symm
+  have hand : Solenoidal qMap ∧ Function.Bijective qMap := ⟨qMap_solenoidal, qMap_bijective⟩
+  have hiff := (corollary_A3 qMap).out 0 1
+  have hsi : Solenoidal (Function.invFun qMap) := (hiff.mp hand).2.2
+  rwa [hinv] at hsi
 
 /-- **(1.4)** `Φ(x) ≡ x (mod 2)`. **Proved** from solenoidality (`Φ_solenoidal`) and `Φ 0 = 0`: even
 inputs map to even (via `Φ 0 = 0`), and surjectivity of `Φ` forces some — hence, by solenoidality at
@@ -244,16 +270,32 @@ theorem Φ_parity (x : ℤ_[2]) : parity (Φ x) = parity x := by
 /-- **(1.5)** The explicit formula for the inverse conjugacy map: `Φ⁻¹(x) = ∑_{i≥0} (Tⁱ(x) mod 2)·2ⁱ`
 — the 2-adic integer whose `i`-th binary digit is the parity `parity (T₂ⁱ x)` of the `i`-th iterate.
 This is Lagarias's **parity-vector map `Q∞`**; on `ℕ` its digits are exactly the `CC.Parity` parity
-vectors of the Collatz orbit (`parity_T₂_iterate_natCast`). -/
+vectors of the Collatz orbit (`parity_T₂_iterate_natCast`). Defined as the construction map
+`BL.qMap` (`BL.ParityVectorMap`, same series) — `Q` is the paper's notation for it. -/
 @[category API, AMS 11 37, ref "BL96"]
-noncomputable def Q (x : ℤ_[2]) : ℤ_[2] := ∑' i : ℕ, (parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i
+noncomputable def Q : ℤ_[2] → ℤ_[2] := qMap
+
+/-- **Finite binary expansion with remainder.** Truncating the binary digit expansion at `N` leaves a
+`2ᴺ`-divisible remainder: `y = ∑_{i<N} parity(Sⁱy)·2ⁱ + 2ᴺ·Sᴺ y`. The bit-peel `parity_add_two_mul_S`
+(`x = parity x + 2·S x`) telescopes over `N` steps. The infinite expansion `tsum_parity_S` is the
+`N → ∞` limit (the remainder `2ᴺ·Sᴺ y → 0`); this finite form is also what makes an *eventually
+periodic* digit sequence sum to a rational (cf. `B3.not_isEventuallyPeriodic_binaryDigit`). -/
+@[category API, AMS 11 37, ref "BL96" "Ber94"]
+theorem parity_partial_expansion (y : ℤ_[2]) (N : ℕ) :
+    y = (∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i) + 2 ^ N * S^[N] y := by
+  induction N with
+  | zero => simp
+  | succ N ih =>
+    rw [Finset.sum_range_succ, Function.iterate_succ_apply']
+    have hp := parity_add_two_mul_S (S^[N] y)
+    linear_combination ih - (2 : ℤ_[2]) ^ N * hp
 
 /-- **The binary digit expansion via the shift.** Every `2`-adic integer is recovered from its binary
-digits, the `i`-th being `parity (Sⁱ y)`: `y = ∑_{i≥0} (parity (Sⁱ y)) · 2ⁱ`. *Proof:* the bit-peel
-`parity_add_two_mul_S` (`parity x + 2·S x = x`) telescopes to
-`y = ∑_{i<N} parity(Sⁱy)·2ⁱ + 2ᴺ·Sᴺ y`, and the remainder `2ᴺ·Sᴺ y → 0` in `ℤ₂` (norm `≤ 2⁻ᴺ`, the
-series being geometric-dominated hence summable). This is the convergence fact behind the explicit
-formula `(1.5)` for `Φ⁻¹`. -/
+digits, the `i`-th being `parity (Sⁱ y)`: `y = ∑_{i≥0} (parity (Sⁱ y)) · 2ⁱ`. *Proof:* the finite
+expansion `parity_partial_expansion` (`y = ∑_{i<N} parity(Sⁱy)·2ⁱ + 2ᴺ·Sᴺ y`, the bit-peel
+`parity_add_two_mul_S` telescoped) has remainder `2ᴺ·Sᴺ y → 0` in `ℤ₂` (norm `≤ 2⁻ᴺ`, the series being
+geometric-dominated hence summable). This is the convergence fact behind the explicit formula `(1.5)`
+for `Φ⁻¹`. -/
 @[category API, AMS 11 37, ref "BL96" "Ber94"]
 theorem tsum_parity_S (y : ℤ_[2]) :
     ∑' i : ℕ, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i = y := by
@@ -267,15 +309,6 @@ theorem tsum_parity_S (y : ℤ_[2]) :
     exact h1.trans (mul_le_of_le_one_left (pow_nonneg (norm_nonneg _) i) (PadicInt.norm_le_one _))
   have hsum : Summable (fun i : ℕ => (parity (S^[i] y) : ℤ_[2]) * 2 ^ i) :=
     Summable.of_norm_bounded (summable_geometric_of_lt_one (norm_nonneg _) h2lt) hbound
-  have hrem : ∀ N : ℕ, y = (∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
-      + 2 ^ N * S^[N] y := by
-    intro N
-    induction N with
-    | zero => simp
-    | succ N ih =>
-      rw [Finset.sum_range_succ, Function.iterate_succ_apply']
-      have hp := parity_add_two_mul_S (S^[N] y)
-      linear_combination ih - (2 : ℤ_[2]) ^ N * hp
   have hb0 : ∀ N, ‖(2 : ℤ_[2]) ^ N * S^[N] y‖ ≤ ‖(2 : ℤ_[2])‖ ^ N := by
     intro N
     have h1 : ‖(2 : ℤ_[2]) ^ N * S^[N] y‖ ≤ ‖(2 : ℤ_[2]) ^ N‖ * ‖S^[N] y‖ := norm_mul_le _ _
@@ -287,7 +320,7 @@ theorem tsum_parity_S (y : ℤ_[2]) :
       atTop (nhds y) := by
     have heq : (fun N => ∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
         = fun N => y - (2 : ℤ_[2]) ^ N * S^[N] y := by
-      funext N; exact eq_sub_of_add_eq (hrem N).symm
+      funext N; exact eq_sub_of_add_eq (parity_partial_expansion y N).symm
     rw [heq]
     simpa using tendsto_const_nhds.sub htend0
   exact tendsto_nhds_unique hsum.hasSum.tendsto_sum_nat htendpart
@@ -318,16 +351,17 @@ theorem Φ_symm_eq_Q : ⇑Φ.symm = Q := by
     rw [Φ.apply_symm_apply] at h
     exact h.symm
   funext x
-  unfold Q
+  unfold Q qMap
   rw [← tsum_parity_S (Φ.symm x)]
   apply tsum_congr
   intro i
   rw [hiter i x, hpar (T₂^[i] x)]
 
-/-- **(cited; via the formula (1.5).)** `Φ⁻¹` (`= Q`) is **solenoidal**: a congruence `x ≡ y (mod 2ⁿ)`
-makes the first `n` orbit parities agree, so `Q x ≡ Q y (mod 2ⁿ)`. -/
+/-- **(PROVED; formerly a cited axiom.)** `Φ⁻¹` (`= Q`) is **solenoidal**: a congruence `x ≡ y (mod 2ⁿ)`
+makes the first `n` orbit parities agree, so `Q x ≡ Q y (mod 2ⁿ)`. Since `Q` is definitionally the
+construction map `BL.qMap` (same series), this is exactly `qMap_solenoidal` (`BL.ParityVectorMap`). -/
 @[category research solved, AMS 11 37, ref "BL96" "Lag85", group "bl_conjugacy_map"]
-axiom Q_solenoidal : Solenoidal Q
+theorem Q_solenoidal : Solenoidal Q := qMap_solenoidal
 
 /-! ### The explicit formula for `Φ` (1.6)
 
@@ -358,7 +392,8 @@ theorem isUnit_three : IsUnit (3 : ℤ_[2]) := by
 theorem three_mul_inverse : (3 : ℤ_[2]) * Ring.inverse 3 = 1 :=
   Ring.mul_inverse_cancel 3 isUnit_three
 
-/-- **(1.6) (cited; [2] = [Ber94]).** **Explicit formula for `Φ` itself**, dual to `(1.5)`. Expand
+/- **(1.6)** — now **PROVED** in `BL.ForwardFormula` (`Φ_eq_neg_tsum`), formerly a cited axiom [Ber94].
+**Explicit formula for `Φ` itself**, dual to `(1.5)`. Expand
 `x ∈ ℤ₂` in binary by the positions of its `1`-bits, `x = ∑ᵢ 2^{dᵢ}` with `0 ≤ d₀ < d₁ < ⋯` a
 strictly increasing sequence (here the *infinite* case, `d : ℕ → ℕ` strictly monotone — e.g. any
 `x ∉ ℕ`, which has infinitely many `1`-bits). Then
@@ -367,9 +402,9 @@ the `i`-th `1`-bit (at position `dᵢ`) contributes `−3^{−(i+1)} 2^{dᵢ}` (
 `three_mul_inverse`; the exponent `i+1` is the `1`-based rank of the bit). E.g. `Φ 1 = Φ (2⁰) = −3⁻¹`.
 From `(1.6)` one re-derives `(1.3)` and `(1.4)`, and reads off that `Φ` is solenoidal
 (`Φ_solenoidal`). The finite case `x ∈ ℕ` is `Φ_eq_neg_sum`. -/
-@[category research solved, AMS 11 37, ref "BL96" "Ber94", group "bl_conjugacy_map"]
-axiom Φ_eq_neg_tsum (d : ℕ → ℕ) (hd : StrictMono d) :
-    Φ (∑' i, (2 : ℤ_[2]) ^ (d i)) = - ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i)
+-- `Φ_eq_neg_tsum` (the explicit forward formula `(1.6)`, infinite case) is now **PROVED** in
+-- `BL.ForwardFormula` (via the `bval`/`Φval`/`dshift` recursion), no longer a cited axiom here; it is
+-- available by import. The finite case `Φ_eq_neg_sum` below remains cited.
 
 /-- **(1.6), finite case** (cited; [2] = [Ber94]). For a **nonnegative integer**
 `x = ∑_{i<m} 2^{dᵢ} ∈ ℕ` — finitely many `1`-bits, `d : Fin m → ℕ` strictly increasing — the explicit

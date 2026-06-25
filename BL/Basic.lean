@@ -93,7 +93,8 @@ the digit count is `num_odd_steps` (`num_odd_steps_eq_sum_parity`). These bridge
 * `seqShift`, `uniformBool`, `bernoulliSeqMeasure`, `IsBernoulli` — the one-sided Bernoulli `(½,½)`
   shift on `ℕ → Bool` and the "is a Bernoulli system" predicate.
 * `T₂_stronglyMixing` (cited) ⇒ `T₂_measurePreserving`, `T₂_ergodic` (derived): `T₂`'s 2-adic dynamics.
-* `exists_conjugacy` — cited `(1.3)`: `T₂` is topologically conjugate to the shift `S`.
+* `(1.3)` `T₂` is topologically conjugate to the shift `S` — now **proved** as `exists_conjugacy`
+  in `BL.ConjugacyMap` (via the `qMap` construction), no longer a cited axiom here.
 * `exists_metric_conjugacy`, `T₂_bernoulli` — cited: the conjugacy is measure-preserving (`T`
   metrically conjugate to `S`), and `T₂` is **Bernoulli**.
 * `V`, `V_apply_zero`, `V_involutive`, `parity_V`, `V_semiconj_S`, `V_ne_id` — the shift automorphism
@@ -365,12 +366,9 @@ theorem T₂_ergodic [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
     Ergodic T₂ μ :=
   (T₂_stronglyMixing μ).ergodic
 
-/-- **Theorem (1.3) (Bernstein–Lagarias 1996; cited).** `T` is **topologically conjugate** to the
-2-adic shift `S`: there is a homeomorphism `Φ : ℤ₂ → ℤ₂` with `Φ ∘ S ∘ Φ⁻¹ = T₂`, i.e.
-`Φ ∘ S = T₂ ∘ Φ` (`Function.Semiconj Φ S T₂`). This `Φ` is the **3x+1 conjugacy map** of the title;
-recorded here as a cited existence `axiom`, with the explicit construction deferred. -/
-@[category research solved, AMS 37 11, ref "BL96", group "bl_conjugacy"]
-axiom exists_conjugacy : ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂
+-- **Theorem (1.3)** `exists_conjugacy` (the topological conjugacy `Φ ∘ S = T₂ ∘ Φ`, non-normalised)
+-- is now **PROVED** and lives in `BL.ConjugacyMap` (discharged via the `BL.ParityVectorMap` `qMap`
+-- construction), rather than a cited axiom here. The measure-preserving strengthening below stays cited.
 
 /-- **(Bernstein–Lagarias 1996; cited.)** `T` is **metrically conjugate** to the shift `S`: the
 conjugacy `Φ` of `(1.3)` can be taken **measure-preserving** for the 2-adic measure, so `(ℤ₂, μ, T₂)`
