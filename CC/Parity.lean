@@ -1,6 +1,6 @@
 import CC.Terras
 
-namespace CollatzMapBasics
+namespace CC
 
 /-- Parity vectors are essentially binary words. We represent 0 as `false` and 1 as `true`. -/
 def ParityVector := List Bool
@@ -75,4 +75,4 @@ lemma num_odd_steps_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
   have := congr_fun h ⟨i, hi⟩
   simpa [E_vec_apply] using this
 
-end CollatzMapBasics
+end CC

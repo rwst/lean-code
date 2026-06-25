@@ -1,6 +1,6 @@
 import CC.Parity
 
-namespace CollatzMapBasics
+namespace CC
 
 open Classical
 
@@ -122,4 +122,4 @@ lemma linear_decomposition' (j n : ℕ) : T_iter j n = C j n * n + E j n := by
   rw [mul_comm]
   exact linear_decomposition j n
 
-end CollatzMapBasics
+end CC

@@ -15,11 +15,11 @@ import Corpus.Util.Attributes.Database
 
 This file begins **Report B3, item 6** — making explicit the bridge between the two semiring views of
 a Collatz orbit. The same combinatorial datum — the **parity vector** `V k n` of the length-`k` orbit
-of `n` under the compact map `T` (`CollatzMapBasics.V`), equivalently the odd-step count
+of `n` under the compact map `T` (`CC.V`), equivalently the odd-step count
 `num_odd_steps k n` — controls two dual evaluations:
 
 * **`(ℝ, +, ×)` — the density side.** The multiplicative coefficient
-  `C k n = 3^{num_odd_steps k n} / 2^k` (`CollatzMapBasics.C`) is the factor by which the orbit scales
+  `C k n = 3^{num_odd_steps k n} / 2^k` (`CC.C`) is the factor by which the orbit scales
   `n` (`linear_decomposition' : T_iter j n = C j n · n + E j n`). Its long-run behaviour is the
   Terras–Lagarias drift: along almost every orbit the ones-ratio `q/k → 1/2`, giving
   `C ≈ (√3/2)^k → 0`. This is the world of *density* theorems ([Ter76]).
@@ -60,9 +60,9 @@ sign of this quantity, with the threshold ratio
   Acta Cybernetica 19.2 (2009), 357–392.
 -/
 
-namespace CollatzMapBasics.SRSBridge
+namespace CC.SRSBridge
 
-open CollatzMapBasics StringRewriting.ArcticInterpretation
+open CC StringRewriting.ArcticInterpretation
 
 /-! ### The threshold and the tropical path-weight -/
 
@@ -200,4 +200,4 @@ theorem criticalRatio_lt_one : criticalRatio < 1 := by
   rw [criticalRatio, div_lt_one (Real.log_pos (by norm_num))]
   exact Real.log_lt_log (by norm_num) (by norm_num)
 
-end CollatzMapBasics.SRSBridge
+end CC.SRSBridge

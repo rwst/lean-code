@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import BL.Basic
 import BL.SolenoidalMaps
+import Mathlib.Analysis.SpecificLimits.Normed
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -35,7 +36,7 @@ respects congruence modulo `2ⁿ` for every `n`, i.e. induces a map on each `ℤ
 equivalently `parity (Φ x) = parity x` (`Φ_parity`).
 
 The inverse `Φ⁻¹` has the **explicit formula `(1.5)`** `Φ⁻¹(x) = ∑_{i≥0} (Tⁱ(x) mod 2)·2ⁱ` (`Q`,
-Lagarias's parity-vector map `Q∞`; `Φ_symm_eq_Q`, cited — this is **Bernstein's noniterative 2-adic
+Lagarias's parity-vector map `Q∞`; `Φ_symm_eq_Q`, **proved** — this is **Bernstein's noniterative 2-adic
 statement** [Ber94]): it packs the parities of the `T₂`-orbit of `x` — exactly the `CC.Parity`
 vectors (cf. the bridges in `BL.Basic`). This formula re-derives
 `(1.3)`/`(1.4)` and shows `Φ⁻¹` is solenoidal (`Q_solenoidal`).
@@ -82,8 +83,9 @@ later files.
 * `two_dvd_iff_toZMod_eq_zero`, `Φ_solenoidal` — the solenoidal property (cited for `Φ`; the notion
   `Solenoidal` itself lives in `BL.SolenoidalMaps`, Appendix A).
 * `Φ_mod_two` (1.4), `Φ_parity` — proved: `Φ(x) ≡ x (mod 2)`.
-* `Q` (1.5), `Φ_symm_eq_Q`, `Q_solenoidal` — the explicit formula `Φ⁻¹(x) = ∑ (Tⁱx mod 2)·2ⁱ`
-  (`= Q∞`) and its cited properties.
+* `Q` (1.5), `tsum_parity_S`, `Φ_symm_eq_Q`, `Q_solenoidal` — the explicit formula
+  `Φ⁻¹(x) = ∑ (Tⁱx mod 2)·2ⁱ` (`= Q∞`) and its properties (`Φ_symm_eq_Q` **proved** via the binary
+  digit expansion `tsum_parity_S`; `Q_solenoidal` cited).
 * `isUnit_three`, `three_mul_inverse` — `3` is a unit in `ℤ₂`; `Ring.inverse 3 = 3⁻¹` (proved).
 * `Φ_eq_neg_tsum` (1.6), `Φ_eq_neg_sum` — the explicit formula `Φ(x) = − ∑ 3^{−(i+1)} 2^{dᵢ}` for the
   forward map `Φ` (infinite / finite `1`-bit sequence; cited).
@@ -246,12 +248,81 @@ vectors of the Collatz orbit (`parity_T₂_iterate_natCast`). -/
 @[category API, AMS 11 37, ref "BL96"]
 noncomputable def Q (x : ℤ_[2]) : ℤ_[2] := ∑' i : ℕ, (parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i
 
-/-- **(1.5) (cited; [8] = [Lag85]).** The inverse conjugacy map is given by the explicit formula:
-`Φ⁻¹ = Q`. (From this formula one re-derives `(1.3)` and `(1.4)`, and reads off that `Φ⁻¹` is
-solenoidal — see `Q_solenoidal`.) This formula is **Bernstein's noniterative 2-adic statement**
-[Ber94]. -/
+/-- **The binary digit expansion via the shift.** Every `2`-adic integer is recovered from its binary
+digits, the `i`-th being `parity (Sⁱ y)`: `y = ∑_{i≥0} (parity (Sⁱ y)) · 2ⁱ`. *Proof:* the bit-peel
+`parity_add_two_mul_S` (`parity x + 2·S x = x`) telescopes to
+`y = ∑_{i<N} parity(Sⁱy)·2ⁱ + 2ᴺ·Sᴺ y`, and the remainder `2ᴺ·Sᴺ y → 0` in `ℤ₂` (norm `≤ 2⁻ᴺ`, the
+series being geometric-dominated hence summable). This is the convergence fact behind the explicit
+formula `(1.5)` for `Φ⁻¹`. -/
+@[category API, AMS 11 37, ref "BL96" "Ber94"]
+theorem tsum_parity_S (y : ℤ_[2]) :
+    ∑' i : ℕ, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i = y := by
+  have h2lt : ‖(2 : ℤ_[2])‖ < 1 := by
+    rw [PadicInt.norm_lt_one_iff_dvd]; exact_mod_cast dvd_refl (2 : ℤ_[2])
+  have hbound : ∀ i, ‖(parity (S^[i] y) : ℤ_[2]) * 2 ^ i‖ ≤ ‖(2 : ℤ_[2])‖ ^ i := by
+    intro i
+    have h1 : ‖(parity (S^[i] y) : ℤ_[2]) * 2 ^ i‖
+        ≤ ‖((parity (S^[i] y) : ℕ) : ℤ_[2])‖ * ‖(2 : ℤ_[2]) ^ i‖ := norm_mul_le _ _
+    rw [norm_pow] at h1
+    exact h1.trans (mul_le_of_le_one_left (pow_nonneg (norm_nonneg _) i) (PadicInt.norm_le_one _))
+  have hsum : Summable (fun i : ℕ => (parity (S^[i] y) : ℤ_[2]) * 2 ^ i) :=
+    Summable.of_norm_bounded (summable_geometric_of_lt_one (norm_nonneg _) h2lt) hbound
+  have hrem : ∀ N : ℕ, y = (∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
+      + 2 ^ N * S^[N] y := by
+    intro N
+    induction N with
+    | zero => simp
+    | succ N ih =>
+      rw [Finset.sum_range_succ, Function.iterate_succ_apply']
+      have hp := parity_add_two_mul_S (S^[N] y)
+      linear_combination ih - (2 : ℤ_[2]) ^ N * hp
+  have hb0 : ∀ N, ‖(2 : ℤ_[2]) ^ N * S^[N] y‖ ≤ ‖(2 : ℤ_[2])‖ ^ N := by
+    intro N
+    have h1 : ‖(2 : ℤ_[2]) ^ N * S^[N] y‖ ≤ ‖(2 : ℤ_[2]) ^ N‖ * ‖S^[N] y‖ := norm_mul_le _ _
+    rw [norm_pow] at h1
+    exact h1.trans (mul_le_of_le_one_right (pow_nonneg (norm_nonneg _) N) (PadicInt.norm_le_one _))
+  have htend0 : Tendsto (fun N => (2 : ℤ_[2]) ^ N * S^[N] y) atTop (nhds 0) :=
+    squeeze_zero_norm hb0 (tendsto_pow_atTop_nhds_zero_of_lt_one (norm_nonneg _) h2lt)
+  have htendpart : Tendsto (fun N => ∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
+      atTop (nhds y) := by
+    have heq : (fun N => ∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
+        = fun N => y - (2 : ℤ_[2]) ^ N * S^[N] y := by
+      funext N; exact eq_sub_of_add_eq (hrem N).symm
+    rw [heq]
+    simpa using tendsto_const_nhds.sub htend0
+  exact tendsto_nhds_unique hsum.hasSum.tendsto_sum_nat htendpart
+
+/-- **(1.5) (proved).** The inverse conjugacy map is given by the explicit formula `Φ⁻¹ = Q` —
+**Bernstein's noniterative 2-adic statement** [Ber94], here **proved** (was a cited `axiom`). *Proof:*
+by `tsum_parity_S`, `Φ⁻¹ x = ∑ᵢ parity(Sⁱ(Φ⁻¹ x))·2ⁱ`; the inverse semiconjugacy `Sⁱ ∘ Φ⁻¹ = Φ⁻¹ ∘ T₂ⁱ`
+(from `Φ_semiconj`) and the parity preservation `parity ∘ Φ⁻¹ = parity` (from `Φ_parity`) rewrite the
+`i`-th digit as `parity(T₂ⁱ x)` — exactly the `i`-th digit of `Q x`. (From this formula one re-derives
+`(1.3)` and `(1.4)`, and reads off that `Φ⁻¹` is solenoidal — see `Q_solenoidal`.) It now rests only on
+the more basic cited axioms `exists_normalized_conjugacy` (for `Φ`) and `Φ_solenoidal` (via `Φ_parity`),
+not on a standalone `(1.5)` axiom. -/
 @[category research solved, AMS 11 37, ref "BL96" "Lag85" "Ber94", group "bl_conjugacy_map"]
-axiom Φ_symm_eq_Q : ⇑Φ.symm = Q
+theorem Φ_symm_eq_Q : ⇑Φ.symm = Q := by
+  have hsc : ∀ w, Φ.symm (T₂ w) = S (Φ.symm w) := by
+    intro w
+    apply Φ.injective
+    rw [Φ.apply_symm_apply, Φ_semiconj (Φ.symm w), Φ.apply_symm_apply]
+  have hiter : ∀ (i : ℕ) (x : ℤ_[2]), S^[i] (Φ.symm x) = Φ.symm (T₂^[i] x) := by
+    intro i x
+    induction i with
+    | zero => simp
+    | succ i ih =>
+      rw [Function.iterate_succ_apply', ih, Function.iterate_succ_apply', hsc]
+  have hpar : ∀ z, parity (Φ.symm z) = parity z := by
+    intro z
+    have h := Φ_parity (Φ.symm z)
+    rw [Φ.apply_symm_apply] at h
+    exact h.symm
+  funext x
+  unfold Q
+  rw [← tsum_parity_S (Φ.symm x)]
+  apply tsum_congr
+  intro i
+  rw [hiter i x, hpar (T₂^[i] x)]
 
 /-- **(cited; via the formula (1.5).)** `Φ⁻¹` (`= Q`) is **solenoidal**: a congruence `x ≡ y (mod 2ⁿ)`
 makes the first `n` orbit parities agree, so `Q x ≡ Q y (mod 2ⁿ)`. -/
@@ -314,7 +385,7 @@ axiom Φ_eq_neg_sum (m : ℕ) (d : Fin m → ℕ) (hd : StrictMono d) :
 (`T₂_natCast`/`T₂_iterate_natCast`), the 2-adic reachability statement
 `∀ n>0, ∃ j, T₂ʲ(↑n) = 1` is **equivalent** to the elementary **3x+1 conjecture**
 `∀ n>0, ∃ j, Tʲ(n) = 1` (every positive integer reaches `1` under the accelerated map
-`CollatzMapBasics.T`). **Proved** (sorry-free), *not* assumed: both directions follow from
+`CC.T`). **Proved** (sorry-free), *not* assumed: both directions follow from
 `T₂ʲ ↑n = ↑(Tʲ n)` and injectivity of `ℕ ↪ ℤ₂`. We assert neither side — only their equivalence;
 the conjecture itself stays open and is never named as a `Prop` (per the corpus policy, it is written
 inline in the `∀ n>0, ∃ j, Tʲ(n)=1` form). The 2-adic side is exactly the assertion that `T₂` sends
@@ -323,7 +394,7 @@ machinery the paper builds toward studying it. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem t2_reachesOne_iff_collatz :
     (∀ n : ℕ, 0 < n → ∃ j, (T₂^[j]) (n : ℤ_[2]) = 1) ↔
-    (∀ n : ℕ, 0 < n → ∃ j, CollatzMapBasics.T_iter j n = 1) := by
+    (∀ n : ℕ, 0 < n → ∃ j, CC.T_iter j n = 1) := by
   constructor
   · intro h n hn
     obtain ⟨j, hj⟩ := h n hn
@@ -408,20 +479,20 @@ theorem range_iterate_infinite_iff_tendsto (f : ℕ → ℕ) (n : ℕ) :
     have : f^[k] n ≤ B := hB ⟨k, rfl⟩
     omega
 
-/-- The `CC` Collatz/Terras iterate `T_iter` is `Function.iterate` of `CollatzMapBasics.T`:
+/-- The `CC` Collatz/Terras iterate `T_iter` is `Function.iterate` of `CC.T`:
 `T_iter k n = T^[k] n` — bridging `CC`'s bespoke recursion to the general `f^[k]` API. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem T_iter_eq_iterate (k n : ℕ) :
-    CollatzMapBasics.T_iter k n = CollatzMapBasics.T^[k] n := by
+    CC.T_iter k n = CC.T^[k] n := by
   induction k with
   | zero => rfl
-  | succ k ih => rw [CollatzMapBasics.T_iter, Function.iterate_succ_apply', ih]
+  | succ k ih => rw [CC.T_iter, Function.iterate_succ_apply', ih]
 
 /-- A 3x+1 trajectory `{Tᵏ(n)}` is **divergent** if it contains **infinitely many distinct
-elements** (BL96 §1). Stated with `CollatzMapBasics.T_iter`, the accelerated map of `CC`
+elements** (BL96 §1). Stated with `CC.T_iter`, the accelerated map of `CC`
 (cf. `CC/Elementary.lean`). Equivalent to `Tᵏ(n) → ∞` (`divergent_iff_tendsto_atTop`). -/
 @[category API, AMS 11 37, ref "BL96"]
-def Divergent (n : ℕ) : Prop := (Set.range fun k => CollatzMapBasics.T_iter k n).Infinite
+def Divergent (n : ℕ) : Prop := (Set.range fun k => CC.T_iter k n).Infinite
 
 /-- **Equivalence of the two descriptions of a divergent trajectory** (BL96 §1, the "so that"):
 `Divergent n ↔ Tᵏ(n) → ∞`. A 3x+1 trajectory has infinitely many distinct elements iff
@@ -429,9 +500,9 @@ def Divergent (n : ℕ) : Prop := (Set.range fun k => CollatzMapBasics.T_iter k 
 (`range_iterate_infinite_iff_tendsto`) and `T_iter_eq_iterate`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem divergent_iff_tendsto_atTop (n : ℕ) :
-    Divergent n ↔ Tendsto (fun k => CollatzMapBasics.T_iter k n) atTop atTop := by
+    Divergent n ↔ Tendsto (fun k => CC.T_iter k n) atTop atTop := by
   simp only [Divergent, T_iter_eq_iterate]
-  exact range_iterate_infinite_iff_tendsto CollatzMapBasics.T n
+  exact range_iterate_infinite_iff_tendsto CC.T n
 
 /-- **The Periodicity Conjecture implies no divergent trajectories** (BL96 §1). If `Φ` preserves
 `ℚ ∩ ℤ₂` (`periodicity_conjecture`), then the 3x+1 map has **no divergent trajectory**: every positive

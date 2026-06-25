@@ -47,9 +47,9 @@ duality (`ResidueGraphDrift.lam_neg_iff_drift_neg`) gives the dictionary on `G_R
 * [Kar78] Karp. *A characterization of the minimum cycle mean in a digraph.* Discrete Math. 23 (1978).
 -/
 
-namespace CollatzMapBasics.ResidueGraph
+namespace CC.ResidueGraph
 
-open CollatzMapBasics CollatzMapBasics.ResidueGraphDrift
+open CC CC.ResidueGraphDrift
 
 /-! ### The Syracuse map and its edge weight -/
 
@@ -206,4 +206,4 @@ theorem syr_example : syrHalvings 3 = 1 ∧ syr 3 = 5 := by
 @[category test, AMS 11, ref "YAH", group "two_semiring_bridge"]
 theorem grverts_example : GRVerts 2 ∅ = {1, 3} := by decide
 
-end CollatzMapBasics.ResidueGraph
+end CC.ResidueGraph

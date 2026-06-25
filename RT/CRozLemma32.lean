@@ -1,9 +1,9 @@
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Parity
-import CollatzMapBasics.Approximation
-import CollatzMapBasics.RozierTerracol.CRozLemma22
-import CollatzMapBasics.RozierTerracol.CRozLemma23
-import CollatzMapBasics.TC
+import CC.Decomposition
+import CC.Parity
+import CC.Approximation
+import CC.RozierTerracol.CRozLemma22
+import CC.RozierTerracol.CRozLemma23
+import CC.TC
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -16,9 +16,9 @@ import CollatzMapBasics.TC
 
 open Classical
 
-open CollatzMapBasics
+open CC
 
-namespace CollatzMapBasics
+namespace CC
 
 def IsParadoxical (j n : ℕ) : Prop := T_iter j n ≥ n ∧ C j n < 1
 

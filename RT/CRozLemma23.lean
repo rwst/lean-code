@@ -1,8 +1,8 @@
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Parity
-import CollatzMapBasics.Periodicity
-import CollatzMapBasics.RozierTerracol.CRozLemma21
-import CollatzMapBasics.RozierTerracol.CRozLemma22
+import CC.Decomposition
+import CC.Parity
+import CC.Periodicity
+import CC.RozierTerracol.CRozLemma21
+import CC.RozierTerracol.CRozLemma22
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -15,7 +15,7 @@ import CollatzMapBasics.RozierTerracol.CRozLemma22
 
 open Classical
 
-open CollatzMapBasics
+open CC
 
 /-- Shift lemma: T^j(m + 2^j) and T^j(m) are related, which implies they have opposite parity. -/
 lemma X_T_iter_shift (j m : ℕ) : X (T_iter j m) + X (T_iter j (m + 2 ^ j)) = 1 := by

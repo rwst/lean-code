@@ -24,7 +24,7 @@ The mixed-base SRS `𝒯` (`SRS.CollatzSRS`) has exactly **two dynamic rules** `
 On a string of value `m` the *even* rule is the one that fires iff `m` is even (`dynFire_eq_firedT`);
 either rule advances the value by one step of the accelerated Terras map `T` (`dynRules_applyT`,
 re-packaged here as `dynFireR_eval`). Crucially `CollatzSRS.T` is the **same function** as
-`CollatzMapBasics.T` (`T_agree`), so the orbit driven by the dynamic firings is the Terras orbit
+`CC.T` (`T_agree`), so the orbit driven by the dynamic firings is the Terras orbit
 `T_iter · n` of `Terras.lean`.
 
 Therefore the sequence of dynamic firings over the orbit — recorded as the bit `firedT` ("did the odd
@@ -43,7 +43,7 @@ the dynamic rules fire in this exact order along a `RewriteStep`-derivation to n
 `CollatzSRS.theorem_3_17` territory (Report B3 item 8) and is not re-proved here.
 
 ## Contents
-* `T_agree` — `CollatzMapBasics.T = CollatzSRS.T` (the two `T`'s coincide).
+* `T_agree` — `CC.T = CollatzSRS.T` (the two `T`'s coincide).
 * `dynFireL`, `dynFireR` — the left/right sides of the dynamic rule selected by a value's parity;
   `dynFiring_mem` (it is a genuine `dynRules` rule), `dynFireL_eval` / `dynFireR_eval` (it evaluates
   the value `m` and outputs `T m`), `dynFiring_advances` (it advances the Terras orbit).
@@ -56,21 +56,21 @@ the dynamic rules fire in this exact order along a `RewriteStep`-derivation to n
 * [YAH] Yolcu, Aaronson, Heule. *An Automated Approach to the Collatz Conjecture.* arXiv:2105.14697.
 -/
 
-namespace CollatzMapBasics.SRSTrace
+namespace CC.SRSTrace
 
-open CollatzMapBasics CollatzMapBasics.SRSBridge StringRewriting
+open CC CC.SRSBridge StringRewriting
 open StringRewriting.CollatzSRS.TSym
 
 /-! ### The two `T`'s coincide -/
 
-/-- The accelerated Terras map of `Terras.lean` (`CollatzMapBasics.T`) and the one the SRS `𝒯`
+/-- The accelerated Terras map of `Terras.lean` (`CC.T`) and the one the SRS `𝒯`
 iterates (`CollatzSRS.T`) are the **same function**. -/
 @[category research solved, AMS 11 68, ref "Ter76" "YAH", group "two_semiring_bridge"]
-theorem T_agree (n : ℕ) : CollatzMapBasics.T n = CollatzSRS.T n := by
+theorem T_agree (n : ℕ) : CC.T n = CollatzSRS.T n := by
   unfold CollatzSRS.T
   split
-  · next h => exact CollatzMapBasics.T_even h
-  · next h => exact CollatzMapBasics.T_odd (by omega)
+  · next h => exact CC.T_even h
+  · next h => exact CC.T_odd (by omega)
 
 /-! ### The dynamic rule selected by a value's parity -/
 
@@ -116,7 +116,7 @@ theorem dynFireR_eval (m : ℕ) : CollatzSRS.compFun (dynFireR m) (m / 2) = Coll
 theorem dynFiring_advances (n i : ℕ) :
     CollatzSRS.compFun (dynFireR (T_iter i n)) (T_iter i n / 2) = T_iter (i + 1) n := by
   have hstep : T_iter (i + 1) n = CollatzSRS.T (T_iter i n) := by
-    show CollatzMapBasics.T (T_iter i n) = CollatzSRS.T (T_iter i n)
+    show CC.T (T_iter i n) = CollatzSRS.T (T_iter i n)
     exact T_agree _
   rw [hstep]; exact dynFireR_eval _
 
@@ -158,4 +158,4 @@ theorem dynTrace_eq_V (k n : ℕ) : dynTrace k n = V k n := by
 theorem q_dynTrace (k n : ℕ) : q (dynTrace k n) = num_odd_steps k n := by
   rw [dynTrace_eq_V, q_V]
 
-end CollatzMapBasics.SRSTrace
+end CC.SRSTrace

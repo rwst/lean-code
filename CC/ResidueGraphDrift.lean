@@ -58,9 +58,9 @@ threshold of [[cc-srsbridge-item6]].
 * [Kar78] Karp. *A characterization of the minimum cycle mean in a digraph.* Discrete Math. 23 (1978).
 -/
 
-namespace CollatzMapBasics.ResidueGraphDrift
+namespace CC.ResidueGraphDrift
 
-open CollatzMapBasics
+open CC
 open scoped Classical
 
 /-! ### Abstract duality: maximum cycle mean = maximum stationary drift -/
@@ -238,4 +238,4 @@ theorem residue_drift_dictionary {𝒞 : Finset (Cycle ℕ)} (h : 𝒞.Nonempty)
   rw [← lam_neg_iff_drift_neg 𝒞 h (cycleMean residueW), lam, Finset.sup'_lt_iff]
   simp_rw [cycleMean_residue_neg_iff]
 
-end CollatzMapBasics.ResidueGraphDrift
+end CC.ResidueGraphDrift

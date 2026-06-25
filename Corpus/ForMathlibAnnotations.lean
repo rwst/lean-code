@@ -17,6 +17,9 @@ import ForMathlib.RingTheory.Polynomial.CoprimeFractionMap
 import ForMathlib.Analysis.Complex.HardySpace
 import ForMathlib.Analysis.InnerProductSpace.Hadamard
 import ForMathlib.Algebra.BigOperators.Dyadic
+import ForMathlib.Analysis.AbsoluteValue.Equivalence
+import ForMathlib.NumberTheory.RatPadicValuationNorm
+import ForMathlib.NumberTheory.RatPadicFinitePlace
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 
@@ -108,3 +111,15 @@ attribute [category research solved, AMS 11, ref "Ber92"]
 -- `ForMathlib/Analysis/Equidistribution/AddCircleWeyl.lean` — Weyl's criterion on the circle
 attribute [category research solved, AMS 11]
   tendsto_average_of_tendsto_fourier
+
+-- `ForMathlib/Analysis/AbsoluteValue/Equivalence.lean` — `≤ 1` characterisation of equivalence
+attribute [category API, AMS 11]
+  AbsoluteValue.isEquiv_iff_le_one_iff AbsoluteValue.IsEquiv.eq_of_apply_eq
+
+-- `ForMathlib/NumberTheory/RatPadicValuationNorm.lean` — padic valuation/norm share a unit ball
+attribute [category API, AMS 11] Rat.padicValuation_le_one_iff_padicNorm
+
+-- `ForMathlib/NumberTheory/RatPadicFinitePlace.lean` — finite places of `ℚ` are the `p`-adic abs values
+attribute [category API, AMS 11] Rat.HeightOneSpectrum.primeSpectrum
+attribute [category research solved, AMS 11]
+  Rat.HeightOneSpectrum.place_embedding_primeSpectrum Rat.HeightOneSpectrum.isFinitePlace_padic

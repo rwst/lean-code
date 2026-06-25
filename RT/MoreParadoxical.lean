@@ -1,6 +1,6 @@
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Approximation
-import CollatzMapBasics.RozierTerracol.CRozLemma32
+import CC.Decomposition
+import CC.Approximation
+import CC.RozierTerracol.CRozLemma32
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
@@ -14,9 +14,9 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 open Classical
 
-open CollatzMapBasics
+open CC
 
-namespace CollatzMapBasics
+namespace CC
 
 lemma isParadoxical_bound {j n : ℕ} (hn : n > 0) (h : IsParadoxical j n) :
     0 < 1 - C j n ∧ 1 - C j n ≤ E j n / n :=

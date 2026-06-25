@@ -4,7 +4,7 @@ import Mathlib.Algebra.EuclideanDomain.Int
 import Mathlib.Analysis.Normed.Ring.Lemmas
 import Mathlib.Data.Nat.Factorization.Basic
 
-namespace CollatzMapBasics
+namespace CC
 
 -- 2^k mod 3 is 1 if k is even (and k > 0), 2 if k is odd
 lemma pow_two_mod_three (k : ℕ) : 2^k % 3 = if k % 2 = 0 then 1 else 2 := by

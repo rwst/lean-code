@@ -42,9 +42,18 @@ lean_lib SRS where
 lean_lib CC where
   globs := #[.submodules `CC]
 
+lean_lib AS where
+  globs := #[.submodules `AS]
+
 lean_lib AB where
   globs := #[.submodules `AB]
 
 lean_lib BL where
   globs := #[.submodules `BL]
+
+lean_lib B3 where
+  globs := #[.submodules `B3]
+
+lean_lib L90 where
+  globs := #[.submodules `L90]
 

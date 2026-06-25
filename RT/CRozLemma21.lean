@@ -1,5 +1,5 @@
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Parity
+import CC.Decomposition
+import CC.Parity
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -11,9 +11,9 @@ import CollatzMapBasics.Parity
 -/
 
 open Classical
-open CollatzMapBasics
+open CC
 
-namespace CollatzMapBasics
+namespace CC
 
 /-- If `E k n < E k m` and the parity bits agree from position `k` to `j-1`,
     then `E j n < E j m`. -/

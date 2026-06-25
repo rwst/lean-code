@@ -1,7 +1,7 @@
 import CC.Terras
 import CC.Decomposition
 
-namespace CollatzMapBasics
+namespace CC
 
 -- Backward direction: m % 2^k = n % 2^k → E_vec k m = E_vec k n
 lemma terras_backward (k : ℕ) : ∀ m n : ℕ, m % 2 ^ k = n % 2 ^ k →

@@ -1,5 +1,5 @@
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Parity
+import CC.Decomposition
+import CC.Parity
 
 
 /-!
@@ -13,7 +13,7 @@ import CollatzMapBasics.Parity
 
 open Classical
 
-open CollatzMapBasics
+open CC
 
 /-- The lower bound sequence: `L_j(q) = (3^q - 2^q) / 2^j`. -/
 def L (j q : ℕ) : ℚ := ((3 : ℚ) ^ q - 2 ^ q) / 2 ^ j

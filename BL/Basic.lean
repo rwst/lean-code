@@ -24,13 +24,13 @@ ergodic theory of the 3x+1 map, and the topological conjugacy `(1.3)` between th
 ## The 3x+1 function (1.1)
 
 The **3x+1 function** is `T(x) = (3x+1)/2` for `x ≡ 1 (mod 2)` and `T(x) = x/2` for `x ≡ 0 (mod 2)`,
-on the integers `ℤ`. On `ℕ` this is `CollatzMapBasics.T` (from `CC.Parity`, which re-exports
+on the integers `ℤ`. On `ℕ` this is `CC.T` (from `CC.Parity`, which re-exports
 `CC.Terras`), written in the compact form `T n = (n·3^{X n} + X n) / 2` with `X n = n mod 2`. The
 parity-vector machinery of `CC.Parity` (`V`, `E_vec`, `q`, `num_odd_steps`) is used for the bridges
 below. The **3x+1 Conjecture** asserts
 that for each positive integer `n` some iterate `Tᵏ(n)` equals `1`, i.e. every orbit on the positive
 integers reaches the cycle `{1, 2}` (`T 1 = 2`, `T 2 = 1`). We do not name the conjecture; where it
-is needed it is written inline as `∀ n, 0 < n → ∃ j, T_iter j n = 1` (`CollatzMapBasics.T_iter`).
+is needed it is written inline as `∀ n, 0 < n → ∃ j, T_iter j n = 1` (`CC.T_iter`).
 
 ## The 2-adic integers `ℤ₂`: the 3x+1 map and the shift
 
@@ -39,7 +39,7 @@ numerator, halved" (`ℤ₂` is a domain, so halving an even element is unique �
 
 * the **3x+1 map** `(1.1)` extends to `T₂`, with even numerator `x·3^{parity x} + parity x`
   (`two_mul_T₂ : 2·T₂ x = numer x`); it agrees with the integer map on `ℕ ⊂ ℤ₂`
-  (`T₂_natCast : T₂ ↑n = ↑(CollatzMapBasics.T n)`).
+  (`T₂_natCast : T₂ ↑n = ↑(CC.T n)`).
 * the **2-adic shift map** `(1.2)` `S(x) = (x-1)/2` for `x ≡ 1`, `S(x) = x/2` for `x ≡ 0`, with even
   numerator `x - parity x` (`two_mul_S : 2·S x = x - parity x`). It deletes the lowest binary digit:
   `S(∑ bᵢ2ⁱ) = ∑ bᵢ₊₁2ⁱ`, equivalently `x = parity x + 2·(S x)` (`parity_add_two_mul_S`); on
@@ -114,7 +114,7 @@ the digit count is `num_odd_steps` (`num_odd_steps_eq_sum_parity`). These bridge
   finite type.* Ergodic Theory and Dynamical Systems 10 (1990), no. 3, 421–449 (the paper's
   reference [3]).
 * [Ter76] Terras, Riho. *A stopping time problem on the positive integers.* Acta Arithmetica 30
-  (1976), 241–252 (the map `T = CollatzMapBasics.T`, via `CC.Parity ⊃ CC.Terras`).
+  (1976), 241–252 (the map `T = CC.T`, via `CC.Parity ⊃ CC.Terras`).
 -/
 
 namespace BL
@@ -122,7 +122,7 @@ namespace BL
 open PadicInt MeasureTheory Filter Topology
 
 /-- The **parity** of a 2-adic integer: `0` if even, `1` if odd — the value of `x mod 2` under the
-residue map `ℤ₂ → ZMod 2`. The 2-adic analogue of `CollatzMapBasics.X` on `ℕ`. -/
+residue map `ℤ₂ → ZMod 2`. The 2-adic analogue of `CC.X` on `ℕ`. -/
 @[category API, AMS 11 37, ref "BL96"]
 noncomputable def parity (x : ℤ_[2]) : ℕ := (PadicInt.toZMod x).val
 
@@ -132,11 +132,11 @@ theorem toZMod_natCast_parity (x : ℤ_[2]) :
     PadicInt.toZMod ((parity x : ℤ_[2])) = PadicInt.toZMod x := by
   unfold parity; rw [map_natCast, ZMod.natCast_val, ZMod.cast_id]
 
-/-- On `ℕ ⊂ ℤ₂` the 2-adic parity is the Collatz parity `CollatzMapBasics.X`: `parity ↑n = X n`
+/-- On `ℕ ⊂ ℤ₂` the 2-adic parity is the Collatz parity `CC.X`: `parity ↑n = X n`
 (`= n mod 2`). Base case of the parity-vector bridge to `CC.Parity`. -/
 @[category API, AMS 11 37, ref "BL96"]
-theorem parity_natCast (n : ℕ) : parity (n : ℤ_[2]) = CollatzMapBasics.X n := by
-  unfold parity; rw [map_natCast, ZMod.val_natCast, CollatzMapBasics.X_eq_mod]
+theorem parity_natCast (n : ℕ) : parity (n : ℤ_[2]) = CC.X n := by
+  unfold parity; rw [map_natCast, ZMod.val_natCast, CC.X_eq_mod]
 
 /-- The unique **half** of an even 2-adic integer (`ℤ₂` is a domain, so `2·y = x` has at most one
 solution). Used to define both the 3x+1 map and the shift as "even numerator, halved". -/
@@ -169,7 +169,7 @@ theorem even_numer (x : ℤ_[2]) : (2 : ℤ_[2]) ∣ numer x := by
   rw [PadicInt.ker_toZMod, PadicInt.maximalIdeal_eq_span_p, Ideal.mem_span_singleton] at hk
   simpa using hk
 
-/-- The **3x+1 function on the 2-adic integers** `ℤ₂`, the extension of `(1.1)`/`CollatzMapBasics.T`
+/-- The **3x+1 function on the 2-adic integers** `ℤ₂`, the extension of `(1.1)`/`CC.T`
 to `ℤ_[2]`: `T₂ x` is the (unique) half of the even numerator `numer x`. -/
 @[category API, AMS 11 37, ref "BL96"]
 noncomputable def T₂ (x : ℤ_[2]) : ℤ_[2] := half (even_numer x)
@@ -179,17 +179,17 @@ noncomputable def T₂ (x : ℤ_[2]) : ℤ_[2] := half (even_numer x)
 @[category API, AMS 11 37, ref "BL96"]
 theorem two_mul_T₂ (x : ℤ_[2]) : 2 * T₂ x = numer x := two_mul_half (even_numer x)
 
-/-- `T₂` extends the integer map: on `ℕ ⊂ ℤ₂` it agrees with `CollatzMapBasics.T`. So `(1.1)` really
+/-- `T₂` extends the integer map: on `ℕ ⊂ ℤ₂` it agrees with `CC.T`. So `(1.1)` really
 is the restriction of `T₂` to the integers. -/
 @[category API, AMS 11 37, ref "BL96"]
-theorem T₂_natCast (n : ℕ) : T₂ (n : ℤ_[2]) = (CollatzMapBasics.T n : ℤ_[2]) := by
-  have hcancel : (2 : ℤ_[2]) * T₂ (n : ℤ_[2]) = 2 * (CollatzMapBasics.T n : ℤ_[2]) := by
+theorem T₂_natCast (n : ℕ) : T₂ (n : ℤ_[2]) = (CC.T n : ℤ_[2]) := by
+  have hcancel : (2 : ℤ_[2]) * T₂ (n : ℤ_[2]) = 2 * (CC.T n : ℤ_[2]) := by
     rw [two_mul_T₂]
     unfold numer
     rw [parity_natCast]
-    have hexp := CollatzMapBasics.T_expand n
-    have hcast : 2 * ((CollatzMapBasics.T n : ℕ) : ℤ_[2])
-        = ((3 ^ CollatzMapBasics.X n * n + CollatzMapBasics.X n : ℕ) : ℤ_[2]) := by
+    have hexp := CC.T_expand n
+    have hcast : 2 * ((CC.T n : ℕ) : ℤ_[2])
+        = ((3 ^ CC.X n * n + CC.X n : ℕ) : ℤ_[2]) := by
       rw [← hexp]; push_cast; ring
     rw [hcast]; push_cast; ring
   exact mul_left_cancel₀ (by norm_num) hcancel
@@ -244,7 +244,7 @@ digits are exactly `CC.Parity`'s finite parity vectors of the Collatz orbit. -/
 /-- Iterating `T₂` on `ℕ ⊂ ℤ₂` is iterating the integer map: `T₂ᵏ ↑n = ↑(Tᵏ n)`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem T₂_iterate_natCast (k n : ℕ) :
-    (T₂^[k]) (n : ℤ_[2]) = ((CollatzMapBasics.T_iter k n : ℕ) : ℤ_[2]) := by
+    (T₂^[k]) (n : ℤ_[2]) = ((CC.T_iter k n : ℕ) : ℤ_[2]) := by
   induction k with
   | zero => rfl
   | succ k ih => rw [Function.iterate_succ', Function.comp_apply, ih, T₂_natCast]; rfl
@@ -253,29 +253,29 @@ theorem T₂_iterate_natCast (k n : ℕ) :
 of the Collatz parity vector: `parity (T₂ᵏ ↑n) = X (Tᵏ n)`. This is `Q∞`/`Φ⁻¹` (at digit `k`) on `ℕ`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem parity_T₂_iterate_natCast (k n : ℕ) :
-    parity (T₂^[k] (n : ℤ_[2])) = CollatzMapBasics.X (CollatzMapBasics.T_iter k n) := by
+    parity (T₂^[k] (n : ℤ_[2])) = CC.X (CC.T_iter k n) := by
   rw [T₂_iterate_natCast, parity_natCast]
 
 /-- The 2-adic parity digits of the `T₂`-orbit are the `ℕ`-valued parity vector `CC.Parity.E_vec`:
 `parity (T₂ⁱ ↑n) = E_vec k n i`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem parity_T₂_iterate_eq_E_vec (k n : ℕ) (i : Fin k) :
-    parity (T₂^[i.val] (n : ℤ_[2])) = CollatzMapBasics.E_vec k n i := by
-  rw [parity_T₂_iterate_natCast, CollatzMapBasics.E_vec_apply]
+    parity (T₂^[i.val] (n : ℤ_[2])) = CC.E_vec k n i := by
+  rw [parity_T₂_iterate_natCast, CC.E_vec_apply]
 
 /-- The 2-adic parity digits are the `Bool` parity word `CC.Parity.V` (the literal `Q∞` truncation):
 its `i`-th entry is `decide (parity (T₂ⁱ ↑n) = 1)`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem getElem_V_eq_parity (j n : ℕ) (i : Fin j) :
-    (CollatzMapBasics.V j n).get ⟨i.val, by simp⟩ = decide (parity (T₂^[i.val] (n : ℤ_[2])) = 1) := by
-  rw [CollatzMapBasics.V_get, parity_T₂_iterate_natCast]
+    (CC.V j n).get ⟨i.val, by simp⟩ = decide (parity (T₂^[i.val] (n : ℤ_[2])) = 1) := by
+  rw [CC.V_get, parity_T₂_iterate_natCast]
 
 /-- The number of odd Collatz iterates is the sum of the 2-adic parity digits of the `T₂`-orbit:
 `num_odd_steps k n = ∑_{i<k} parity (T₂ⁱ ↑n)` (the weight `q` of the parity vector). -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem num_odd_steps_eq_sum_parity (k n : ℕ) :
-    CollatzMapBasics.num_odd_steps k n = ∑ i ∈ Finset.range k, parity (T₂^[i] (n : ℤ_[2])) := by
-  rw [CollatzMapBasics.num_odd_steps]
+    CC.num_odd_steps k n = ∑ i ∈ Finset.range k, parity (T₂^[i] (n : ℤ_[2])) := by
+  rw [CC.num_odd_steps]
   exact Finset.sum_congr rfl (fun i _ => (parity_T₂_iterate_natCast i n).symm)
 
 /-! ### Strong mixing and Bernoulli systems (general)

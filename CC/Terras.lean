@@ -2,7 +2,7 @@ import CC.Elementary
 import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Data.Int.Star
 
-namespace CollatzMapBasics
+namespace CC
 
 open Classical
 
@@ -129,4 +129,4 @@ noncomputable def total_stopping_time (n : ℕ) : ℕ∞ :=
   else
     ⊤
 
-end CollatzMapBasics
+end CC
