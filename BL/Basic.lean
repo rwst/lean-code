@@ -55,11 +55,14 @@ from which `T₂_measurePreserving` and `T₂_ergodic` are **derived**. *More is
 topologically conjugate to the shift `S` — there is a homeomorphism `Φ : ℤ₂ → ℤ₂` with
 `Φ ∘ S ∘ Φ⁻¹ = T` (`exists_conjugacy`). This `Φ` is the titular **3x+1 conjugacy map**; its explicit
 construction (the parity-vector map) is the subject of the later sections. In fact this `Φ` can be
-taken **measure-preserving** for the 2-adic measure, so `T` is **metrically conjugate** to `S`
-(`exists_metric_conjugacy`); and as the 2-adic shift is the one-sided Bernoulli `(½,½)` shift, `T` is
-**Bernoulli** (`T₂_bernoulli`, against the genuine product-measure model `IsBernoulli`). The conjugacy,
-the metric conjugacy, and the mixing/Bernoulli facts are recorded as cited `axiom`s (`Φ` is not
-constructed here), per the corpus literature-axiom policy.
+taken **measure-preserving** for the 2-adic measure, so `T` is **metrically conjugate** to `S` — now
+**proved** as `exists_metric_conjugacy` in `BL.MetricConjugacy` (the constructed `Φ` is a 2-adic
+isometry, and a surjective isometry of `ℤ₂` preserves the Haar measure); and as the 2-adic shift is
+the one-sided Bernoulli `(½,½)` shift (`S_bernoulli`, cited [Kin09] — the classical p-adic digit fact,
+against the genuine product-measure model `IsBernoulli`), `T` is **Bernoulli** — also **proved**, as
+`T₂_bernoulli` (`BL.MetricConjugacy`). Thus the only cited `axiom`s among the dynamics are now the
+genuinely deep / unconstructed inputs (`T₂_stronglyMixing` and `S_bernoulli`), per the corpus
+literature-axiom policy; the metric conjugacy and Bernoulli conclusions are derived.
 
 ## Rigidity of `Φ`: the shift automorphism `V`
 
@@ -95,16 +98,20 @@ the digit count is `num_odd_steps` (`num_odd_steps_eq_sum_parity`). These bridge
 * `T₂_stronglyMixing` (cited) ⇒ `T₂_measurePreserving`, `T₂_ergodic` (derived): `T₂`'s 2-adic dynamics.
 * `(1.3)` `T₂` is topologically conjugate to the shift `S` — now **proved** as `exists_conjugacy`
   in `BL.ConjugacyMap` (via the `qMap` construction), no longer a cited axiom here.
-* `exists_metric_conjugacy`, `T₂_bernoulli` — cited: the conjugacy is measure-preserving (`T`
-  metrically conjugate to `S`), and `T₂` is **Bernoulli**.
+* `S_bernoulli` — cited [Kin09]: the 2-adic shift `S` is the one-sided Bernoulli `(½,½)` shift.
+* `exists_metric_conjugacy`, `T₂_bernoulli` — now **proved** downstream in `BL.MetricConjugacy`
+  (the conjugacy `Φ` is measure-preserving, so `T` is metrically conjugate to `S` and `T₂` is Bernoulli).
 * `V`, `V_apply_zero`, `V_involutive`, `parity_V`, `V_semiconj_S`, `V_ne_id` — the shift automorphism
   `V x = -1 - x` (bit-complement): proved to be an involution flipping parity and commuting with `S`.
-* `shiftAut_eq_id_or_V`, `conjugacy_unique` — cited: `Aut(S) ≅ ℤ/2ℤ = {id, V}`, and `Φ` is unique up
-  to right-multiplication by `Aut(S)`.
+* `shiftAut_eq_id_or_V` — cited: `Aut(S) ≅ ℤ/2ℤ = {id, V}`.
+* `conjugacy_unique` — **proved** (general fact about conjugacies, Mathlib only): `Φ` is unique up to
+  right-multiplication by `Aut(S)`.
 
 ## References
 * [BL96] Bernstein, Daniel J., and Jeffrey C. Lagarias. *The 3x+1 conjugacy map.* Canadian Journal
   of Mathematics 48 (1996), no. 6, 1154–1169.
+* [Kin09] Kingsbery, James, et al. "Dynamics of the $ p $-adic shift and applications."
+  arXiv preprint arXiv:0903.4226 (2009).
 * [Lag85] Lagarias, Jeffrey C. *The 3x+1 problem and its generalizations.* American Mathematical
   Monthly 92 (1985), no. 1, 3–23 (the paper's reference [8]: `T` is measure-preserving and ergodic
   on `ℤ₂`).
@@ -370,22 +377,30 @@ theorem T₂_ergodic [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
 -- is now **PROVED** and lives in `BL.ConjugacyMap` (discharged via the `BL.ParityVectorMap` `qMap`
 -- construction), rather than a cited axiom here. The measure-preserving strengthening below stays cited.
 
-/-- **(Bernstein–Lagarias 1996; cited.)** `T` is **metrically conjugate** to the shift `S`: the
-conjugacy `Φ` of `(1.3)` can be taken **measure-preserving** for the 2-adic measure, so `(ℤ₂, μ, T₂)`
-and `(ℤ₂, μ, S)` are isomorphic measure-preserving systems. Strengthens `exists_conjugacy`; the
-Bernoulli conclusion it yields is recorded as `T₂_bernoulli`. -/
-@[category research solved, AMS 37 28, ref "BL96", group "bl_conjugacy"]
-axiom exists_metric_conjugacy [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
-    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂ ∧ MeasurePreserving (⇑Φ) μ μ
+-- **Metric conjugacy** `exists_metric_conjugacy` (the conjugacy `Φ` of `(1.3)` can be taken
+-- **measure-preserving** for the 2-adic Haar measure) is now **PROVED** and lives downstream in
+-- `BL.MetricConjugacy`, not a cited `axiom` here: `Φ` is a 2-adic isometry (`Φ_isometry`, from
+-- `corollary_A3`), and a surjective isometry of `ℤ₂` preserves any finite left-invariant measure
+-- (`ForMathlib.MeasureTheory.measurePreserving_of_surjective_isometry`). It must live below the
+-- `Φ`-construction; the Bernoulli conclusion `T₂_bernoulli` it feeds moved there with it.
 
-/-- **(Bernstein–Lagarias 1996; cited.)** **`T` is Bernoulli.** Via the measure-preserving conjugacy
-`Φ` (`exists_metric_conjugacy`) and the identification of the 2-adic shift `(S, μ)` with the
-one-sided Bernoulli `(½,½)` shift, the 3x+1 map `T₂` is a Bernoulli system. -/
-@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_conjugacy"]
-axiom T₂_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+/-- **(classical; cited.)** **The 2-adic shift `S` is the one-sided Bernoulli `(½,½)` shift.** The
+binary-digit expansion `ℤ₂ ≃ᵐ (ℕ → Bool)` carries the 2-adic (normalised Haar) measure to the i.i.d.
+uniform product measure `bernoulliSeqMeasure` and intertwines `S` with the coordinate shift
+`seqShift` (the lowest digit is dropped). This is the classical fact that the binary digits of a
+Haar-random 2-adic integer are independent fair coin flips; BL96 §1 invokes it to conclude that
+`T₂` is Bernoulli. Formalising the Haar-to-product pushforward is a separate undertaking, so the
+statement is recorded as a cited `axiom`; the conclusion `T₂_bernoulli` is then **derived** from it. -/
+@[category research solved, AMS 37 28, ref "Kin09", group "bl_conjugacy"]
+axiom S_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
     (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    IsBernoulli T₂ μ
+    IsBernoulli S μ
+
+-- **`T₂_bernoulli`** (`T₂` is a **Bernoulli** system, against the product model `IsBernoulli`) is
+-- **PROVED** downstream in `BL.MetricConjugacy` — it depends on the now-downstream
+-- `exists_metric_conjugacy`. It transports the Bernoulli structure of `S` (`S_bernoulli`, above)
+-- across the measure-preserving conjugacy `Φ` (the map `e ∘ Φ⁻¹` conjugates `(T₂, μ)` to the
+-- Bernoulli shift, using `Φ⁻¹ ∘ T₂ = S ∘ Φ⁻¹`).
 
 /-! ### The shift automorphism `V` and rigidity of `Φ`
 
@@ -442,17 +457,30 @@ theorem V_ne_id : V ≠ id := fun h => by
 /-- **(cited; [6] = [Hed69], Theorem 6.9, and [3] = [BFK90].)** The **automorphism group of the
 shift `S` is `ℤ/2ℤ`**: every homeomorphism of `ℤ₂` commuting with `S` is either the identity or the
 bit-complement `V`. Together with `V_involutive`/`V_ne_id` this exhibits `Aut(S) = {id, V} ≅ ℤ/2ℤ`. -/
-@[category research solved, AMS 37 11, ref "BL96" "Hed69" "BFK90", group "bl_conjugacy"]
+@[category research solved, AMS 37 11, ref "Hed69" "BFK90", group "bl_conjugacy"]
 axiom shiftAut_eq_id_or_V (ψ : ℤ_[2] ≃ₜ ℤ_[2]) (hψ : Function.Semiconj (⇑ψ) S S) :
     ⇑ψ = id ∨ ⇑ψ = V
 
-/-- **(cited; Bernstein–Lagarias 1996.)** **Rigidity of `Φ`.** The conjugacy map `Φ` of `(1.3)` is
-determined **up to right-multiplication by an automorphism of `S`**: any two solutions `Φ, Φ'` of
-`Φ ∘ S ∘ Φ⁻¹ = T₂` satisfy `Φ' = Φ ∘ ψ` for some `ψ ∈ Aut(S)`. With `shiftAut_eq_id_or_V`, there are
-exactly two: `Φ` and `Φ ∘ V`. -/
+/-- **Rigidity of `Φ` (PROVED).** The conjugacy map `Φ` of `(1.3)` is determined **up to
+right-multiplication by an automorphism of `S`**: any two solutions `Φ, Φ'` of `Φ ∘ S ∘ Φ⁻¹ = T₂`
+satisfy `Φ' = Φ ∘ ψ` for some `ψ ∈ Aut(S)`. Take `ψ := Φ⁻¹ ∘ Φ'` (a homeomorphism, `Φ'.trans Φ.symm`):
+then `Φ' = Φ ∘ ψ`, and `ψ` commutes with `S` because `Φ⁻¹ ∘ T₂ = S ∘ Φ⁻¹` (a rearrangement of `hΦ`),
+so `ψ ∘ S = Φ⁻¹ ∘ T₂ ∘ Φ' = S ∘ Φ⁻¹ ∘ Φ' = S ∘ ψ`. With `shiftAut_eq_id_or_V` there are then exactly
+two solutions: `Φ` and `Φ ∘ V`. (Formerly a cited `axiom`; this is a general fact about conjugacies,
+needing only Mathlib.) -/
 @[category research solved, AMS 37 11, ref "BL96", group "bl_conjugacy"]
-axiom conjugacy_unique (Φ Φ' : ℤ_[2] ≃ₜ ℤ_[2])
+theorem conjugacy_unique (Φ Φ' : ℤ_[2] ≃ₜ ℤ_[2])
     (hΦ : Function.Semiconj (⇑Φ) S T₂) (hΦ' : Function.Semiconj (⇑Φ') S T₂) :
-    ∃ ψ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑ψ) S S ∧ ⇑Φ' = ⇑Φ ∘ ⇑ψ
+    ∃ ψ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑ψ) S S ∧ ⇑Φ' = ⇑Φ ∘ ⇑ψ := by
+  refine ⟨Φ'.trans Φ.symm, ?_, ?_⟩
+  · intro x
+    show Φ.symm (Φ' (S x)) = S (Φ.symm (Φ' x))
+    rw [hΦ' x]
+    have h := hΦ (Φ.symm (Φ' x))
+    rw [Φ.apply_symm_apply] at h
+    rw [← h, Φ.symm_apply_apply]
+  · funext x
+    show Φ' x = Φ (Φ.symm (Φ' x))
+    rw [Φ.apply_symm_apply]
 
 end BL
