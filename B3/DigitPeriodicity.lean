@@ -4,7 +4,6 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import B3.AutomaticParityVectors
-import B3.RatIntBasic
 import AB.StammeringSequences
 import L90.DivergentAperiodic
 import Corpus.Util.Attributes.Basic
@@ -34,13 +33,11 @@ to the Bernstein–Lagarias binary-digit / parity-vector vocabulary.
 ## The proof of the forward direction
 
 The forward direction is the *easy* (provable, elementary) half. It rests on the **finiteness of the
-shift-orbit** of a rational `2`-adic integer:
+shift-orbit** of a rational `2`-adic integer, `BL.ratInt_S_orbit_finite` — **imported from
+`BL.ConjugacyMap`** (where it discharges `BL.periodicity_imp_no_divergent_trajectories`), together with
+its supporting `BL.S_value` / `BL.boundedRat_finite` / `BL.ratInt_odd_den`. (These were originally
+proved here and have since been moved down to BL, their natural home, so this file just reuses them.)
 
-* `S_value` — each shift iterate `Sᵏ v` has a rational value `qₖ` with **denominator dividing `q.den`**
-  (`ratInt_odd_den` + `Rat.den_dvd` + coprimality with `2`) and **archimedean size `|qₖ| ≤ max |q| 1`**
-  (`|q_{k+1}| = |qₖ − εₖ|/2`). The denominator is forced odd at each step because `Sᵏ v ∈ ℤ₂`.
-* `ratInt_S_orbit_finite` — those values lie in a set of bounded-height rationals (`boundedRat_finite`),
-  finite, so the orbit `{Sᵏ v}` is finite (the value map `ℤ₂ → ℚ₂` is injective, `PadicInt.ext`).
 * `ratInt_eventuallyPeriodic_binaryDigit` — a finite orbit forces a repeat `Sⁱ v = Sʲ v`, hence the
   digit sequence `binaryDigit v = parity ∘ (Sᵏ v)` is eventually periodic.
 * `digit_eq` — the `L90` parity sequence equals the binary-digit sequence: both `binaryDigit
@@ -142,99 +139,6 @@ theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
   rw [hvQ, hqw]
   push_cast
   ring
-
-/-! ### Shift-orbit finiteness of a rational `2`-adic integer -/
-
-/-- **Bounded-height rationals are finite.** The rationals `r` with denominator dividing a fixed `D > 0`
-and `|r| ≤ M` form a finite set: `r ↦ (r.num, r.den)` injects it into
-`Icc (-⌈M⌉·D) (⌈M⌉·D) ×ˢ Icc 1 D` (`r.den ≤ D` from divisibility, `|r.num| = |r|·r.den ≤ ⌈M⌉·D`). -/
-@[category API, AMS 11, ref "Lag90"]
-theorem boundedRat_finite (D : ℕ) (hD : 0 < D) (M : ℚ) :
-    {r : ℚ | (r.den : ℤ) ∣ (D : ℤ) ∧ |r| ≤ M}.Finite := by
-  apply Set.Finite.of_finite_image (f := fun r : ℚ => (r.num, r.den))
-  · apply Set.Finite.subset (Finset.finite_toSet
-      ((Finset.Icc (-(⌈M⌉ * D)) (⌈M⌉ * D)) ×ˢ (Finset.Icc 1 D)))
-    rintro _ ⟨r, ⟨hdvd, habs⟩, rfl⟩
-    have hdenle : r.den ≤ D := Nat.le_of_dvd hD (by exact_mod_cast hdvd)
-    have hden0 : (r.den : ℚ) ≠ 0 := by exact_mod_cast r.den_nz
-    have hnumq : (r.num : ℚ) = r * (r.den : ℚ) := (div_eq_iff hden0).mp (Rat.num_div_den r)
-    have hnumbound : |r.num| ≤ ⌈M⌉ * (D : ℤ) := by
-      have e1 : |(r.num : ℚ)| = |r| * (r.den : ℚ) := by
-        rw [hnumq, abs_mul, abs_of_nonneg (by positivity : (0:ℚ) ≤ (r.den:ℚ))]
-      have hq : |(r.num : ℚ)| ≤ (⌈M⌉ : ℚ) * (D : ℚ) := by
-        rw [e1]
-        calc |r| * (r.den : ℚ) ≤ M * (D : ℚ) :=
-              mul_le_mul habs (by exact_mod_cast hdenle) (by positivity) (le_trans (abs_nonneg _) habs)
-          _ ≤ (⌈M⌉ : ℚ) * (D : ℚ) := mul_le_mul_of_nonneg_right (Int.le_ceil M) (by positivity)
-      exact_mod_cast hq
-    simp only [Finset.coe_product, Set.mem_prod, Finset.mem_coe, Finset.mem_Icc]
-    exact ⟨⟨(abs_le.mp hnumbound).1, (abs_le.mp hnumbound).2⟩, r.den_pos, hdenle⟩
-  · intro a _ b _ hab
-    exact Rat.ext (congrArg Prod.fst hab) (congrArg Prod.snd hab)
-
-/-- **The value of each shift iterate is a bounded-height rational.** If `v` has rational value `q`, then
-for every `k`, `Sᵏ v` has a rational value `q'` with `q'.den ∣ q.den` and `|q'| ≤ max |q| 1`. *Proof* by
-induction on `k` using the value recurrence `S w = (w − parity w)/2` (cast of `two_mul_S`): the new value
-`q'' = (q' − εₖ)/2` has odd denominator (`ratInt_odd_den`, as `Sᵏ⁺¹ v ∈ ℤ₂`) dividing `2·q'.den`, hence
-(coprimality with `2`) dividing `q'.den ∣ q.den`; and `|q''| = |q' − εₖ|/2 ≤ (|q'| + 1)/2 ≤ max |q| 1`. -/
-@[category API, AMS 11 37, ref "BL96" "Lag90"]
-theorem S_value {v : ℤ_[2]} {q : ℚ} (hq : (v : ℚ_[2]) = (q : ℚ_[2])) :
-    ∀ k, ∃ q' : ℚ, (S^[k] v : ℚ_[2]) = (q' : ℚ_[2]) ∧ (q'.den : ℤ) ∣ (q.den : ℤ) ∧ |q'| ≤ max |q| 1 := by
-  intro k
-  induction k with
-  | zero => exact ⟨q, by simpa using hq, dvd_refl _, le_max_left _ _⟩
-  | succ k ih =>
-    obtain ⟨q', hval, hden, hbnd⟩ := ih
-    set b : ℕ := parity (S^[k] v) with hb
-    have hble : (b : ℚ) ≤ 1 := by
-      have hlt2 : b < 2 := by rw [hb]; unfold parity; exact ZMod.val_lt _
-      have : b ≤ 1 := by omega
-      exact_mod_cast this
-    have hb0 : (0 : ℚ) ≤ (b : ℚ) := by positivity
-    have hden0 : (q'.den : ℚ) ≠ 0 := by exact_mod_cast q'.den_nz
-    have hval' : ((S^[k+1] v : ℤ_[2]) : ℚ_[2]) = (((q' - (b:ℚ))/2 : ℚ) : ℚ_[2]) := by
-      rw [Function.iterate_succ_apply']
-      have hc : (2 : ℚ_[2]) * (S (S^[k] v) : ℚ_[2]) = (S^[k] v : ℚ_[2]) - (b : ℚ_[2]) := by
-        exact_mod_cast congrArg (fun z : ℤ_[2] => (z : ℚ_[2])) (two_mul_S (S^[k] v))
-      rw [hval] at hc; push_cast; rw [eq_div_iff (by norm_num : (2 : ℚ_[2]) ≠ 0)]; linear_combination hc
-    refine ⟨(q' - (b : ℚ)) / 2, hval', ?_, ?_⟩
-    · have hoddnew : Odd (((q' - (b:ℚ))/2).den : ℤ) := ratInt_odd_den _ hval'
-      have hnd : (q'.num : ℚ) = q' * (q'.den : ℚ) := (div_eq_iff hden0).mp (Rat.num_div_den q')
-      have hform : (q' - (b:ℚ))/2 = Rat.divInt (q'.num - b * q'.den) (2 * q'.den) := by
-        rw [Rat.divInt_eq_div]; push_cast; rw [hnd]; field_simp
-      have hdvd2 : (((q' - (b:ℚ))/2).den : ℤ) ∣ 2 * q'.den := by rw [hform]; exact Rat.den_dvd _ _
-      have hcop : IsCoprime (((q' - (b:ℚ))/2).den : ℤ) 2 := by
-        have h2 : IsCoprime (2:ℤ) (((q' - (b:ℚ))/2).den : ℤ) := by
-          rw [Int.prime_two.coprime_iff_not_dvd, Int.two_dvd_ne_zero]; exact Int.odd_iff.mp hoddnew
-        exact h2.symm
-      exact (hcop.dvd_of_dvd_mul_left hdvd2).trans hden
-    · rw [abs_div]
-      have h2 : |(2:ℚ)| = 2 := by norm_num
-      rw [h2]
-      have htri : |q' - (b:ℚ)| ≤ |q'| + 1 := by
-        calc |q' - (b:ℚ)| ≤ |q'| + |(b:ℚ)| := abs_sub _ _
-          _ ≤ |q'| + 1 := by rw [abs_of_nonneg hb0]; linarith
-      rw [div_le_iff₀ (by norm_num : (0:ℚ) < 2)]
-      linarith [htri, hbnd, le_max_right |q| 1]
-
-/-- **The shift-orbit of a rational `2`-adic integer is finite.** For `v ∈ RatInt`, the set
-`{Sᵏ v : k ∈ ℕ}` is finite: each `Sᵏ v` has value in the finite set of bounded-height rationals
-(`S_value`, `boundedRat_finite`), and the value map `ℤ₂ → ℚ₂` is injective. -/
-@[category research solved, AMS 11 37, ref "BL96" "Lag90", group "b3_missing_lemma"]
-theorem ratInt_S_orbit_finite {v : ℤ_[2]} (hv : v ∈ RatInt) :
-    (Set.range fun k => S^[k] v).Finite := by
-  obtain ⟨q, hq⟩ := hv
-  have hVfin := boundedRat_finite q.den q.den_pos (max |q| 1)
-  have hsub : (Set.range fun k => (S^[k] v : ℚ_[2]))
-      ⊆ (fun r : ℚ => (r : ℚ_[2])) '' {r : ℚ | (r.den : ℤ) ∣ (q.den : ℤ) ∧ |r| ≤ max |q| 1} := by
-    rintro _ ⟨k, rfl⟩
-    obtain ⟨q', hval, hd, hb⟩ := S_value hq k
-    exact ⟨q', ⟨hd, hb⟩, hval.symm⟩
-  have hfin2 : (Set.range fun k => (S^[k] v : ℚ_[2])).Finite := (hVfin.image _).subset hsub
-  have hcomp : (fun k => (S^[k] v : ℚ_[2]))
-      = (fun w : ℤ_[2] => (w : ℚ_[2])) ∘ (fun k => S^[k] v) := rfl
-  rw [hcomp, Set.range_comp] at hfin2
-  exact hfin2.of_finite_image (fun a _ b _ (h : (a : ℚ_[2]) = (b : ℚ_[2])) => PadicInt.ext h)
 
 /-- **Forward digit periodicity (proved).** A rational `2`-adic integer `v ∈ RatInt` has an **eventually
 periodic** binary expansion `binaryDigit v`. *Proof:* the finite shift-orbit (`ratInt_S_orbit_finite`)

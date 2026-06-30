@@ -4,7 +4,10 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import BL.ConjugacyMap
+import BL.ShiftBernoulli
 import ForMathlib.MeasureTheory.UltrametricMeasurePreserving
+import ForMathlib.Dynamics.StronglyMixing
+import ForMathlib.Dynamics.Bernoulli
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -48,11 +51,22 @@ the shift `S` (`S_bernoulli`, the cited [Kin09] p-adic digit fact) across the me
 conjugacy `Φ`. The conjugating equivalence `e ∘ Φ⁻¹` is measure-preserving and intertwines `T₂` with
 the coordinate shift `seqShift`, because `Φ⁻¹ ∘ T₂ = S ∘ Φ⁻¹`.
 
+## `T₂` is strongly mixing, measure-preserving, ergodic
+
+Being Bernoulli, `T₂` is **strongly mixing** (`T₂_stronglyMixing`): any Bernoulli shift is strongly
+mixing ([Quas09], `MeasureTheory.isStronglyMixing_infinitePi_shift`), and strong mixing transfers
+across the conjugating isomorphism (`MeasureTheory.IsStronglyMixing.of_measurableEquiv`). Measure
+preservation (`T₂_measurePreserving`) and ergodicity (`T₂_ergodic`) follow. These were cited
+axioms / their consequences in `BL.Basic` (= [Lag85]); the single remaining mixing input is the
+general cited [Quas09] fact in `ForMathlib`.
+
 ## Contents
 * `Φ_isometry` — `Φ` is a 2-adic isometry (`‖Φ x − Φ y‖ = ‖x − y‖`), from `corollary_A3`.
 * `Φ_measurePreserving` — `Φ` preserves the 2-adic Haar measure (via the general ultrametric lemma).
 * `exists_metric_conjugacy` — **(1.3) metric form, PROVED.** The conjugacy `Φ` is measure-preserving.
 * `T₂_bernoulli` — **PROVED** (moved from `BL.Basic`): `T₂` is a Bernoulli system.
+* `T₂_stronglyMixing`, `T₂_measurePreserving`, `T₂_ergodic` — **PROVED** (moved from `BL.Basic`):
+  `T₂`'s 2-adic dynamics, via Bernoulli ⇒ strongly mixing ([Quas09]).
 
 ## References
 * [BL96] Bernstein, Daniel J., and Jeffrey C. Lagarias. *The 3x+1 conjugacy map.* Canadian Journal
@@ -61,6 +75,8 @@ the coordinate shift `seqShift`, because `Φ⁻¹ ∘ T₂ = S ∘ Φ⁻¹`.
   (2009) (the 2-adic shift is the one-sided Bernoulli `(½,½)` shift).
 * [Lag85] Lagarias, Jeffrey C. *The 3x+1 problem and its generalizations.* American Mathematical
   Monthly 92 (1985), no. 1, 3–23.
+* [Quas09] Quas, Anthony. *Ergodicity and Mixing Properties.* (2009), 2918–2933 (any Bernoulli shift
+  is strongly mixing).
 -/
 
 namespace BL
@@ -108,7 +124,7 @@ theorem T₂_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
     (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
     IsBernoulli T₂ μ := by
   obtain ⟨Φ, hsc, hmp⟩ := exists_metric_conjugacy μ
-  obtain ⟨e, he_mp, he_sc⟩ := S_bernoulli μ
+  obtain ⟨α, hα, ν, hν, e, he_mp, he_sc⟩ := S_bernoulli μ
   -- `Φ⁻¹` is measure-preserving (inverse of the measure-preserving equivalence `Φ`).
   have hΦsymm_mp : MeasurePreserving (⇑Φ.symm) μ μ := by
     have hmp' : MeasurePreserving (⇑Φ.toMeasurableEquiv) μ μ := by
@@ -116,8 +132,9 @@ theorem T₂_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
     have hsymm : MeasurePreserving (⇑(Φ.toMeasurableEquiv).symm) μ μ :=
       MeasurePreserving.symm (Φ.toMeasurableEquiv) hmp'
     rwa [Homeomorph.toMeasurableEquiv_symm_coe] at hsymm
-  refine ⟨(Φ.symm.toMeasurableEquiv).trans e, ?_, ?_⟩
-  · -- `e ∘ Φ⁻¹ : μ → bernoulliSeqMeasure` is measure-preserving.
+  -- `T₂` is isomorphic to the *same* Bernoulli shift as `S`, via `e ∘ Φ⁻¹`.
+  refine ⟨α, hα, ν, hν, (Φ.symm.toMeasurableEquiv).trans e, ?_, ?_⟩
+  · -- `e ∘ Φ⁻¹ : μ → infinitePi (fun _ => ν)` is measure-preserving.
     rw [MeasurableEquiv.coe_trans, Homeomorph.toMeasurableEquiv_coe]
     exact he_mp.comp hΦsymm_mp
   · -- `e ∘ Φ⁻¹` intertwines `T₂` with `seqShift`.
@@ -129,5 +146,40 @@ theorem T₂_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
     simp only [MeasurableEquiv.coe_trans, Homeomorph.toMeasurableEquiv_coe, Function.comp_apply]
     rw [hkey]
     exact he_sc (Φ.symm x)
+
+/-! ### 2-adic dynamics of `T₂`: strong mixing, measure preservation, ergodicity
+
+Now that `T₂` is known to be **Bernoulli** (`T₂_bernoulli`), its 2-adic dynamics follow from the
+general fact that a Bernoulli shift is strongly mixing ([Quas09],
+`MeasureTheory.isStronglyMixing_infinitePi_shift`), transported across the conjugacy. These were
+formerly cited axioms / their consequences in `BL.Basic`. -/
+
+/-- **`T₂` is strongly mixing** on `ℤ₂` for the 2-adic Haar measure. `T₂` is Bernoulli
+(`T₂_bernoulli`), and every Bernoulli system is strongly mixing
+(`MeasureTheory.IsBernoulli.isStronglyMixing` — the Bernoulli shift is strongly mixing by the cited
+[Quas09] fact `isStronglyMixing_infinitePi_shift`, transported across the isomorphism). Formerly a
+cited `axiom` in `BL.Basic` (= [Lag85]); the sole mixing input is now the general [Quas09]
+Bernoulli-mixing fact. -/
+@[category research solved, AMS 37 28, ref "BL96" "Lag85" "Quas09", group "bl_2adic_dynamics"]
+theorem T₂_stronglyMixing [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    IsStronglyMixing T₂ μ :=
+  (T₂_bernoulli μ).isStronglyMixing
+
+/-- `T₂` is **measure-preserving** on `ℤ₂` for the 2-adic Haar measure — the first component of strong
+mixing (`T₂_stronglyMixing`). -/
+@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_2adic_dynamics"]
+theorem T₂_measurePreserving [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    MeasurePreserving T₂ μ μ :=
+  (T₂_stronglyMixing μ).1
+
+/-- `T₂` is **ergodic** on `ℤ₂` for the 2-adic Haar measure: it is strongly mixing
+(`T₂_stronglyMixing`), hence ergodic by `StronglyMixing.ergodic`. -/
+@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_2adic_dynamics"]
+theorem T₂_ergodic [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    Ergodic T₂ μ :=
+  (T₂_stronglyMixing μ).ergodic
 
 end BL

@@ -1,0 +1,670 @@
+import AB.StammeringSequences
+import AB.SubspaceTheoremE
+import AS.Basic
+import BL.ConjugacyMap
+import BL.ForwardFormula
+import ForMathlib.NumberTheory.RatPadicFinitePlace
+import L90.DivergentAperiodic
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.SpecificLimits.Normed
+import Mathlib.Data.List.GetD
+import Mathlib.Data.Nat.BitIndices
+import Mathlib.LinearAlgebra.Basis.VectorSpace
+import Mathlib.LinearAlgebra.Dual.Defs
+import Mathlib.NumberTheory.Height.NumberField
+import Mathlib.NumberTheory.Ostrowski
+import Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib.NumberTheory.Padics.PadicNorm
+import Mathlib.NumberTheory.Padics.PadicNumbers
+import Mathlib.NumberTheory.Padics.WithVal
+
+instance : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+
+noncomputable def binaryDigit (v : ℤ_[2]) (k : ℕ) : ℕ := parity (S^[k] v)
+
+def IsAutomatic2Adic (v : ℤ_[2]) : Prop := AS.IsAutomatic (binaryDigit v)
+
+noncomputable def parityVector (n : ℕ) : ℤ_[2] := Q (n : ℤ_[2])
+
+theorem Φ_parityVector (n : ℕ) : Φ (parityVector n) = (n : ℤ_[2])
+
+theorem ratInt_odd_den {x : ℤ_[2]} (q : ℚ) (hx : (x : ℚ_[2]) = (q : ℚ_[2])) : Odd ((q.den : ℤ))
+
+theorem digitExpansion_injective {x y : ℤ_[2]}
+    (h : ∀ k, parity (S^[k] x) = parity (S^[k] y)) : x = y
+
+theorem shiftPeriodicPoint_mem_ratInt {w : ℤ_[2]} {p : ℕ} (hp : 0 < p)
+    (hfix : S^[p] w = w) : w ∈ RatInt
+
+theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
+    ¬ AB.IsEventuallyPeriodic (binaryDigit v)
+
+theorem boundedRat_finite (D : ℕ) (hD : 0 < D) (M : ℚ) :
+    {r : ℚ | (r.den : ℤ) ∣ (D : ℤ) ∧ |r| ≤ M}.Finite
+
+theorem S_value {v : ℤ_[2]} {q : ℚ} (hq : (v : ℚ_[2]) = (q : ℚ_[2])) :
+    ∀ k, ∃ q' : ℚ, (S^[k] v : ℚ_[2]) = (q' : ℚ_[2]) ∧ (q'.den : ℤ) ∣ (q.den : ℤ) ∧ |q'| ≤ max |q| 1
+
+theorem ratInt_S_orbit_finite {v : ℤ_[2]} (hv : v ∈ RatInt) :
+    (Set.range fun k => S^[k] v).Finite
+
+theorem ratInt_eventuallyPeriodic_binaryDigit {v : ℤ_[2]} (hv : v ∈ RatInt) :
+    AB.IsEventuallyPeriodic (binaryDigit v)
+
+theorem parityBridge (m : ℕ) : parity (m : ℤ_[2]) = L90.parity (m : ℚ)
+
+theorem digit_eq (n j : ℕ) :
+    binaryDigit (parityVector n) j = L90.parity (L90.T^[j] (n : ℚ))
+
+theorem ratInt_imp_eventuallyPeriodicParity (n : ℕ) (h : parityVector n ∈ RatInt) :
+    L90.EventuallyPeriodicParity (n : ℚ)
+
+theorem binaryDigit_isStammering (v : ℤ_[2]) (hauto : IsAutomatic2Adic v) (hirr : v ∉ RatInt) :
+    AB.IsStammering (binaryDigit v)
+
+theorem isUnit_one_sub_of_norm_lt_one {R : ℤ_[2]} (hR : ‖R‖ < 1) : IsUnit (1 - R)
+
+theorem Φ_isometry (x y : ℤ_[2]) : ‖Φ x - Φ y‖ = ‖x - y‖
+
+theorem norm_sub_le_of_toZModPow_eq {x y : ℤ_[2]} {N : ℕ}
+    (h : PadicInt.toZModPow N x = PadicInt.toZModPow N y) : ‖x - y‖ ≤ (2 : ℝ) ^ (-(N : ℤ))
+
+theorem approximant_distance_eq {v α : ℤ_[2]} {n : ℕ} (hv : Φ v = (n : ℤ_[2])) :
+    ‖(n : ℤ_[2]) - Φ α‖ = ‖v - α‖
+
+theorem approximant_distance_bound {v α : ℤ_[2]} {n N : ℕ} (hv : Φ v = (n : ℤ_[2]))
+    (hagree : PadicInt.toZModPow N v = PadicInt.toZModPow N α) :
+    ‖(n : ℤ_[2]) - Φ α‖ ≤ (2 : ℝ) ^ (-(N : ℤ))
+
+def blockPos (c p : ℕ) (e : ℕ → ℕ) (i : ℕ) : ℕ := (i / c) * p + e (i % c)
+
+theorem blockPos_eq_of_lt {c p : ℕ} {e : ℕ → ℕ} {i : ℕ} (hi : i < c) :
+    blockPos c p e i = e i
+
+theorem blockPos_add_period {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) (i : ℕ) :
+    blockPos c p e (i + c) = blockPos c p e i + p
+
+theorem blockPos_strictMono {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    StrictMono (blockPos c p e)
+
+noncomputable def blockPoly (c : ℕ) (e : ℕ → ℕ) : ℤ_[2] :=
+  ∑ r ∈ Finset.range c, Ring.inverse 3 ^ r * 2 ^ e r
+
+noncomputable def blockVal (c p : ℕ) (e : ℕ → ℕ) : ℤ_[2] :=
+  if 0 < c then ∑' i, (2 : ℤ_[2]) ^ blockPos c p e i else 0
+
+theorem blockVal_of_pos {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) :
+    blockVal c p e = ∑' i, (2 : ℤ_[2]) ^ blockPos c p e i
+
+theorem blockVal_zero {p : ℕ} {e : ℕ → ℕ} : blockVal 0 p e = 0
+
+theorem Φ_blockValue {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    Φ (blockVal c p e) =
+      -(Ring.inverse 3 * blockPoly c e * Ring.inverse (1 - Ring.inverse 3 ^ c * 2 ^ p))
+
+theorem Φ_blockValue_linear_relation {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    ((3 : ℤ_[2]) ^ c - 2 ^ p) * Φ (blockVal c p e)
+      = - ∑ r ∈ Finset.range c, (3 : ℤ_[2]) ^ (c - 1 - r) * 2 ^ e r
+
+theorem Φ_blockValue_mem_ratInt {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    Φ (blockVal c p e) ∈ RatInt
+
+theorem binaryDigit_zero (x : ℤ_[2]) : binaryDigit x 0 = parity x
+
+theorem binaryDigit_succ (x : ℤ_[2]) (k : ℕ) : binaryDigit x (k + 1) = binaryDigit (S x) k
+
+theorem dvd_two_pow_sub_of_binaryDigit_agree : ∀ (N : ℕ) (x y : ℤ_[2]),
+    (∀ k, k < N → binaryDigit x k = binaryDigit y k) → (2 : ℤ_[2]) ^ N ∣ x - y
+  | 0, x, y, _ => by simp
+  | N + 1, x, y, h => by
+    have hpar : (parity x : ℤ_[2]) = (parity y : ℤ_[2])
+
+theorem toZModPow_eq_of_binaryDigit_agree (x y : ℤ_[2]) (N : ℕ)
+    (h : ∀ k, k < N → binaryDigit x k = binaryDigit y k) :
+    PadicInt.toZModPow N x = PadicInt.toZModPow N y
+
+theorem tendsto_two_pow_neg (N : ℕ → ℕ) (hN : Tendsto N atTop atTop) :
+    Tendsto (fun m => (2 : ℝ) ^ (-(N m : ℤ))) atTop (nhds 0)
+
+theorem tooWellApproximated_of_agreement {v : ℤ_[2]} {n : ℕ} (hv : Φ v = (n : ℤ_[2]))
+    {α : ℕ → ℤ_[2]} {N : ℕ → ℕ} (hN : Tendsto N atTop atTop)
+    (hrat : ∀ m, Φ (α m) ∈ RatInt)
+    (hagree : ∀ m, ∀ k, k < N m → binaryDigit v k = binaryDigit (α m) k) :
+    (∀ m, Φ (α m) ∈ RatInt) ∧
+    (∀ m, ‖(n : ℤ_[2]) - Φ (α m)‖ ≤ (2 : ℝ) ^ (-(N m : ℤ))) ∧
+    Tendsto (fun m => ‖(n : ℤ_[2]) - Φ (α m)‖) atTop (nhds 0)
+
+theorem blockVal_tooWellApproximated {v : ℤ_[2]} {n : ℕ} (hv : Φ v = (n : ℤ_[2]))
+    {cc pp : ℕ → ℕ} {ee : ℕ → ℕ → ℕ} {N : ℕ → ℕ} (hN : Tendsto N atTop atTop)
+    (hp : ∀ m, 0 < pp m)
+    (he_lt : ∀ m r, r < cc m → ee m r < pp m)
+    (he_mono : ∀ m r r', r < r' → r' < cc m → ee m r < ee m r')
+    (hagree : ∀ m, ∀ k, k < N m →
+      binaryDigit v k = binaryDigit (blockVal (cc m) (pp m) (ee m)) k) :
+    (∀ m, Φ (blockVal (cc m) (pp m) (ee m)) ∈ RatInt) ∧
+    (∀ m, ‖(n : ℤ_[2]) - Φ (blockVal (cc m) (pp m) (ee m))‖ ≤ (2 : ℝ) ^ (-(N m : ℤ))) ∧
+    Tendsto (fun m => ‖(n : ℤ_[2]) - Φ (blockVal (cc m) (pp m) (ee m))‖) atTop (nhds 0)
+
+theorem S_natCast_add_two_mul (b : ℕ) (hb : b < 2) (y : ℤ_[2]) :
+    S ((b : ℤ_[2]) + 2 * y) = y
+
+theorem S_iterate_natCast_add : ∀ (p n : ℕ) (x : ℤ_[2]), n < 2 ^ p →
+    S^[p] ((n : ℤ_[2]) + 2 ^ p * x) = x
+  | 0, n, x, hn => by
+    simp only [pow_zero] at hn ⊢
+    obtain rfl : n = 0
+
+def blockFirst (c : ℕ) (e : ℕ → ℕ) : ℕ := ∑ r ∈ Finset.range c, 2 ^ e r
+
+theorem sum_two_pow_range_lt : ∀ p : ℕ, ∑ j ∈ Finset.range p, 2 ^ j < 2 ^ p
+  | 0 => by simp
+  | p + 1 => by
+    rw [Finset.sum_range_succ]
+    have ih
+
+theorem blockFirst_lt_two_pow {c p : ℕ} {e : ℕ → ℕ}
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    blockFirst c e < 2 ^ p
+
+theorem summable_two_pow_blockPos {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    Summable (fun i => (2 : ℤ_[2]) ^ blockPos c p e i)
+
+theorem blockVal_self_similar {c p : ℕ} {e : ℕ → ℕ} (_hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    blockVal c p e = (blockFirst c e : ℤ_[2]) + 2 ^ p * blockVal c p e
+
+theorem S_iterate_blockVal {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    S^[p] (blockVal c p e) = blockVal c p e
+
+theorem binaryDigit_blockVal_add_period {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (k : ℕ) :
+    binaryDigit (blockVal c p e) (k + p) = binaryDigit (blockVal c p e) k
+
+theorem binaryDigit_agree_of_dvd_two_pow : ∀ (N : ℕ) (x y : ℤ_[2]),
+    (2 : ℤ_[2]) ^ N ∣ x - y → ∀ k, k < N → binaryDigit x k = binaryDigit y k
+  | 0, _, _, _ => fun k hk => absurd hk (Nat.not_lt_zero k)
+  | N + 1, x, y, hdvd => by
+    have h2 : (2 : ℤ_[2]) ∣ x - y
+
+theorem binaryDigit_blockVal_lt {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') {k : ℕ}
+    (hk : k < p) :
+    binaryDigit (blockVal c p e) k = binaryDigit ((blockFirst c e : ℕ) : ℤ_[2]) k
+
+theorem binaryDigit_blockVal_add_mul_period {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (k j : ℕ) :
+    binaryDigit (blockVal c p e) (k + p * j) = binaryDigit (blockVal c p e) k
+
+theorem binaryDigit_blockVal_eq_first {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (k : ℕ) :
+    binaryDigit (blockVal c p e) k = binaryDigit ((blockFirst c e : ℕ) : ℤ_[2]) (k % p)
+
+theorem toZMod_two : PadicInt.toZMod (2 : ℤ_[2]) = 0
+
+theorem Φ_two_mul (x : ℤ_[2]) : Φ (2 * x) = 2 * Φ x
+
+theorem Φ_one_add_two_mul (x : ℤ_[2]) :
+    Φ (1 + 2 * x) = (2 * Φ x - 1) * Ring.inverse 3
+
+theorem ratInt_add {y z : ℤ_[2]} (hy : y ∈ RatInt) (hz : z ∈ RatInt) : y + z ∈ RatInt
+
+theorem ratInt_sub {y z : ℤ_[2]} (hy : y ∈ RatInt) (hz : z ∈ RatInt) : y - z ∈ RatInt
+
+theorem ratInt_mul {y z : ℤ_[2]} (hy : y ∈ RatInt) (hz : z ∈ RatInt) : y * z ∈ RatInt
+
+theorem ratInt_one : (1 : ℤ_[2]) ∈ RatInt
+
+theorem ratInt_two : (2 : ℤ_[2]) ∈ RatInt
+
+theorem coe_inverse_three : ((Ring.inverse (3 : ℤ_[2]) : ℤ_[2]) : ℚ_[2]) = (3 : ℚ_[2])⁻¹
+
+theorem ratInt_inverse_three : Ring.inverse (3 : ℤ_[2]) ∈ RatInt
+
+theorem ratInt_two_mul {y : ℤ_[2]} (hy : y ∈ RatInt) : 2 * y ∈ RatInt
+
+theorem ratInt_step_one {y : ℤ_[2]} (hy : y ∈ RatInt) :
+    (2 * y - 1) * Ring.inverse 3 ∈ RatInt
+
+theorem ratInt_ring_inverse {x : ℤ_[2]} (hx : x ∈ RatInt) (hu : IsUnit x) :
+    Ring.inverse x ∈ RatInt
+
+theorem blockVal_mem_ratInt {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') :
+    blockVal c p e ∈ RatInt
+
+noncomputable def prefixBlockVal (A t c p : ℕ) (e : ℕ → ℕ) : ℤ_[2] :=
+  (A : ℤ_[2]) + 2 ^ t * blockVal c p e
+
+theorem Φ_prefixBlockVal_mem_ratInt {c p : ℕ} {e : ℕ → ℕ} (hp : 0 < p)
+    (he_lt : ∀ r, r < c → e r < p) (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (t : ℕ) :
+    ∀ A : ℕ, A < 2 ^ t → Φ (prefixBlockVal A t c p e) ∈ RatInt
+
+theorem S_iterate_prefixBlockVal {A t c p : ℕ} {e : ℕ → ℕ} (hA : A < 2 ^ t) :
+    S^[t] (prefixBlockVal A t c p e) = blockVal c p e
+
+theorem binaryDigit_prefixBlockVal_ge {A t c p : ℕ} {e : ℕ → ℕ} (hA : A < 2 ^ t) {k : ℕ}
+    (hk : t ≤ k) :
+    binaryDigit (prefixBlockVal A t c p e) k = binaryDigit (blockVal c p e) (k - t)
+
+theorem binaryDigit_prefixBlockVal_lt {A t c p : ℕ} {e : ℕ → ℕ} {k : ℕ} (hk : k < t) :
+    binaryDigit (prefixBlockVal A t c p e) k = binaryDigit ((A : ℕ) : ℤ_[2]) k
+
+theorem binaryDigit_prefixBlockVal_lt_eq_of_dvd {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}
+    (hAv : (2 : ℤ_[2]) ^ t ∣ v - (A : ℤ_[2])) {k : ℕ} (hk : k < t) :
+    binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k
+
+theorem binaryDigit_prefixBlockVal_eq_of_periodic {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}
+    (hp : 0 < p) (he_lt : ∀ r, r < c → e r < p)
+    (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (hA : A < 2 ^ t) {N : ℕ}
+    (hprefix : ∀ k, k < t + p → binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k)
+    (hper : ∀ i, t + p ≤ i → i < N → binaryDigit v i = binaryDigit v (i - p)) :
+    ∀ k, k < N → binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k
+
+theorem binaryDigit_S_iterate (v : ℤ_[2]) (t j : ℕ) :
+    binaryDigit (S^[t] v) j = binaryDigit v (t + j)
+
+theorem binaryDigit_prefixBlockVal_block_eq_of_dvd {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}
+    (hp : 0 < p) (he_lt : ∀ r, r < c → e r < p)
+    (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (hA : A < 2 ^ t)
+    (hBv : (2 : ℤ_[2]) ^ p ∣ S^[t] v - ((blockFirst c e : ℕ) : ℤ_[2])) {k : ℕ}
+    (hk1 : t ≤ k) (hk2 : k < t + p) :
+    binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k
+
+theorem prefixAgreement_of_dvd {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}
+    (hp : 0 < p) (he_lt : ∀ r, r < c → e r < p)
+    (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (hA : A < 2 ^ t)
+    (hAv : (2 : ℤ_[2]) ^ t ∣ v - ((A : ℕ) : ℤ_[2]))
+    (hBv : (2 : ℤ_[2]) ^ p ∣ S^[t] v - ((blockFirst c e : ℕ) : ℤ_[2])) :
+    ∀ k, k < t + p → binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k
+
+theorem binaryDigit_window_agreement {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}
+    (hp : 0 < p) (he_lt : ∀ r, r < c → e r < p)
+    (he_mono : ∀ r r', r < r' → r' < c → e r < e r') (hA : A < 2 ^ t)
+    (hAv : (2 : ℤ_[2]) ^ t ∣ v - ((A : ℕ) : ℤ_[2]))
+    (hBv : (2 : ℤ_[2]) ^ p ∣ S^[t] v - ((blockFirst c e : ℕ) : ℤ_[2])) {N : ℕ}
+    (hper : ∀ i, t + p ≤ i → i < N → binaryDigit v i = binaryDigit v (i - p)) :
+    ∀ k, k < N → binaryDigit v k = binaryDigit (prefixBlockVal A t c p e) k
+
+theorem sum_range_length_getD (L : List ℕ) (f : ℕ → ℕ) :
+    ∑ r ∈ Finset.range L.length, f (L.getD r 0) = (L.map f).sum
+
+def blockCard (B : ℕ) : ℕ := B.bitIndices.length
+
+def blockOffset (B : ℕ) (r : ℕ) : ℕ := B.bitIndices.getD r 0
+
+theorem blockFirst_blockOffset (B : ℕ) : blockFirst (blockCard B) (blockOffset B) = B
+
+theorem blockOffset_strictMono (B : ℕ) :
+    ∀ r r', r < r' → r' < blockCard B → blockOffset B r < blockOffset B r'
+
+theorem blockOffset_lt {B p : ℕ} (hB : B < 2 ^ p) :
+    ∀ r, r < blockCard B → blockOffset B r < p
+
+theorem dvd_sub_appr (x : ℤ_[2]) (t : ℕ) : (2 : ℤ_[2]) ^ t ∣ x - ((appr x t : ℕ) : ℤ_[2])
+
+noncomputable def truncApprox (v : ℤ_[2]) (t p : ℕ) : ℤ_[2] :=
+  prefixBlockVal (appr v t) t (blockCard (appr (S^[t] v) p)) p (blockOffset (appr (S^[t] v) p))
+
+theorem Φ_truncApprox_mem_ratInt (v : ℤ_[2]) (t p : ℕ) (hp : 0 < p) :
+    Φ (truncApprox v t p) ∈ RatInt
+
+theorem truncApprox_mem_ratInt (v : ℤ_[2]) (t p : ℕ) (hp : 0 < p) : truncApprox v t p ∈ RatInt
+
+theorem binaryDigit_truncApprox_agreement (v : ℤ_[2]) (t p : ℕ) (hp : 0 < p) {N : ℕ}
+    (hper : ∀ i, t + p ≤ i → i < N → binaryDigit v i = binaryDigit v (i - p)) :
+    ∀ k, k < N → binaryDigit v k = binaryDigit (truncApprox v t p) k
+
+theorem conditionStar_tooWellApproximated {v : ℤ_[2]} {n : ℕ} (hv : Φ v = (n : ℤ_[2]))
+    {w : ℝ} (hw : 1 < w) (hCS : ConditionStar w (binaryDigit v)) :
+    ∃ (α : ℕ → ℤ_[2]) (N : ℕ → ℕ), Tendsto N atTop atTop ∧
+      (∀ m, Φ (α m) ∈ RatInt) ∧
+      (∀ m, ‖(n : ℤ_[2]) - Φ (α m)‖ ≤ (2 : ℝ) ^ (-(N m : ℤ))) ∧
+      Tendsto (fun m => ‖(n : ℤ_[2]) - Φ (α m)‖) atTop (nhds 0) ∧
+      (∀ m, α m ∈ RatInt)
+
+def subspaceDen (c p : ℕ) : ℤ := 3 ^ c - 2 ^ p
+
+theorem subspaceDen_odd (c p : ℕ) (hp : 0 < p) : Odd (subspaceDen c p)
+
+noncomputable def subForms (a : ℤ) : Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) :=
+  ![LinearMap.proj 0, LinearMap.proj 1,
+    (a : ℚ) • LinearMap.proj 0 + (a : ℚ) • LinearMap.proj 1 + LinearMap.proj 2]
+
+theorem subForms_linearIndependent (a : ℤ) : LinearIndependent ℚ (subForms a)
+
+theorem rate_le_den_rpow_gen (τ : ℝ) (hτ : 0 ≤ τ) (c N : ℕ) {D : ℝ} (hD : 0 < D)
+    (hDle : D ≤ (3 : ℝ) ^ c) (ε : ℝ) (hε : 0 < ε)
+    (hidx : (τ + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2) :
+    (2 : ℝ) ^ (-(N : ℝ)) ≤ D ^ (-τ - ε)
+
+theorem rate_le_den_rpow (c N : ℕ) {D : ℝ} (hD : 0 < D) (hDle : D ≤ (3 : ℝ) ^ c)
+    (ε : ℝ) (hε : 0 < ε)
+    (hidx : (3 + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2) :
+    (2 : ℝ) ^ (-(N : ℝ)) ≤ D ^ (-(3 : ℝ) - ε)
+
+theorem rate_le_height_rpow (c N : ℕ) (ε : ℝ) (hε : 0 < ε)
+    (hidx : (3 + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2) :
+    (2 : ℝ) ^ (-(N : ℝ)) ≤ ((3 : ℝ) ^ c) ^ (-(3 : ℝ) - ε)
+
+theorem subspaceDen_le_pow (c p : ℕ) : ((subspaceDen c p : ℤ) : ℝ) ≤ (3 : ℝ) ^ c
+
+theorem rate_le_subspaceDen_rpow (c p N : ℕ) (hDpos : 0 < subspaceDen c p)
+    (ε : ℝ) (hε : 0 < ε)
+    (hidx : (3 + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2) :
+    (2 : ℝ) ^ (-(N : ℝ)) ≤ ((subspaceDen c p : ℤ) : ℝ) ^ (-(3 : ℝ) - ε)
+
+def IndexConditionExp (τ : ℝ) (c N : ℕ → ℕ) (ε : ℝ) : Prop :=
+  ∀ m, (τ + ε) * (c m : ℝ) * Real.log 3 ≤ (N m : ℝ) * Real.log 2
+
+def IndexCondition (c N : ℕ → ℕ) (ε : ℝ) : Prop :=
+  IndexConditionExp 3 c N ε
+
+def IndexConditionExpFreq (τ : ℝ) (c N : ℕ → ℕ) (ε : ℝ) : Prop :=
+  ∃ᶠ m in Filter.atTop, (τ + ε) * (c m : ℝ) * Real.log 3 ≤ (N m : ℝ) * Real.log 2
+
+theorem family_rate_le_height (c N : ℕ → ℕ) (ε : ℝ) (hε : 0 < ε)
+    (hidx : IndexCondition c N ε) (m : ℕ) :
+    (2 : ℝ) ^ (-(N m : ℝ)) ≤ ((3 : ℝ) ^ (c m)) ^ (-(3 : ℝ) - ε)
+
+theorem index_of_large_w_gen (τ : ℝ) (hτ : 0 ≤ τ) (c s N : ℕ) (w ε : ℝ) (hε : 0 < ε)
+    (hcs : c ≤ s) (hsN : w * (s : ℝ) - 1 ≤ (N : ℝ))
+    (hw : (τ + ε) * Real.log 3 ≤ (w - 1) * Real.log 2) :
+    (τ + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2
+
+theorem index_of_large_w (c s N : ℕ) (w ε : ℝ) (hε : 0 < ε)
+    (hcs : c ≤ s) (hsN : w * (s : ℝ) - 1 ≤ (N : ℝ))
+    (hw : (3 + ε) * Real.log 3 ≤ (w - 1) * Real.log 2) :
+    (3 + ε) * (c : ℝ) * Real.log 3 ≤ (N : ℝ) * Real.log 2
+
+theorem rate_le_height_of_large_w (c s N : ℕ) (w ε : ℝ) (hε : 0 < ε)
+    (hcs : c ≤ s) (hsN : w * (s : ℝ) - 1 ≤ (N : ℝ))
+    (hw : (3 + ε) * Real.log 3 ≤ (w - 1) * Real.log 2) :
+    (2 : ℝ) ^ (-(N : ℝ)) ≤ ((3 : ℝ) ^ c) ^ (-(3 : ℝ) - ε)
+
+noncomputable def placeForms (n : ℤ) : Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) :=
+  ![LinearMap.proj 0, LinearMap.proj 1, (n : ℚ) • LinearMap.proj 0 + LinearMap.proj 2]
+
+def placePoint (D P : ℚ) : Fin 3 → ℚ := ![D, -1, P]
+
+theorem placeForms_linearIndependent (n : ℤ) : LinearIndependent ℚ (placeForms n)
+
+theorem placeFactor_eq (v : AbsoluteValue ℚ ℝ) (n : ℤ) (D P : ℚ) (hD : v D = 1) (hPle : v P ≤ 1) :
+    (∏ i : Fin 3, v (placeForms n i (placePoint D P)) / (⨆ j, v (placePoint D P j)))
+      = v ((n : ℚ) * D + P)
+
+theorem placeFactor_eq_sub (v : AbsoluteValue ℚ ℝ) (n : ℤ) (D P q : ℚ)
+    (hq : D * q = -P) (hD : v D = 1) (hPle : v P ≤ 1) :
+    (∏ i : Fin 3, v (placeForms n i (placePoint D P)) / (⨆ j, v (placePoint D P j)))
+      = v ((n : ℚ) - q)
+
+theorem padicTwo_intCast_le_one (z : ℤ) : Rat.AbsoluteValue.padic 2 ((z : ℤ) : ℚ) ≤ 1
+
+theorem padicTwo_odd_eq_one (m : ℤ) (hodd : Odd m) : Rat.AbsoluteValue.padic 2 ((m : ℤ) : ℚ) = 1
+
+theorem padicTwo_subspaceDen_eq_one (c p : ℕ) (hp : 0 < p) :
+    Rat.AbsoluteValue.padic 2 ((subspaceDen c p : ℤ) : ℚ) = 1
+
+theorem placeFactor_subspaceDen_eq_sub (n : ℤ) (c p : ℕ) (hp : 0 < p) (P : ℤ) (q : ℚ)
+    (hq : ((subspaceDen c p : ℤ) : ℚ) * q = -(P : ℚ)) :
+    (∏ i : Fin 3, Rat.AbsoluteValue.padic 2
+        (placeForms n i (placePoint ((subspaceDen c p : ℤ) : ℚ) (P : ℚ))) /
+        (⨆ j, Rat.AbsoluteValue.padic 2 (placePoint ((subspaceDen c p : ℤ) : ℚ) (P : ℚ) j)))
+      = Rat.AbsoluteValue.padic 2 ((n : ℚ) - q)
+
+theorem padicTwo_eq_norm (r : ℚ) : Rat.AbsoluteValue.padic 2 r = ‖(r : ℚ_[2])‖
+
+theorem padicTwo_sub_ratInt_le (n : ℤ) {x : ℤ_[2]} (q : ℚ) (hq : (x : ℚ_[2]) = (q : ℚ_[2]))
+    (r : ℝ) (hbound : ‖((n : ℤ_[2]) - x)‖ ≤ r) :
+    Rat.AbsoluteValue.padic 2 ((n : ℚ) - q) ≤ r
+
+theorem placeFactor_le_of_ratInt (n : ℤ) (D P q : ℚ) {x : ℤ_[2]} (hDq : D * q = -P)
+    (hD : Rat.AbsoluteValue.padic 2 D = 1) (hPle : Rat.AbsoluteValue.padic 2 P ≤ 1)
+    (hx : (x : ℚ_[2]) = (q : ℚ_[2])) (r : ℝ) (hbound : ‖((n : ℤ_[2]) - x)‖ ≤ r) :
+    (∏ i : Fin 3, Rat.AbsoluteValue.padic 2 (placeForms n i (placePoint D P)) /
+        (⨆ j, Rat.AbsoluteValue.padic 2 (placePoint D P j))) ≤ r
+
+theorem placeFactor_subspaceDen_le (n : ℤ) (c p : ℕ) (hp : 0 < p) (P : ℤ) (q : ℚ) {x : ℤ_[2]}
+    (hDq : ((subspaceDen c p : ℤ) : ℚ) * q = -(P : ℚ)) (hx : (x : ℚ_[2]) = (q : ℚ_[2]))
+    (r : ℝ) (hbound : ‖((n : ℤ_[2]) - x)‖ ≤ r) :
+    (∏ i : Fin 3, Rat.AbsoluteValue.padic 2
+        (placeForms n i (placePoint ((subspaceDen c p : ℤ) : ℚ) (P : ℚ))) /
+        (⨆ j, Rat.AbsoluteValue.padic 2 (placePoint ((subspaceDen c p : ℤ) : ℚ) (P : ℚ) j))) ≤ r
+
+theorem hover_place_two_of_ratInt (n : ℤ) {x : ℤ_[2]} (hx : x ∈ RatInt)
+    (r : ℝ) (hbound : ‖((n : ℤ_[2]) - x)‖ ≤ r) :
+    ∃ D P : ℤ, Odd D ∧
+      (∏ i : Fin 3, Rat.AbsoluteValue.padic 2 (placeForms n i (placePoint (D : ℚ) (P : ℚ))) /
+        (⨆ j, Rat.AbsoluteValue.padic 2 (placePoint (D : ℚ) (P : ℚ) j))) ≤ r
+
+theorem conditionStar_place_two_hover {v : ℤ_[2]} {n : ℕ} (hv : Φ v = (n : ℤ_[2]))
+    {w : ℝ} (hw : 1 < w) (hCS : ConditionStar w (binaryDigit v)) :
+    ∃ (D P : ℕ → ℤ) (N : ℕ → ℕ), Tendsto N atTop atTop ∧ (∀ m, Odd (D m)) ∧
+      ∀ m, (∏ i : Fin 3, Rat.AbsoluteValue.padic 2
+          (placeForms (n : ℤ) i (placePoint (D m : ℚ) (P m : ℚ))) /
+          (⨆ j, Rat.AbsoluteValue.padic 2 (placePoint (D m : ℚ) (P m : ℚ) j)))
+        ≤ (2 : ℝ) ^ (-(N m : ℤ))
+
+noncomputable def coordForms : Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) := fun i => LinearMap.proj i
+
+theorem coordForms_linearIndependent : LinearIndependent ℚ coordForms
+
+theorem infFactor_le_one (v : AbsoluteValue ℚ ℝ) (x : Fin 3 → ℚ) :
+    (∏ i, v (coordForms i x) / (⨆ j, v (x j))) ≤ 1
+
+theorem twoPlace_product_le (vinf v2 : AbsoluteValue ℚ ℝ) (hne : vinf ≠ v2)
+    (L : AbsoluteValue ℚ ℝ → Fin 3 → Module.Dual ℚ (Fin 3 → ℚ)) (hLinf : L vinf = coordForms)
+    (x : Fin 3 → ℚ) (r : ℝ)
+    (h2 : (∏ i, v2 (L v2 i x) / (⨆ j, v2 (x j))) ≤ r) :
+    (∏ v ∈ {vinf, v2}, ∏ i, v (L v i x) / (⨆ j, v (x j))) ≤ r
+
+noncomputable def phiForms (n : ℤ) : AbsoluteValue ℚ ℝ → Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) :=
+  fun v => if v = Rat.AbsoluteValue.padic 2 then placeForms n else coordForms
+
+theorem phi_twoPlace_product_le (vinf : AbsoluteValue ℚ ℝ)
+    (hne : vinf ≠ Rat.AbsoluteValue.padic 2) (n : ℤ) (x : Fin 3 → ℚ) (r : ℝ)
+    (h2 : (∏ i, Rat.AbsoluteValue.padic 2 (placeForms n i x) /
+      (⨆ j, Rat.AbsoluteValue.padic 2 (x j))) ≤ r) :
+    (∏ v ∈ {vinf, Rat.AbsoluteValue.padic 2},
+        ∏ i, v (phiForms n v i x) / (⨆ j, v (x j))) ≤ r
+
+theorem infFactor_le_invSup (v : AbsoluteValue ℚ ℝ) (x : Fin 3 → ℚ) (hx1 : x 1 = -1) :
+    (∏ i, v (coordForms i x) / (⨆ j, v (x j))) ≤ (⨆ j, v (x j))⁻¹
+
+theorem twoPlace_product_le_invSup (vinf v2 : AbsoluteValue ℚ ℝ) (hne : vinf ≠ v2)
+    (L : AbsoluteValue ℚ ℝ → Fin 3 → Module.Dual ℚ (Fin 3 → ℚ)) (hLinf : L vinf = coordForms)
+    (x : Fin 3 → ℚ) (hx1 : x 1 = -1) (r : ℝ)
+    (h2 : (∏ i, v2 (L v2 i x) / (⨆ j, v2 (x j))) ≤ r) :
+    (∏ v ∈ {vinf, v2}, ∏ i, v (L v i x) / (⨆ j, v (x j))) ≤ (⨆ j, vinf (x j))⁻¹ * r
+
+theorem phi_twoPlace_product_le_invSup (vinf : AbsoluteValue ℚ ℝ)
+    (hne : vinf ≠ Rat.AbsoluteValue.padic 2) (n : ℤ) (x : Fin 3 → ℚ) (hx1 : x 1 = -1) (r : ℝ)
+    (h2 : (∏ i, Rat.AbsoluteValue.padic 2 (placeForms n i x) /
+      (⨆ j, Rat.AbsoluteValue.padic 2 (x j))) ≤ r) :
+    (∏ v ∈ {vinf, Rat.AbsoluteValue.padic 2},
+        ∏ i, v (phiForms n v i x) / (⨆ j, v (x j))) ≤ (⨆ j, vinf (x j))⁻¹ * r
+
+theorem conditionStar_hover (vinf : AbsoluteValue ℚ ℝ) (hne : vinf ≠ Rat.AbsoluteValue.padic 2)
+    {v : ℤ_[2]} {n : ℕ} (hv : BL.Φ v = (n : ℤ_[2])) {w : ℝ} (hw : 1 < w)
+    (hCS : AB.ConditionStar w (binaryDigit v)) :
+    ∃ (D P : ℕ → ℤ) (N : ℕ → ℕ), Tendsto N atTop atTop ∧ (∀ m, Odd (D m)) ∧
+      ∀ m, (∏ v' ∈ {vinf, Rat.AbsoluteValue.padic 2},
+          ∏ i, v' (phiForms (n : ℤ) v' i (placePoint (D m : ℚ) (P m : ℚ))) /
+            (⨆ j, v' (placePoint (D m : ℚ) (P m : ℚ) j))) ≤ (2 : ℝ) ^ (-(N m : ℤ))
+
+theorem mulHeight_placePoint (D P : ℤ) :
+    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) = ((⨆ i, |(![D, -1, P] : Fin 3 → ℤ) i| : ℤ) : ℝ)
+
+theorem mulHeight_placePoint_le (D P : ℤ) {B : ℝ} (h1 : 1 ≤ B)
+    (hD : |(D : ℝ)| ≤ B) (hP : |(P : ℝ)| ≤ B) :
+    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) ≤ B
+
+theorem mulHeight_placePoint_pos (D P : ℤ) :
+    0 < Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
+
+theorem sup_vinf_placePoint_eq_mulHeight (D P : ℤ) (vinf : AbsoluteValue ℚ ℝ)
+    (hvinf : ∀ q : ℚ, vinf q = ((|q| : ℚ) : ℝ)) :
+    (⨆ j, vinf (placePoint (D : ℚ) (P : ℚ) j)) = Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
+
+def phiExp (D P : ℕ → ℤ) : ℕ → ℕ :=
+  fun k => Nat.clog 3 (max (D k).natAbs (max (P k).natAbs 1))
+
+axiom phiPoints_index (n : ℕ) (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) :
+    IndexConditionExpFreq 2 (phiExp D P) N ε
+
+theorem phiPoints_rate_pointwise (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) (hε : 0 < ε) (k : ℕ)
+    (hidx : (2 + ε) * (phiExp D P k : ℝ) * Real.log 3 ≤ (N k : ℝ) * Real.log 2) :
+    (2 : ℝ) ^ (-(N k : ℝ)) ≤ Height.mulHeight (placePoint (D k : ℚ) (P k : ℚ)) ^ (-(2 : ℝ) - ε)
+
+theorem phiPoints_rate (n : ℕ) (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) (hε : 0 < ε) :
+    ∃ᶠ k in atTop, (2 : ℝ) ^ (-(N k : ℝ)) ≤
+      Height.mulHeight (placePoint (D k : ℚ) (P k : ℚ)) ^ (-(2 : ℝ) - ε)
+
+noncomputable def repForms (n : ℤ) : Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) :=
+  ![LinearMap.proj 0, LinearMap.proj 1,
+    (n : ℚ) • LinearMap.proj 0 + (n : ℚ) • LinearMap.proj 1 + LinearMap.proj 2]
+
+theorem repForms_linearIndependent (n : ℤ) : LinearIndependent ℚ (repForms n)
+
+def repPoint (A B P : ℚ) : Fin 3 → ℚ := ![A, B, P]
+
+theorem repPlaceFactor_eq (v : AbsoluteValue ℚ ℝ) (n : ℤ) (A B P : ℚ)
+    (hA : v A = 1) (hB : v B ≤ 1) (hP : v P ≤ 1) :
+    (∏ i : Fin 3, v (repForms n i (repPoint A B P)) / (⨆ j, v (repPoint A B P j)))
+      = v B * v ((n : ℚ) * A + (n : ℚ) * B + P)
+
+theorem repPlaceFactor_eq_sub (v : AbsoluteValue ℚ ℝ) (n : ℤ) (A B P q : ℚ)
+    (hAB : v (A + B) = 1) (hq : (A + B) * q = -P) (hA : v A = 1) (hB : v B ≤ 1) (hP : v P ≤ 1) :
+    (∏ i : Fin 3, v (repForms n i (repPoint A B P)) / (⨆ j, v (repPoint A B P j)))
+      = v B * v ((n : ℚ) - q)
+
+theorem repPlaceFactor_subspaceDen_le (n : ℤ) (c p : ℕ) (hp : 0 < p) (P : ℤ) (q : ℚ) {x : ℤ_[2]}
+    (hDq : ((subspaceDen c p : ℤ) : ℚ) * q = -(P : ℚ)) (hx : (x : ℚ_[2]) = (q : ℚ_[2]))
+    (r : ℝ) (hbound : ‖((n : ℤ_[2]) - x)‖ ≤ r) :
+    (∏ i : Fin 3, Rat.AbsoluteValue.padic 2
+        (repForms n i (repPoint ((3 ^ c : ℤ) : ℚ) ((-(2 ^ p : ℤ)) : ℚ) (P : ℚ))) /
+        (⨆ j, Rat.AbsoluteValue.padic 2 (repPoint ((3 ^ c : ℤ) : ℚ) ((-(2 ^ p : ℤ)) : ℚ) (P : ℚ) j)))
+      ≤ (1 / 2 : ℝ) ^ p * r
+
+theorem rep_w_threshold_gt_arch (ε : ℝ) :
+    (2 + ε) * Real.log 3 / Real.log 2 < (3 + ε) * Real.log 3 / Real.log 2 - 1
+
+def Confinable {m : ℕ} (x : ℕ → (Fin m → ℚ)) : Prop :=
+  ∃ U : Submodule ℚ (Fin m → ℚ), U ≠ ⊤ ∧ {k | x k ∈ U}.Infinite
+
+theorem subspace_pigeonhole {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0)
+    (hineq : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      Height.mulHeight (x k) ^ (-(m : ℝ) - ε)) :
+    Confinable x
+
+theorem subspace_reduction {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0)
+    (hineq : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      Height.mulHeight (x k) ^ (-(m : ℝ) - ε))
+    (hncf : ¬ Confinable x) :
+    False
+
+theorem subspace_contradiction_of_rate {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
+    (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      (2 : ℝ) ^ (-(N k : ℝ)))
+    (hrate : ∀ k, (2 : ℝ) ^ (-(N k : ℝ)) ≤ Height.mulHeight (x k) ^ (-(m : ℝ) - ε))
+    (hncf : ¬ Confinable x) :
+    False
+
+theorem subspace_contradiction_of_rate_sharp {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
+    (hHpos : ∀ k, 0 < Height.mulHeight (x k))
+    (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      (Height.mulHeight (x k))⁻¹ * (2 : ℝ) ^ (-(N k : ℝ)))
+    (hrate : ∀ k, (2 : ℝ) ^ (-(N k : ℝ)) ≤ Height.mulHeight (x k) ^ (-(m : ℝ) - ε + 1))
+    (hncf : ¬ Confinable x) :
+    False
+
+theorem subspace_pigeonhole_infinite {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (I : Set ℕ) (hI : I.Infinite) (hx0 : ∀ k ∈ I, x k ≠ 0)
+    (hineq : ∀ k ∈ I, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      Height.mulHeight (x k) ^ (-(m : ℝ) - ε)) :
+    Confinable x
+
+theorem subspace_contradiction_of_rate_sharp_frequently {m : ℕ} (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue ℚ ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
+    (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
+    (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
+    (hHpos : ∀ k, 0 < Height.mulHeight (x k))
+    (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
+      (Height.mulHeight (x k))⁻¹ * (2 : ℝ) ^ (-(N k : ℝ)))
+    (hrate : ∃ᶠ k in atTop, (2 : ℝ) ^ (-(N k : ℝ)) ≤ Height.mulHeight (x k) ^ (-(m : ℝ) - ε + 1))
+    (hncf : ¬ Confinable x) :
+    False
+
+theorem confinable_iff_exists_dual {m : ℕ} (x : ℕ → (Fin m → ℚ)) :
+    Confinable x ↔ ∃ f : Module.Dual ℚ (Fin m → ℚ), f ≠ 0 ∧ {k | f (x k) = 0}.Infinite
+
+theorem unused_placePoint_dual_apply (f : Module.Dual ℚ (Fin 3 → ℚ)) (D P : ℚ) :
+    f (placePoint D P) = D * f (Pi.single 0 1) - f (Pi.single 1 1) + P * f (Pi.single 2 1)
+
+axiom phiPoints_nonConfined (n : ℤ) (D P : ℕ → ℤ) (q : ℕ → ℚ)
+    (hodd : ∀ k, Odd (D k)) (hrel : ∀ k, (D k : ℚ) * q k = -(P k : ℚ))
+    (hconv : Tendsto (fun k => Rat.AbsoluteValue.padic 2 ((n : ℚ) - q k)) atTop (nhds 0))
+    (hdist : ∀ k, q k ≠ (n : ℚ)) :
+    ¬ Confinable (fun k => placePoint (D k : ℚ) (P k : ℚ))
+
+theorem rat_arch_padic_places : ∃ vinf : AbsoluteValue ℚ ℝ,
+    (∀ w ∈ archAbsVal (K := ℚ), w = vinf) ∧ vinf ∈ archAbsVal (K := ℚ) ∧
+      Rat.AbsoluteValue.padic 2 ∈ nonarchAbsVal (K := ℚ) ∧ vinf ≠ Rat.AbsoluteValue.padic 2 ∧
+      (∀ q : ℚ, vinf q = ((|q| : ℚ) : ℝ))
+
+theorem phi_ne_natCast (v : ℤ_[2]) (hauto : IsAutomatic2Adic v) (hirr : v ∉ RatInt)
+    (n : ℕ) : Φ v ≠ (n : ℤ_[2])
+
+theorem automatic_parityVector_ratInt
+    (n : ℕ) (hauto : IsAutomatic2Adic (parityVector n)) :
+    parityVector n ∈ RatInt
+
+theorem l90Divergent_of_divergent {n : ℕ} (h : Divergent n) : L90.Divergent (n : ℚ)
+
+theorem divergent_imp_not_automatic
+    (n : ℕ) (_hn : 0 < n) (hdiv : Divergent n) :
+    ¬ IsAutomatic2Adic (parityVector n)

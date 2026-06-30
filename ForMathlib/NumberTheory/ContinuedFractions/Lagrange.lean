@@ -10,8 +10,6 @@ import Mathlib.Algebra.ContinuedFractions.Computation.ApproximationCorollaries
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.NumberTheory.Real.Irrational
-import Corpus.Util.Attributes.Database
-import Corpus.Util.Attributes.Basic
 
 /-!
 # Lagrange's theorem on periodic continued fractions
@@ -50,7 +48,6 @@ determinant (`qConv_det`) are proved directly from the complete-quotient recursi
 /-- The continued fraction expansion of `ξ` is **eventually periodic**: from some index
 `N` on, the sequence of its terms repeats with a fixed positive period `p`. (For an
 irrational `ξ` this sequence is infinite, so the condition is non-vacuous.) -/
-@[category API, AMS 11]
 def IsEventuallyPeriodicContFrac (ξ : ℝ) : Prop :=
   ∃ N p : ℕ, 0 < p ∧ ∀ n : ℕ, N ≤ n →
     (GenContFract.of ξ).s.get? (n + p) = (GenContFract.of ξ).s.get? n
@@ -59,14 +56,12 @@ def IsEventuallyPeriodicContFrac (ξ : ℝ) : Prop :=
 the fractional part `{ξₙ} = ξₙ - ⌊ξₙ⌋`. This is exactly the sequence produced by the
 continued fraction algorithm, and the partial quotients are its floors `aₙ = ⌊ξₙ⌋`; the
 eventual periodicity of this sequence is what drives Lagrange's direction. -/
-@[category API, AMS 11]
 noncomputable def completeQuotient (ξ : ℝ) : ℕ → ℝ
   | 0 => ξ
   | n + 1 => (Int.fract (completeQuotient ξ n))⁻¹
 
 /-- Every complete quotient of an irrational is itself irrational: `ξ` irrational, and each
 step `ξₖ₊₁ = 1/{ξₖ}` preserves irrationality (`{ξₖ}` is irrational and nonzero). -/
-@[category API, AMS 11]
 theorem completeQuotient_irrational {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
     Irrational (completeQuotient ξ n) := by
   induction n with
@@ -81,7 +76,6 @@ theorem completeQuotient_irrational {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) 
 `ξ = ↑q` is a root of the degree-one `X - C q`, so `minpoly ℚ ξ` divides it and has degree
 `≤ 1`, contradicting degree `2`. (General-purpose; supplies the `Irrational` half of the hard
 direction.) -/
-@[category API, AMS 11]
 theorem irrational_of_minpoly_natDegree_two {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     Irrational ξ := by
   rintro ⟨q, hq⟩
@@ -96,7 +90,6 @@ theorem irrational_of_minpoly_natDegree_two {ξ : ℝ} (hξ : (minpoly ℚ ξ).n
 from any integer quadratic `(A, B, C)` for `ξ`, the substitution `ξₙ = ⌊ξₙ⌋ + 1/ξₙ₊₁` turns the
 quadratic for `ξₙ` into one for `ξₙ₊₁`: with `k = ⌊ξₙ⌋`,
 `(aₙ₊₁, bₙ₊₁, cₙ₊₁) = (aₙk² + bₙk + cₙ, 2aₙk + bₙ, aₙ)`. -/
-@[category API, AMS 11]
 noncomputable def qCoeffs (ξ : ℝ) (A B C : ℤ) : ℕ → ℤ × ℤ × ℤ
   | 0 => (A, B, C)
   | n + 1 =>
@@ -108,7 +101,6 @@ noncomputable def qCoeffs (ξ : ℝ) (A B C : ℤ) : ℕ → ℤ × ℤ × ℤ
 /-- **Discriminant invariance.** The substitution preserves the discriminant
 `bₙ² − 4aₙcₙ`, so every `qCoeffs` triple has the same discriminant `B² − 4AC` as the original.
 This is what bounds `bₙ` once `aₙ, cₙ` are bounded. -/
-@[category API, AMS 11]
 theorem qCoeffs_discrim {ξ : ℝ} {A B C : ℤ} (n : ℕ) :
     (qCoeffs ξ A B C n).2.1 ^ 2 - 4 * (qCoeffs ξ A B C n).1 * (qCoeffs ξ A B C n).2.2
       = B ^ 2 - 4 * A * C := by
@@ -118,7 +110,6 @@ theorem qCoeffs_discrim {ξ : ℝ} {A B C : ℤ} (n : ℕ) :
 
 /-- Each complete quotient `ξₙ` is a root of its `qCoeffs` triple `aₙ X² + bₙ X + cₙ`. Proved
 by induction via the substitution `ξₙ = ⌊ξₙ⌋ + 1/ξₙ₊₁`. -/
-@[category API, AMS 11]
 theorem qCoeffs_quad {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) (n : ℕ) :
     ((qCoeffs ξ A B C n).1 : ℝ) * completeQuotient ξ n ^ 2
@@ -151,7 +142,6 @@ theorem qCoeffs_quad {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ)
 
 /-- The discriminant of a quadratic irrational is nonzero: were `B² − 4AC = 0`, the quadratic
 `AX² + BX + C` would have the rational double root `−B/(2A)`, contradicting `ξ` irrational. -/
-@[category API, AMS 11]
 theorem discrim_ne_zero {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) :
     B ^ 2 - 4 * A * C ≠ 0 := by
@@ -170,7 +160,6 @@ theorem discrim_ne_zero {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A 
 /-- The leading coefficient `aₙ` is never zero: `ξₙ` is irrational, so its `qCoeffs` quadratic
 is genuinely degree two. (If `aₙ = 0`, then `bₙ ξₙ + cₙ = 0`; the invariant discriminant gives
 `bₙ² = B² − 4AC ≠ 0` so `bₙ ≠ 0`, making `ξₙ = −cₙ/bₙ` rational.) -/
-@[category API, AMS 11]
 theorem qCoeffs_fst_ne {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) (n : ℕ) :
     (qCoeffs ξ A B C n).1 ≠ 0 := by
@@ -199,7 +188,6 @@ the complete quotients `ξₙ = completeQuotient ξ n`. The seeds `qConv 0 = (0,
 `qConv 1 = (1, 0)` are the two virtual convergents `p₋₂/q₋₂ = 0/1` and `p₋₁/q₋₁ = 1/0`, so that
 `qConv (k + 2)` is the genuine `k`-th convergent. By `qCoeffs_eq_qConv`, the leading `qCoeffs`
 coefficient is exactly the binary quadratic form evaluated at the previous convergent. -/
-@[category API, AMS 11]
 noncomputable def qConv (ξ : ℝ) : ℕ → ℤ × ℤ
   | 0 => (0, 1)
   | 1 => (1, 0)
@@ -211,7 +199,6 @@ noncomputable def qConv (ξ : ℝ) : ℕ → ℤ × ℤ
 convergent pairs: `aₙ = A·numₙ₋₁² + B·numₙ₋₁·denₙ₋₁ + C·denₙ₋₁²`, `cₙ` the same at the previous
 convergent, and `bₙ` the associated bilinear cross term. Pure integer induction matching the
 `qCoeffs` recursion to the `qConv` recursion. -/
-@[category API, AMS 11]
 theorem qCoeffs_eq_qConv {ξ : ℝ} {A B C : ℤ} (n : ℕ) :
     (qCoeffs ξ A B C n).1 = A * (qConv ξ (n + 1)).1 ^ 2
         + B * (qConv ξ (n + 1)).1 * (qConv ξ (n + 1)).2 + C * (qConv ξ (n + 1)).2 ^ 2
@@ -229,7 +216,6 @@ theorem qCoeffs_eq_qConv {ξ : ℝ} {A B C : ℤ} (n : ℕ) :
 /-- The continuant determinant is `±1`: `numₙ·denₙ₋₁ − numₙ₋₁·denₙ = (−1)ⁿ`. The integer-quadratic
 discriminant is invariant under the convergent substitution precisely because this determinant
 squares to one. -/
-@[category API, AMS 11]
 theorem qConv_det {ξ : ℝ} (n : ℕ) :
     (qConv ξ (n + 1)).1 * (qConv ξ n).2 - (qConv ξ n).1 * (qConv ξ (n + 1)).2 = (-1) ^ n := by
   induction n with
@@ -240,7 +226,6 @@ theorem qConv_det {ξ : ℝ} (n : ℕ) :
 
 /-- Every complete quotient past the first is `≥ 1`: `ξₙ₊₁ = 1/{ξₙ}` and the fractional part of an
 irrational lies in `(0, 1)`. -/
-@[category API, AMS 11]
 theorem completeQuotient_one_le {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
     1 ≤ completeQuotient ξ (n + 1) := by
   show 1 ≤ (Int.fract (completeQuotient ξ n))⁻¹
@@ -250,7 +235,6 @@ theorem completeQuotient_one_le {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
 
 /-- The convergent denominators are nonnegative, and strictly past the seeds they are `≥ 1`
 (`denₖ ≥ 1` for `k ≥ 2`). Drives the denominator positivity behind the approximation bound. -/
-@[category API, AMS 11]
 theorem qConv_den {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
     0 ≤ (qConv ξ (n + 1)).2 ∧ 1 ≤ (qConv ξ (n + 2)).2 := by
   induction n with
@@ -268,7 +252,6 @@ theorem qConv_den {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
 
 /-- The convergent/Möbius relation: `ξ = (ξₙ·numₙ₋₁ + numₙ₋₂)/(ξₙ·denₙ₋₁ + denₙ₋₂)`, written
 cleared of denominators. Induction on `n` via `ξₙ = ⌊ξₙ⌋ + 1/ξₙ₊₁`. -/
-@[category API, AMS 11]
 theorem qConv_mobius {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
     ξ * (completeQuotient ξ n * ((qConv ξ (n + 1)).2 : ℝ) + ((qConv ξ n).2 : ℝ))
       = completeQuotient ξ n * ((qConv ξ (n + 1)).1 : ℝ) + ((qConv ξ n).1 : ℝ) := by
@@ -290,7 +273,6 @@ theorem qConv_mobius {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
 /-- The leading `qCoeffs` coefficients `aₙ` are uniformly bounded. The Möbius relation and the
 `±1` determinant give the approximation `|ξ·denₙ₋₁ − numₙ₋₁| = 1/(ξₙ·denₙ₋₁ + denₙ₋₂) ≤ 1/denₙ₋₁`,
 whence `aₙ = −denₙ₋₁(ξ·denₙ₋₁ − numₙ₋₁)(A·cₙ + A·ξ + B)` is bounded by `|A|(2|ξ| + 1) + |B|`. -/
-@[category API, AMS 11]
 theorem qCoeffs_fst_le {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) :
     ∃ M : ℤ, ∀ n, |(qCoeffs ξ A B C n).1| ≤ M := by
@@ -373,7 +355,6 @@ theorem qCoeffs_fst_le {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A �
 coefficients `aₙ` are bounded by `qCoeffs_fst_le` (convergent substitution + the approximation
 `|ξ − numₙ₋₁/denₙ₋₁| ≤ 1/denₙ₋₁²`); then `cₙ = aₙ₋₁` and the invariant discriminant
 (`qCoeffs_discrim`, `bₙ² = (B² − 4AC) + 4aₙcₙ`) bound `cₙ` and `bₙ`. -/
-@[category API, AMS 11]
 theorem qCoeffs_bounded {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A ≠ 0)
     (h0 : (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0) :
     ∃ M : ℤ, ∀ n, |(qCoeffs ξ A B C n).1| ≤ M ∧ |(qCoeffs ξ A B C n).2.1| ≤ M
@@ -405,7 +386,6 @@ theorem qCoeffs_bounded {ξ : ℝ} {A B C : ℤ} (hirr : Irrational ξ) (hA : A 
 
 /-- A real of minimal-polynomial degree two is the root of an integer quadratic with nonzero
 leading coefficient (clear the denominators of the rational `minpoly ℚ ξ`). -/
-@[category API, AMS 11]
 theorem exists_int_quadratic_of_minpoly {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     ∃ A B C : ℤ, A ≠ 0 ∧ (A : ℝ) * ξ ^ 2 + (B : ℝ) * ξ + (C : ℝ) = 0 := by
   have hint : IsIntegral ℚ ξ := by
@@ -441,8 +421,6 @@ complete-quotient recursion `qCoeffs`: `qCoeffs_quad` (root), `qCoeffs_fst_ne` (
 This is the shared heart of the hard direction: the cheap `quadratic_partialQuotients_bounded`
 and the full `lagrange_quadratic_imp_periodic` both reduce to it, the latter by additionally
 pigeonholing the finitely many bounded triples. -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Lagrange" 1770,
-  formal_uses qCoeffs_quad qCoeffs_fst_ne qCoeffs_bounded exists_int_quadratic_of_minpoly]
 theorem completeQuotient_isIntegral_bounded {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     ∃ M : ℤ, ∀ n, ∃ a b c : ℤ, a ≠ 0 ∧
       (a : ℝ) * completeQuotient ξ n ^ 2 + (b : ℝ) * completeQuotient ξ n + (c : ℝ) = 0 ∧
@@ -460,8 +438,6 @@ partial quotients `aₙ = ⌊ξₙ⌋`.
 This follows from `completeQuotient_isIntegral_bounded` *without* the pigeonhole/periodicity
 step: each `ξₙ` is a root of a bounded-coefficient quadratic with nonzero leading
 coefficient, hence `|ξₙ| ≤ M'`, hence `⌊ξₙ⌋ ≤ M'`. -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Lagrange" 1770,
-  formal_uses completeQuotient_isIntegral_bounded]
 theorem quadratic_partialQuotients_bounded {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     ∃ M : ℤ, ∀ n, ⌊completeQuotient ξ n⌋ ≤ M := by
   -- The engine hands us, for each `n`, an integer quadratic `a·ξₙ² + b·ξₙ + c = 0` with
@@ -499,7 +475,6 @@ theorem quadratic_partialQuotients_bounded {ξ : ℝ} (hξ : (minpoly ℚ ξ).na
 
 /-- A nonzero real quadratic has only finitely many roots (the explicit-quadratic packaging of
 `Polynomial.finite_setOf_isRoot`). Used to confine the complete quotients to a finite set. -/
-@[category API, AMS 11]
 theorem setOf_quadratic_eq_zero_finite (a b c : ℝ) (ha : a ≠ 0) :
     {x : ℝ | a * x ^ 2 + b * x + c = 0}.Finite := by
   set p : Polynomial ℝ :=
@@ -520,7 +495,6 @@ theorem setOf_quadratic_eq_zero_finite (a b c : ℝ) (ha : a ≠ 0) :
 quotients coincide. The bounded integer triples from `completeQuotient_isIntegral_bounded`
 confine every `ξₙ` to the finite union of root-sets of the (finitely many) bounded-coefficient
 quadratics, so the map `ℕ → {values}` repeats: `ξₘ = ξₙ` for some `m < n`. -/
-@[category API, AMS 11, formal_uses completeQuotient_isIntegral_bounded]
 theorem completeQuotient_eq_of_quadratic {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     ∃ m n, m < n ∧ completeQuotient ξ m = completeQuotient ξ n := by
   obtain ⟨M, hM⟩ := completeQuotient_isIntegral_bounded hξ
@@ -562,7 +536,6 @@ theorem completeQuotient_eq_of_quadratic {ξ : ℝ} (hξ : (minpoly ℚ ξ).natD
 /-- Helper (a) (recursion ⇒ sequence periodicity): if two complete quotients coincide
 (`ξₘ = ξₙ`, `m < n`) then the `completeQuotient` sequence is periodic from `m` on with period
 `n − m`: `ξ_{k+(n-m)} = ξ_k` for every `k ≥ m`. Pure induction on `ξₖ₊₁ = 1/{ξₖ}`. -/
-@[category API, AMS 11]
 theorem completeQuotient_periodic_of_eq {ξ : ℝ} {m n : ℕ} (hmn : m < n)
     (h : completeQuotient ξ m = completeQuotient ξ n) :
     ∀ k, m ≤ k → completeQuotient ξ (k + (n - m)) = completeQuotient ξ k := by
@@ -579,7 +552,6 @@ theorem completeQuotient_periodic_of_eq {ξ : ℝ} {m n : ℕ} (hmn : m < n)
 integer/fractional-part stream never terminates and its `n`-th entry is exactly
 `IntFractPair.of (completeQuotient ξ n)` (so its integer part is `⌊completeQuotient ξ n⌋`,
 the `n`-th partial quotient). Proved by induction on Mathlib's `stream` recurrence. -/
-@[category API, AMS 11]
 theorem intFractPair_stream_eq {ξ : ℝ} (hirr : Irrational ξ) (n : ℕ) :
     GenContFract.IntFractPair.stream ξ n
       = some (GenContFract.IntFractPair.of (completeQuotient ξ n)) := by
@@ -597,7 +569,6 @@ sequence is eventually periodic, the continued fraction `GenContFract.of ξ` is 
 periodic. Via `intFractPair_stream_eq`, the `n`-th partial-quotient pair of `GenContFract.of ξ`
 is determined by `completeQuotient ξ (n+1)`, so periodicity of the complete quotients transfers
 to `(GenContFract.of ξ).s.get?`. -/
-@[category API, AMS 11]
 theorem isEventuallyPeriodicContFrac_of_completeQuotient_periodic {ξ : ℝ} (hirr : Irrational ξ)
     {m p : ℕ} (hp : 0 < p)
     (hper : ∀ k, m ≤ k → completeQuotient ξ (k + p) = completeQuotient ξ k) :
@@ -616,7 +587,6 @@ theorem isEventuallyPeriodicContFrac_of_completeQuotient_periodic {ξ : ℝ} (hi
 fraction is eventually periodic. Combines the recursion-periodicity
 `completeQuotient_periodic_of_eq` (a) with the continued-fraction link
 `isEventuallyPeriodicContFrac_of_completeQuotient_periodic` (b). -/
-@[category API, AMS 11]
 theorem isEventuallyPeriodicContFrac_of_completeQuotient_eq {ξ : ℝ} (hirr : Irrational ξ)
     {m n : ℕ} (hmn : m < n)
     (h : completeQuotient ξ m = completeQuotient ξ n) :
@@ -629,8 +599,6 @@ theorem isEventuallyPeriodicContFrac_of_completeQuotient_eq {ξ : ℝ} (hirr : I
 fraction expansion. The irrationality is `irrational_of_minpoly_natDegree_two`; the
 periodicity combines the pigeonhole step `completeQuotient_eq_of_quadratic` with the
 continued-fraction bridge `isEventuallyPeriodicContFrac_of_completeQuotient_eq`. -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Lagrange" 1770,
-  formal_uses completeQuotient_eq_of_quadratic isEventuallyPeriodicContFrac_of_completeQuotient_eq]
 theorem lagrange_quadratic_imp_periodic {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDegree = 2) :
     Irrational ξ ∧ IsEventuallyPeriodicContFrac ξ := by
   have hirr := irrational_of_minpoly_natDegree_two hξ
@@ -640,7 +608,6 @@ theorem lagrange_quadratic_imp_periodic {ξ : ℝ} (hξ : (minpoly ℚ ξ).natDe
 
 /-- The complete-quotient operator composes additively: the `j`-th complete quotient of the
 `m`-th complete quotient of `ξ` is the `(m + j)`-th complete quotient of `ξ`. -/
-@[category API, AMS 11]
 theorem completeQuotient_add (ξ : ℝ) (m j : ℕ) :
     completeQuotient (completeQuotient ξ m) j = completeQuotient ξ (m + j) := by
   induction j with
@@ -653,7 +620,6 @@ theorem completeQuotient_add (ξ : ℝ) (m j : ℕ) :
 /-- An irrational root of an integer quadratic `a X² + b X + c` with `a ≠ 0` is a quadratic
 irrational: `(minpoly ℚ ξ).natDegree = 2` (`≤ 2` as a root of the degree-two polynomial, `≠ 1`
 by irrationality, `≠ 0` by integrality). The finisher for Euler's direction. -/
-@[category API, AMS 11]
 theorem minpoly_natDegree_two_of_irrational_quadratic {ξ : ℝ} (hirr : Irrational ξ)
     {a b c : ℤ} (ha : a ≠ 0) (hr : (a : ℝ) * ξ ^ 2 + b * ξ + c = 0) :
     (minpoly ℚ ξ).natDegree = 2 := by
@@ -685,7 +651,6 @@ theorem minpoly_natDegree_two_of_irrational_quadratic {ξ : ℝ} (hirr : Irratio
 
 /-- For irrational `v`, the `n`-th term of `GenContFract.of v` is the pair `⟨1, ⌊vₙ₊₁⌋⟩`: its
 partial denominator is the `(n+1)`-th partial quotient `⌊completeQuotient v (n + 1)⌋`. -/
-@[category API, AMS 11]
 theorem of_s_get?_eq {v : ℝ} (hirr : Irrational v) (n : ℕ) :
     (GenContFract.of v).s.get? n = some ⟨1, (⌊completeQuotient v (n + 1)⌋ : ℝ)⟩ := by
   exact GenContFract.get?_of_eq_some_of_succ_get?_intFractPair_stream
@@ -696,7 +661,6 @@ the continued-fraction terms of an irrational `ξ` are eventually periodic, then
 quotients coincide, `ξ_M = ξ_{M+p}`: the equal partial-quotient tails make
 `GenContFract.of ξ_M = GenContFract.of ξ_{M+p}` (identical floor data), and continued-fraction
 convergence (`GenContFract.of_convergence`) forces the two limits to agree. -/
-@[category API, AMS 11]
 theorem completeQuotient_eq_of_isEvPeriodic {ξ : ℝ} (hirr : Irrational ξ)
     (hper : IsEventuallyPeriodicContFrac ξ) :
     ∃ M p : ℕ, 0 < M ∧ 0 < p ∧ completeQuotient ξ M = completeQuotient ξ (M + p) := by
@@ -742,7 +706,6 @@ nonzero leading coefficient; substituting `ξ = (ξ_M·numₘ + numₘ₋₁)/(�
 yields an integer quadratic for `ξ`, whose leading coefficient is nonzero because `ξ_M` is
 irrational (so that quadratic has no rational root). The finisher is
 `minpoly_natDegree_two_of_irrational_quadratic`. -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Euler" 1737]
 theorem euler_periodic_imp_quadratic {ξ : ℝ} (hirr : Irrational ξ)
     (hper : IsEventuallyPeriodicContFrac ξ) :
     (minpoly ℚ ξ).natDegree = 2 := by
@@ -814,7 +777,6 @@ degree exactly two over `ℚ`, i.e. `(minpoly ℚ ξ).natDegree = 2` — if and 
 irrational and its simple continued fraction expansion is eventually periodic. Combines
 `euler_periodic_imp_quadratic` (`⇐`, Euler 1737) and `lagrange_quadratic_imp_periodic`
 (`⇒`, Lagrange 1770). -/
-@[category research solved, AMS 11, ref "HW79" "NZM91" "Khi64", solved_by "Euler" 1737, solved_by "Lagrange" 1770]
 theorem lagrange (ξ : ℝ) :
     (minpoly ℚ ξ).natDegree = 2 ↔ Irrational ξ ∧ IsEventuallyPeriodicContFrac ξ :=
   ⟨lagrange_quadratic_imp_periodic, fun h => euler_periodic_imp_quadratic h.1 h.2⟩

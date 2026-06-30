@@ -1,0 +1,774 @@
+import CC.Parity
+import CC.TerrasBijection
+import ForMathlib.Dynamics.Bernoulli
+import ForMathlib.Dynamics.StronglyMixing
+import ForMathlib.MeasureTheory.UltrametricMeasurePreserving
+import ForMathlib.NumberTheory.PadicIntDvdNorm
+import ForMathlib.NumberTheory.PadicIntHaar
+import Mathlib.Analysis.SpecificLimits.Normed
+import Mathlib.Data.Fintype.Card
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Dynamics.Ergodic.Ergodic
+import Mathlib.Dynamics.PeriodicPts.Defs
+import Mathlib.GroupTheory.OrderOfElement
+import Mathlib.MeasureTheory.Constructions.Cylinders
+import Mathlib.MeasureTheory.Group.Measure
+import Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib.NumberTheory.Padics.ProperSpace
+import Mathlib.NumberTheory.Padics.RingHoms
+import Mathlib.NumberTheory.Padics.WithVal
+import Mathlib.Probability.ProductMeasure
+
+noncomputable def parity (x : ℤ_[2]) : ℕ := (PadicInt.toZMod x).val
+
+theorem toZMod_natCast_parity (x : ℤ_[2]) :
+    PadicInt.toZMod ((parity x : ℤ_[2])) = PadicInt.toZMod x
+
+theorem parity_natCast (n : ℕ) : parity (n : ℤ_[2]) = CC.X n
+
+noncomputable def half {x : ℤ_[2]} (h : (2 : ℤ_[2]) ∣ x) : ℤ_[2] := h.choose
+
+theorem two_mul_half {x : ℤ_[2]} (h : (2 : ℤ_[2]) ∣ x) : 2 * half h = x
+
+noncomputable def numer (x : ℤ_[2]) : ℤ_[2] := x * 3 ^ parity x + (parity x : ℤ_[2])
+
+theorem even_numer (x : ℤ_[2]) : (2 : ℤ_[2]) ∣ numer x
+
+noncomputable def T₂ (x : ℤ_[2]) : ℤ_[2] := half (even_numer x)
+
+theorem two_mul_T₂ (x : ℤ_[2]) : 2 * T₂ x = numer x
+
+theorem T₂_natCast (n : ℕ) : T₂ (n : ℤ_[2]) = (CC.T n : ℤ_[2])
+
+noncomputable def shiftNumer (x : ℤ_[2]) : ℤ_[2] := x - (parity x : ℤ_[2])
+
+theorem even_shiftNumer (x : ℤ_[2]) : (2 : ℤ_[2]) ∣ shiftNumer x
+
+noncomputable def S (x : ℤ_[2]) : ℤ_[2] := half (even_shiftNumer x)
+
+theorem two_mul_S (x : ℤ_[2]) : 2 * S x = x - (parity x : ℤ_[2])
+
+theorem parity_add_two_mul_S (x : ℤ_[2]) : (parity x : ℤ_[2]) + 2 * S x = x
+
+theorem S_natCast (n : ℕ) : S (n : ℤ_[2]) = ((n / 2 : ℕ) : ℤ_[2])
+
+theorem T₂_iterate_natCast (k n : ℕ) :
+    (T₂^[k]) (n : ℤ_[2]) = ((CC.T_iter k n : ℕ) : ℤ_[2])
+
+theorem parity_T₂_iterate_natCast (k n : ℕ) :
+    parity (T₂^[k] (n : ℤ_[2])) = CC.X (CC.T_iter k n)
+
+theorem parity_T₂_iterate_eq_E_vec (k n : ℕ) (i : Fin k) :
+    parity (T₂^[i.val] (n : ℤ_[2])) = CC.E_vec k n i
+
+theorem getElem_V_eq_parity (j n : ℕ) (i : Fin j) :
+    (CC.V j n).get ⟨i.val, by simp⟩ = decide (parity (T₂^[i.val] (n : ℤ_[2])) = 1)
+
+theorem num_odd_steps_eq_sum_parity (k n : ℕ) :
+    CC.num_odd_steps k n = ∑ i ∈ Finset.range k, parity (T₂^[i] (n : ℤ_[2]))
+
+noncomputable def V (x : ℤ_[2]) : ℤ_[2] := -1 - x
+
+theorem V_apply_zero : V 0 = -1
+
+theorem V_involutive : Function.Involutive V
+
+theorem parity_V (x : ℤ_[2]) : parity x + parity (V x) = 1
+
+theorem V_semiconj_S : Function.Semiconj V S S
+
+theorem V_ne_id : V ≠ id
+
+axiom shiftAut_eq_id_or_V (ψ : ℤ_[2] ≃ₜ ℤ_[2]) (hψ : Function.Semiconj (⇑ψ) S S) :
+    ⇑ψ = id ∨ ⇑ψ = V
+
+theorem conjugacy_unique (Φ Φ' : ℤ_[2] ≃ₜ ℤ_[2])
+    (hΦ : Function.Semiconj (⇑Φ) S T₂) (hΦ' : Function.Semiconj (⇑Φ') S T₂) :
+    ∃ ψ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑ψ) S S ∧ ⇑Φ' = ⇑Φ ∘ ⇑ψ
+
+def proj (m n : ℕ) : ZMod (m ^ (n + 1)) →+* ZMod (m ^ n) :=
+  ZMod.castHom (pow_dvd_pow m (Nat.le_succ n)) (ZMod (m ^ n))
+
+theorem proj_surjective (m n : ℕ) (hm : 0 < m) : Function.Surjective (proj m n)
+
+theorem proj_natCast_val {m n : ℕ} [NeZero (m ^ (n + 1))] (a : ZMod (m ^ (n + 1))) :
+    proj m n a = ((a.val : ℕ) : ZMod (m ^ n))
+
+theorem proj_eq_iff_val_mod {m n : ℕ} [NeZero (m ^ (n + 1))] {a b : ZMod (m ^ (n + 1))} :
+    proj m n a = proj m n b ↔ a.val % m ^ n = b.val % m ^ n
+
+def ConsistentMod (m n : ℕ) (f : ZMod (m ^ (n + 1)) → ZMod (m ^ (n + 1))) : Prop :=
+  ∀ x₁ x₂ : ZMod (m ^ (n + 1)), proj m n x₁ = proj m n x₂ → proj m n (f x₁) = proj m n (f x₂)
+
+noncomputable def inducedMap (m n : ℕ) (f : ZMod (m ^ (n + 1)) → ZMod (m ^ (n + 1))) :
+    ZMod (m ^ n) → ZMod (m ^ n) :=
+  fun y => proj m n (f (Function.invFun (proj m n) y))
+
+theorem induced_semiconj {m n : ℕ} {f : ZMod (m ^ (n + 1)) → ZMod (m ^ (n + 1))}
+    (hf : ConsistentMod m n f) (x : ZMod (m ^ (n + 1))) :
+    proj m n (f x) = inducedMap m n f (proj m n x)
+
+theorem proj_fiber_card_le (m n : ℕ) (hm : 0 < m) [NeZero (m ^ (n + 1))] (y : ZMod (m ^ n)) :
+    Fintype.card {z : ZMod (m ^ (n + 1)) // proj m n z = y} ≤ m
+
+theorem lemma_3_1 (m n : ℕ) (hm : 0 < m) (f : ZMod (m ^ (n + 1)) → ZMod (m ^ (n + 1)))
+    (hf : ConsistentMod m n f) (x : ZMod (m ^ (n + 1)))
+    (hx : 0 < Function.minimalPeriod f x) :
+    0 < Function.minimalPeriod (inducedMap m n f) (proj m n x) ∧
+      ∃ k : ℕ, 1 ≤ k ∧ k ≤ m ∧
+        Function.minimalPeriod f x = k * Function.minimalPeriod (inducedMap m n f) (proj m n x)
+
+theorem cycle_length_eq_or_double (n : ℕ) (f : ZMod (2 ^ (n + 1)) → ZMod (2 ^ (n + 1)))
+    (hf : ConsistentMod 2 n f) (x : ZMod (2 ^ (n + 1)))
+    (hx : 0 < Function.minimalPeriod f x) :
+    0 < Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x) ∧
+      (Function.minimalPeriod f x = Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x) ∨
+        Function.minimalPeriod f x = 2 * Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x))
+
+def IsSplit (n : ℕ) (f : ZMod (2 ^ (n + 1)) → ZMod (2 ^ (n + 1))) (x : ZMod (2 ^ (n + 1))) : Prop :=
+  Function.minimalPeriod f x = Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x)
+
+def IsInert (n : ℕ) (f : ZMod (2 ^ (n + 1)) → ZMod (2 ^ (n + 1))) (x : ZMod (2 ^ (n + 1))) : Prop :=
+  Function.minimalPeriod f x = 2 * Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x)
+
+theorem proj_eq_zero_two (n : ℕ) {w : ZMod (2 ^ (n + 1))} (hw : proj 2 n w = 0) (hne : w ≠ 0) :
+    w = 2 ^ n
+
+theorem inert_shift (n : ℕ) (f : ZMod (2 ^ (n + 1)) → ZMod (2 ^ (n + 1)))
+    (hf : ConsistentMod 2 n f) (x : ZMod (2 ^ (n + 1)))
+    (hx : 0 < Function.minimalPeriod f x) (hinert : IsInert n f x) :
+    f^[Function.minimalPeriod (inducedMap 2 n f) (proj 2 n x)] x = x + 2 ^ n
+
+def CompatibleFamily (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) : Prop :=
+  ∀ n (z : ZMod (2 ^ (n + 1))), proj 2 n (F (n + 1) z) = F n (proj 2 n z)
+
+theorem CompatibleFamily.consistent {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
+    (hF : CompatibleFamily F) (n : ℕ) : ConsistentMod 2 n (F (n + 1))
+
+theorem CompatibleFamily.inducedMap_eq {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
+    (hF : CompatibleFamily F) (n : ℕ) : inducedMap 2 n (F (n + 1)) = F n
+
+theorem cycle_length_pow_two {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
+    (hF : CompatibleFamily F) :
+    ∀ (n : ℕ) (x : ZMod (2 ^ n)), 0 < Function.minimalPeriod (F n) x →
+      ∃ j : ℕ, Function.minimalPeriod (F n) x = 2 ^ j
+
+def IsStable (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n))
+    (xs : (m : ℕ) → ZMod (2 ^ m)) (b : ℕ) : Prop :=
+  ∀ j, b ≤ j → IsInert j (F (j + 1)) (xs (j + 1))
+
+theorem stable_length {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)} (hF : CompatibleFamily F)
+    (xs : (m : ℕ) → ZMod (2 ^ m)) (hxs : ∀ m, proj 2 m (xs (m + 1)) = xs m)
+    (b : ℕ) (hstab : IsStable F xs b) :
+    ∀ d : ℕ, Function.minimalPeriod (F (b + d)) (xs (b + d))
+      = 2 ^ d * Function.minimalPeriod (F b) (xs b)
+
+theorem not_isPeriodicPt_of_levels_unbounded {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
+    (G : ℤ_[2] → ℤ_[2])
+    (hG : ∀ m (z : ℤ_[2]), toZModPow m (G z) = F m (toZModPow m z)) (y : ℤ_[2])
+    (hub : ∀ q, 0 < q → ∃ m, q < Function.minimalPeriod (F m) (toZModPow m y)) :
+    ∀ q, 0 < q → G^[q] y ≠ y
+
+theorem stable_not_isPeriodicPt {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
+    (hF : CompatibleFamily F) (G : ℤ_[2] → ℤ_[2])
+    (hG : ∀ m (z : ℤ_[2]), toZModPow m (G z) = F m (toZModPow m z)) (y : ℤ_[2]) (b : ℕ)
+    (hstab : IsStable F (fun m => toZModPow m y) b)
+    (hbpos : 0 < Function.minimalPeriod (F b) (toZModPow b y)) :
+    ∀ q, 0 < q → G^[q] y ≠ y
+
+axiom theorem_3_1 {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)} (hF : CompatibleFamily F)
+    (xs : (m : ℕ) → ZMod (2 ^ m)) (hxs : ∀ m, proj 2 m (xs (m + 1)) = xs m) (n : ℕ)
+    (hlen : 4 ≤ Function.minimalPeriod (F (n + 1)) (xs (n + 1)))
+    (h1 : IsInert n (F (n + 1)) (xs (n + 1)))
+    (h2 : IsInert (n + 1) (F (n + 2)) (xs (n + 2))) :
+    IsInert (n + 2) (F (n + 3)) (xs (n + 3)) ∧ IsStable F xs n
+
+noncomputable def levelOrder (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) (n : ℕ) : ℕ :=
+  orderOf (F n : Function.End (ZMod (2 ^ n)))
+
+def StableCycle (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) (n : ℕ) (x : ZMod (2 ^ n)) : Prop :=
+  ∃ xs : (m : ℕ) → ZMod (2 ^ m),
+    (∀ m, proj 2 m (xs (m + 1)) = xs m) ∧ xs n = x ∧ IsStable F xs n
+
+noncomputable def numCyclesOfPeriod (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) (n j : ℕ) : ℕ :=
+  Nat.card {x : ZMod (2 ^ n) // Function.minimalPeriod (F n) x = 2 ^ j} / 2 ^ j
+
+def Stabilized (F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) (n j : ℕ) : Prop :=
+  ∀ x : ZMod (2 ^ n), Function.minimalPeriod (F n) x = 2 ^ j → StableCycle F n x
+
+axiom corollary_3_1A {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)} (hF : CompatibleFamily F)
+    (hbij : ∀ n, Function.Bijective (F n)) (hstab : StableCycle F 6 5) (n : ℕ) (hn : 6 ≤ n) :
+    levelOrder F n = 2 ^ (n - 4)
+
+axiom corollary_3_1B {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)} (hF : CompatibleFamily F)
+    (n k : ℕ)
+    (hstabilized : ∀ j, j ≤ k - 1 → Stabilized F n (n - j))
+    (hcard : numCyclesOfPeriod F n (n - k) = numCyclesOfPeriod F (n + 1) (n + 1 - k)
+      ∧ numCyclesOfPeriod F (n + 1) (n + 1 - k) = numCyclesOfPeriod F (n + 2) (n + 2 - k)) :
+    ∀ m, n ≤ m → Stabilized F m (m - k)
+      ∧ numCyclesOfPeriod F m (m - k) = numCyclesOfPeriod F n (n - k)
+
+def Solenoidal (f : ℤ_[2] → ℤ_[2]) : Prop :=
+  ∀ (n : ℕ) (x y : ℤ_[2]), (2 ^ n : ℤ_[2]) ∣ (x - y) → (2 ^ n : ℤ_[2]) ∣ (f x - f y)
+
+def Nonexpanding (f : ℤ_[2] → ℤ_[2]) : Prop := ∀ x y : ℤ_[2], ‖f x - f y‖ ≤ ‖x - y‖
+
+theorem dvd_pow_iff_norm_le (z : ℤ_[2]) (n : ℕ) :
+    (2 : ℤ_[2]) ^ n ∣ z ↔ ‖z‖ ≤ ((2 : ℕ) : ℝ) ^ (-(n : ℤ))
+
+theorem norm_le_iff_forall_dvd (a b : ℤ_[2]) :
+    ‖a‖ ≤ ‖b‖ ↔ ∀ n : ℕ, (2 : ℤ_[2]) ^ n ∣ b → (2 : ℤ_[2]) ^ n ∣ a
+
+theorem solenoidal_iff_nonExpanding (F : ℤ_[2] → ℤ_[2]) :
+    Solenoidal F ↔ Nonexpanding F
+
+theorem Solenoidal.comp {F₁ F₂ : ℤ_[2] → ℤ_[2]} (h₁ : Solenoidal F₁) (h₂ : Solenoidal F₂) :
+    Solenoidal (F₁ ∘ F₂)
+
+theorem toZModPow_eq_iff_dvd_sub (x y : ℤ_[2]) (n : ℕ) :
+    PadicInt.toZModPow n x = PadicInt.toZModPow n y ↔ (2 : ℤ_[2]) ^ n ∣ (x - y)
+
+def Compatible (Fam : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) : Prop :=
+  ∀ (n : ℕ) (r : ZMod (2 ^ (n + 1))),
+    (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ n)) (ZMod (2 ^ n))) (Fam (n + 1) r)
+      = Fam n ((ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ n)) (ZMod (2 ^ n))) r)
+
+def IsInverseLimit (F : ℤ_[2] → ℤ_[2]) (Fam : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)) : Prop :=
+  ∀ (n : ℕ) (x : ℤ_[2]), PadicInt.toZModPow n (F x) = Fam n (PadicInt.toZModPow n x)
+
+theorem solenoidal_iff_isInverseLimit (F : ℤ_[2] → ℤ_[2]) :
+    Solenoidal F ↔ ∃ Fam, Compatible Fam ∧ IsInverseLimit F Fam
+
+theorem exists_toZModPow_eq_thread (c : (n : ℕ) → ZMod (2 ^ n))
+    (hc : ∀ n, (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ n)) (ZMod (2 ^ n))) (c (n + 1)) = c n) :
+    ∃ z : ℤ_[2], ∀ n, PadicInt.toZModPow n z = c n
+
+theorem exists_isInverseLimit_of_compatible (Fam : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n))
+    (h : Compatible Fam) : ∃ F, IsInverseLimit F Fam
+
+theorem lemma_A2 (U : ℤ_[2] → ℤ_[2]) (Fam : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n))
+    (hcompat : Compatible Fam) (hlim : IsInverseLimit U Fam) :
+    List.TFAE [Function.Bijective U, ∀ n, Function.Bijective (Fam n),
+               ∀ (n : ℕ) (x y : ℤ_[2]),
+                 PadicInt.toZModPow n (U x) = PadicInt.toZModPow n (U y)
+                 → PadicInt.toZModPow n x = PadicInt.toZModPow n y]
+
+theorem solenoidal_continuous (U : ℤ_[2] → ℤ_[2]) (hU : Solenoidal U) : Continuous U
+
+theorem reflects_iff_norm_le (U : ℤ_[2] → ℤ_[2]) :
+    (∀ (n : ℕ) (x y : ℤ_[2]), PadicInt.toZModPow n (U x) = PadicInt.toZModPow n (U y)
+        → PadicInt.toZModPow n x = PadicInt.toZModPow n y)
+      ↔ ∀ x y : ℤ_[2], ‖x - y‖ ≤ ‖U x - U y‖
+
+theorem corollary_A3 (U : ℤ_[2] → ℤ_[2]) :
+    List.TFAE [Solenoidal U ∧ Function.Bijective U,
+               Solenoidal U ∧ Function.Bijective U ∧ Solenoidal (Function.invFun U),
+               ∀ x y : ℤ_[2], ‖U x - U y‖ = ‖x - y‖]
+
+noncomputable def qMap (x : ℤ_[2]) : ℤ_[2] := ∑' i : ℕ, (parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i
+
+theorem qMap_summable (x : ℤ_[2]) :
+    Summable (fun i : ℕ => (parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i)
+
+theorem qMap_peel (x : ℤ_[2]) : qMap x = (parity x : ℤ_[2]) + 2 * qMap (T₂ x)
+
+theorem qMap_parity (x : ℤ_[2]) : parity (qMap x) = parity x
+
+theorem qMap_semiconj : Function.Semiconj qMap T₂ S
+
+theorem qMap_apply_zero : qMap (0 : ℤ_[2]) = 0
+
+theorem toZMod_two : PadicInt.toZMod (2 : ℤ_[2]) = 0
+
+theorem parity_eq_of_two_dvd_sub {x y : ℤ_[2]} (h : (2 : ℤ_[2]) ∣ (x - y)) :
+    parity x = parity y
+
+theorem T₂_dvd_sub_of_dvd_succ {k : ℕ} {x y : ℤ_[2]}
+    (h : (2 : ℤ_[2]) ^ (k + 1) ∣ (x - y)) : (2 : ℤ_[2]) ^ k ∣ (T₂ x - T₂ y)
+
+theorem parity_T₂_iterate_congr {n : ℕ} {x y : ℤ_[2]} (h : (2 : ℤ_[2]) ^ n ∣ (x - y))
+    (i : ℕ) (hi : i < n) : parity (T₂^[i] x) = parity (T₂^[i] y)
+
+theorem qMap_partialSum_dvd (n : ℕ) (x : ℤ_[2]) :
+    (2 : ℤ_[2]) ^ n ∣ (qMap x - ∑ i ∈ Finset.range n, (parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i)
+
+theorem qMap_solenoidal : Solenoidal qMap
+
+theorem toZModPow_qMap (n : ℕ) (x : ℤ_[2]) :
+    PadicInt.toZModPow n (qMap x)
+      = ∑ i ∈ Finset.range n, (parity (T₂^[i] x) : ZMod (2 ^ n)) * 2 ^ i
+
+def encNat (n : ℕ) (v : ℕ → ℕ) : ℕ := ∑ i ∈ Finset.range n, v i * 2 ^ i
+
+theorem encNat_succ (n : ℕ) (u : ℕ → ℕ) :
+    encNat (n + 1) u = 2 * encNat n (fun j => u (j + 1)) + u 0
+
+theorem encNat_lt : ∀ (n : ℕ) (v : ℕ → ℕ), (∀ i < n, v i ≤ 1) → encNat n v < 2 ^ n
+
+theorem encNat_inj : ∀ (n : ℕ) (v w : ℕ → ℕ), (∀ i < n, v i ≤ 1) → (∀ i < n, w i ≤ 1) →
+    encNat n v = encNat n w → ∀ i < n, v i = w i
+
+theorem encZMod_eq (n : ℕ) (v : ℕ → ℕ) :
+    (∑ i ∈ Finset.range n, (v i : ZMod (2 ^ n)) * 2 ^ i) = ((encNat n v : ℕ) : ZMod (2 ^ n))
+
+theorem encZMod_inj (n : ℕ) (v w : ℕ → ℕ) (hv : ∀ i < n, v i ≤ 1) (hw : ∀ i < n, w i ≤ 1)
+    (h : (∑ i ∈ Finset.range n, (v i : ZMod (2 ^ n)) * 2 ^ i)
+       = ∑ i ∈ Finset.range n, (w i : ZMod (2 ^ n)) * 2 ^ i) :
+    ∀ i < n, v i = w i
+
+theorem qMap_bijective : Function.Bijective qMap
+
+noncomputable def qMapHomeo : ℤ_[2] ≃ₜ ℤ_[2] :=
+  Continuous.homeoOfEquivCompactToT2 (f := Equiv.ofBijective qMap qMap_bijective)
+    (solenoidal_continuous qMap qMap_solenoidal)
+
+theorem qMapHomeo_apply : ⇑qMapHomeo = qMap
+
+theorem exists_normalized_conjugacy :
+    ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂ ∧ Φ 0 = 0
+
+noncomputable def Φ : ℤ_[2] ≃ₜ ℤ_[2] := qMapHomeo.symm
+
+theorem Φ_semiconj : Function.Semiconj (⇑Φ) S T₂
+
+theorem Φ_apply_zero : Φ 0 = 0
+
+theorem exists_conjugacy : ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂
+
+theorem eq_Φ_of_normalized (Ψ : ℤ_[2] ≃ₜ ℤ_[2]) (hΨ : Function.Semiconj (⇑Ψ) S T₂)
+    (hΨ0 : Ψ 0 = 0) : Ψ = Φ
+
+theorem existsUnique_normalized_conjugacy :
+    ∃! Ξ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Ξ) S T₂ ∧ Ξ 0 = 0
+
+theorem ΦV_semiconj : Function.Semiconj (⇑Φ ∘ V) S T₂
+
+theorem two_dvd_iff_toZMod_eq_zero (z : ℤ_[2]) : (2 : ℤ_[2]) ∣ z ↔ PadicInt.toZMod z = 0
+
+theorem Φ_solenoidal : Solenoidal (⇑Φ)
+
+theorem Φ_mod_two (x : ℤ_[2]) : PadicInt.toZMod (Φ x) = PadicInt.toZMod x
+
+theorem Φ_parity (x : ℤ_[2]) : parity (Φ x) = parity x
+
+noncomputable def Q : ℤ_[2] → ℤ_[2] := qMap
+
+theorem parity_partial_expansion (y : ℤ_[2]) (N : ℕ) :
+    y = (∑ i ∈ Finset.range N, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i) + 2 ^ N * S^[N] y
+
+theorem tsum_parity_S (y : ℤ_[2]) :
+    ∑' i : ℕ, (parity (S^[i] y) : ℤ_[2]) * 2 ^ i = y
+
+theorem Φ_symm_eq_Q : ⇑Φ.symm = Q
+
+theorem Q_solenoidal : Solenoidal Q
+
+theorem parity_two_mul (x : ℤ_[2]) : parity (2 * x) = 0
+
+theorem T₂_two_mul (x : ℤ_[2]) : T₂ (2 * x) = x
+
+theorem Q_two_mul (x : ℤ_[2]) : Q (2 * x) = 2 * Q x
+
+theorem Φ_two_mul (x : ℤ_[2]) : Φ (2 * x) = 2 * Φ x
+
+theorem Φ_two_pow_mul (j : ℕ) (x : ℤ_[2]) : Φ (2 ^ j * x) = 2 ^ j * Φ x
+
+theorem isUnit_three : IsUnit (3 : ℤ_[2])
+
+theorem three_mul_inverse : (3 : ℤ_[2]) * Ring.inverse 3 = 1
+
+axiom Φ_eq_neg_sum (m : ℕ) (d : Fin m → ℕ) (hd : StrictMono d) :
+    Φ (∑ i, (2 : ℤ_[2]) ^ (d i)) = - ∑ i, (Ring.inverse (3 : ℤ_[2])) ^ (i.val + 1) * 2 ^ (d i)
+
+theorem t2_reachesOne_iff_collatz :
+    (∀ n : ℕ, 0 < n → ∃ j, (T₂^[j]) (n : ℤ_[2]) = 1) ↔
+    (∀ n : ℕ, 0 < n → ∃ j, CC.T_iter j n = 1)
+
+def RatInt : Set ℤ_[2] := {x | ∃ q : ℚ, (x : ℚ_[2]) = (q : ℚ_[2])}
+
+theorem periodicity_conjecture : (⇑Φ) '' RatInt = RatInt
+
+theorem orbit_range_finite_of_eq {f : ℕ → ℕ} {n i j : ℕ} (hlt : i < j)
+    (heq : f^[i] n = f^[j] n) : (Set.range fun k => f^[k] n).Finite
+
+theorem range_iterate_infinite_iff_tendsto (f : ℕ → ℕ) (n : ℕ) :
+    (Set.range fun k => f^[k] n).Infinite ↔ Tendsto (fun k => f^[k] n) atTop atTop
+
+theorem T_iter_eq_iterate (k n : ℕ) :
+    CC.T_iter k n = CC.T^[k] n
+
+def Divergent (n : ℕ) : Prop := (Set.range fun k => CC.T_iter k n).Infinite
+
+theorem divergent_iff_tendsto_atTop (n : ℕ) :
+    Divergent n ↔ Tendsto (fun k => CC.T_iter k n) atTop atTop
+
+theorem ratInt_odd_den {x : ℤ_[2]} (q : ℚ) (hx : (x : ℚ_[2]) = (q : ℚ_[2])) : Odd ((q.den : ℤ))
+
+theorem boundedRat_finite (D : ℕ) (hD : 0 < D) (M : ℚ) :
+    {r : ℚ | (r.den : ℤ) ∣ (D : ℤ) ∧ |r| ≤ M}.Finite
+
+theorem S_value {v : ℤ_[2]} {q : ℚ} (hq : (v : ℚ_[2]) = (q : ℚ_[2])) :
+    ∀ k, ∃ q' : ℚ, (S^[k] v : ℚ_[2]) = (q' : ℚ_[2]) ∧ (q'.den : ℤ) ∣ (q.den : ℤ) ∧ |q'| ≤ max |q| 1
+
+theorem ratInt_S_orbit_finite {v : ℤ_[2]} (hv : v ∈ RatInt) :
+    (Set.range fun k => S^[k] v).Finite
+
+theorem periodicity_imp_no_divergent_trajectories
+    (hper : (⇑Φ) '' RatInt = RatInt) : ∀ n : ℕ, 0 < n → ¬ Divergent n
+
+axiom Φ_image_ratInt_subset : (⇑Φ) '' RatInt ⊆ RatInt
+
+theorem Φ_iterate_image_ratInt_subset (k : ℕ) : (⇑Φ)^[k] '' RatInt ⊆ RatInt
+
+theorem periodicity_conjecture_iff_iterate {k : ℕ} (hk : 1 ≤ k) :
+    (⇑Φ) '' RatInt = RatInt ↔ (⇑Φ)^[k] '' RatInt = RatInt
+
+theorem parity_neg_one : parity (-1 : ℤ_[2]) = 1
+
+theorem parity_inv_three : parity (Ring.inverse 3 : ℤ_[2]) = 1
+
+theorem eq_zero_or_neg_one_of_T₂_fixed {y : ℤ_[2]} (h : T₂ y = y) : y = 0 ∨ y = -1
+
+theorem S_neg_one : S (-1 : ℤ_[2]) = -1
+
+theorem Φ_neg_one : Φ (-1 : ℤ_[2]) = -1
+
+theorem neg_one_ne_inv_three : (-1 : ℤ_[2]) ≠ Ring.inverse 3
+
+theorem fixed_point_conjecture :
+    {x : ℤ_[2] | Φ x = x ∧ parity x = 1} = {-1, Ring.inverse 3}
+
+theorem conjugacy_finiteness_conjecture (j : ℕ) :
+    {x : ℤ_[2] | (⇑Φ)^[2 ^ j] x = x ∧ parity x = 1}.Finite
+
+theorem conjugacy_finiteness_zero_of_fixed_point
+    (h : {x : ℤ_[2] | Φ x = x ∧ parity x = 1} = {-1, Ring.inverse 3}) :
+    {x : ℤ_[2] | (⇑Φ)^[2 ^ 0] x = x ∧ parity x = 1}.Finite
+
+noncomputable def diffQuotient (f : ℤ_[2] → ℤ_[2]) (x y : ℤ_[2]) : ℚ_[2] :=
+  ((f y - f x : ℤ_[2]) : ℚ_[2]) / ((y : ℚ_[2]) - (x : ℚ_[2]))
+
+def DifferentiableAt2 (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : Prop :=
+  ∃ L : ℚ_[2], Filter.Tendsto (diffQuotient f x) (nhdsWithin x {x}ᶜ) (nhds L)
+
+def NowhereDifferentiable2 (f : ℤ_[2] → ℤ_[2]) : Prop := ∀ x, ¬ DifferentiableAt2 f x
+
+axiom Φ_nowhereDifferentiable : NowhereDifferentiable2 (⇑Φ)
+
+axiom Φsymm_nowhereDifferentiable : NowhereDifferentiable2 (⇑Φ.symm)
+
+theorem Q_nowhereDifferentiable : NowhereDifferentiable2 Q
+
+theorem norm_two_lt_one : ‖(2 : ℤ_[2])‖ < 1
+
+theorem norm_inverse_three : ‖(Ring.inverse (3 : ℤ_[2]))‖ = 1
+
+noncomputable def bval (d : ℕ → ℕ) : ℤ_[2] := ∑' i, (2 : ℤ_[2]) ^ (d i)
+
+noncomputable def Φval (d : ℕ → ℕ) : ℤ_[2] := - ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i)
+
+theorem bval_summable {d : ℕ → ℕ} (hd : StrictMono d) :
+    Summable (fun i => (2 : ℤ_[2]) ^ (d i))
+
+theorem wval_summable {d : ℕ → ℕ} (hd : StrictMono d) :
+    Summable (fun i => (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i))
+
+theorem two_pow_summable {f : ℕ → ℕ} (hf : ∀ i, i ≤ f i) :
+    Summable (fun i => (2 : ℤ_[2]) ^ (f i))
+
+theorem tsum_two_pow_eq_two_mul {e : ℕ → ℕ} (hpos : ∀ i, 1 ≤ e i)
+    (hsum : Summable (fun i => (2 : ℤ_[2]) ^ (e i - 1))) :
+    ∑' i, (2 : ℤ_[2]) ^ (e i) = 2 * ∑' i, (2 : ℤ_[2]) ^ (e i - 1)
+
+theorem strictMono_add_le {d : ℕ → ℕ} (hd : StrictMono d) (i : ℕ) : d 0 + i ≤ d i
+
+noncomputable def dshift (d : ℕ → ℕ) : ℕ → ℕ :=
+  if d 0 = 0 then fun i => d (i + 1) - 1 else fun i => d i - 1
+
+theorem dshift_strictMono {d : ℕ → ℕ} (hd : StrictMono d) : StrictMono (dshift d)
+
+theorem dshift_le_apply {d : ℕ → ℕ} (hd : StrictMono d) (i : ℕ) : i ≤ dshift d i
+
+theorem parity_bval {d : ℕ → ℕ} (hd : StrictMono d) :
+    parity (bval d) = if d 0 = 0 then 1 else 0
+
+theorem bval_shift {d : ℕ → ℕ} (hd : StrictMono d) : S (bval d) = bval (dshift d)
+
+theorem parity_neg (z : ℤ_[2]) : parity (-z) = parity z
+
+theorem norm_inv_three_pow (k : ℕ) : ‖(Ring.inverse (3 : ℤ_[2])) ^ k‖ = 1
+
+theorem coeff_two_pow_summable {c : ℕ → ℤ_[2]} {e : ℕ → ℕ} (hc : ∀ i, ‖c i‖ ≤ 1)
+    (he : ∀ i, i ≤ e i) : Summable (fun i => c i * (2 : ℤ_[2]) ^ (e i))
+
+theorem two_dvd_tsum_of_pos {c : ℕ → ℤ_[2]} {e : ℕ → ℕ} (hpos : ∀ i, 1 ≤ e i)
+    (hsum : Summable (fun i => c i * (2 : ℤ_[2]) ^ (e i - 1))) :
+    (2 : ℤ_[2]) ∣ ∑' i, c i * (2 : ℤ_[2]) ^ (e i)
+
+theorem parity_Φval {d : ℕ → ℕ} (hd : StrictMono d) :
+    parity (Φval d) = if d 0 = 0 then 1 else 0
+
+theorem parity_Φval_eq_bval {d : ℕ → ℕ} (hd : StrictMono d) : parity (Φval d) = parity (bval d)
+
+theorem tsum_coeff_eq_two_mul {c : ℕ → ℤ_[2]} {e : ℕ → ℕ} (hpos : ∀ i, 1 ≤ e i)
+    (hsum : Summable (fun i => c i * (2 : ℤ_[2]) ^ (e i - 1))) :
+    ∑' i, c i * (2 : ℤ_[2]) ^ (e i) = 2 * ∑' i, c i * (2 : ℤ_[2]) ^ (e i - 1)
+
+theorem three_mul_wsum {d : ℕ → ℕ} (hd : StrictMono d) :
+    3 * ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i)
+      = ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ i * 2 ^ (d i)
+
+theorem Φval_step {d : ℕ → ℕ} (hd : StrictMono d) : T₂ (Φval d) = Φval (dshift d)
+
+theorem dshift_iterate_strictMono (j : ℕ) {d : ℕ → ℕ} (hd : StrictMono d) :
+    StrictMono (dshift^[j] d)
+
+theorem Φval_iterate {d : ℕ → ℕ} (hd : StrictMono d) (j : ℕ) :
+    T₂^[j] (Φval d) = Φval (dshift^[j] d)
+
+theorem bval_iterate {d : ℕ → ℕ} (hd : StrictMono d) (j : ℕ) :
+    S^[j] (bval d) = bval (dshift^[j] d)
+
+theorem Q_Φval {d : ℕ → ℕ} (hd : StrictMono d) : Q (Φval d) = bval d
+
+theorem Φ_eq_neg_tsum (d : ℕ → ℕ) (hd : StrictMono d) :
+    Φ (∑' i, (2 : ℤ_[2]) ^ (d i)) = - ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i)
+
+private theorem summable_parity_S (y : ℤ_[2]) :
+    Summable (fun i : ℕ => (parity (S^[i] y) : ℤ_[2]) * 2 ^ i)
+
+private theorem S_dvd_sub_of_dvd_succ {k : ℕ} {x y : ℤ_[2]}
+    (h : (2 : ℤ_[2]) ^ (k + 1) ∣ (x - y)) : (2 : ℤ_[2]) ^ k ∣ (S x - S y)
+
+private theorem parity_S_iterate_congr {n : ℕ} {x y : ℤ_[2]} (h : (2 : ℤ_[2]) ^ n ∣ (x - y))
+    (i : ℕ) (hi : i < n) : parity (S^[i] x) = parity (S^[i] y)
+
+private theorem S_partialSum_dvd (n : ℕ) (x : ℤ_[2]) :
+    (2 : ℤ_[2]) ^ n ∣ (x - ∑ i ∈ Finset.range n, (parity (S^[i] x) : ℤ_[2]) * 2 ^ i)
+
+private theorem toZModPow_digit_sum_S (n : ℕ) (x : ℤ_[2]) :
+    PadicInt.toZModPow n x
+      = ∑ i ∈ Finset.range n, (parity (S^[i] x) : ZMod (2 ^ n)) * 2 ^ i
+
+private theorem toZModPow_eq_iff_parity (n : ℕ) (x y : ℤ_[2]) :
+    PadicInt.toZModPow n x = PadicInt.toZModPow n y
+      ↔ ∀ i, i < n → parity (S^[i] x) = parity (S^[i] y)
+
+private noncomputable def uZMod2 : Measure (ZMod 2) := (2⁻¹ : ℝ≥0∞) • Measure.count
+
+private theorem uZMod2_apply (a : ZMod 2) : uZMod2 {a} = 2⁻¹
+
+private instance : IsProbabilityMeasure uZMod2 := by
+  constructor
+  rw [uZMod2, Measure.smul_apply, smul_eq_mul]
+  rw [show Measure.count (Set.univ : Set (ZMod 2)) = 2 by
+    rw [Measure.count_apply_finite _ Set.finite_univ]; simp]
+  rw [ENNReal.inv_mul_cancel] <;> norm_num
+
+private theorem norm_two : ‖(2 : ℤ_[2])‖ = 2⁻¹
+
+private noncomputable def dig (x : ℤ_[2]) : ℕ → ZMod 2 := fun n => PadicInt.toZMod (S^[n] x)
+
+private theorem dig_semiconj : Function.Semiconj dig S seqShift
+
+private noncomputable def recd (d : ℕ → ZMod 2) : ℤ_[2] := ∑' i, ((d i).val : ℤ_[2]) * 2 ^ i
+
+private theorem summable_recd (d : ℕ → ZMod 2) :
+    Summable (fun i : ℕ => ((d i).val : ℤ_[2]) * 2 ^ i)
+
+private theorem recd_dig (x : ℤ_[2]) : recd (dig x) = x
+
+private theorem seqShift_iterate_apply (n : ℕ) :
+    ∀ (d : ℕ → ZMod 2) (j : ℕ), seqShift^[n] d j = d (j + n)
+
+private theorem recd_peel (d : ℕ → ZMod 2) :
+    recd d = ((d 0).val : ℤ_[2]) + 2 * recd (seqShift d)
+
+private theorem parity_recd (d : ℕ → ZMod 2) : parity (recd d) = (d 0).val
+
+private theorem S_recd (d : ℕ → ZMod 2) : S (recd d) = recd (seqShift d)
+
+private theorem S_iterate_recd (d : ℕ → ZMod 2) (n : ℕ) :
+    S^[n] (recd d) = recd (seqShift^[n] d)
+
+private theorem dig_recd (d : ℕ → ZMod 2) : dig (recd d) = d
+
+private theorem dig_bijective : Function.Bijective dig
+
+private noncomputable def cylRealizer (N : ℕ) (d : (i : Finset.Iic N) → ZMod 2) : ℤ_[2] :=
+  recd (fun n => if h : n ≤ N then d ⟨n, Finset.mem_Iic.mpr h⟩ else 0)
+
+private theorem dig_cylRealizer (N : ℕ) (d : (i : Finset.Iic N) → ZMod 2) (i : Finset.Iic N) :
+    dig (cylRealizer N d) ↑i = d i
+
+private theorem measurable_S : Measurable S
+
+private theorem measurable_toZMod : Measurable (PadicInt.toZMod : ℤ_[2] → ZMod 2)
+
+private theorem measurable_dig : Measurable dig
+
+private theorem measurable_recd : Measurable recd
+
+private noncomputable def digEquiv : ℤ_[2] ≃ᵐ (ℕ → ZMod 2) where
+  toEquiv := Equiv.ofBijective dig dig_bijective
+  measurable_toFun := measurable_dig
+  measurable_invFun := by
+    have heq : ⇑(Equiv.ofBijective dig dig_bijective).symm = recd := by
+      funext d
+      have h1 : dig ((Equiv.ofBijective dig dig_bijective).symm d) = d :=
+        (Equiv.ofBijective dig dig_bijective).apply_symm_apply d
+      exact dig_bijective.injective (h1.trans (dig_recd d).symm)
+    rw [heq]; exact measurable_recd
+
+private theorem map_proj_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ]
+    (N : ℕ) :
+    μ.map (fun x => (Finset.Iic N).restrict (dig x)) = Measure.pi (fun _ : Finset.Iic N => uZMod2)
+
+private theorem map_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    μ.map dig = Measure.infinitePi (fun _ : ℕ => uZMod2)
+
+theorem S_bernoulli (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    IsBernoulli S μ
+
+theorem Φ_isometry : Isometry (⇑Φ)
+
+theorem Φ_measurePreserving [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    MeasurePreserving (⇑Φ) μ μ
+
+theorem exists_metric_conjugacy [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    ∃ Φ : ℤ_[2] ≃ₜ ℤ_[2], Function.Semiconj (⇑Φ) S T₂ ∧ MeasurePreserving (⇑Φ) μ μ
+
+theorem T₂_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    IsBernoulli T₂ μ
+
+theorem T₂_stronglyMixing [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    IsStronglyMixing T₂ μ
+
+theorem T₂_measurePreserving [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    MeasurePreserving T₂ μ μ
+
+theorem T₂_ergodic [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
+    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
+    Ergodic T₂ μ
+
+noncomputable def shiftConj (V₀ V₁ : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : ℤ_[2] :=
+  if parity x = 0 then V₀ (S x) else V₁ (S x)
+
+theorem shiftConj_even (V₀ V₁ : ℤ_[2] → ℤ_[2]) {x : ℤ_[2]} (h : parity x = 0) :
+    shiftConj V₀ V₁ x = V₀ (S x)
+
+theorem shiftConj_odd (V₀ V₁ : ℤ_[2] → ℤ_[2]) {x : ℤ_[2]} (h : parity x = 1) :
+    shiftConj V₀ V₁ x = V₁ (S x)
+
+theorem parity_eq_zero_or_one (x : ℤ_[2]) : parity x = 0 ∨ parity x = 1
+
+theorem toZMod_eq_parity (x : ℤ_[2]) : ((parity x : ℕ) : ZMod 2) = PadicInt.toZMod x
+
+theorem dvd_sub_pow_of_not_dvd {a : ℤ_[2]} {m : ℕ} (hm : (2 : ℤ_[2]) ^ m ∣ a)
+    (hnm : ¬ (2 : ℤ_[2]) ^ (m + 1) ∣ a) : (2 : ℤ_[2]) ^ (m + 1) ∣ (a - 2 ^ m)
+
+theorem lemma_B1 {V : ℤ_[2] → ℤ_[2]} (hsol : Solenoidal V) (hbij : Function.Bijective V)
+    (m : ℕ) {z w : ℤ_[2]} (hzw : (2 : ℤ_[2]) ^ m ∣ (z - w)) :
+    (2 : ℤ_[2]) ^ (m + 1) ∣ (V z - (V w + (z - w)))
+
+theorem lemma_B2 {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) (k : ℕ) {x y e : ℤ_[2]}
+    (hxy : (2 : ℤ_[2]) ^ (k + 2) ∣ (y - (x + 2 ^ (k + 1) * e))) :
+    (2 : ℤ_[2]) ^ (k + 1) ∣ (shiftConj V₀ V₁ y - (shiftConj V₀ V₁ x + 2 ^ k * e))
+
+theorem lemma_B3 {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) (j d : ℕ) {x y e : ℤ_[2]}
+    (hxy : (2 : ℤ_[2]) ^ (j + d + 1) ∣ (y - (x + 2 ^ (j + d) * e))) :
+    (2 : ℤ_[2]) ^ (d + 1) ∣
+      ((shiftConj V₀ V₁)^[j] y - ((shiftConj V₀ V₁)^[j] x + 2 ^ d * e))
+
+theorem lemma_B4 {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) (m : ℕ) {x y e : ℤ_[2]}
+    (hxy : (2 : ℤ_[2]) ^ (m + 1) ∣ (y - (x + 2 ^ m * e))) :
+    (2 : ℤ_[2]) ∣ ((shiftConj V₀ V₁)^[m] y - ((shiftConj V₀ V₁)^[m] x + e))
+
+noncomputable def xSeq (V₀ V₁ : ℤ_[2] → ℤ_[2]) (b : ℕ → ℤ_[2]) : ℕ → ℤ_[2]
+  | 0 => 0
+  | m + 1 => xSeq V₀ V₁ b m + 2 ^ m * (b m - (shiftConj V₀ V₁)^[m] (xSeq V₀ V₁ b m))
+
+theorem lemma_B5 {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) (b : ℕ → ℤ_[2]) (m : ℕ) (y : ℤ_[2]) :
+    (2 : ℤ_[2]) ^ m ∣ (y - xSeq V₀ V₁ b m)
+      ↔ ∀ i, i < m → (2 : ℤ_[2]) ∣ ((shiftConj V₀ V₁)^[i] y - b i)
+
+noncomputable def qIter (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : ℤ_[2] :=
+  ∑' i : ℕ, (parity (f^[i] x) : ℤ_[2]) * 2 ^ i
+
+theorem qIter_summable (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) :
+    Summable (fun i : ℕ => (parity (f^[i] x) : ℤ_[2]) * 2 ^ i)
+
+theorem qIter_peel (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) :
+    qIter f x = (parity x : ℤ_[2]) + 2 * qIter f (f x)
+
+theorem qIter_parity (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : parity (qIter f x) = parity x
+
+theorem qIter_semiconj (f : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : qIter f (f x) = S (qIter f x)
+
+theorem qIter_iterate_semiconj (f : ℤ_[2] → ℤ_[2]) (i : ℕ) (x : ℤ_[2]) :
+    S^[i] (qIter f x) = qIter f (f^[i] x)
+
+theorem qIter_digit (f : ℤ_[2] → ℤ_[2]) (i : ℕ) (x : ℤ_[2]) :
+    parity (S^[i] (qIter f x)) = parity (f^[i] x)
+
+theorem qIter_partialSum_dvd (f : ℤ_[2] → ℤ_[2]) (n : ℕ) (x : ℤ_[2]) :
+    (2 : ℤ_[2]) ^ n ∣ (qIter f x - ∑ i ∈ Finset.range n, (parity (f^[i] x) : ℤ_[2]) * 2 ^ i)
+
+noncomputable def qConj (V₀ V₁ : ℤ_[2] → ℤ_[2]) : ℤ_[2] → ℤ_[2] := qIter (shiftConj V₀ V₁)
+
+theorem two_dvd_sub_parity (z : ℤ_[2]) : (2 : ℤ_[2]) ∣ (z - (parity z : ℤ_[2]))
+
+theorem parity_natCast_parity (w : ℤ_[2]) : parity ((parity w : ℤ_[2])) = parity w
+
+theorem qConj_digit (V₀ V₁ : ℤ_[2] → ℤ_[2]) (i : ℕ) (x : ℤ_[2]) :
+    parity (S^[i] (qConj V₀ V₁ x)) = parity ((shiftConj V₀ V₁)^[i] x)
+
+theorem qConj_semiconj (V₀ V₁ : ℤ_[2] → ℤ_[2]) :
+    Function.Semiconj (qConj V₀ V₁) (shiftConj V₀ V₁) S
+
+theorem qConj_injective {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) : Function.Injective (qConj V₀ V₁)
+
+theorem qConj_surjective {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) : Function.Surjective (qConj V₀ V₁)
+
+theorem qConj_solenoidal {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) : Solenoidal (qConj V₀ V₁)
+
+theorem theorem_B1 {V₀ V₁ : ℤ_[2] → ℤ_[2]} (h₀ : Solenoidal V₀) (hb₀ : Function.Bijective V₀)
+    (h₁ : Solenoidal V₁) (hb₁ : Function.Bijective V₁) :
+    Solenoidal (qConj V₀ V₁) ∧ Function.Bijective (qConj V₀ V₁)
+      ∧ Function.Semiconj (qConj V₀ V₁) (shiftConj V₀ V₁) S
+
+theorem theorem_B2 {Q : ℤ_[2] → ℤ_[2]} (hQsol : Solenoidal Q) (hQbij : Function.Bijective Q) :
+    ∃ V₀ V₁ : ℤ_[2] → ℤ_[2],
+      (Solenoidal V₀ ∧ Function.Bijective V₀) ∧ (Solenoidal V₁ ∧ Function.Bijective V₁)
+        ∧ Function.invFun Q ∘ S ∘ Q = shiftConj V₀ V₁
+
+noncomputable def axbNumer (a b x : ℤ_[2]) : ℤ_[2] := x * a ^ parity x + b * (parity x : ℤ_[2])
+
+theorem even_axbNumer {a b : ℤ_[2]} (hab : (2 : ℤ_[2]) ∣ (a + b)) (x : ℤ_[2]) :
+    (2 : ℤ_[2]) ∣ axbNumer a b x
+
+noncomputable def axbMap {a b : ℤ_[2]} (hab : (2 : ℤ_[2]) ∣ (a + b)) (x : ℤ_[2]) : ℤ_[2] :=
+  half (even_axbNumer hab x)
+
+theorem two_mul_axbMap {a b : ℤ_[2]} (hab : (2 : ℤ_[2]) ∣ (a + b)) (x : ℤ_[2]) :
+    2 * axbMap hab x = axbNumer a b x
+
+theorem shiftConj_id_axbMap {a b : ℤ_[2]} (hab : (2 : ℤ_[2]) ∣ (a + b)) :
+    shiftConj id (fun y => a * y + half hab) = axbMap hab
+
+theorem axbMap_three_one (hab : (2 : ℤ_[2]) ∣ ((3 : ℤ_[2]) + 1)) :
+    axbMap hab = T₂
+
+theorem shiftConj_eq_T₂ : shiftConj id (fun y => 3 * y + 2) = T₂

@@ -7,7 +7,7 @@ import CC.Parity
 import Mathlib.Dynamics.Ergodic.Ergodic
 import Mathlib.MeasureTheory.Group.Measure
 import Mathlib.NumberTheory.Padics.RingHoms
-import Mathlib.Probability.ProductMeasure
+import ForMathlib.Dynamics.Bernoulli
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -49,20 +49,24 @@ numerator, halved" (`ℤ₂` is a domain, so halving an even element is unique �
 
 Bernstein and Lagarias recall that `T₂` is **measure-preserving** on `ℤ₂` for the 2-adic (Haar,
 normalised) measure and is **strongly mixing**, hence **ergodic**; this is [Lag85] (the paper's
-reference [8]). We define `StronglyMixing` and prove (sorry-free) that it implies ergodicity
-(`StronglyMixing.ergodic`); strong mixing of `T₂` is the single cited `axiom` `T₂_stronglyMixing`,
-from which `T₂_measurePreserving` and `T₂_ergodic` are **derived**. *More is true* `(1.3)`: `T` is
+reference [8]). The general ergodic-theory notions are now in `ForMathlib`
+(`MeasureTheory.IsStronglyMixing` with `IsStronglyMixing.ergodic`, and `MeasureTheory.IsBernoulli`
+with `IsBernoulli.isStronglyMixing`); strong mixing of `T₂` itself (`T₂_stronglyMixing`, with
+`T₂_measurePreserving` and `T₂_ergodic` derived from it) is **proved** downstream in
+`BL.MetricConjugacy` — `T₂` is Bernoulli and any Bernoulli shift is strongly mixing [Quas09] — no
+longer a cited axiom. *More is true* `(1.3)`: `T` is
 topologically conjugate to the shift `S` — there is a homeomorphism `Φ : ℤ₂ → ℤ₂` with
 `Φ ∘ S ∘ Φ⁻¹ = T` (`exists_conjugacy`). This `Φ` is the titular **3x+1 conjugacy map**; its explicit
 construction (the parity-vector map) is the subject of the later sections. In fact this `Φ` can be
 taken **measure-preserving** for the 2-adic measure, so `T` is **metrically conjugate** to `S` — now
 **proved** as `exists_metric_conjugacy` in `BL.MetricConjugacy` (the constructed `Φ` is a 2-adic
 isometry, and a surjective isometry of `ℤ₂` preserves the Haar measure); and as the 2-adic shift is
-the one-sided Bernoulli `(½,½)` shift (`S_bernoulli`, cited [Kin09] — the classical p-adic digit fact,
-against the genuine product-measure model `IsBernoulli`), `T` is **Bernoulli** — also **proved**, as
-`T₂_bernoulli` (`BL.MetricConjugacy`). Thus the only cited `axiom`s among the dynamics are now the
-genuinely deep / unconstructed inputs (`T₂_stronglyMixing` and `S_bernoulli`), per the corpus
-literature-axiom policy; the metric conjugacy and Bernoulli conclusions are derived.
+Bernoulli (`S_bernoulli`, cited [Kin09] — the classical p-adic digit fact, against the general
+product-measure model `MeasureTheory.IsBernoulli`), `T` is **Bernoulli** — also **proved**, as
+`T₂_bernoulli` (`BL.MetricConjugacy`). Thus the **only** cited `axiom` among the dynamics is now
+`S_bernoulli` ([Kin09], the 2-adic shift is Bernoulli); the metric conjugacy, the mixing/ergodicity,
+and the Bernoulli conclusion are all derived (mixing rests additionally on the cited [Quas09] fact
+that a Bernoulli shift is strongly mixing, in `ForMathlib`).
 
 ## Rigidity of `Φ`: the shift automorphism `V`
 
@@ -92,15 +96,15 @@ the digit count is `num_odd_steps` (`num_odd_steps_eq_sum_parity`). These bridge
 * `parity_natCast`, `T₂_iterate_natCast`, `parity_T₂_iterate_natCast`, `parity_T₂_iterate_eq_E_vec`,
   `getElem_V_eq_parity`, `num_odd_steps_eq_sum_parity` — bridges to `CC.Parity`: the 2-adic parity
   digits of the `T₂`-orbit are the Collatz parity vectors (the `Q∞`/`Φ⁻¹` truncations).
-* `StronglyMixing`, `StronglyMixing.ergodic` — strong mixing and the (proved) implication to ergodicity.
-* `seqShift`, `uniformBool`, `bernoulliSeqMeasure`, `IsBernoulli` — the one-sided Bernoulli `(½,½)`
-  shift on `ℕ → Bool` and the "is a Bernoulli system" predicate.
-* `T₂_stronglyMixing` (cited) ⇒ `T₂_measurePreserving`, `T₂_ergodic` (derived): `T₂`'s 2-adic dynamics.
 * `(1.3)` `T₂` is topologically conjugate to the shift `S` — now **proved** as `exists_conjugacy`
   in `BL.ConjugacyMap` (via the `qMap` construction), no longer a cited axiom here.
-* `S_bernoulli` — cited [Kin09]: the 2-adic shift `S` is the one-sided Bernoulli `(½,½)` shift.
-* `exists_metric_conjugacy`, `T₂_bernoulli` — now **proved** downstream in `BL.MetricConjugacy`
-  (the conjugacy `Φ` is measure-preserving, so `T` is metrically conjugate to `S` and `T₂` is Bernoulli).
+* `S_bernoulli` — cited [Kin09]: the 2-adic shift `S` is Bernoulli (`MeasureTheory.IsBernoulli`). The
+  general Bernoulli-system machinery (`MeasureTheory.{seqShift, IsBernoulli, IsBernoulli.isStronglyMixing}`,
+  and strong mixing of a Bernoulli shift) lives in `ForMathlib/Dynamics/{StronglyMixing, Bernoulli}.lean`.
+* `exists_metric_conjugacy`, `T₂_bernoulli`, and `T₂_stronglyMixing` ⇒ `T₂_measurePreserving`,
+  `T₂_ergodic` — now all **proved** downstream in `BL.MetricConjugacy`: the conjugacy `Φ` is
+  measure-preserving (so `T` metrically conjugate to `S`), `T₂` is Bernoulli, and being Bernoulli it
+  is strongly mixing ([Quas09], via `ForMathlib`), hence measure-preserving and ergodic.
 * `V`, `V_apply_zero`, `V_involutive`, `parity_V`, `V_semiconj_S`, `V_ne_id` — the shift automorphism
   `V x = -1 - x` (bit-complement): proved to be an involution flipping parity and commuting with `S`.
 * `shiftAut_eq_id_or_V` — cited: `Aut(S) ≅ ℤ/2ℤ = {id, V}`.
@@ -286,121 +290,14 @@ theorem num_odd_steps_eq_sum_parity (k n : ℕ) :
   rw [CC.num_odd_steps]
   exact Finset.sum_congr rfl (fun i _ => (parity_T₂_iterate_natCast i n).symm)
 
-/-! ### Strong mixing and Bernoulli systems (general)
+/-! ### The 2-adic shift is Bernoulli
 
-General measure-theoretic notions (not specific to the 3x+1 map), used to state — and partly to
-derive — the cited ergodic-theoretic facts about `T₂` below. -/
-
-/-- A measure-preserving system `(f, μ)` is **strongly mixing** if `μ (f⁻ⁿ A ∩ B) → μ A · μ B` for
-all measurable `A, B` (this bundles measure preservation). -/
-@[category API, AMS 37 28, ref "BL96"]
-def StronglyMixing {α : Type*} [MeasurableSpace α] (f : α → α) (μ : Measure α) : Prop :=
-  MeasurePreserving f μ μ ∧ ∀ A B, MeasurableSet A → MeasurableSet B →
-    Tendsto (fun n => μ (f^[n] ⁻¹' A ∩ B)) atTop (𝓝 (μ A * μ B))
-
-/-- **Strong mixing implies ergodicity.** For an invariant set `s` (`f⁻¹ s = s`), mixing with
-`A = B = s` gives `μ s = μ s · μ s`, forcing `μ s ∈ {0, 1}`. A genuine (sorry-free) proof. -/
-@[category API, AMS 37 28, ref "BL96"]
-theorem StronglyMixing.ergodic {α : Type*} [MeasurableSpace α] {f : α → α} {μ : Measure α}
-    [IsProbabilityMeasure μ] (h : StronglyMixing f μ) : Ergodic f μ := by
-  refine ⟨h.1, ⟨fun s hs hinv => ?_⟩⟩
-  have hiter : ∀ n, f^[n] ⁻¹' s = s := by
-    intro n
-    induction n with
-    | zero => simp
-    | succ k ih => rw [Function.iterate_succ', Set.preimage_comp, hinv, ih]
-  have hmix := h.2 s s hs hs
-  have hconst : (fun n => μ (f^[n] ⁻¹' s ∩ s)) = fun _ => μ s := by
-    funext n; rw [hiter n, Set.inter_self]
-  rw [hconst] at hmix
-  have huniq : μ s = μ s * μ s := tendsto_nhds_unique tendsto_const_nhds hmix
-  have hdich : μ s = 0 ∨ μ s = 1 := by
-    rcases eq_or_ne (μ s) 0 with h0 | h0
-    · exact Or.inl h0
-    · exact Or.inr ((ENNReal.mul_eq_left h0 (measure_ne_top μ s)).mp huniq.symm)
-  rw [eventuallyConst_set]
-  rcases hdich with h0 | hs1
-  · exact Or.inr (by rw [ae_iff]; simpa using h0)
-  · refine Or.inl (by rw [ae_iff, show {a | a ∉ s} = sᶜ from rfl,
-      measure_compl hs (measure_ne_top μ s), measure_univ, hs1, tsub_self])
-
-/-- The one-sided shift on `Bool`-sequences (drop the `0`th coordinate). -/
-@[category API, AMS 37 28, ref "BL96"]
-def seqShift (x : ℕ → Bool) : ℕ → Bool := fun n => x (n + 1)
-
-/-- The uniform `(½,½)` measure on `Bool`. -/
-@[category API, AMS 37 28, ref "BL96"]
-noncomputable def uniformBool : Measure Bool :=
-  (1 / 2 : ENNReal) • Measure.dirac true + (1 / 2 : ENNReal) • Measure.dirac false
-
-/-- The one-sided **Bernoulli `(½,½)` measure** on `ℕ → Bool`: i.i.d. uniform binary digits. -/
-@[category API, AMS 37 28, ref "BL96"]
-noncomputable def bernoulliSeqMeasure : Measure (ℕ → Bool) :=
-  Measure.infinitePi (fun _ => uniformBool)
-
-/-- A measure-preserving system `(f, μ)` is **Bernoulli** if it is isomorphic — via a
-measure-preserving measurable equivalence `e` intertwining the dynamics (`Semiconj e f seqShift`) —
-to the one-sided Bernoulli `(½,½)` shift `(seqShift, bernoulliSeqMeasure)` on `ℕ → Bool`. -/
-@[category API, AMS 37 28, ref "BL96"]
-def IsBernoulli {α : Type*} [MeasurableSpace α] (f : α → α) (μ : Measure α) : Prop :=
-  ∃ e : α ≃ᵐ (ℕ → Bool),
-    MeasurePreserving (⇑e) μ bernoulliSeqMeasure ∧ Function.Semiconj (⇑e) f seqShift
-
-/-! ### Ergodic theory and conjugacy of `T₂` (cited) -/
-
-/-- **(Bernstein–Lagarias, §1; cited.)** The 3x+1 map `T₂` is **strongly mixing** on `ℤ₂` for the
-2-adic measure (normalised additive Haar on the Borel `σ`-algebra). This is the paper's reference
-[8] = [Lag85]; recorded as a cited `axiom`, from which measure preservation and ergodicity are
-derived below. -/
-@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_2adic_dynamics"]
-axiom T₂_stronglyMixing [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
-    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    StronglyMixing T₂ μ
-
-/-- `T₂` is **measure-preserving** on `ℤ₂` for the 2-adic measure — the first component of strong
-mixing (`T₂_stronglyMixing`). -/
-@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_2adic_dynamics"]
-theorem T₂_measurePreserving [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
-    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    MeasurePreserving T₂ μ μ :=
-  (T₂_stronglyMixing μ).1
-
-/-- `T₂` is **ergodic** on `ℤ₂` for the 2-adic measure: it is strongly mixing
-(`T₂_stronglyMixing`), hence ergodic by `StronglyMixing.ergodic`. (Genuinely derived, not assumed.) -/
-@[category research solved, AMS 37 28, ref "BL96" "Lag85", group "bl_2adic_dynamics"]
-theorem T₂_ergodic [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
-    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    Ergodic T₂ μ :=
-  (T₂_stronglyMixing μ).ergodic
-
--- **Theorem (1.3)** `exists_conjugacy` (the topological conjugacy `Φ ∘ S = T₂ ∘ Φ`, non-normalised)
--- is now **PROVED** and lives in `BL.ConjugacyMap` (discharged via the `BL.ParityVectorMap` `qMap`
--- construction), rather than a cited axiom here. The measure-preserving strengthening below stays cited.
-
--- **Metric conjugacy** `exists_metric_conjugacy` (the conjugacy `Φ` of `(1.3)` can be taken
--- **measure-preserving** for the 2-adic Haar measure) is now **PROVED** and lives downstream in
--- `BL.MetricConjugacy`, not a cited `axiom` here: `Φ` is a 2-adic isometry (`Φ_isometry`, from
--- `corollary_A3`), and a surjective isometry of `ℤ₂` preserves any finite left-invariant measure
--- (`ForMathlib.MeasureTheory.measurePreserving_of_surjective_isometry`). It must live below the
--- `Φ`-construction; the Bernoulli conclusion `T₂_bernoulli` it feeds moved there with it.
-
-/-- **(classical; cited.)** **The 2-adic shift `S` is the one-sided Bernoulli `(½,½)` shift.** The
-binary-digit expansion `ℤ₂ ≃ᵐ (ℕ → Bool)` carries the 2-adic (normalised Haar) measure to the i.i.d.
-uniform product measure `bernoulliSeqMeasure` and intertwines `S` with the coordinate shift
-`seqShift` (the lowest digit is dropped). This is the classical fact that the binary digits of a
-Haar-random 2-adic integer are independent fair coin flips; BL96 §1 invokes it to conclude that
-`T₂` is Bernoulli. Formalising the Haar-to-product pushforward is a separate undertaking, so the
-statement is recorded as a cited `axiom`; the conclusion `T₂_bernoulli` is then **derived** from it. -/
-@[category research solved, AMS 37 28, ref "Kin09", group "bl_conjugacy"]
-axiom S_bernoulli [MeasurableSpace ℤ_[2]] [BorelSpace ℤ_[2]]
-    (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
-    IsBernoulli S μ
-
--- **`T₂_bernoulli`** (`T₂` is a **Bernoulli** system, against the product model `IsBernoulli`) is
--- **PROVED** downstream in `BL.MetricConjugacy` — it depends on the now-downstream
--- `exists_metric_conjugacy`. It transports the Bernoulli structure of `S` (`S_bernoulli`, above)
--- across the measure-preserving conjugacy `Φ` (the map `e ∘ Φ⁻¹` conjugates `(T₂, μ)` to the
--- Bernoulli shift, using `Φ⁻¹ ∘ T₂ = S ∘ Φ⁻¹`).
+The general Bernoulli-system notions (`MeasureTheory.seqShift`, `MeasureTheory.IsBernoulli`, and the
+fact that a Bernoulli system is strongly mixing) live in `ForMathlib/Dynamics/{StronglyMixing,
+Bernoulli}.lean` — they are not 2-adic-specific. The only `BL`-specific item is the fact that the
+2-adic shift `S` is Bernoulli (`BL.S_bernoulli`), now **proved** (no longer a cited axiom) in
+`BL.ShiftBernoulli`: the binary-digit map `ℤ₂ ≃ᵐ (ℕ → ZMod 2)` carries Haar to the i.i.d. uniform
+`(½,½)` product measure (via `PadicInt.measure_toZModPow_fiber`) and intertwines `S` with `seqShift`. -/
 
 /-! ### The shift automorphism `V` and rigidity of `Φ`
 

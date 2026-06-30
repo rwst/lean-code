@@ -5,7 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import B3.PlaceTwoProduct
 import B3.BlockConstruction
-import B3.RatIntBasic
+import BL.ConjugacyMap
 import Mathlib.NumberTheory.Padics.WithVal
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database

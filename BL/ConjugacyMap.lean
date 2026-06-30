@@ -7,6 +7,7 @@ import BL.Basic
 import BL.SolenoidalMaps
 import BL.ParityVectorMap
 import Mathlib.Analysis.SpecificLimits.Normed
+import Mathlib.NumberTheory.Padics.WithVal
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -54,7 +55,8 @@ Only the equivalence is asserted — the conjecture itself is left open and unna
 
 The paper's **Periodicity Conjecture** (`periodicity_conjecture`, `research open`) is
 `Φ(ℚ ∩ ℤ₂) = ℚ ∩ ℤ₂` (`RatInt`): `Φ` preserves the rational 2-adic integers. It would imply the 3x+1
-map has **no divergent trajectory** (`periodicity_imp_no_divergent_trajectories`, `research open`),
+map has **no divergent trajectory** (`periodicity_imp_no_divergent_trajectories`, **proved** as an
+implication — it takes the conjecture as a hypothesis, see below),
 where a trajectory is **divergent** (`Divergent`) if it has infinitely many distinct elements —
 equivalently `Tᵏ(n) → ∞` (`divergent_iff_tendsto_atTop`, proved via the iteration dichotomy
 `range_iterate_infinite_iff_tendsto`).
@@ -96,8 +98,10 @@ later files.
 * `Divergent`, `divergent_iff_tendsto_atTop` — a divergent 3x+1 trajectory (∞-many distinct elements)
   ⟺ `Tᵏ(n) → ∞`; helpers `orbit_range_finite_of_eq`, `range_iterate_infinite_iff_tendsto`,
   `T_iter_eq_iterate` — the general iteration dichotomy behind it.
+* `ratInt_odd_den`, `boundedRat_finite`, `S_value`, `ratInt_S_orbit_finite` — a rational `2`-adic
+  integer has a **finite shift-orbit** (its value stays a bounded-height rational).
 * `periodicity_imp_no_divergent_trajectories` — Periodicity Conjecture ⟹ no divergent trajectory
-  (research open).
+  (**proved** as an implication, via `ratInt_S_orbit_finite` and the conjugacy `Φ ∘ S = T₂ ∘ Φ`).
 * `parity_neg_one`, `parity_inv_three`, `eq_zero_or_neg_one_of_T₂_fixed`, `S_neg_one`, `Φ_neg_one`,
   `neg_one_ne_inv_three`, `fixed_point_conjecture` — the **Fixed Point Conjecture** (`Φ` has exactly two
   odd fixed points `-1`, `1/3`; research open) and the verified facts: `-1` is fixed, both are odd and
@@ -363,6 +367,65 @@ construction map `BL.qMap` (same series), this is exactly `qMap_solenoidal` (`BL
 @[category research solved, AMS 11 37, ref "BL96" "Lag85", group "bl_conjugacy_map"]
 theorem Q_solenoidal : Solenoidal Q := qMap_solenoidal
 
+/-! ### `Φ` commutes with multiplication by powers of `2`
+
+Multiplying `x` by `2` prepends a `0`-bit to its binary expansion. In the explicit formula `(1.6)`
+`Φ(x) = −∑ᵢ 3^{−(i+1)} 2^{dᵢ}` the `1`-bit positions `dᵢ` all shift up by one while the `3`-power
+coefficients (keyed by the *rank* `i`) are unchanged, so `Φ(2x) = 2 Φ(x)`. We prove this via the
+inverse `Q = Φ⁻¹` (the `(1.5)` series): since `T₂(2y) = y` and `parity(2y) = 0`, the digit series of
+`Q(2y)` is that of `Q(y)` shifted up by one, i.e. `Q(2y) = 2 Q(y)`; transporting along `Φ.symm = Q`
+gives `Φ(2x) = 2 Φ(x)`, and induction gives the `2ʲ` form. -/
+
+/-- `2x` is **even**: `parity (2x) = 0` (its lowest binary digit is `0`). -/
+@[category API, AMS 11 37, ref "BL96"]
+theorem parity_two_mul (x : ℤ_[2]) : parity (2 * x) = 0 := by
+  unfold parity
+  have h2 : PadicInt.toZMod (2 : ℤ_[2]) = 0 := by
+    have e : (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) := by norm_num
+    rw [e, map_natCast]; decide
+  rw [map_mul, h2, zero_mul, ZMod.val_zero]
+
+/-- On an **even** input the 3x+1 map is just halving: `T₂ (2x) = x` (from `2·T₂(2x) = numer(2x) = 2x`
+since `parity(2x) = 0`). -/
+@[category API, AMS 11 37, ref "BL96"]
+theorem T₂_two_mul (x : ℤ_[2]) : T₂ (2 * x) = x := by
+  have h := two_mul_T₂ (2 * x)
+  unfold numer at h
+  rw [parity_two_mul] at h
+  simp only [pow_zero, mul_one, Nat.cast_zero, add_zero] at h
+  exact mul_left_cancel₀ (by norm_num : (2 : ℤ_[2]) ≠ 0) h
+
+/-- **`Q = Φ⁻¹` doubles under doubling:** `Q(2y) = 2 Q(y)`. The defining series
+`Q(y) = ∑ᵢ parity(T₂ⁱ y)·2ⁱ` has, at `2y`, lowest digit `parity(2y) = 0` and `T₂ⁱ⁺¹(2y) = T₂ⁱ(y)`
+(`T₂_two_mul`), so its series is `Q(y)`'s shifted up by one power of `2`. -/
+@[category API, AMS 11 37, ref "BL96" "Ber94"]
+theorem Q_two_mul (x : ℤ_[2]) : Q (2 * x) = 2 * Q x := by
+  have hterm : ∀ i, (parity (T₂^[i + 1] (2 * x)) : ℤ_[2]) * 2 ^ (i + 1)
+      = 2 * ((parity (T₂^[i] x) : ℤ_[2]) * 2 ^ i) := by
+    intro i
+    rw [Function.iterate_succ_apply, T₂_two_mul, pow_succ]
+    ring
+  unfold Q qMap
+  rw [(qMap_summable (2 * x)).tsum_eq_zero_add, tsum_congr hterm,
+      (qMap_summable x).tsum_mul_left]
+  simp [parity_two_mul]
+
+/-- **`Φ` commutes with doubling:** `Φ(2x) = 2 Φ(x)` (BL96, from the explicit formula `(1.6)`). Proved
+by transporting `Q_two_mul` along `Φ.symm = Q` (`Φ_symm_eq_Q`). -/
+@[category research solved, AMS 11 37, ref "BL96" "Ber94", group "bl_conjugacy_map"]
+theorem Φ_two_mul (x : ℤ_[2]) : Φ (2 * x) = 2 * Φ x := by
+  have h : Φ.symm (2 * Φ x) = 2 * x := by
+    rw [Φ_symm_eq_Q, Q_two_mul, ← Φ_symm_eq_Q, Φ.symm_apply_apply]
+  rw [← h, Φ.apply_symm_apply]
+
+/-- **`Φ` commutes with multiplication by `2ʲ`:** `Φ(2ʲ x) = 2ʲ Φ(x)` for every `j` (BL96). Induction
+on `j` from the doubling case `Φ_two_mul`. -/
+@[category research solved, AMS 11 37, ref "BL96" "Ber94", group "bl_conjugacy_map"]
+theorem Φ_two_pow_mul (j : ℕ) (x : ℤ_[2]) : Φ (2 ^ j * x) = 2 ^ j * Φ x := by
+  induction j with
+  | zero => simp
+  | succ j ih => rw [pow_succ', mul_assoc, Φ_two_mul, ih, ← mul_assoc]
+
 /-! ### The explicit formula for `Φ` (1.6)
 
 The dual of `(1.5)`: an explicit formula for the **forward** map `Φ` in terms of the **binary
@@ -539,16 +602,192 @@ theorem divergent_iff_tendsto_atTop (n : ℕ) :
   simp only [Divergent, T_iter_eq_iterate]
   exact range_iterate_infinite_iff_tendsto CC.T n
 
+/-! #### Finiteness of the shift-orbit of a rational `2`-adic integer
+
+These elementary facts (the `2`-adic analogue of "rationals have eventually periodic expansions") are
+what turns the Periodicity Conjecture into a *no-divergence* statement: a rational `2`-adic integer has
+a **finite shift-orbit**. They depend only on `RatInt`, the shift `S`, and `parity`. -/
+
+/-- **A rational `2`-adic integer has odd denominator.** If `x : ℤ_[2]` has rational value `q`
+(`(x : ℚ_[2]) = (q : ℚ_[2])`), then `q.den` is odd: `x ∈ ℤ_[2]` gives `‖(q : ℚ_[2])‖ ≤ 1`, hence
+`2 ∤ q.den`. -/
+@[category research solved, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
+theorem ratInt_odd_den {x : ℤ_[2]} (q : ℚ) (hx : (x : ℚ_[2]) = (q : ℚ_[2])) : Odd ((q.den : ℤ)) := by
+  have hnorm : ‖(q : ℚ_[2])‖ ≤ 1 := by
+    rw [← hx, PadicInt.padic_norm_e_of_padicInt]; exact PadicInt.norm_le_one x
+  have hden : ¬ (2 : ℕ) ∣ q.den :=
+    Rat.padicValuation_le_one_iff.mp ((Padic.norm_rat_le_one_iff_padicValuation_le_one 2).mp hnorm)
+  rw [Int.odd_coe_nat]
+  exact Nat.odd_iff.mpr (Nat.two_dvd_ne_zero.mp hden)
+
+/-- **Bounded-height rationals are finite.** The rationals `r` with denominator dividing a fixed `D > 0`
+and `|r| ≤ M` form a finite set. -/
+@[category API, AMS 11 37, ref "BL96"]
+theorem boundedRat_finite (D : ℕ) (hD : 0 < D) (M : ℚ) :
+    {r : ℚ | (r.den : ℤ) ∣ (D : ℤ) ∧ |r| ≤ M}.Finite := by
+  apply Set.Finite.of_finite_image (f := fun r : ℚ => (r.num, r.den))
+  · apply Set.Finite.subset (Finset.finite_toSet
+      ((Finset.Icc (-(⌈M⌉ * D)) (⌈M⌉ * D)) ×ˢ (Finset.Icc 1 D)))
+    rintro _ ⟨r, ⟨hdvd, habs⟩, rfl⟩
+    have hdenle : r.den ≤ D := Nat.le_of_dvd hD (by exact_mod_cast hdvd)
+    have hden0 : (r.den : ℚ) ≠ 0 := by exact_mod_cast r.den_nz
+    have hnumq : (r.num : ℚ) = r * (r.den : ℚ) := (div_eq_iff hden0).mp (Rat.num_div_den r)
+    have hnumbound : |r.num| ≤ ⌈M⌉ * (D : ℤ) := by
+      have e1 : |(r.num : ℚ)| = |r| * (r.den : ℚ) := by
+        rw [hnumq, abs_mul, abs_of_nonneg (by positivity : (0:ℚ) ≤ (r.den:ℚ))]
+      have hq : |(r.num : ℚ)| ≤ (⌈M⌉ : ℚ) * (D : ℚ) := by
+        rw [e1]
+        calc |r| * (r.den : ℚ) ≤ M * (D : ℚ) :=
+              mul_le_mul habs (by exact_mod_cast hdenle) (by positivity) (le_trans (abs_nonneg _) habs)
+          _ ≤ (⌈M⌉ : ℚ) * (D : ℚ) := mul_le_mul_of_nonneg_right (Int.le_ceil M) (by positivity)
+      exact_mod_cast hq
+    simp only [Finset.coe_product, Set.mem_prod, Finset.mem_coe, Finset.mem_Icc]
+    exact ⟨⟨(abs_le.mp hnumbound).1, (abs_le.mp hnumbound).2⟩, r.den_pos, hdenle⟩
+  · intro a _ b _ hab
+    exact Rat.ext (congrArg Prod.fst hab) (congrArg Prod.snd hab)
+
+/-- **The value of each shift iterate is a bounded-height rational.** If `v` has rational value `q`,
+then for every `k`, `Sᵏ v` has a rational value `q'` with `q'.den ∣ q.den` and `|q'| ≤ max |q| 1`
+(`q'' = (q' − εₖ)/2`, odd denominator by `ratInt_odd_den`, `|q''| = |q' − εₖ|/2 ≤ (|q'| + 1)/2`). -/
+@[category API, AMS 11 37, ref "BL96"]
+theorem S_value {v : ℤ_[2]} {q : ℚ} (hq : (v : ℚ_[2]) = (q : ℚ_[2])) :
+    ∀ k, ∃ q' : ℚ, (S^[k] v : ℚ_[2]) = (q' : ℚ_[2]) ∧ (q'.den : ℤ) ∣ (q.den : ℤ) ∧ |q'| ≤ max |q| 1 := by
+  intro k
+  induction k with
+  | zero => exact ⟨q, by simpa using hq, dvd_refl _, le_max_left _ _⟩
+  | succ k ih =>
+    obtain ⟨q', hval, hden, hbnd⟩ := ih
+    set b : ℕ := parity (S^[k] v) with hb
+    have hble : (b : ℚ) ≤ 1 := by
+      have hlt2 : b < 2 := by rw [hb]; unfold parity; exact ZMod.val_lt _
+      have : b ≤ 1 := by omega
+      exact_mod_cast this
+    have hb0 : (0 : ℚ) ≤ (b : ℚ) := by positivity
+    have hden0 : (q'.den : ℚ) ≠ 0 := by exact_mod_cast q'.den_nz
+    have hval' : ((S^[k+1] v : ℤ_[2]) : ℚ_[2]) = (((q' - (b:ℚ))/2 : ℚ) : ℚ_[2]) := by
+      rw [Function.iterate_succ_apply']
+      have hc : (2 : ℚ_[2]) * (S (S^[k] v) : ℚ_[2]) = (S^[k] v : ℚ_[2]) - (b : ℚ_[2]) := by
+        exact_mod_cast congrArg (fun z : ℤ_[2] => (z : ℚ_[2])) (two_mul_S (S^[k] v))
+      rw [hval] at hc; push_cast; rw [eq_div_iff (by norm_num : (2 : ℚ_[2]) ≠ 0)]; linear_combination hc
+    refine ⟨(q' - (b : ℚ)) / 2, hval', ?_, ?_⟩
+    · have hoddnew : Odd (((q' - (b:ℚ))/2).den : ℤ) := ratInt_odd_den _ hval'
+      have hnd : (q'.num : ℚ) = q' * (q'.den : ℚ) := (div_eq_iff hden0).mp (Rat.num_div_den q')
+      have hform : (q' - (b:ℚ))/2 = Rat.divInt (q'.num - b * q'.den) (2 * q'.den) := by
+        rw [Rat.divInt_eq_div]; push_cast; rw [hnd]; field_simp
+      have hdvd2 : (((q' - (b:ℚ))/2).den : ℤ) ∣ 2 * q'.den := by rw [hform]; exact Rat.den_dvd _ _
+      have hcop : IsCoprime (((q' - (b:ℚ))/2).den : ℤ) 2 := by
+        have h2 : IsCoprime (2:ℤ) (((q' - (b:ℚ))/2).den : ℤ) := by
+          rw [Int.prime_two.coprime_iff_not_dvd, Int.two_dvd_ne_zero]; exact Int.odd_iff.mp hoddnew
+        exact h2.symm
+      exact (hcop.dvd_of_dvd_mul_left hdvd2).trans hden
+    · rw [abs_div]
+      have h2 : |(2:ℚ)| = 2 := by norm_num
+      rw [h2]
+      have htri : |q' - (b:ℚ)| ≤ |q'| + 1 := by
+        calc |q' - (b:ℚ)| ≤ |q'| + |(b:ℚ)| := abs_sub _ _
+          _ ≤ |q'| + 1 := by rw [abs_of_nonneg hb0]; linarith
+      rw [div_le_iff₀ (by norm_num : (0:ℚ) < 2)]
+      linarith [htri, hbnd, le_max_right |q| 1]
+
+/-- **The shift-orbit of a rational `2`-adic integer is finite.** For `v ∈ RatInt`, the set
+`{Sᵏ v : k ∈ ℕ}` is finite: each `Sᵏ v` has value in the finite set of bounded-height rationals
+(`S_value`, `boundedRat_finite`), and the value map `ℤ₂ → ℚ₂` is injective. -/
+@[category research solved, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
+theorem ratInt_S_orbit_finite {v : ℤ_[2]} (hv : v ∈ RatInt) :
+    (Set.range fun k => S^[k] v).Finite := by
+  obtain ⟨q, hq⟩ := hv
+  have hVfin := boundedRat_finite q.den q.den_pos (max |q| 1)
+  have hsub : (Set.range fun k => (S^[k] v : ℚ_[2]))
+      ⊆ (fun r : ℚ => (r : ℚ_[2])) '' {r : ℚ | (r.den : ℤ) ∣ (q.den : ℤ) ∧ |r| ≤ max |q| 1} := by
+    rintro _ ⟨k, rfl⟩
+    obtain ⟨q', hval, hd, hb⟩ := S_value hq k
+    exact ⟨q', ⟨hd, hb⟩, hval.symm⟩
+  have hfin2 : (Set.range fun k => (S^[k] v : ℚ_[2])).Finite := (hVfin.image _).subset hsub
+  have hcomp : (fun k => (S^[k] v : ℚ_[2]))
+      = (fun w : ℤ_[2] => (w : ℚ_[2])) ∘ (fun k => S^[k] v) := rfl
+  rw [hcomp, Set.range_comp] at hfin2
+  exact hfin2.of_finite_image (fun a _ b _ (h : (a : ℚ_[2]) = (b : ℚ_[2])) => PadicInt.ext h)
+
 /-- **The Periodicity Conjecture implies no divergent trajectories** (BL96 §1). If `Φ` preserves
 `ℚ ∩ ℤ₂` (`periodicity_conjecture`), then the 3x+1 map has **no divergent trajectory**: every positive
 integer's trajectory has only finitely many distinct values (`∀ n > 0, ¬ Divergent n`, equivalently no
-`Tᵏ(n) → ∞`). **Open** (`sorry`ed `research open`): this is the paper's stated consequence, not proved
-here. The no-divergence statement is kept **inline** as `∀ n > 0, ¬ Divergent n`, never named — as with
-the 3x+1 conjecture itself (`t2_reachesOne_iff_collatz`). -/
-@[category research open, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
+`Tᵏ(n) → ∞`). **Proved** as an *implication* (it takes the conjecture as a hypothesis; it does not
+assert it). *Proof:* `↑n ∈ ℚ∩ℤ₂`, so by the conjecture `Φ⁻¹ ↑n ∈ ℚ∩ℤ₂` too; a rational `2`-adic integer
+has a **finite shift-orbit** (`ratInt_S_orbit_finite`); the conjugacy `Φ ∘ S = T₂ ∘ Φ` (`Φ_semiconj`)
+carries it to the `T₂`-orbit of `↑n`, which is `Φ '' (finite)`, finite; and `T₂ᵏ ↑n = ↑(Tᵏ n)`
+(`T₂_iterate_natCast`) with `ℕ ↪ ℤ₂` injective makes `{Tᵏ n}` finite — i.e. not divergent. -/
+@[category research solved, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
 theorem periodicity_imp_no_divergent_trajectories
-    (_hper : (⇑Φ) '' RatInt = RatInt) : ∀ n : ℕ, 0 < n → ¬ Divergent n := by
-  sorry
+    (hper : (⇑Φ) '' RatInt = RatInt) : ∀ n : ℕ, 0 < n → ¬ Divergent n := by
+  intro n _ hdiv
+  have hnRat : (↑n : ℤ_[2]) ∈ RatInt := ⟨(n : ℚ), by push_cast; rfl⟩
+  have hmem : (↑n : ℤ_[2]) ∈ (⇑Φ) '' RatInt := by rw [hper]; exact hnRat
+  obtain ⟨x, hxRat, hxn⟩ := hmem
+  have hSfin := ratInt_S_orbit_finite hxRat
+  have hconj : ∀ k, T₂^[k] (↑n : ℤ_[2]) = Φ (S^[k] x) := fun k => by
+    rw [← hxn]; exact (Φ_semiconj.iterate_right k x).symm
+  have hT2fin : (Set.range fun k => T₂^[k] (↑n : ℤ_[2])).Finite := by
+    apply (hSfin.image ⇑Φ).subset
+    rintro _ ⟨k, rfl⟩
+    exact ⟨S^[k] x, ⟨k, rfl⟩, (hconj k).symm⟩
+  have himgfin : ((Nat.cast : ℕ → ℤ_[2]) '' (Set.range fun k => CC.T_iter k n)).Finite := by
+    apply hT2fin.subset
+    rintro _ ⟨_, ⟨k, rfl⟩, rfl⟩
+    exact ⟨k, T₂_iterate_natCast k n⟩
+  exact hdiv (Set.Finite.of_finite_image himgfin (Nat.cast_injective.injOn))
+
+/-! #### The Periodicity Conjecture and the iterates `Φᵏ`
+
+BL96 §1 remarks that the Periodicity Conjecture is equivalent, *for any `k > 1`*, to the iterate
+statement `Φᵏ(ℚ∩ℤ₂) = ℚ∩ℤ₂` — so "information about the iterates `Φᵏ` may conceivably prove useful
+in resolving" it. The equivalence is *unconditional* (it does **not** assume the conjecture): it rests
+only on the **known** one-sided inclusion `Φ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂`. -/
+
+/-- **`Φ` preserves rationality (the known inclusion)** — `Φ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂` (BL96 §1, cited; the paper
+notes it is *known* and "easily proven from the explicit formula `(1.6)`", `Φ_eq_neg_sum` /
+`Φ_eq_neg_tsum`, see `[2] = [Ber94]`). This is the *easy* half: the image of a rational 2-adic integer
+is again rational. The **reverse** inclusion `ℚ∩ℤ₂ ⊆ Φ(ℚ∩ℤ₂)` is the open **Periodicity Conjecture**
+(`periodicity_conjecture`); the two together give `Φ(ℚ∩ℤ₂) = ℚ∩ℤ₂`. Kept as a cited `axiom` (a
+literature-proved fact), never assuming the open conjecture. -/
+@[category research solved, AMS 11 37, ref "BL96" "Ber94", group "bl_periodicity_conjecture"]
+axiom Φ_image_ratInt_subset : (⇑Φ) '' RatInt ⊆ RatInt
+
+/-- The iterates inherit the inclusion: `Φᵏ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂` for every `k`, by induction from
+`Φ_image_ratInt_subset`. -/
+@[category API, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
+theorem Φ_iterate_image_ratInt_subset (k : ℕ) : (⇑Φ)^[k] '' RatInt ⊆ RatInt := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Function.iterate_succ', Set.image_comp]
+    exact (Set.image_mono ih).trans Φ_image_ratInt_subset
+
+/-- **The Periodicity Conjecture is equivalent to its `k`-th iterate** (BL96 §1; the paper states it
+"for any `k > 1`", and it holds for every `k ≥ 1`). The conjugacy map satisfies `Φ(ℚ∩ℤ₂) = ℚ∩ℤ₂`
+**iff** `Φᵏ(ℚ∩ℤ₂) = ℚ∩ℤ₂`. **Proved** unconditionally from the known one-sided inclusion
+`Φ_image_ratInt_subset` — it does *not* presuppose the open conjecture. Forward: iterate the equality
+(`Φᵏ '' R = R` for all `k` once `Φ '' R = R`). Reverse: peel one `Φ` off `Φᵏ = Φ ∘ Φᵏ⁻¹`, landing the
+witness `Φᵏ⁻¹ y` back in `ℚ∩ℤ₂` via `Φ_iterate_image_ratInt_subset`, which upgrades the always-true
+`Φ '' R ⊆ R` to equality. This is BL96's basis for "information about the iterates `Φᵏ` may prove
+useful in resolving the Periodicity Conjecture". -/
+@[category research solved, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
+theorem periodicity_conjecture_iff_iterate {k : ℕ} (hk : 1 ≤ k) :
+    (⇑Φ) '' RatInt = RatInt ↔ (⇑Φ)^[k] '' RatInt = RatInt := by
+  constructor
+  · intro h
+    clear hk
+    induction k with
+    | zero => simp
+    | succ k ih => rw [Function.iterate_succ', Set.image_comp, ih, h]
+  · intro h
+    refine Set.Subset.antisymm Φ_image_ratInt_subset ?_
+    intro x hx
+    rw [← h] at hx
+    obtain ⟨y, hy, hxy⟩ := hx
+    obtain ⟨k', rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.one_le_iff_ne_zero.mp hk)
+    refine ⟨(⇑Φ)^[k'] y, Φ_iterate_image_ratInt_subset k' ⟨y, hy, rfl⟩, ?_⟩
+    rw [Function.iterate_succ_apply'] at hxy
+    exact hxy
 
 /-! ### The Fixed Point Conjecture (BL96, §1)
 
