@@ -1,0 +1,2006 @@
+import ForMathlib.Algebra.BigOperators.Dyadic
+import ForMathlib.Analysis.Complex.HardySpace
+import ForMathlib.Analysis.Equidistribution.IntegralCriterion
+import ForMathlib.Analysis.Equidistribution.VanDerCorput
+import ForMathlib.Analysis.InnerProductSpace.Hadamard
+import ForMathlib.Data.Real.NearestInt
+import ForMathlib.RingTheory.Polynomial.CoprimeFractionMap
+import ForMathlib.RingTheory.PowerSeries.OrderConvergence
+import ForMathlib.RingTheory.PowerSeries.Rationality
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.BigOperators.Finprod
+import Mathlib.Algebra.BigOperators.Intervals
+import Mathlib.Algebra.Divisibility.Units
+import Mathlib.Algebra.Field.GeomSum
+import Mathlib.Algebra.Order.Ring.Star
+import Mathlib.Algebra.Order.Round
+import Mathlib.Algebra.Order.Star.Real
+import Mathlib.Algebra.Polynomial.Eval.Defs
+import Mathlib.Algebra.Polynomial.Reverse
+import Mathlib.Algebra.Polynomial.Roots
+import Mathlib.Analysis.Analytic.Basic
+import Mathlib.Analysis.Analytic.OfScalars
+import Mathlib.Analysis.Analytic.Order
+import Mathlib.Analysis.Asymptotics.Defs
+import Mathlib.Analysis.Asymptotics.Lemmas
+import Mathlib.Analysis.Calculus.FDeriv.Analytic
+import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
+import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
+import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.Complex.Basic
+import Mathlib.Analysis.Complex.Polynomial.Basic
+import Mathlib.Analysis.Complex.ValueDistribution.CharacteristicFunction
+import Mathlib.Analysis.Convex.SpecificFunctions.Basic
+import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.MeanInequalities
+import Mathlib.Analysis.Meromorphic.Basic
+import Mathlib.Analysis.Normed.Order.Lattice
+import Mathlib.Analysis.Normed.Ring.Basic
+import Mathlib.Analysis.PSeries
+import Mathlib.Analysis.Polynomial.Basic
+import Mathlib.Analysis.RCLike.Basic
+import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Deriv
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
+import Mathlib.Analysis.SpecificLimits.Basic
+import Mathlib.Analysis.SpecificLimits.Normed
+import Mathlib.Analysis.SumIntegralComparisons
+import Mathlib.Data.Complex.Basic
+import Mathlib.Data.EReal.Basic
+import Mathlib.Data.Nat.Log
+import Mathlib.Data.Nat.PrimeFin
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Set.Card
+import Mathlib.Data.Set.Countable
+import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
+import Mathlib.FieldTheory.IntermediateField.Basic
+import Mathlib.FieldTheory.Minpoly.Basic
+import Mathlib.FieldTheory.Minpoly.IsConjRoot
+import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
+import Mathlib.FieldTheory.RatFunc.AsPolynomial
+import Mathlib.FieldTheory.RatFunc.Basic
+import Mathlib.FieldTheory.Separable
+import Mathlib.GroupTheory.OrderOfElement
+import Mathlib.LinearAlgebra.Complex.Module
+import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
+import Mathlib.LinearAlgebra.Matrix.Block
+import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
+import Mathlib.LinearAlgebra.Matrix.PosDef
+import Mathlib.LinearAlgebra.Matrix.SchurComplement
+import Mathlib.MeasureTheory.Constructions.Pi
+import Mathlib.MeasureTheory.Integral.Bochner.Set
+import Mathlib.MeasureTheory.Integral.CircleAverage
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
+import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.NumberTheory.Real.GoldenRatio
+import Mathlib.NumberTheory.Real.Irrational
+import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Order.Interval.Set.Basic
+import Mathlib.Order.Interval.Set.Pi
+import Mathlib.RingTheory.Algebraic.Basic
+import Mathlib.RingTheory.DedekindDomain.Basic
+import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
+import Mathlib.RingTheory.IntegralClosure.IsIntegral.Defs
+import Mathlib.RingTheory.LaurentSeries
+import Mathlib.RingTheory.Localization.Integral
+import Mathlib.RingTheory.Polynomial.RationalRoot
+import Mathlib.RingTheory.PowerBasis
+import Mathlib.RingTheory.PowerSeries.Basic
+import Mathlib.RingTheory.PowerSeries.Inverse
+import Mathlib.RingTheory.PowerSeries.Order
+import Mathlib.RingTheory.Trace.Basic
+import Mathlib.SetTheory.Cardinal.Arithmetic
+import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.Module
+import Mathlib.Tactic.NoncommRing
+import Mathlib.Topology.Algebra.InfiniteSum.Real
+import Mathlib.Topology.Algebra.Order.LiminfLimsup
+import Mathlib.Topology.Algebra.Polynomial
+import Mathlib.Topology.CompactOpen
+import Mathlib.Topology.Instances.AddCircle.Defs
+import Mathlib.Topology.Instances.ENat
+import Mathlib.Topology.Order.IntermediateValue
+
+lemma geo_tail (α : ℝ) (hα : 3 < α) (N : ℕ) :
+    ∑ j ∈ Finset.range N, (α⁻¹ : ℝ) ^ (j + 1) ≤ (α - 1)⁻¹
+
+lemma tail_bound (α θ : ℝ) (hα : 3 < α) (Ar R : ℕ → ℝ) (hArpos : ∀ k, 0 < Ar k)
+    (hstep : ∀ k, |R (k + 1) - R k| ≤ (Ar (k + 1))⁻¹)
+    (hgrowrel : ∀ n j, α ^ j * Ar n ≤ Ar (n + j))
+    (htend : Tendsto R atTop (𝓝 θ)) (n : ℕ) : |θ - R n| ≤ (Ar n)⁻¹ * (α - 1)⁻¹
+
+lemma round_eq_of_abs_lt (x : ℝ) (k : ℤ) (h : |x - (k : ℝ)| < 1 / 2) : round x = k
+
+lemma quarter_bound (α θ : ℝ) (hα : 3 < α) (hθ : 3 < θ) : (α - 1)⁻¹ * (θ - 1)⁻¹ < 1 / 4
+
+def boolToInt (b : Bool) : ℤ := if b then 1 else 0
+
+noncomputable def a1 : ℤ := ⌊(a₀ : ℝ) * α + (α - 1)⁻¹⌋ + 1
+
+noncomputable def Apair (f : ℕ → Bool) : ℕ → ℤ × ℤ
+  | 0 => (a₀, a1 α a₀)
+  | (n + 1) => ((Apair f n).2, (Apair f n).2 ^ 2 / (Apair f n).1 + boolToInt (f n))
+
+noncomputable def A (f : ℕ → Bool) (n : ℕ) : ℤ := (Apair α a₀ f n).1
+
+noncomputable def r (f : ℕ → Bool) (n : ℕ) : ℝ := (A α a₀ f (n + 1) : ℝ) / (A α a₀ f n : ℝ)
+
+lemma A_succ_aux (n : ℕ) : A α a₀ f (n + 1) = (Apair α a₀ f n).2
+
+lemma A_rec (n : ℕ) :
+    A α a₀ f (n + 2) = (A α a₀ f (n + 1)) ^ 2 / (A α a₀ f n) + boolToInt (f n)
+
+lemma A_succ_eq (n : ℕ) (hn : 0 < A α a₀ f n) :
+    (A α a₀ f (n + 1) : ℝ) = r α a₀ f n * (A α a₀ f n : ℝ)
+
+lemma step6 (n : ℕ) (hn : 0 < A α a₀ f n) (hn1 : 0 < A α a₀ f (n + 1)) :
+    |r α a₀ f (n + 1) - r α a₀ f n| ≤ ((A α a₀ f (n + 1) : ℝ))⁻¹
+
+lemma a0_pos (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) : 0 < a₀
+
+lemma a1_bounds (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    (a₀ : ℝ) * α + (α - 1)⁻¹ < (a1 α a₀ : ℝ) ∧ (a1 α a₀ : ℝ) < (a₀ : ℝ) * β - (α - 1)⁻¹
+
+lemma hApos (hα : 3 < α) (ha0 : 0 < a₀) :
+    ∀ n, (∀ k, k < n → α < r α a₀ f k) → 0 < A α a₀ f n
+
+lemma hgrow (hα : 3 < α) (ha0 : 0 < a₀) :
+    ∀ n, (∀ k, k < n → α < r α a₀ f k) → (a₀ : ℝ) * α ^ n ≤ (A α a₀ f n : ℝ)
+
+lemma htele (hα : 3 < α) (ha0 : 0 < a₀) (n : ℕ) (h : ∀ k, k < n → α < r α a₀ f k) :
+    |r α a₀ f n - r α a₀ f 0| ≤ (a₀ : ℝ)⁻¹ * (α - 1)⁻¹
+
+lemma hr (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    ∀ n, α < r α a₀ f n ∧ r α a₀ f n < β
+
+lemma hstep_bound (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n : ℕ) :
+    |r α a₀ f (n + 1) - r α a₀ f n| ≤ (a₀ : ℝ)⁻¹ * (α⁻¹) ^ (n + 1)
+
+noncomputable def θ : ℝ := atTop.limUnder (r α a₀ f)
+
+lemma hcauchy (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) : CauchySeq (r α a₀ f)
+
+lemma htendsto (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    Tendsto (r α a₀ f) atTop (𝓝 (θ α a₀ f))
+
+lemma hθ_mem (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    α ≤ θ α a₀ f ∧ θ α a₀ f ≤ β
+
+lemma hgrow_rel (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n j : ℕ) :
+    (α : ℝ) ^ j * (A α a₀ f n : ℝ) ≤ (A α a₀ f (n + j) : ℝ)
+
+lemma htail (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n : ℕ) :
+    |θ α a₀ f - r α a₀ f n| ≤ (A α a₀ f n : ℝ)⁻¹ * (α - 1)⁻¹
+
+lemma hθ3 (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) : 3 < θ α a₀ f
+
+noncomputable def lam : ℝ := atTop.limUnder (fun n => (A α a₀ f n : ℝ) / (θ α a₀ f) ^ n)
+
+lemma hb_step (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n : ℕ) :
+    |(A α a₀ f (n + 1) : ℝ) / (θ α a₀ f) ^ (n + 1) - (A α a₀ f n : ℝ) / (θ α a₀ f) ^ n|
+      ≤ ((α - 1) * (θ α a₀ f) ^ (n + 1))⁻¹
+
+lemma hcauchy_b (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    CauchySeq (fun n => (A α a₀ f n : ℝ) / (θ α a₀ f) ^ n)
+
+lemma htendsto_b (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    Tendsto (fun n => (A α a₀ f n : ℝ) / (θ α a₀ f) ^ n) atTop (𝓝 (lam α a₀ f))
+
+lemma hlam_bound (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n : ℕ) :
+    |(A α a₀ f n : ℝ) - lam α a₀ f * (θ α a₀ f) ^ n| ≤ (α - 1)⁻¹ * (θ α a₀ f - 1)⁻¹
+
+lemma hlam_a0 (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    |(a₀ : ℝ) - lam α a₀ f| ≤ (α - 1)⁻¹ * (θ α a₀ f - 1)⁻¹
+
+lemma hlam_pos (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) : 0 < lam α a₀ f
+
+lemma hround_lam (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) : round (lam α a₀ f) = a₀
+
+lemma hdist_bound (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) (n : ℕ) :
+    distToNearestInt (lam α a₀ f * (θ α a₀ f) ^ n) ≤ (α - 1)⁻¹ * (θ α a₀ f - 1)⁻¹
+
+lemma hinj (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    Function.Injective (fun f => θ α a₀ f)
+
+lemma huncountable (hα : 3 < α) (hαβ : α < β)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    ¬ (Set.range (fun f => θ α a₀ f)).Countable
+
+theorem boyd_theorem_1 (α β : ℝ) (hα : 3 < α) (hαβ : α < β) (a₀ : ℤ)
+    (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
+    ∃ S : Set ℝ, S ⊆ Set.Icc α β ∧ ¬ S.Countable ∧
+      ∀ θ ∈ S, ∃ lam : ℝ, 0 < lam ∧
+        (∀ n : ℕ, distToNearestInt (lam * θ ^ n) ≤ (α - 1)⁻¹ * (θ - 1)⁻¹) ∧
+        round lam = a₀
+
+theorem calib_log_estimate (ρ : ℝ) (hρ0 : 0 < ρ) (hρ1 : ρ < 1 / Real.exp 1) (r : ℕ)
+    (hr_lo : 1 / (ρ * Real.exp 1) - 1 ≤ (r : ℝ)) (hr_hi : (r : ℝ) < 1 / (ρ * Real.exp 1)) :
+    ((r : ℝ) + 1) * Real.log (ρ * ((r : ℝ) + 1)) < ρ * Real.exp 1 - 1 / (ρ * Real.exp 1) ∧
+      (r : ℝ) * Real.log (ρ * ((r : ℝ) + 1)) <
+        ρ * Real.exp 1 - 1 / (ρ * Real.exp 1) + 1
+
+def IsIntegerQuotient (F : ℚ⟦X⟧) (q : ℕ) : Prop :=
+  0 < q ∧ ∃ S T : ℤ⟦X⟧, PowerSeries.coeff 0 T = (q : ℤ) ∧
+    PowerSeries.map (Int.castRingHom ℚ) T * F = PowerSeries.map (Int.castRingHom ℚ) S
+
+theorem qpow_coeff_isInt_of_isIntegerQuotient {F : ℚ⟦X⟧} {q : ℕ} (h : IsIntegerQuotient F q)
+    (n : ℕ) : ∃ m : ℤ, (q : ℚ) ^ (n + 1) * PowerSeries.coeff n F = (m : ℚ)
+
+axiom qpow_kroneckerDet_isInt_of_isIntegerQuotient {F : ℚ⟦X⟧} {q : ℕ} (h : IsIntegerQuotient F q)
+    (n : ℕ) : ∃ m : ℤ, (q : ℚ) ^ (2 * n + 1) * kroneckerDet F n = (m : ℚ)
+
+noncomputable def ε (x : ℝ) : ℝ := x - round x
+
+theorem self_eq_round_add_ε (x : ℝ) : x = round x + ε x
+
+theorem ε_mem_Ico (x : ℝ) : ε x ∈ Set.Ico (-(1/2) : ℝ) (1/2)
+
+theorem existsUnique_intPart (x : ℝ) :
+    ∃! e : ℤ, x - (e : ℝ) ∈ Set.Ico (-(1/2) : ℝ) (1/2)
+
+theorem finite_range_fract_mul_of_not_irrational (α : ℝ) (hα : ¬ Irrational α) :
+    (Set.range fun n : ℕ => Int.fract ((n : ℝ) * α)).Finite
+
+theorem goldenRatio_pow_add_goldenConj_pow (n : ℕ) :
+    φ ^ n + ψ ^ n = ((2 * Nat.fib (n + 1) - Nat.fib n : ℤ) : ℝ)
+
+theorem abs_goldenConj_lt_one : |ψ| < 1
+
+theorem goldenConj_lt_neg_half : ψ < -(1/2)
+
+theorem ε_goldenRatio_pow (n : ℕ) (hn : 2 ≤ n) : ε (φ ^ n) = -(ψ ^ n)
+
+theorem tendsto_ε_goldenRatio_pow :
+    Tendsto (fun n => ε (φ ^ n)) atTop (𝓝 0)
+
+theorem infinite_mapClusterPt_one_div_minFac :
+    {x : ℝ | MapClusterPt x atTop (fun n => 1 / (Nat.minFac n : ℝ))}.Infinite
+
+theorem not_dense_one_div_minFac :
+    ¬ Set.Ico (-(1/2) : ℝ) (1/2) ⊆ closure (Set.range (fun n => 1 / (Nat.minFac n : ℝ)))
+
+theorem exists_eps_log_mem_Ico (a b : ℝ) (ha : -(1/2) ≤ a) (hab : a < b) (hb : b ≤ 1/2) :
+    ∃ n : ℕ, 1 ≤ n ∧ ε (Real.log n) ∈ Set.Ico a b
+
+theorem dense_eps_log :
+    Set.Ico (-(1/2) : ℝ) (1/2) ⊆ closure (Set.range (fun n : ℕ => ε (Real.log n)))
+
+theorem mapClusterPt_zero_of_rational_limitPoint (x : ℕ → ℝ) (d : ℕ) (r : AddCircle (1 : ℝ))
+    (hr : MapClusterPt r atTop (fun n => ((x n : ℝ) : AddCircle (1 : ℝ))))
+    (hdr : d • r = 0) :
+    MapClusterPt (0 : AddCircle (1 : ℝ)) atTop
+      (fun n => (((d : ℝ) * x n : ℝ) : AddCircle (1 : ℝ)))
+
+def limitPointsModOne (x : ℕ → ℝ) : Set (AddCircle (1 : ℝ)) :=
+  {r | MapClusterPt r atTop (fun n => ((x n : ℝ) : AddCircle (1 : ℝ)))}
+
+def irrationalLimitPointsModOne (x : ℕ → ℝ) : Set (AddCircle (1 : ℝ)) :=
+  {r ∈ limitPointsModOne x | addOrderOf r = 0}
+
+informal_result "dirichlet-simultaneous-approximation"
+  latex "Dirichlet's theorem on simultaneous Diophantine approximation: given reals $\\gamma_1, \\dots, \\gamma_k$ and an integer $q > 1$, there exist an integer $h$ with $0 < h \\le q^k$ and integers $\\ell_1, \\dots, \\ell_k$ such that $h\\gamma_i = \\ell_i + \\xi_i$ with $|\\xi_i| \\le 1/q$ for every $i$ (equivalently $\\lVert h\\gamma_i\\rVert \\le 1/q$)."
+  refs "Ber92"
+
+axiom pisot_theorem_4_1 (x : ℕ → ℝ) (hfin : (limitPointsModOne x).Finite)
+    (hrat : ∀ r ∈ limitPointsModOne x, addOrderOf r ≠ 0 → r = 0)
+    (η : ℝ) (hη : 0 < η) (q : ℕ) (hq4 : 4 ≤ q) (hqη : 2 / η ≤ q) :
+    ∃ h : ℤ, 0 < h ∧ h ≤ (q : ℤ) ^ (irrationalLimitPointsModOne x).ncard ∧
+      ∀ᶠ n in atTop, |ε ((h : ℝ) * x n)| ≤ η
+
+noncomputable def u (lam α : ℝ) (n : ℕ) : ℤ := round (lam * α ^ n)
+
+noncomputable def ε (lam α : ℝ) (n : ℕ) : ℝ := Bertin.ε (lam * α ^ n)
+
+theorem self_eq_u_add_ε (lam α : ℝ) (n : ℕ) :
+    lam * α ^ n = (u lam α n : ℝ) + ε lam α n
+
+theorem ε_mem_Ico (lam α : ℝ) (n : ℕ) : ε lam α n ∈ Set.Ico (-(1/2) : ℝ) (1/2)
+
+theorem abs_ε_le (lam α : ℝ) (n : ℕ) : |ε lam α n| ≤ 1/2
+
+theorem distToNearestInt_eq_abs_ε (lam α : ℝ) (n : ℕ) :
+    distToNearestInt (lam * α ^ n) = |ε lam α n|
+
+noncomputable def uSeries (lam α : ℝ) : PowerSeries ℤ := PowerSeries.mk (u lam α)
+
+noncomputable def εSeries (lam α : ℝ) : PowerSeries ℝ := PowerSeries.mk (ε lam α)
+
+theorem abs_u_le (lam α : ℝ) (n : ℕ) : |(u lam α n : ℝ)| ≤ |lam * α ^ n| + 1/2
+
+noncomputable def εTaylor (lam α : ℝ) : FormalMultilinearSeries ℂ ℂ ℂ :=
+  FormalMultilinearSeries.ofScalars ℂ (fun n => (ε lam α n : ℂ))
+
+noncomputable def fTaylor (lam α : ℝ) : FormalMultilinearSeries ℂ ℂ ℂ :=
+  FormalMultilinearSeries.ofScalars ℂ (fun n => (u lam α n : ℂ))
+
+theorem one_le_εTaylor_radius (lam α : ℝ) : 1 ≤ (εTaylor lam α).radius
+
+theorem inv_le_fTaylor_radius (lam α : ℝ) (hα : 1 < α) :
+    ENNReal.ofReal (1 / α) ≤ (fTaylor lam α).radius
+
+private theorem exp_diff_bounded_imp {c d β γ : ℝ} (hβ : 1 < β) (hγpos : 0 < γ) (hγβ : γ < β)
+    (hc : c ≠ 0) (hbd : ∀ n : ℕ, |c * β ^ n - d * γ ^ n| < 1) : False
+
+theorem u_injective {lam α lam' α' : ℝ} (hα : 1 < α) (hα' : 1 < α')
+    (hlam : lam ≠ 0) (hlam' : lam' ≠ 0)
+    (h : ∀ n, u lam α n = u lam' α' n) : lam = lam' ∧ α = α'
+
+axiom pisotSalem_theorem_5_1_1 (α lam : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+      1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) :
+    IsIntegral ℤ α ∧
+      (∀ β ∈ (minpoly ℚ α).aroots ℂ, β ≠ (α : ℂ) → ‖β‖ ≤ 1) ∧
+      (lam : ℝ) ∈ IntermediateField.adjoin ℚ ({α} : Set ℝ)
+
+noncomputable def taylorSeries (f : ℂ → ℂ) : ℂ⟦X⟧ :=
+  PowerSeries.mk fun n => iteratedDeriv n f 0 / (n.factorial : ℂ)
+
+theorem taylorSeries_coeff (f : ℂ → ℂ) (n : ℕ) :
+    PowerSeries.coeff n (taylorSeries f) = iteratedDeriv n f 0 / (n.factorial : ℂ)
+
+theorem taylorSeries_eq_mk {f : ℂ → ℂ} {a : ℕ → ℂ} {ρ : ENNReal}
+    (hf : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ) :
+    taylorSeries f = PowerSeries.mk a
+
+def TendstoFormal {R : Type*} [Ring R] (F : ℕ → R⟦X⟧) (G : R⟦X⟧) : Prop :=
+  Tendsto (fun n => (G - F n).order) atTop (𝓝 ⊤)
+
+theorem tendstoFormal_iff {R : Type*} [Ring R] (F : ℕ → R⟦X⟧) (G : R⟦X⟧) :
+    TendstoFormal F G ↔ ∀ N : ℕ, ∀ᶠ n in atTop, (N : ℕ∞) < (G - F n).order
+
+axiom IsRationalSeries.exists_coprime_quotient {A : Type*} [CommRing A] [IsDomain A]
+    [IsDedekindDomain A] {F : A⟦X⟧} (hF : IsRationalSeries F) :
+    ∃ P Q : A[X], IsRelPrime P Q ∧ Q.coeff 0 = 1 ∧ (Q : A⟦X⟧) * F = (P : A⟦X⟧)
+
+noncomputable def V (lam α : ℝ) (a : ℕ → ℤ) (s n : ℕ) : ℤ :=
+  ∑ i ∈ Finset.range (s + 1), a i * u lam α (n + i)
+
+def HasRecurrence (lam α : ℝ) : Prop :=
+  ∃ s : ℕ, 1 ≤ s ∧ ∃ a : ℕ → ℤ, (∃ i ≤ s, a i ≠ 0) ∧ ∀ n, V lam α a s n = 0
+
+theorem u_succ_sub_smul (lam α : ℝ) (m : ℕ) :
+    (u lam α (m + 1) : ℝ) - α * u lam α m = α * ε lam α m - ε lam α (m + 1)
+
+theorem V_step (lam α : ℝ) (hα : 1 < α) (a : ℕ → ℤ) (s : ℕ) {A ε₀ : ℝ}
+    (hA : ∀ i, |(a i : ℝ)| ≤ A) (hε : ∀ m, |ε lam α m| ≤ ε₀)
+    (hcond2 : ((s : ℝ) + 1) * (α + 1) * A * ε₀ < 1) {n : ℕ}
+    (hn : V lam α a s n = 0) : V lam α a s (n + 1) = 0
+
+theorem recurrence_of_V_zero (lam α : ℝ) (hα : 1 < α) (a : ℕ → ℤ) (s : ℕ) {A ε₀ : ℝ}
+    (hA : ∀ i, |(a i : ℝ)| ≤ A) (hε : ∀ m, |ε lam α m| ≤ ε₀)
+    (hcond2 : ((s : ℝ) + 1) * (α + 1) * A * ε₀ < 1) (h0 : V lam α a s 0 = 0) :
+    ∀ n, V lam α a s n = 0
+
+theorem exists_a_V_zero (lam α : ℝ) (s A : ℕ)
+    (hsize : (∑ i ∈ Finset.range (s + 1), |u lam α i|) * (A : ℤ) + 1 < ((A : ℤ) + 1) ^ (s + 1)) :
+    ∃ a : ℕ → ℤ, (∃ i ≤ s, a i ≠ 0) ∧ (∀ i, |(a i : ℝ)| ≤ A) ∧ V lam α a s 0 = 0
+
+theorem sum_abs_u_le (lam α : ℝ) (hlam : 1 ≤ lam) (hα : 1 ≤ α) (s : ℕ) :
+    ((∑ i ∈ Finset.range (s + 1), |u lam α i| : ℤ) : ℝ) ≤ (s + 1) * (lam * α ^ s + 1 / 2)
+
+private theorem calib_nat_bb (s : ℕ) (hs : 2 ≤ s) : 5 * (s + 1) ≤ 4 * 2 ^ s
+
+private theorem calib_star (s : ℕ) (t : ℝ) (hs2 : 2 ≤ s) (ht1 : (s : ℝ) - 1 ≤ t) (hts : t < s) :
+    ((s : ℝ) + 1) ^ (s + 1) * (Real.exp t + 1 / 2) ≤ (2 * Real.exp 1 * (1 + t)) ^ s
+
+private theorem calib_M_le_Us (lam α : ℝ) (s : ℕ) (hα : 1 ≤ α) (hlam : 0 < lam)
+    (ht1 : (s : ℝ) - 1 ≤ Real.log lam) (hts : Real.log lam < s) (hs2 : 2 ≤ s) :
+    ((s : ℝ) + 1) * (lam * α ^ s + 1 / 2)
+      ≤ (2 * Real.exp 1 * α * (1 + Real.log lam) / ((s : ℝ) + 1)) ^ s
+
+private theorem calib_pigeon_size (lam α : ℝ) (hlam : 1 ≤ lam) (hα : 1 ≤ α) (s A : ℕ)
+    (hA : 1 ≤ A) (hs : 1 ≤ s) (hM : (↑s + 1) * (lam * α ^ s + 1 / 2) ≤ ((A : ℝ) + 1) ^ s) :
+    (∑ i ∈ Finset.range (s + 1), |u lam α i|) * (A : ℤ) + 1 < ((A : ℤ) + 1) ^ (s + 1)
+
+private theorem calib_cond2_of (α lam : ℝ) (s A : ℕ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (h : ((s : ℝ) + 1) * (A : ℝ) < 2 * Real.exp 1 * α * (1 + Real.log lam)) :
+    ((s : ℝ) + 1) * (α + 1) * (A : ℝ) *
+        (1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) < 1
+
+private theorem calib_choose_A (lam α : ℝ) (s : ℕ) (hα : 1 < α) (hlam : 1 ≤ lam) (hs2 : 2 ≤ s)
+    (hM1 : (1 : ℝ) < ((s : ℝ) + 1) * (lam * α ^ s + 1 / 2))
+    (hMU : ((s : ℝ) + 1) * (lam * α ^ s + 1 / 2)
+        ≤ (2 * Real.exp 1 * α * (1 + Real.log lam) / ((s : ℝ) + 1)) ^ s) :
+    ∃ A : ℕ, 1 ≤ A ∧ ((s : ℝ) + 1) * (A : ℝ) < 2 * Real.exp 1 * α * (1 + Real.log lam)
+           ∧ ((s : ℝ) + 1) * (lam * α ^ s + 1 / 2) ≤ ((A : ℝ) + 1) ^ s
+
+theorem exists_s_A (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+      1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) :
+    ∃ s A : ℕ, 1 ≤ s ∧
+      ((s : ℝ) + 1) * (α + 1) * (A : ℝ) *
+          (1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) < 1 ∧
+      (∑ i ∈ Finset.range (s + 1), |u lam α i|) * (A : ℤ) + 1 < ((A : ℤ) + 1) ^ (s + 1)
+
+theorem exists_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+      1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) :
+    HasRecurrence lam α
+
+theorem isRationalSeries_of_hasRecurrence (lam α : ℝ) (hrec : HasRecurrence lam α) :
+    IsRationalSeries (uSeries lam α)
+
+theorem exists_coprime_quotient_uSeries (lam α : ℝ) (hrec : HasRecurrence lam α) :
+    ∃ P Q : ℤ[X], IsRelPrime P Q ∧ Q.coeff 0 = 1 ∧
+      (Q : ℤ⟦X⟧) * uSeries lam α = (P : ℤ⟦X⟧)
+
+theorem isAlgebraic_of_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam : lam ≠ 0)
+    (hrec : HasRecurrence lam α) : IsAlgebraic ℤ α
+
+axiom fatou_denom_disk_zeros (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam) (P Q : ℤ[X])
+    (hcop : IsRelPrime P Q) (hQ0 : Q.coeff 0 = 1)
+    (hPQ : (Q : ℤ⟦X⟧) * uSeries lam α = (P : ℤ⟦X⟧)) :
+    Polynomial.aeval (α⁻¹ : ℝ) Q = 0 ∧
+      ∀ z : ℂ, (Q.map (Int.castRingHom ℂ)).IsRoot z → z = (α : ℂ)⁻¹ ∨ 1 ≤ ‖z‖
+
+axiom fatou_residue (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam) (P Q : ℤ[X])
+    (hcop : IsRelPrime P Q) (hQ0 : Q.coeff 0 = 1)
+    (hPQ : (Q : ℤ⟦X⟧) * uSeries lam α = (P : ℤ⟦X⟧)) :
+    (lam : ℝ) = -α * Polynomial.aeval (α⁻¹ : ℝ) P
+      / Polynomial.aeval (α⁻¹ : ℝ) (Polynomial.derivative Q)
+
+private theorem aeval_reverse_eq_zero {α : ℝ} (hα0 : α ≠ 0) {Q : ℤ[X]}
+    (hpole : Polynomial.aeval (α⁻¹ : ℝ) Q = 0) : Polynomial.aeval (α : ℝ) Q.reverse = 0
+
+theorem isIntegral_of_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hrec : HasRecurrence lam α) : IsIntegral ℤ α
+
+theorem conjugates_le_one_of_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hrec : HasRecurrence lam α) :
+    ∀ β ∈ (minpoly ℚ α).aroots ℂ, β ≠ (α : ℂ) → ‖β‖ ≤ 1
+
+theorem lam_mem_adjoin_of_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hrec : HasRecurrence lam α) :
+    (lam : ℝ) ∈ IntermediateField.adjoin ℚ ({α} : Set ℝ)
+
+theorem pisotSalem_theorem_5_1_1' (α lam : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+      1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) :
+    IsIntegral ℤ α ∧
+      (∀ β ∈ (minpoly ℚ α).aroots ℂ, β ≠ (α : ℂ) → ‖β‖ ≤ 1) ∧
+      (lam : ℝ) ∈ IntermediateField.adjoin ℚ ({α} : Set ℝ)
+
+theorem summable_coeff_pow_of_tendsto_zero (η : ℕ → ℂ) (hη : Tendsto η atTop (𝓝 0))
+    (z : ℂ) (hz : ‖z‖ < 1) : Summable (fun n => η n * z ^ n)
+
+theorem tendsto_one_sub_mul_norm_tsum (η : ℕ → ℂ) (hη : Tendsto η atTop (𝓝 0)) :
+    Tendsto (fun r : ℝ => (1 - r) * ‖∑' n, η n * (r : ℂ) ^ n‖) (𝓝[<] 1) (𝓝 0)
+
+axiom lemma_5_4 (φ : ℂ → ℂ) (hmero : MeromorphicOn φ (Metric.closedBall 0 1))
+    (h0 : AnalyticAt ℂ φ 0)
+    (hlim : Tendsto (fun n => iteratedDeriv n φ 0 / (n.factorial : ℂ)) atTop (𝓝 0)) :
+    ∀ z ∈ Metric.sphere (0 : ℂ) 1, AnalyticAt ℂ φ z
+
+axiom minkowski_linear_forms {n : ℕ} (hn : 0 < n) (A : Matrix (Fin n) (Fin n) ℝ)
+    (hA : A.det ≠ 0) (γ : Fin n → ℝ) (hγ : ∀ i, 0 < γ i) (hprod : |A.det| ≤ ∏ i, γ i) :
+    ∃ u : Fin n → ℤ, u ≠ 0 ∧ ∀ i, |∑ j, A i j * (u j : ℝ)| ≤ γ i
+
+private lemma conj_linearForm_norm_eq {n : ℕ} (A : Matrix (Fin n) (Fin n) ℂ) (u : Fin n → ℤ)
+    (i : Fin n) :
+    ‖∑ j, (starRingEnd ℂ) (A i j) * (u j : ℂ)‖ = ‖∑ j, A i j * (u j : ℂ)‖
+
+theorem minkowski_complex_forms {n : ℕ} (A : Matrix (Fin n) (Fin n) ℂ) (γ : Fin n → ℝ)
+    (hex : ∃ u : Fin n → ℤ, u ≠ 0 ∧ ∀ i, ‖∑ j, A i j * (u j : ℂ)‖ ≤ γ i) :
+    ∃ u : Fin n → ℤ, u ≠ 0 ∧ (∀ i, ‖∑ j, A i j * (u j : ℂ)‖ ≤ γ i) ∧
+      (∀ i, ‖∑ j, (starRingEnd ℂ) (A i j) * (u j : ℂ)‖ ≤ γ i)
+
+axiom isRationalSeries_of_multiplierMatrix_det_lt_one
+    (F : ℤ⟦X⟧) (h0 : PowerSeries.coeff 0 F ≠ 0)
+    (T : ℂ[X]) (hT : T.coeff 0 = 1) (r : ℕ) (hr : 0 < r)
+    (hbound : ∀ L : Fin (r + 1) → ℕ, StrictMono L → ‖(multiplierMatrix T F L).det‖ < 1) :
+    IsRationalSeries F
+
+def HasBoundedCharacteristic (f : ℂ → ℂ) : Prop :=
+  MeromorphicOn f (ball 0 1) ∧ BddAbove (characteristic f ⊤ '' Ico 0 1)
+
+def IsBoundedAnalyticQuotient (f : ℂ → ℂ) : Prop :=
+  ∃ g h : ℂ → ℂ,
+    AnalyticOnNhd ℂ g (ball 0 1) ∧ (∃ C, ∀ z ∈ ball 0 1, ‖g z‖ ≤ C) ∧
+      AnalyticOnNhd ℂ h (ball 0 1) ∧ (∃ C, ∀ z ∈ ball 0 1, ‖h z‖ ≤ C) ∧
+        (∃ z ∈ ball 0 1, h z ≠ 0) ∧ ∀ z ∈ ball 0 1, h z ≠ 0 → f z = g z / h z
+
+axiom hasBoundedCharacteristic_iff_isBoundedAnalyticQuotient (f : ℂ → ℂ) :
+    HasBoundedCharacteristic f ↔ IsBoundedAnalyticQuotient f
+
+axiom memHardy_isBoundedAnalyticQuotient {p : ℝ} (hp : 0 < p) {f : ℂ → ℂ}
+    (hf : MemHardy p f) : IsBoundedAnalyticQuotient f
+
+private lemma memHardy_of_analyticOn_bounded {p : ℝ} (hp : 0 ≤ p) {g : ℂ → ℂ} {C : ℝ}
+    (hg : AnalyticOnNhd ℂ g (ball 0 1)) (hgC : ∀ z ∈ ball 0 1, ‖g z‖ ≤ C) :
+    MemHardy p g
+
+private lemma eqOn_ball_of_eqOn_ne {a b c : ℂ → ℂ} (ha : AnalyticOnNhd ℂ a (ball 0 1))
+    (hb : AnalyticOnNhd ℂ b (ball 0 1)) (hc : AnalyticOnNhd ℂ c (ball 0 1)) {z₀ : ℂ}
+    (hz₀ : z₀ ∈ ball 0 1) (hcz₀ : c z₀ ≠ 0) (hab : ∀ z ∈ ball 0 1, c z ≠ 0 → a z = b z) :
+    Set.EqOn a b (ball 0 1)
+
+private lemma exists_mem_ball_mul_ne_zero {a b : ℂ → ℂ} (ha : AnalyticOnNhd ℂ a (ball 0 1))
+    (hb : AnalyticOnNhd ℂ b (ball 0 1)) {za zb : ℂ} (hza : za ∈ ball 0 1) (haz : a za ≠ 0)
+    (hzb : zb ∈ ball 0 1) (hbz : b zb ≠ 0) : ∃ z ∈ ball 0 1, a z * b z ≠ 0
+
+def IsHardyQuotient (p : ℝ) (f : ℂ → ℂ) : Prop :=
+  ∃ f₁ f₂ : ℂ → ℂ, MemHardy p f₁ ∧ MemHardy p f₂ ∧
+    (∃ z ∈ ball 0 1, f₂ z ≠ 0) ∧ ∀ z ∈ ball 0 1, f₂ z ≠ 0 → f z = f₁ z / f₂ z
+
+theorem hasBoundedCharacteristic_iff_isHardyQuotient {p : ℝ} (hp : 0 < p) (f : ℂ → ℂ) :
+    HasBoundedCharacteristic f ↔ IsHardyQuotient p f
+
+axiom boundedCharacteristic_kroneckerDet_root_tendsto_zero {f : ℂ → ℂ} {a : ℕ → ℂ} {ρ : ENNReal}
+    (hf : HasBoundedCharacteristic f)
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ) :
+    Filter.Tendsto (fun n => ‖kroneckerDet (PowerSeries.mk a) n‖ ^ (n : ℝ)⁻¹)
+      Filter.atTop (nhds 0)
+
+theorem isRationalSeries_of_boundedCharacteristic_intCoeffs {f : ℂ → ℂ} {a : ℕ → ℂ} {ρ : ENNReal}
+    (hf : HasBoundedCharacteristic f)
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ)
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ)) :
+    IsRationalSeries (PowerSeries.mk a)
+
+axiom hasBoundedCharacteristic_of_bddAway {f : ℂ → ℂ} (hf : MeromorphicOn f (ball 0 1))
+    {α : ℂ} {η δ : ℝ} (hη : η ∈ Ico (0 : ℝ) 1) (hδ : 0 < δ)
+    (hbound : ∀ z : ℂ, η ≤ ‖z‖ → ‖z‖ < 1 → δ ≤ ‖f z - α‖) :
+    HasBoundedCharacteristic f
+
+theorem hasBoundedCharacteristic_of_re_le {f : ℂ → ℂ} (hf : MeromorphicOn f (ball 0 1))
+    {k η : ℝ} (hη : η ∈ Ico (0 : ℝ) 1)
+    (hbound : ∀ z : ℂ, η ≤ ‖z‖ → ‖z‖ < 1 → (f z).re ≤ k) :
+    HasBoundedCharacteristic f
+
+private lemma sum_dilate_le {δ : ℕ → ℝ} (hδanti : Antitone δ) {c : ℕ} (H : ℕ) :
+    (c : ℝ) * ∑ h ∈ Finset.range H, δ (c * (h + 1)) ≤ ∑ j ∈ Finset.range (c * H), δ (j + 1)
+
+private lemma window_cover {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n) {δ : ℕ → ℝ}
+    (hδub : ∀ n m : ℕ, n ≤ m → (∑ i ∈ Finset.Ico m (2 * m), y i) ≤ δ n)
+    {a s : ℕ} (ha : 1 ≤ a) :
+    ∑ m ∈ Finset.range (s + 1), y (a + m)
+      ≤ ∑ t ∈ Finset.range (Nat.log 2 ((a + s) / a) + 1), δ (2 ^ t * a)
+
+private lemma cover_sum_le {δ : ℕ → ℝ} (hδanti : Antitone δ) (hδnn : ∀ n, 0 ≤ δ n)
+    {a s : ℕ} (ha : 1 ≤ a) :
+    ∑ t ∈ Finset.range (Nat.log 2 ((a + s) / a) + 1), δ (2 ^ t * a)
+      ≤ ∑ j ∈ Finset.range (s + 1), δ j
+
+private lemma window_double_sum_tail_le {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n) {δ : ℕ → ℝ}
+    (hδub : ∀ n m : ℕ, n ≤ m → (∑ i ∈ Finset.Ico m (2 * m), y i) ≤ δ n)
+    (hδanti : Antitone δ) (hδnn : ∀ n, 0 ≤ δ n)
+    {s : ℕ} {idx : ℕ → ℕ} (hidx : StrictMono idx) :
+    ∑ i ∈ Finset.range s, (∑ m ∈ Finset.range (s + 1), y (idx (i + 1) + m))
+      ≤ 4 * ∑ j ∈ Finset.range (s + 1), δ j
+
+private lemma window_sum_le_eight_delta_sum
+    {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n) {δ : ℕ → ℝ}
+    (hδub : ∀ n m : ℕ, n ≤ m → (∑ i ∈ Finset.Ico m (2 * m), y i) ≤ δ n)
+    (hδ0 : y 0 ≤ δ 0) (hδanti : Antitone δ)
+    {s : ℕ} {idx : ℕ → ℕ} (hidx : StrictMono idx) :
+    (∑ h ∈ Finset.range (s + 1), ∑ m ∈ Finset.range (s + 1), y (idx h + m))
+      ≤ 8 * ∑ j ∈ Finset.range (s + 1), δ j
+
+private lemma exists_global_bound {B : ℕ → ℝ} {γ : ℝ}
+    (hv : B =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ n, 1 ≤ n → B n ≤ C * (n : ℝ) ^ (-γ)
+
+private lemma exists_block_geom_bound {v : ℕ → ℂ} {γ : ℝ}
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ k, (∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), ‖v i‖ ^ 2)
+      ≤ C * ((2 : ℝ) ^ (-γ)) ^ k
+
+private lemma partialSum_bounded {a : ℕ → ℝ} (ha0 : ∀ i, 0 ≤ a i)
+    {D ρ : ℝ} (hD0 : 0 ≤ D) (hρ0 : 0 ≤ ρ) (hρ1 : ρ < 1)
+    (hblock : ∀ k, (∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), a i) ≤ D * ρ ^ k) (R : ℕ) :
+    ∑ i ∈ Finset.range (R + 1), a i ≤ a 0 + D * ∑' k, ρ ^ k
+
+private lemma part_i {v : ℕ → ℂ} {γ : ℝ} (hγ : 0 < γ)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => ∑ i ∈ Finset.range (r + 1), ‖v i‖ ^ 2) =O[atTop] fun _ => (1 : ℝ)
+
+private lemma part_ii_ge {v : ℕ → ℂ} {γ : ℝ} (hγ : 1 < γ)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => (∑ i ∈ Finset.range (r + 1), ‖v i‖) ^ 2) =O[atTop] fun _ => (1 : ℝ)
+
+private lemma part_iii_ge {v : ℕ → ℂ} {γ : ℝ} (hγ : 1 < γ)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ))
+    {ρ : ℕ → ℝ}
+    (hρ : ∀ i, ρ i = ⨆ n ∈ Set.Ici i, ∑ h ∈ Finset.Ico n (2 * n), ‖v h‖ ^ 2) :
+    (fun r => ∑ i ∈ Finset.range (r + 1), ρ i) =O[atTop] fun _ => (1 : ℝ)
+
+private lemma psum_le {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1) {r : ℕ} (hr : 1 ≤ r) :
+    ∑ i ∈ Finset.range (r + 1), (i : ℝ) ^ (-γ) ≤ 1 + (r : ℝ) ^ (1 - γ) / (1 - γ)
+
+private lemma part_iii_lt {v : ℕ → ℂ} {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ))
+    {ρ : ℕ → ℝ}
+    (hρ : ∀ i, ρ i = ⨆ n ∈ Set.Ici i, ∑ h ∈ Finset.Ico n (2 * n), ‖v h‖ ^ 2) :
+    (fun r => ∑ i ∈ Finset.range (r + 1), ρ i) =o[atTop] fun r => (r : ℝ) ^ (1 - γ)
+
+private lemma cast_two_pow_rpow (p : ℝ) (k : ℕ) : ((2 ^ k : ℕ) : ℝ) ^ p = ((2 : ℝ) ^ p) ^ k
+
+private lemma block_l1_sq_le (v : ℕ → ℂ) (k : ℕ) :
+    (∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), ‖v i‖) ^ 2
+      ≤ (∑ i ∈ Finset.Ico (2 ^ k) (2 ^ (k + 1)), ‖v i‖ ^ 2) * (2 : ℝ) ^ k
+
+private lemma part_ii_lt {v : ℕ → ℂ} {γ : ℝ} (hγ1 : γ < 1)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => (∑ i ∈ Finset.range (r + 1), ‖v i‖) ^ 2) =o[atTop] fun r => (r : ℝ) ^ (1 - γ)
+
+private lemma blockNormSq_littleO_asymptotics {v : ℕ → ℂ} {γ : ℝ} (hγ : 0 < γ)
+    (hv : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖v m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ))
+    {ρ : ℕ → ℝ}
+    (hρ : ∀ i, ρ i = ⨆ n ∈ Set.Ici i, ∑ h ∈ Finset.Ico n (2 * n), ‖v h‖ ^ 2) :
+
+    ((fun r => ∑ i ∈ Finset.range (r + 1), ‖v i‖ ^ 2) =O[atTop] fun _ => (1 : ℝ)) ∧
+
+    ((γ < 1 → (fun r => (∑ i ∈ Finset.range (r + 1), ‖v i‖) ^ 2) =o[atTop]
+        fun r => (r : ℝ) ^ (1 - γ)) ∧
+      (1 < γ → (fun r => (∑ i ∈ Finset.range (r + 1), ‖v i‖) ^ 2) =O[atTop] fun _ => (1 : ℝ))) ∧
+
+    ((γ < 1 → (fun r => ∑ i ∈ Finset.range (r + 1), ρ i) =o[atTop] fun r => (r : ℝ) ^ (1 - γ)) ∧
+      (1 < γ → (fun r => ∑ i ∈ Finset.range (r + 1), ρ i) =O[atTop] fun _ => (1 : ℝ)))
+
+noncomputable def uvEntry (sc tc : ℕ → ℂ) (m n : ℕ) : ℂ :=
+  (∑ i ∈ Finset.range (n + 1), tc i * sc (m + n - i))
+    - ∑ i ∈ Finset.range n, sc i * tc (m + n - i)
+
+noncomputable def uvMatrix (sc tc : ℕ → ℂ) (r : ℕ) : Matrix (Fin (r + 1)) (Fin (r + 1)) ℂ :=
+  Matrix.of fun i j => uvEntry sc tc i j
+
+axiom uvSetup {f s t : ℂ → ℂ} {a sc tc : ℕ → ℂ} {ρ : ENNReal}
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ)
+    (hs : HasFPowerSeriesOnBall s (FormalMultilinearSeries.ofScalars ℂ sc) 0 1)
+    (ht : HasFPowerSeriesOnBall t (FormalMultilinearSeries.ofScalars ℂ tc) 0 1)
+    (hft : ∀ z ∈ Metric.ball (0 : ℂ) 1, t z ≠ 0 → f z = s z / t z) :
+    ∃ c : ℂ, c ≠ 0 ∧ c * tc 0 = 1 ∧
+      ∀ r, kroneckerDet (PowerSeries.mk a) r
+        = (uvMatrix (fun n => c * sc n) (fun n => c * tc n) r).det
+
+axiom uvMatrix_normSq_le (sc tc : ℕ → ℂ) (r : ℕ) :
+    ∑ j, ∑ i, ‖uvMatrix sc tc r i j‖ ^ 2
+      ≤ 2 * ((∑ k ∈ Finset.range (r + 1), ‖tc k‖) ^ 2
+              * ∑ m ∈ Finset.range (r + 1), ∑ j ∈ Finset.range (r + 1), ‖sc (m + j)‖ ^ 2
+            + (∑ k ∈ Finset.range (r + 1), ‖sc k‖) ^ 2
+              * ∑ m ∈ Finset.range (r + 1), ∑ j ∈ Finset.range (r + 1), ‖tc (m + j)‖ ^ 2)
+
+axiom hasBoundedCharacteristic_of_quotient_summable {f s t : ℂ → ℂ} {sc tc : ℕ → ℂ}
+    (hs : HasFPowerSeriesOnBall s (FormalMultilinearSeries.ofScalars ℂ sc) 0 1)
+    (ht : HasFPowerSeriesOnBall t (FormalMultilinearSeries.ofScalars ℂ tc) 0 1)
+    (hft : ∀ z ∈ Metric.ball (0 : ℂ) 1, t z ≠ 0 → f z = s z / t z)
+    (hssum : Summable fun n => ‖sc n‖ ^ 2) (htsum : Summable fun n => ‖tc n‖ ^ 2) :
+    Complex.HasBoundedCharacteristic f
+
+private noncomputable def blk (w : ℕ → ℂ) (n : ℕ) : ℝ := ∑ h ∈ Finset.Ico n (2 * n), ‖w h‖ ^ 2
+
+private noncomputable def blockSup (w : ℕ → ℂ) (i : ℕ) : ℝ := ⨆ n ∈ Set.Ici i, blk w n
+
+private noncomputable def deltaSeq (w : ℕ → ℂ) (i : ℕ) : ℝ :=
+  if i = 0 then max (‖w 0‖ ^ 2) (blockSup w 0) else blockSup w i
+
+private lemma blk_le_blockSup {w : ℕ → ℂ} {B : ℝ} (hB0 : 0 ≤ B) (hB : ∀ n, blk w n ≤ B)
+    {i m : ℕ} (him : i ≤ m) : blk w m ≤ blockSup w i
+
+private lemma blockSup_antitone {w : ℕ → ℂ} {B : ℝ} (hB0 : 0 ≤ B) (hB : ∀ n, blk w n ≤ B) :
+    Antitone (blockSup w)
+
+private lemma windowDoubleSum_le {w : ℕ → ℂ} {B : ℝ} (hB0 : 0 ≤ B) (hB : ∀ n, blk w n ≤ B) (r : ℕ) :
+    ∑ m ∈ Finset.range (r + 1), ∑ j ∈ Finset.range (r + 1), ‖w (m + j)‖ ^ 2
+      ≤ 8 * ∑ i ∈ Finset.range (r + 1), deltaSeq w i
+
+private lemma sumDelta_eq (w : ℕ → ℂ) (r : ℕ) :
+    ∑ i ∈ Finset.range (r + 1), deltaSeq w i
+      = (∑ i ∈ Finset.range (r + 1), blockSup w i) + (deltaSeq w 0 - blockSup w 0)
+
+private lemma sumDelta_isBigO_one {w : ℕ → ℂ} {γ : ℝ} (hγ : 0 < γ) (hγ1 : 1 < γ)
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => ∑ i ∈ Finset.range (r + 1), deltaSeq w i) =O[atTop] fun _ => (1 : ℝ)
+
+private lemma sumDelta_isLittleO_self {w : ℕ → ℂ}
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun _ => (1 : ℝ)) :
+    (fun r => ∑ i ∈ Finset.range (r + 1), deltaSeq w i) =o[atTop] fun r => (r : ℝ) + 1
+
+private lemma deltaSeq_nonneg {w : ℕ → ℂ} {B : ℝ} (hB0 : 0 ≤ B) (hB : ∀ n, blk w n ≤ B) (i : ℕ) :
+    0 ≤ deltaSeq w i
+
+private lemma WDS_o {w : ℕ → ℂ}
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun _ => (1 : ℝ)) :
+    (fun r => ∑ m ∈ Finset.range (r + 1), ∑ j ∈ Finset.range (r + 1), ‖w (m + j)‖ ^ 2)
+      =o[atTop] fun r => (r : ℝ) + 1
+
+private lemma WDS_O {w : ℕ → ℂ} {γ : ℝ} (hγ : 0 < γ) (hγ1 : 1 < γ)
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => ∑ m ∈ Finset.range (r + 1), ∑ j ∈ Finset.range (r + 1), ‖w (m + j)‖ ^ 2)
+      =O[atTop] fun _ => (1 : ℝ)
+
+private lemma partialL1Sq_O {w : ℕ → ℂ} {γ : ℝ} (hγ : 0 < γ) (hγ1 : 1 < γ)
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-γ)) :
+    (fun r => (∑ k ∈ Finset.range (r + 1), ‖w k‖) ^ 2) =O[atTop] fun _ => (1 : ℝ)
+
+private lemma partialL1Sq_o {w : ℕ → ℂ}
+    (hw : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖w m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-(0 : ℝ))) :
+    (fun r => (∑ k ∈ Finset.range (r + 1), ‖w k‖) ^ 2) =o[atTop] fun r => (r : ℝ) + 1
+
+private lemma rational_of_uv_eventually_lt {a sc tc : ℕ → ℂ}
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ))
+    (hdet : ∀ r, kroneckerDet (PowerSeries.mk a) r = (uvMatrix sc tc r).det)
+    (hlt : ∀ᶠ r in atTop, ∑ j, ∑ i, ‖uvMatrix sc tc r i j‖ ^ 2 < (r : ℝ) + 1) :
+    IsRationalSeries (PowerSeries.mk a)
+
+private lemma rational_case_ii {a sc tc : ℕ → ℂ} {α β : ℝ}
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ))
+    (hdet : ∀ r, kroneckerDet (PowerSeries.mk a) r = (uvMatrix sc tc r).det)
+    (hαβ : (α = 0 ∧ 1 < β) ∨ (1 < α ∧ β = 0))
+    (hs2 : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖sc m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-α))
+    (ht2 : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖tc m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-β)) :
+    IsRationalSeries (PowerSeries.mk a)
+
+theorem isRationalSeries_of_quotient_blockNormSq_littleO
+    {f s t : ℂ → ℂ} {a sc tc : ℕ → ℂ} {ρ : ENNReal} {α β : ℝ}
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ)
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ))
+    (hs : HasFPowerSeriesOnBall s (FormalMultilinearSeries.ofScalars ℂ sc) 0 1)
+    (ht : HasFPowerSeriesOnBall t (FormalMultilinearSeries.ofScalars ℂ tc) 0 1)
+    (hft : ∀ z ∈ Metric.ball (0 : ℂ) 1, t z ≠ 0 → f z = s z / t z)
+    (hαβ : (0 < α ∧ 0 < β) ∨ (α = 0 ∧ 1 < β) ∨ (1 < α ∧ β = 0))
+    (hs2 : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖sc m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-α))
+    (ht2 : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖tc m‖ ^ 2) =o[atTop] fun n => (n : ℝ) ^ (-β)) :
+    IsRationalSeries (PowerSeries.mk a)
+
+theorem isRationalSeries_of_polynomialDenom_blockNormSq_o1
+    {f s t : ℂ → ℂ} {a sc tc : ℕ → ℂ} {ρ : ENNReal}
+    (hfp : HasFPowerSeriesOnBall f (FormalMultilinearSeries.ofScalars ℂ a) 0 ρ)
+    (hint : ∀ n, ∃ m : ℤ, a n = (m : ℂ))
+    (hs : HasFPowerSeriesOnBall s (FormalMultilinearSeries.ofScalars ℂ sc) 0 1)
+    (ht : HasFPowerSeriesOnBall t (FormalMultilinearSeries.ofScalars ℂ tc) 0 1)
+    (hft : ∀ z ∈ Metric.ball (0 : ℂ) 1, t z ≠ 0 → f z = s z / t z)
+    (htpoly : ∃ N, ∀ n, N ≤ n → tc n = 0)
+    (hs1 : (fun n => ∑ m ∈ Finset.Ico n (2 * n), ‖sc m‖ ^ 2) =o[atTop] fun _ => (1 : ℝ)) :
+    IsRationalSeries (PowerSeries.mk a)
+
+def Phi (q : ℕ) : Set (RatFunc ℚ) :=
+  { F | 0 < q ∧ ∃ A B : ℤ[X], B.coeff 0 = (q : ℤ) ∧
+      F = (A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (B.map (Int.castRingHom ℚ) : RatFunc ℚ) }
+
+informal_result "rational-denominator-reconstruction"
+  latex "Reconstruction of an integer-polynomial denominator with prescribed constant term: if a rational fraction F over ℚ has Taylor coefficients aₘ and Kronecker–Hankel determinants Dₘ obeying the q-power integrality bounds q^{m+1} aₘ ∈ ℤ and q^{2m+1} Dₘ ∈ ℤ, with Dₘ = 0 for m large (F rational), then F admits a representation F = A/B with A, B ∈ ℤ[X] and B(0) = q. The denominator B is recovered from the linear recurrence governing the (aₘ): its coefficients solve a Hankel/Cramer system whose determinants carry exactly the q-power denominators the bounds control, and the normalisation B(0) = q clears them to integers. This is the closure step in Bertin's Theorem 2.1; not yet formalised in Mathlib."
+  refs "Ber92"
+
+axiom mem_Phi_of_tendsto {q : ℕ} {Fs : ℕ → RatFunc ℚ} {F : RatFunc ℚ}
+    (hmem : ∀ n, Fs n ∈ Phi q)
+    (hconv : ∀ M : ℤ, ∀ᶠ n in Filter.atTop,
+      (M : WithTop ℤ) < ((F : LaurentSeries ℚ) - (Fs n : LaurentSeries ℚ)).orderTop) :
+    F ∈ Phi q
+
+theorem exists_coprime_repr_constantCoeff {F : RatFunc ℚ} {A B : ℤ[X]} (hB : B.coeff 0 ≠ 0)
+    (hF : F = (A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (B.map (Int.castRingHom ℚ) : RatFunc ℚ)) :
+    ∃ A₁ B₁ : ℤ[X], IsCoprime (A₁.map (Int.castRingHom ℚ)) (B₁.map (Int.castRingHom ℚ)) ∧
+      F = (A₁.map (Int.castRingHom ℚ) : RatFunc ℚ) / (B₁.map (Int.castRingHom ℚ) : RatFunc ℚ) ∧
+      B₁.coeff 0 = B.coeff 0
+
+def Family (q k : ℕ) (δ : ℝ) : Set (RatFunc ℚ) :=
+  { f | 0 < q ∧ 0 < δ ∧ ∃ A Q : ℤ[X],
+      f = (A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (Q.map (Int.castRingHom ℚ) : RatFunc ℚ) ∧
+      Q.coeff 0 = (q : ℤ) ∧ A.coeff 0 ≠ 0 ∧
+      ((Q.aroots ℂ).filter (fun z => ‖z‖ < 1)).card ≤ k ∧
+      (∀ z : ℂ, (‖z‖ < δ ∨ ‖z‖ = 1) → (aeval z Q : ℂ) ≠ 0) ∧
+      (∀ z : ℂ, ‖z‖ = 1 → ‖(aeval z A : ℂ) / (aeval z Q : ℂ)‖ ≤ 1) }
+
+def FamilyRealizations (q k : ℕ) (δ : ℝ) : Set C(↥(Metric.ball (0 : ℂ) δ), ℂ) :=
+  { g | ∃ f ∈ Family q k δ, ∀ z : ↥(Metric.ball (0 : ℂ) δ),
+      g z = RatFunc.eval (algebraMap ℚ ℂ) (z : ℂ) f }
+
+informal_result "montel-normal-families"
+  latex "Montel's theorem on normal families of holomorphic functions: a family of holomorphic functions on a domain that is uniformly bounded on every compact subset is normal — relatively compact for the topology of uniform convergence on compact subsets, with every limit again holomorphic. Obtained from local equiboundedness through the Cauchy estimates (giving local equicontinuity) and the Arzelà–Ascoli theorem with a diagonal extraction; the classical compactness engine for families of analytic functions."
+  refs "Ber92"
+
+informal_result "hurwitz-zeros"
+  latex "Hurwitz's theorem on zeros: if holomorphic functions converge uniformly on compact subsets to a limit that is not identically zero, then for every closed disk on whose boundary the limit does not vanish, the functions eventually have — counted with multiplicity — the same number of zeros inside as the limit. Governs how the count of zeros (hence of poles) in a disk behaves under local uniform limits; here it keeps the bound of at most k poles in D(0,1) and the non-vanishing on D(0,δ) ∪ {|z|=1} closed under limits, so the limit stays inside ℱ(q,k,δ)."
+  refs "Ber92"
+
+axiom Family_isCompact (q k : ℕ) (δ : ℝ) : IsCompact (FamilyRealizations q k δ)
+
+informal_result "rouche-theorem"
+  latex "Rouché's theorem: if f and g are holomorphic on a domain containing the closed disk and |f(z) − g(z)| < |g(z)| on the bounding circle, then f and g have the same number of zeros inside the disk, counted with multiplicity (equivalently, by the argument principle, equal winding numbers of f and g about 0). The classical tool for locating and counting zeros of holomorphic functions by boundary comparison."
+  refs "Ber92"
+
+axiom le_zeros_ball_of_norm_le_on_circle {f g : ℂ → ℂ} {r : ℝ} {n : ℕ}
+    (hr : 1 < r)
+    (hf : AnalyticOnNhd ℂ f (Metric.ball 0 r))
+    (hg : AnalyticOnNhd ℂ g (Metric.ball 0 r))
+    (hi : ∀ z : ℂ, ‖z‖ = 1 → ‖f z‖ ≤ ‖g z‖)
+    (hii : analyticOrderAt (fun z => f z - g z) 0 = (n : ℕ∞)) :
+    n ≤ ∑ᶠ z ∈ Metric.ball (0 : ℂ) 1, analyticOrderNatAt g z
+
+axiom limitPoint_num_ne_reverse_denom {q k : ℕ} {δ : ℝ} {A Q : ℤ[X]}
+    (hQ0 : Q.coeff 0 = (q : ℤ))
+    (hcop : IsCoprime (A.map (Int.castRingHom ℚ)) (Q.map (Int.castRingHom ℚ)))
+    (hmem : ((A.map (Int.castRingHom ℚ) : RatFunc ℚ) /
+            (Q.map (Int.castRingHom ℚ) : RatFunc ℚ)) ∈ Family q k δ)
+    (gf : C(↥(Metric.ball (0 : ℂ) δ), ℂ))
+    (hgf : ∀ z : ↥(Metric.ball (0 : ℂ) δ), gf z =
+      RatFunc.eval (algebraMap ℚ ℂ) (z : ℂ)
+        ((A.map (Int.castRingHom ℚ) : RatFunc ℚ) / (Q.map (Int.castRingHom ℚ) : RatFunc ℚ)))
+    (hacc : AccPt gf (Filter.principal (FamilyRealizations q k δ))) :
+    A ≠ Q.reverse ∧ A ≠ -Q.reverse
+
+noncomputable def schurToeplitz (F : PowerSeries ℂ) (n : ℕ) :
+    Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ :=
+  fun i j => if j ≤ i then PowerSeries.coeff ((i : ℕ) - (j : ℕ)) F else 0
+
+noncomputable def schurToeplitzStar (F : PowerSeries ℂ) (n : ℕ) :
+    Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ :=
+  fun i j => if i ≤ j then starRingEnd ℂ (PowerSeries.coeff ((j : ℕ) - (i : ℕ)) F) else 0
+
+noncomputable def schurDelta (F : PowerSeries ℂ) (n : ℕ) : ℂ :=
+  (Matrix.fromBlocks (1 : Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ) (schurToeplitzStar F n)
+    (schurToeplitz F n) (1 : Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ)).det
+
+def exchangeMatrix (n : ℕ) : Matrix (Fin (n + 1)) (Fin (n + 1)) ℂ :=
+  fun i j => if (i : ℕ) + (j : ℕ) = n then 1 else 0
+
+noncomputable def reciprocalC (P : ℂ[X]) : ℂ[X] := P.reverse.map (starRingEnd ℂ)
+
+theorem schurDelta_zero (F : PowerSeries ℂ) :
+    schurDelta F 0 = 1 - (Complex.normSq (PowerSeries.coeff 0 F) : ℂ)
+
+theorem schurToeplitz_one (n : ℕ) : schurToeplitz (1 : PowerSeries ℂ) n = 1
+
+theorem schurToeplitzStar_eq_conjTranspose (F : PowerSeries ℂ) (n : ℕ) :
+    schurToeplitzStar F n = (schurToeplitz F n)ᴴ
+
+theorem exchangeMatrix_mul_self (n : ℕ) : exchangeMatrix n * exchangeMatrix n = 1
+
+theorem det_schurToeplitz (F : PowerSeries ℂ) (n : ℕ) :
+    (schurToeplitz F n).det = (PowerSeries.coeff 0 F) ^ (n + 1)
+
+theorem schurToeplitz_mul (F G : PowerSeries ℂ) (n : ℕ) :
+    schurToeplitz (F * G) n = schurToeplitz F n * schurToeplitz G n
+
+theorem schurToeplitz_inv_eq (G : PowerSeries ℂ) (n : ℕ)
+    (hG : PowerSeries.constantCoeff G ≠ 0) :
+    schurToeplitz G⁻¹ n = (schurToeplitz G n)⁻¹
+
+theorem schurToeplitz_inv (F G : PowerSeries ℂ) (n : ℕ)
+    (hG : PowerSeries.constantCoeff G ≠ 0) :
+    schurToeplitz (F * G⁻¹) n = schurToeplitz F n * (schurToeplitz G n)⁻¹
+
+theorem exchangeMatrix_schurToeplitzStar (F : PowerSeries ℂ) (n : ℕ) :
+    exchangeMatrix n * schurToeplitzStar F n
+        = (schurToeplitz F n).map (starRingEnd ℂ) * exchangeMatrix n
+    ∧ exchangeMatrix n * (schurToeplitz F n).map (starRingEnd ℂ)
+        = schurToeplitzStar F n * exchangeMatrix n
+
+theorem schurDelta_eq_det (F : PowerSeries ℂ) (n : ℕ) :
+    schurDelta F n = (1 - schurToeplitz F n * schurToeplitzStar F n).det ∧
+    schurDelta F n = (1 - schurToeplitzStar F n * schurToeplitz F n).det
+
+theorem schurDelta_real (F : PowerSeries ℂ) (n : ℕ)
+    (hF : ∀ m, starRingEnd ℂ (PowerSeries.coeff m F) = PowerSeries.coeff m F) :
+    schurDelta F n = (1 + exchangeMatrix n * schurToeplitz F n).det
+      * (1 - exchangeMatrix n * schurToeplitz F n).det
+
+theorem schurDelta_inv (F : PowerSeries ℂ) (n : ℕ) (hF : PowerSeries.constantCoeff F ≠ 0) :
+    schurDelta F⁻¹ n
+      = (-1)^(n+1) * ((Complex.normSq (PowerSeries.coeff 0 F) : ℂ)^(n+1))⁻¹ * schurDelta F n
+
+theorem schurToeplitz_sub (F G : PowerSeries ℂ) (n : ℕ) :
+    schurToeplitz (F - G) n = schurToeplitz F n - schurToeplitz G n
+
+theorem schurToeplitz_C (c : ℂ) (n : ℕ) : schurToeplitz (C c) n = c • 1
+
+theorem schurToeplitz_C_mul (c : ℂ) (F : PowerSeries ℂ) (n : ℕ) :
+    schurToeplitz (C c * F) n = c • schurToeplitz F n
+
+noncomputable def schurTransform (F : PowerSeries ℂ) : PowerSeries ℂ :=
+  mk fun k => coeff (k + 1)
+    ((F - C (constantCoeff F)) * (1 - C (starRingEnd ℂ (constantCoeff F)) * F)⁻¹)
+
+theorem schurTransform_spec (F : PowerSeries ℂ) (hF : Complex.normSq (constantCoeff F) ≠ 1) :
+    X * (1 - C (starRingEnd ℂ (constantCoeff F)) * F) * schurTransform F
+      = F - C (constantCoeff F)
+
+theorem schurTransform_X_mul (F : PowerSeries ℂ) :
+    X * schurTransform F
+      = (F - C (constantCoeff F)) * (1 - C (starRingEnd ℂ (constantCoeff F)) * F)⁻¹
+
+theorem det_one_sub_schurToeplitz_X_mul (G : PowerSeries ℂ) (m : ℕ) :
+    (1 - schurToeplitz (X * G) (m + 1) * (schurToeplitz (X * G) (m + 1))ᴴ).det
+      = (1 - schurToeplitz G m * (schurToeplitz G m)ᴴ).det
+
+theorem schurDelta_recurrence (F : PowerSeries ℂ) (n : ℕ) (hn : 1 ≤ n)
+    (hF : Complex.normSq (constantCoeff F) ≠ 1) :
+    schurDelta F n = schurDelta F 0 ^ (n + 1) * schurDelta (schurTransform F) (n - 1)
+
+theorem schurTransform_X_mul_cancel (G : PowerSeries ℂ) : schurTransform (X * G) = G
+
+theorem schurDelta_recurrence_zero (F : PowerSeries ℂ) (n : ℕ) (hn : 1 ≤ n)
+    (hc : constantCoeff F = 0) :
+    schurDelta F n = schurDelta (schurTransform F) (n - 1)
+
+theorem schurDelta_X_pow_mul {F : PowerSeries ℂ} (R : PowerSeries ℂ) (s n : ℕ)
+    (hF : F = X ^ s * R) (hns : s ≤ n) :
+    schurDelta F n = schurDelta R (n - s)
+
+axiom schurDelta_eq_zero_iff (F : PowerSeries ℂ) (n : ℕ) (hF : PowerSeries.constantCoeff F ≠ 0) :
+    schurDelta F n = 0 ↔
+      ∃ (P : ℂ[X]) (r : ℕ),
+        (2 * r ≤ n ∧ P.natDegree = n - 2 * r) ∧
+          ((n + 1 - r : ℕ) : ℕ∞) ≤
+              (F * (P : PowerSeries ℂ) - (reciprocalC P : PowerSeries ℂ)).order ∧
+          P.eval 0 ≠ 0
+
+axiom exists_poly_of_schurDelta_run
+    (F : PowerSeries ℂ) (n k : ℕ) (hk : 1 ≤ k)
+    (hF : PowerSeries.constantCoeff F ≠ 0)
+    (hprev : 1 ≤ n → schurDelta F (n - 1) ≠ 0)
+    (hrun : ∀ j : ℕ, j < k → schurDelta F (n + j) = 0) :
+    ∃ P : ℂ[X],
+      (P.natDegree = n ∧ P.eval 0 ≠ 0) ∧
+        (n ≠ 0 → IsCoprime P (reciprocalC P)) ∧
+          ((n + 1 + k / 2 : ℕ) : ℕ∞) ≤
+            (F * (P : PowerSeries ℂ) - (reciprocalC P : PowerSeries ℂ)).order
+
+theorem reciprocalC_one : reciprocalC (1 : ℂ[X]) = 1
+
+theorem reciprocalC_mul (P Q : ℂ[X]) : reciprocalC (P * Q) = reciprocalC P * reciprocalC Q
+
+theorem reciprocalC_pow (P : ℂ[X]) (i : ℕ) : reciprocalC (P ^ i) = reciprocalC P ^ i
+
+theorem reciprocalC_X_add_one : reciprocalC (1 + Polynomial.X) = 1 + Polynomial.X
+
+theorem schurDelta_eq_zero_of_mul_eq_reciprocalC {G : PowerSeries ℂ} {P : ℂ[X]}
+    (hG : PowerSeries.constantCoeff G ≠ 0) (hP0 : P.eval 0 ≠ 0)
+    (hGP : G * (P : PowerSeries ℂ) = (reciprocalC P : PowerSeries ℂ))
+    {m : ℕ} (hm : P.natDegree ≤ m) : schurDelta G m = 0
+
+theorem exists_eq_X_pow_mul (F : PowerSeries ℂ) (hF : F ≠ 0) :
+    ∃ (r : ℕ) (R : PowerSeries ℂ), F = X ^ r * R ∧ PowerSeries.constantCoeff R ≠ 0
+
+theorem schurDelta_eq_one_of_coeff_eq_zero (F : PowerSeries ℂ) (m : ℕ)
+    (h : ∀ k ≤ m, PowerSeries.coeff k F = 0) : schurDelta F m = 1
+
+axiom exists_poly_mul_eq_reciprocalC_of_schurDelta_eventually_zero
+    (G : PowerSeries ℂ) (n₀ : ℕ) (hG : PowerSeries.constantCoeff G ≠ 0)
+    (hprev : 1 ≤ n₀ → schurDelta G (n₀ - 1) ≠ 0)
+    (hrun : ∀ m, n₀ ≤ m → schurDelta G m = 0) :
+    ∃ P : ℂ[X], P.natDegree = n₀ ∧ P.eval 0 ≠ 0 ∧ IsCoprime P (reciprocalC P) ∧
+      G * (P : PowerSeries ℂ) = (reciprocalC P : PowerSeries ℂ)
+
+theorem schurDelta_ne_zero_of_mul_eq_reciprocalC {G : PowerSeries ℂ} {P : ℂ[X]}
+    (hG : PowerSeries.constantCoeff G ≠ 0) (hP0 : P.eval 0 ≠ 0)
+    (hcop : IsCoprime P (reciprocalC P))
+    (hGP : G * (P : PowerSeries ℂ) = (reciprocalC P : PowerSeries ℂ))
+    (hn₀ : 1 ≤ P.natDegree) : schurDelta G (P.natDegree - 1) ≠ 0
+
+theorem schurDelta_core_iff {G : PowerSeries ℂ} (hG : PowerSeries.constantCoeff G ≠ 0) :
+    (∃ P : ℂ[X], G * (P : PowerSeries ℂ) = (reciprocalC P : PowerSeries ℂ) ∧
+        P.eval 0 ≠ 0 ∧ IsCoprime P (reciprocalC P)) ↔
+      (∃ n₀ : ℕ, (∀ m, n₀ ≤ m → schurDelta G m = 0) ∧ (1 ≤ n₀ → schurDelta G (n₀ - 1) ≠ 0))
+
+theorem eq_X_pow_mul_reciprocalC_div_iff (F : PowerSeries ℂ) :
+    (∃ (r n₀ : ℕ) (P : ℂ[X]),
+        F = PowerSeries.X ^ r * (reciprocalC P : PowerSeries ℂ) * (P : PowerSeries ℂ)⁻¹ ∧
+          P.eval 0 ≠ 0 ∧ IsCoprime P (reciprocalC P) ∧ P.natDegree = n₀) ↔
+      (∃ (r n₀ : ℕ),
+        (∀ n, n₀ + r ≤ n → schurDelta F n = 0) ∧
+          (1 ≤ n₀ + r → schurDelta F (n₀ + r - 1) ≠ 0))
+
+noncomputable def reciprocalAt (i : ℕ) (P : ℂ[X]) : ℂ[X] := (P.reflect i).map (starRingEnd ℂ)
+
+theorem reciprocalAt_natDegree (P : ℂ[X]) : reciprocalAt P.natDegree P = reciprocalC P
+
+theorem schurDelta_zero_ne_zero_iff (F : PowerSeries ℂ) :
+    schurDelta F 0 ≠ 0 ↔ Complex.normSq (constantCoeff F) ≠ 1
+
+noncomputable def schurOmega (F : PowerSeries ℂ) (i : ℕ) : ℂ :=
+  ∏ k ∈ Finset.range (i + 1), schurDelta (schurTransform^[k] F) 0
+
+theorem schurDelta_zero_iterate_ne_zero (F : PowerSeries ℂ) (n : ℕ)
+    (hδ : ∀ i ≤ n, schurDelta F i ≠ 0) : ∀ k ≤ n, schurDelta (schurTransform^[k] F) 0 ≠ 0
+
+axiom exists_convergents (F : PowerSeries ℂ) (n : ℕ) (hδ : ∀ i ≤ n, schurDelta F i ≠ 0) :
+    ∀ i ≤ n, ∃ A Q : ℂ[X],
+      (A.natDegree ≤ i ∧ Q.natDegree ≤ i ∧ Q.eval 0 = 1) ∧
+      F * ((Q : PowerSeries ℂ) + X * (reciprocalAt i A : PowerSeries ℂ) * schurTransform^[i + 1] F)
+          = (A : PowerSeries ℂ) + X * (reciprocalAt i Q : PowerSeries ℂ) * schurTransform^[i + 1] F ∧
+      Q * reciprocalAt i Q - A * reciprocalAt i A = Polynomial.C (schurOmega F i) * Polynomial.X ^ i ∧
+      ((i + 1 : ℕ) : ℕ∞) ≤ (F * (Q : PowerSeries ℂ) - (A : PowerSeries ℂ)).order ∧
+      coeff (i + 1) (F * (Q : PowerSeries ℂ) - (A : PowerSeries ℂ))
+          = schurOmega F i * constantCoeff (schurTransform^[i + 1] F)
+
+theorem schurDelta_add_eq_iterate_prod (F : PowerSeries ℂ) (n : ℕ)
+    (hδ : ∀ i ≤ n, schurDelta F i ≠ 0) (k : ℕ) :
+    schurDelta F (n + k)
+      = (∏ j ∈ Finset.range n, schurDelta (schurTransform^[j] F) 0 ^ ((n - j) + (k + 1)))
+          * schurDelta (schurTransform^[n] F) k
+
+theorem schurOmega_zero (F : PowerSeries ℂ) : schurOmega F 0 = schurDelta F 0
+
+theorem schurOmega_succ (F : PowerSeries ℂ) (n : ℕ) :
+    schurOmega F (n + 1) = schurOmega F n * schurDelta (schurTransform^[n + 1] F) 0
+
+theorem schurOmega_succ' (F : PowerSeries ℂ) (n : ℕ) :
+    schurOmega F (n + 1) = schurOmega (schurTransform F) n * schurDelta F 0
+
+theorem schurDelta_succ_eq_schurOmega_mul (F : PowerSeries ℂ) (n : ℕ)
+    (hδ : ∀ i ≤ n + 1, schurDelta F i ≠ 0) :
+    schurDelta F (n + 1) = schurOmega F (n + 1) * schurDelta F n
+
+noncomputable def genSchurQ (k : ℕ) (cps : PowerSeries ℂ) : PowerSeries ℂ :=
+  mk fun j =>
+    if j < k then coeff j cps
+    else if k < j ∧ j ≤ 2 * k then -(starRingEnd ℂ) (coeff (2 * k - j) cps)
+    else 0
+
+noncomputable def genSchurR (k : ℕ) (cps : PowerSeries ℂ) : PowerSeries ℂ :=
+  mk fun i => coeff (i + k) (cps - genSchurQ k cps)
+
+noncomputable def genSchurNum (k : ℕ) (cps F : PowerSeries ℂ) : PowerSeries ℂ :=
+  F * (genSchurQ k cps - X ^ k) - PowerSeries.C (constantCoeff F) * genSchurQ k cps
+
+noncomputable def genSchurDen (k : ℕ) (cps F : PowerSeries ℂ) : PowerSeries ℂ :=
+  PowerSeries.C (starRingEnd ℂ (constantCoeff F)) * F * genSchurQ k cps - (genSchurQ k cps + X ^ k)
+
+theorem genSchurQ_decomp (k : ℕ) (cps : PowerSeries ℂ) :
+    cps = genSchurQ k cps + X ^ k * genSchurR k cps
+
+theorem genSchurNum_eq {F cps : PowerSeries ℂ} {k : ℕ}
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k) :
+    genSchurNum k cps F
+      = -(X ^ k * ((F - PowerSeries.C (constantCoeff F)) * (1 + genSchurR k cps)))
+
+theorem genSchurDen_eq {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1)
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k) :
+    genSchurDen k cps F
+      = -(PowerSeries.C (starRingEnd ℂ (constantCoeff F))
+          * (X ^ k * ((F - PowerSeries.C (constantCoeff F)) * genSchurR k cps)))
+
+theorem genSchur_order_ge {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1)
+    (hk : (X : PowerSeries ℂ) ^ k ∣ (F - PowerSeries.C (constantCoeff F)))
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F))
+            = PowerSeries.C (constantCoeff F) * X ^ k) :
+    (↑(2 * k) : ℕ∞) ≤ (genSchurNum k cps F).order ∧
+      (↑(2 * k) : ℕ∞) ≤ (genSchurDen k cps F).order
+
+axiom genSchur_delta_eq {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1) (hk0 : k ≠ 0)
+    (hk : (X : PowerSeries ℂ) ^ k ∣ (F - PowerSeries.C (constantCoeff F)))
+    (hak : coeff k F ≠ 0)
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k)
+    {s : ℕ} (hs : (genSchurDen k cps F).order = ↑(2 * k + s))
+    {H : PowerSeries ℂ} (hH : H * genSchurDen k cps F = X ^ s * genSchurNum k cps F)
+    {n : ℕ} (hn : 2 * k + s ≤ n) :
+    schurDelta F n = (-1 : ℂ) ^ (k + s) * (Complex.normSq (coeff k F) : ℂ) ^ (k + s)
+      * (Complex.normSq (coeff (2 * k + s) (genSchurDen k cps F)) : ℂ) ^ (n + 1 - 2 * k - s)
+      * schurDelta H (n - 2 * k - s)
+
+axiom genSchur_delta_eq_of_den_zero {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1) (hk0 : k ≠ 0)
+    (hk : (X : PowerSeries ℂ) ^ k ∣ (F - PowerSeries.C (constantCoeff F)))
+    (hak : coeff k F ≠ 0)
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k)
+    (hden : genSchurDen k cps F = 0)
+    {n : ℕ} (hn : 2 * k ≤ n) :
+    schurDelta F n = (-1 : ℂ) ^ (n + 1 - k) * (Complex.normSq (coeff k F) : ℂ) ^ (n + 1 - k)
+
+theorem genSchur_H_eq {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1) (hk0 : k ≠ 0) (hak : coeff k F ≠ 0)
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k)
+    {s : ℕ} {H : PowerSeries ℂ}
+    (hH : H * genSchurDen k cps F = X ^ s * genSchurNum k cps F) :
+    PowerSeries.C (starRingEnd ℂ (constantCoeff F)) * genSchurR k cps * H
+      = X ^ s * (1 + genSchurR k cps)
+
+theorem genSchurDen_order_eq {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1) (hk0 : k ≠ 0) (hak : coeff k F ≠ 0)
+    (hk : (X : PowerSeries ℂ) ^ k ∣ (F - PowerSeries.C (constantCoeff F)))
+    (hrel : cps * (F - PowerSeries.C (constantCoeff F)) = PowerSeries.C (constantCoeff F) * X ^ k) :
+    (genSchurDen k cps F).order = (↑(2 * k) : ℕ∞) + (genSchurR k cps).order
+
+noncomputable def psDiv (m : ℕ) (num den : PowerSeries ℂ) : PowerSeries ℂ :=
+  (mk fun i => coeff (i + m) num) * (mk fun i => coeff (i + m) den)⁻¹
+
+noncomputable def genSchurReciprocalStep (k : ℕ) (F : PowerSeries ℂ) : PowerSeries ℂ :=
+  psDiv k (X ^ k * (1 - PowerSeries.C (starRingEnd ℂ (constantCoeff F)) * F))
+    (F - PowerSeries.C (constantCoeff F))
+
+noncomputable def genSchurUnimodularStep (k s : ℕ) (cps F : PowerSeries ℂ) : PowerSeries ℂ :=
+  psDiv (2 * k + s) (X ^ s * genSchurNum k cps F) (genSchurDen k cps F)
+
+theorem genSchurDen_eq_zero_iff {F cps : PowerSeries ℂ} {k : ℕ}
+    (ha₀ : Complex.normSq (constantCoeff F) = 1) (hk0 : k ≠ 0) (hc0 : coeff 0 cps ≠ 0) :
+    genSchurDen k cps F = 0 ↔
+      F = PowerSeries.C (constantCoeff F) * (genSchurQ k cps + X ^ k) * (genSchurQ k cps)⁻¹
+
+theorem schurDelta_C_eq (γ₀ : ℂ) (n : ℕ) :
+    schurDelta (PowerSeries.C γ₀) n = (1 - (Complex.normSq γ₀ : ℂ)) ^ (n + 1)
+
+theorem schurDelta_C_eq_zero {γ₀ : ℂ} (h : Complex.normSq γ₀ = 1) (n : ℕ) :
+    schurDelta (PowerSeries.C γ₀) n = 0
+
+def schurClass : Set (ℂ → ℂ) :=
+  { f | AnalyticOnNhd ℂ f (ball 0 1) ∧ ∀ z ∈ ball (0 : ℂ) 1, ‖f z‖ ≤ 1 }
+
+theorem mem_schurClass {f : ℂ → ℂ} :
+    f ∈ schurClass ↔
+      AnalyticOnNhd ℂ f (ball 0 1) ∧ ∀ z ∈ ball (0 : ℂ) 1, ‖f z‖ ≤ 1
+
+def IsTaylorSeriesOfSchurClass (F : PowerSeries ℂ) : Prop :=
+  ∃ g : ℂ → ℂ, g ∈ schurClass ∧
+    HasFPowerSeriesAt g (FormalMultilinearSeries.ofScalars ℂ (fun n => PowerSeries.coeff n F)) 0
+
+axiom isTaylorSeriesOfSchurClass_iff (F : PowerSeries ℂ) :
+    IsTaylorSeriesOfSchurClass F ↔
+      (∀ n, 0 < (schurDelta F n).re ∧ (schurDelta F n).im = 0) ∨
+      (∃ n₀, (∀ n < n₀, 0 < (schurDelta F n).re ∧ (schurDelta F n).im = 0) ∧
+        (∀ n, n₀ ≤ n → schurDelta F n = 0))
+
+noncomputable def taylorSeries (f : ℂ → ℂ) : PowerSeries ℂ :=
+  PowerSeries.mk fun n => iteratedDeriv n f 0 / (n.factorial : ℂ)
+
+def HasIndefiniteRank (f : ℂ → ℂ) : Prop :=
+  ¬ ∃ N, ∀ n, N ≤ n → schurDelta (taylorSeries f) n = 0
+
+theorem hasIndefiniteRank_iff (f : ℂ → ℂ) :
+    HasIndefiniteRank f ↔ ∀ N, ∃ n, N ≤ n ∧ schurDelta (taylorSeries f) n ≠ 0
+
+theorem schurOmega_pos_antitone_tendsto (F : PowerSeries ℂ)
+    (hpos : ∀ n, 0 < (schurDelta F n).re ∧ (schurDelta F n).im = 0) :
+    (∀ n, 0 < (schurOmega F n).re ∧ (schurOmega F n).im = 0) ∧
+      Antitone (fun n => (schurOmega F n).re) ∧
+      ∃ L : ℝ, Tendsto (fun n => (schurOmega F n).re) atTop (𝓝 L)
+
+theorem schurOmega_tendsto_of_isTaylorSeriesOfSchurClass (F : PowerSeries ℂ)
+    (hF : IsTaylorSeriesOfSchurClass F) (hrank : ¬ ∃ N, ∀ n, N ≤ n → schurDelta F n = 0) :
+    (∀ n, 0 < (schurDelta F n).re ∧ (schurDelta F n).im = 0) ∧
+      (∀ n, schurDelta F (n + 1) / schurDelta F n = schurOmega F (n + 1)) ∧
+      (∀ n, 0 < (schurOmega F n).re ∧ (schurOmega F n).im = 0) ∧
+      Antitone (fun n => (schurOmega F n).re) ∧
+      ∃ L : ℝ, Tendsto (fun n => (schurOmega F n).re) atTop (𝓝 L)
+
+axiom posSemidef_one_sub_schurToeplitz_of_mem_schurClass {f : ℂ → ℂ} (hf : f ∈ schurClass) (n : ℕ) :
+    (1 - schurToeplitz (taylorSeries f) n * schurToeplitzStar (taylorSeries f) n).PosSemidef
+
+theorem posSemidef_one_pm_exchangeMatrix_schurToeplitz_of_real {f : ℂ → ℂ} (hf : f ∈ schurClass)
+    (hreal : ∀ n, (PowerSeries.coeff n (taylorSeries f)).im = 0) (n : ℕ) :
+    (1 + exchangeMatrix n * schurToeplitz (taylorSeries f) n).PosSemidef ∧
+      (1 - exchangeMatrix n * schurToeplitz (taylorSeries f) n).PosSemidef
+
+noncomputable def geometricMean (g : ℂ → ℝ) : ℝ :=
+  if CircleIntegrable (fun z => Real.log (g z)) 0 1 then
+    Real.exp (Real.circleAverage (fun z => Real.log (g z)) 0 1)
+  else 0
+
+noncomputable def boundaryFun (f : ℂ → ℂ) : ℂ → ℂ :=
+  fun w => limUnder (𝓝[<] (1 : ℝ)) (fun r : ℝ => f ((r : ℂ) * w))
+
+axiom geometricMean_mul {g₁ g₂ : ℂ → ℝ}
+    (hg₁ : (∀ θ : ℝ, 0 < g₁ (circleMap 0 1 θ)) ∧ CircleIntegrable g₁ 0 1)
+    (hg₂ : (∀ θ : ℝ, 0 < g₂ (circleMap 0 1 θ)) ∧ CircleIntegrable g₂ 0 1)
+    (hg₁₂ : CircleIntegrable (fun z => g₁ z * g₂ z) 0 1) :
+    geometricMean (fun z => g₁ z * g₂ z) = geometricMean g₁ * geometricMean g₂
+
+axiom geometricMean_eq_iInf_circleAverage {g : ℂ → ℝ}
+    (hgpos : ∀ θ : ℝ, 0 < g (circleMap 0 1 θ)) (hg : CircleIntegrable g 0 1) :
+    geometricMean g =
+      ⨅ P ∈ {P : Polynomial ℂ | Polynomial.eval 0 P = 1},
+        Real.circleAverage (fun z => ‖Polynomial.eval z P‖ ^ 2 * g z) 0 1
+
+axiom boundaryFun_ae_and_memLp_of_memHardy {α : ℝ} (hα : 1 ≤ α) {f : ℂ → ℂ} (hf : MemHardy α f) :
+    (∀ᵐ θ ∂(volume.restrict (Set.Ioc 0 (2 * Real.pi))),
+        ∃ L : ℂ, Tendsto (fun r : ℝ => f ((r : ℂ) * circleMap 0 1 θ)) (𝓝[<] 1) (𝓝 L)) ∧
+      CircleIntegrable (fun z => ‖boundaryFun f z‖ ^ α) 0 1
+
+axiom circleAverage_log_boundaryFun_ge {f : ℂ → ℂ} (hf : MemHardy 1 f) (hf0 : f 0 ≠ 0) :
+    Real.log ‖f 0‖ ≤ Real.circleAverage (fun z => Real.log ‖boundaryFun f z‖) 0 1
+
+axiom geometricMean_boundaryFun_eq {f : ℂ → ℂ} (hf : MemHardy 1 f)
+    (hfinv : MemHardy 1 (fun z => (f z)⁻¹)) :
+    geometricMean (fun z => ‖boundaryFun f z‖) = ‖f 0‖
+
+axiom schurDelta_ratio_tendsto_geometricMean {f : ℂ → ℂ} (hf : f ∈ schurClass)
+    (hrank : HasIndefiniteRank f) :
+    Tendsto (fun n => schurDelta (taylorSeries f) (n + 1) / schurDelta (taylorSeries f) n)
+      atTop (𝓝 ((geometricMean (fun z => 1 - ‖boundaryFun f z‖ ^ 2) : ℝ) : ℂ))
+
+def schurClassInfty : Set (ℂ → ℂ) :=
+  { f | MeromorphicOn f (ball 0 1) ∧ AnalyticAt ℂ f 0 ∧
+        {z ∈ ball (0 : ℂ) 1 | ¬ AnalyticAt ℂ f z}.Finite ∧
+        ∀ w ∈ sphere (0 : ℂ) 1,
+          Filter.limsup (fun z => (‖f z‖ : EReal)) (𝓝[ball 0 1] w) ≤ 1 }
+
+theorem mem_schurClassInfty {f : ℂ → ℂ} :
+    f ∈ schurClassInfty ↔
+      MeromorphicOn f (ball 0 1) ∧ AnalyticAt ℂ f 0 ∧
+        {z ∈ ball (0 : ℂ) 1 | ¬ AnalyticAt ℂ f z}.Finite ∧
+        ∀ w ∈ sphere (0 : ℂ) 1,
+          Filter.limsup (fun z => (‖f z‖ : EReal)) (𝓝[ball 0 1] w) ≤ 1
+
+theorem norm_eval_reciprocalC (P : Polynomial ℂ) {z : ℂ} (hz : ‖z‖ = 1) :
+    ‖(reciprocalC P).eval z‖ = ‖P.eval z‖
+
+theorem norm_eval_reciprocalC_div_eq_one (P : Polynomial ℂ) {z : ℂ} (hz : ‖z‖ = 1)
+    (hPz : P.eval z ≠ 0) : ‖(reciprocalC P).eval z / P.eval z‖ = 1
+
+axiom mem_schurClassInfty_iff_reciprocalC_mul {f : ℂ → ℂ} :
+    f ∈ schurClassInfty ↔
+      ∃ (P : Polynomial ℂ) (h : ℂ → ℂ),
+        h ∈ schurClass ∧ P.eval 0 ≠ 0 ∧
+        (∀ z, P.IsRoot z → z ∈ ball (0 : ℂ) 1) ∧
+        ∀ z ∈ ball (0 : ℂ) 1, P.eval z ≠ 0 →
+          f z = (reciprocalC P).eval z / P.eval z * h z
+
+informal_result "generalized-schur-step-determinant"
+  latex "Determinant recursion for a step of the generalised Schur algorithm (Bertin, Lemma 3.4.1 b). If F = F^i and G = F^{i+l} are consecutive iterates (step length l ≥ 1) realised by polynomials E_l, S_l ∈ C[z] of degree ≤ l with G = (F E_l − S_l)/(Ẽ_l − F S̃_l), E_l Ẽ_l − S_l S̃_l = t_l z^l (t_l > 0 real), and F S̃_l − Ẽ_l = v_l z^l + ⋯ (v_l ≠ 0), where Ã(z) = z^l Ā(1/z), then the Schur determinants satisfy δ_n(F^i) = (|v_l|²/t_l^l)^{n+1} δ_{n−l}(F^{i+l}) for all n ≥ l. The proof iterates the single-step recurrence δ_n(F) = δ_0(F)^{n+1} δ_{n−1}(F^1) of Lemma 3.1.2 and, in the unimodular case, the convergent/determinant identities of Lemma 3.3.1; for l = 1 (the Schur transform) it reduces to δ_n(F^i) = (1 − |γ_0|²)^{n+1} δ_{n−1}(F^{i+1})."
+  refs "Ber92"
+
+theorem reciprocalAt_one_one : reciprocalAt 1 (1 : Polynomial ℂ) = X
+
+theorem reciprocalAt_one_C (γ : ℂ) : reciprocalAt 1 (C γ) = C (starRingEnd ℂ γ) * X
+
+axiom schurDelta_lemma_3_4_1 (F G : PowerSeries ℂ) (l : ℕ) (hl : 1 ≤ l)
+    (E S : Polynomial ℂ) (t : ℝ) (ht : 0 < t) (v : ℂ) (hv : v ≠ 0)
+    (hdeg : E.natDegree ≤ l ∧ S.natDegree ≤ l)
+    (hstep : G * ((reciprocalAt l E : PowerSeries ℂ) - F * (reciprocalAt l S : PowerSeries ℂ))
+        = (F * E - S : PowerSeries ℂ))
+    (hiii : E * reciprocalAt l E - S * reciprocalAt l S = C (t : ℂ) * X ^ l)
+    (hiv : PowerSeries.coeff l
+        ((F * (reciprocalAt l S : PowerSeries ℂ)) - (reciprocalAt l E : PowerSeries ℂ)) = v)
+    (hord : (↑l : ℕ∞) ≤ (F * E - S : PowerSeries ℂ).order) :
+    ∀ n, l ≤ n →
+      schurDelta F n = ((Complex.normSq v / t ^ l : ℝ) : ℂ) ^ (n + 1) * schurDelta G (n - l)
+
+theorem schurStep_relation (F : PowerSeries ℂ)
+    (hγ : Complex.normSq (PowerSeries.constantCoeff F) ≠ 1) :
+    schurTransform F * ((reciprocalAt 1 (1 : Polynomial ℂ) : PowerSeries ℂ)
+        - F * (reciprocalAt 1 (C (PowerSeries.constantCoeff F)) : PowerSeries ℂ))
+      = (F * (1 : Polynomial ℂ) - (C (PowerSeries.constantCoeff F) : Polynomial ℂ) :
+          PowerSeries ℂ)
+
+theorem schurStep_pseudonorm (γ : ℂ) :
+    (1 : Polynomial ℂ) * reciprocalAt 1 1 - C γ * reciprocalAt 1 (C γ)
+      = C (1 - γ * starRingEnd ℂ γ) * X
+
+theorem schurStep_t_pos {γ : ℂ} (hγ : Complex.normSq γ < 1) : (0 : ℝ) < 1 - Complex.normSq γ
+
+theorem schurStep_leadCoeff (F : PowerSeries ℂ) :
+    PowerSeries.coeff 1 ((F * (reciprocalAt 1 (C (PowerSeries.constantCoeff F)) : PowerSeries ℂ))
+        - (reciprocalAt 1 (1 : Polynomial ℂ) : PowerSeries ℂ))
+      = (Complex.normSq (PowerSeries.constantCoeff F) : ℂ) - 1
+
+theorem schurStep_v_ne_zero {γ : ℂ} (hγ : Complex.normSq γ < 1) :
+    (Complex.normSq γ : ℂ) - 1 ≠ 0
+
+theorem schurStep_order (F : PowerSeries ℂ) :
+    (1 : ℕ∞) ≤ (F * (1 : Polynomial ℂ) - (C (PowerSeries.constantCoeff F) : Polynomial ℂ) :
+      PowerSeries ℂ).order
+
+theorem schurDelta_schurStep (F : PowerSeries ℂ) (n : ℕ) (hn : 1 ≤ n)
+    (hγ : Complex.normSq (PowerSeries.coeff 0 F) < 1) :
+    schurDelta F n = (1 - (Complex.normSq (PowerSeries.coeff 0 F) : ℂ)) ^ (n + 1)
+      * schurDelta (schurTransform F) (n - 1)
+
+theorem unimodularStep_natDegree_E (Q : Polynomial ℂ) (k s : ℕ) (hQ : Q.natDegree ≤ 2 * k) :
+    (X ^ s * (Q - X ^ k)).natDegree ≤ 2 * k + s
+
+theorem unimodularStep_natDegree_S (Q : Polynomial ℂ) (γ : ℂ) (k s : ℕ) (hQ : Q.natDegree ≤ 2 * k) :
+    (X ^ s * (C γ * Q)).natDegree ≤ 2 * k + s
+
+axiom exists_convergents_lemma_3_4_2 (F : PowerSeries ℂ) (i : ℕ)
+    (hδ : ∀ j ≤ i, schurDelta F j ≠ 0) :
+    ∃ (A Q : Polynomial ℂ) (u : ℂ) (ω : ℝ),
+      (A.natDegree ≤ i ∧ Q.natDegree ≤ i) ∧
+      F * ((Q : PowerSeries ℂ) + (reciprocalAt i A : PowerSeries ℂ) * schurTransform^[i] F)
+          = (A : PowerSeries ℂ) + (reciprocalAt i Q : PowerSeries ℂ) * schurTransform^[i] F ∧
+      u ≠ 0 ∧ PowerSeries.coeff i ((F * (reciprocalAt i A : PowerSeries ℂ))
+          - (reciprocalAt i Q : PowerSeries ℂ)) = u ∧
+      (↑i : ℕ∞) ≤ (F * (Q : PowerSeries ℂ) - (A : PowerSeries ℂ)).order ∧
+      0 < ω ∧ Q * reciprocalAt i Q - A * reciprocalAt i A = C (ω : ℂ) * X ^ i
+
+theorem schurDelta_lemma_3_4_2 (F : PowerSeries ℂ) (i : ℕ)
+    (hδ : ∀ j ≤ i, schurDelta F j ≠ 0) (n : ℕ) (hn : i ≤ n) :
+    schurDelta F n
+      = (∏ j ∈ Finset.range i, schurDelta (schurTransform^[j] F) 0 ^ ((i - j) + (n - i + 1)))
+          * schurDelta (schurTransform^[i] F) (n - i)
+
+theorem schurDelta_lemma_3_4_2_const_ne_zero (F : PowerSeries ℂ) (i : ℕ)
+    (hδ : ∀ j ≤ i, schurDelta F j ≠ 0) (n : ℕ) :
+    (∏ j ∈ Finset.range i, schurDelta (schurTransform^[j] F) 0 ^ ((i - j) + (n - i + 1))) ≠ 0
+
+opaque SchurAlgorithmFinite : PowerSeries ℂ → Prop
+
+axiom finiteRank_or_rational_lemma_3_4_3 (F : PowerSeries ℂ) (hfin : SchurAlgorithmFinite F) :
+    (∃ N, ∀ n, N ≤ n → schurDelta F n = 0)
+    ∨ (∃ (A B : Polynomial ℂ) (lam : ℂ) (b : ℝ),
+        B ≠ 0 ∧ F * (B : PowerSeries ℂ) = (A : PowerSeries ℂ) ∧
+        (∀ z : ℂ, ‖z‖ = 1 → ‖B.eval z‖ < ‖A.eval z‖) ∧
+        lam ≠ 0 ∧ b < 0 ∧ ∀ n, schurDelta F n = lam * (b : ℂ) ^ n)
+
+noncomputable def poleCount (g : ℂ → ℂ) : ℕ :=
+  {z ∈ ball (0 : ℂ) 1 | ¬ AnalyticAt ℂ g z}.ncard
+
+def IsReciprocalOrUnimodularStep (G Gl : PowerSeries ℂ) : Prop :=
+  (∃ k, Gl = genSchurReciprocalStep k G) ∨ (∃ k s cps, Gl = genSchurUnimodularStep k s cps G)
+
+def IsFirstSchurTransform (G Gl : PowerSeries ℂ) : Prop :=
+  Gl = schurTransform G ∨ IsReciprocalOrUnimodularStep G Gl
+
+axiom poleCount_firstSchurTransform_lemma_3_4_4 (g : ℂ → ℂ) (hg : g ∈ schurClassInfty)
+    (Gl : PowerSeries ℂ) (hGl : IsFirstSchurTransform (taylorSeries g) Gl) :
+    ∃ gl : ℂ → ℂ, gl ∈ schurClassInfty ∧ taylorSeries gl = Gl ∧
+      poleCount gl ≤ poleCount g ∧
+      (IsReciprocalOrUnimodularStep (taylorSeries g) Gl → poleCount gl + 1 ≤ poleCount g)
+
+def IsIteratedFirstSchurTransform (F G : PowerSeries ℂ) (n : ℕ) : Prop :=
+  ∃ seq : ℕ → PowerSeries ℂ, seq 0 = F ∧ seq n = G ∧
+    ∀ i, i < n → IsFirstSchurTransform (seq i) (seq (i + 1))
+
+axiom exists_iterate_mem_schurClass_lemma_3_4_5
+    (f : ℂ → ℂ) (hf : f ∈ schurClassInfty) (hrank : HasIndefiniteRank f) :
+    ∃ (n₀ : ℕ) (g : ℂ → ℂ),
+      IsIteratedFirstSchurTransform (taylorSeries f) (taylorSeries g) n₀ ∧
+      g ∈ schurClass ∧ HasIndefiniteRank g
+
+axiom exists_mem_schurClassInfty_poleCount_one_lemma_3_4_6 (F : PowerSeries ℂ)
+    (hF : ∀ n, (schurDelta F n).re < 0 ∧ (schurDelta F n).im = 0) :
+    ∃ f : ℂ → ℂ, f ∈ schurClassInfty ∧ taylorSeries f = F ∧ poleCount f = 1
+
+def IsTaylorSeriesOfSchurClassInfty (F : PowerSeries ℂ) : Prop :=
+  ∃ f : ℂ → ℂ, f ∈ schurClassInfty ∧ taylorSeries f = F
+
+axiom isTaylorSeriesOfSchurClassInfty_iff (F : PowerSeries ℂ) :
+    IsTaylorSeriesOfSchurClassInfty F ↔
+      ∃ n₀ : ℕ,
+        (∀ n, n₀ ≤ n → 0 < (schurDelta F n * schurDelta F (n + 1)).re ∧
+            (schurDelta F n * schurDelta F (n + 1)).im = 0) ∨
+        (∀ n, n₀ ≤ n → schurDelta F n = 0)
+
+theorem schurDelta_eventually_ne_zero_corollary_3_4_1 (f : ℂ → ℂ)
+    (hf : f ∈ schurClassInfty) (hrank : HasIndefiniteRank f) :
+    ∃ n₀ : ℕ, ∀ n, n₀ ≤ n → schurDelta (taylorSeries f) n ≠ 0
+
+axiom schurDelta_ratio_pos_antitone_corollary_3_4_1 (f : ℂ → ℂ)
+    (hf : f ∈ schurClassInfty) (hrank : HasIndefiniteRank f) :
+    ∃ n₀ : ℕ,
+      (∀ n, n₀ ≤ n → schurDelta (taylorSeries f) n ≠ 0) ∧
+      (∀ n, n₀ ≤ n →
+        0 < (schurDelta (taylorSeries f) (n + 1) / schurDelta (taylorSeries f) n).re ∧
+        (schurDelta (taylorSeries f) (n + 1) / schurDelta (taylorSeries f) n).im = 0) ∧
+      (∀ n, n₀ ≤ n →
+        (schurDelta (taylorSeries f) (n + 2) / schurDelta (taylorSeries f) (n + 1)).re ≤
+        (schurDelta (taylorSeries f) (n + 1) / schurDelta (taylorSeries f) n).re)
+
+axiom schurDelta_ratio_tendsto_geometricMean_div_poles_theorem_3_4_2 {f : ℂ → ℂ}
+    (hf : f ∈ schurClassInfty) (hrank : HasIndefiniteRank f) :
+    Tendsto (fun n => schurDelta (taylorSeries f) (n + 1) / schurDelta (taylorSeries f) n)
+      atTop (𝓝 (((geometricMean (fun z => 1 - ‖boundaryFun f z‖ ^ 2) /
+        ∏ᶠ z ∈ {z ∈ ball (0 : ℂ) 1 | ¬ AnalyticAt ℂ f z}, ‖z‖ ^ 2 : ℝ) : ℂ)))
+
+def U : Set ℝ :=
+  {α | 1 < α ∧ IsIntegral ℤ α ∧ ∀ β ∈ (minpoly ℚ α).aroots ℂ, β ≠ (α : ℂ) → ‖β‖ ≤ 1}
+
+theorem mem_U_iff (α : ℝ) :
+    α ∈ U ↔
+      1 < α ∧ IsIntegral ℤ α ∧ ∀ β ∈ (minpoly ℚ α).aroots ℂ, β ≠ (α : ℂ) → ‖β‖ ≤ 1
+
+def S : Set ℝ :=
+  {θ | 1 < θ ∧ IsIntegral ℤ θ ∧ ∀ β ∈ (minpoly ℚ θ).aroots ℂ, β ≠ (θ : ℂ) → ‖β‖ < 1}
+
+theorem mem_S_iff (θ : ℝ) :
+    θ ∈ S ↔
+      1 < θ ∧ IsIntegral ℤ θ ∧ ∀ β ∈ (minpoly ℚ θ).aroots ℂ, β ≠ (θ : ℂ) → ‖β‖ < 1
+
+theorem intCast_mem_S (n : ℤ) (hn : 1 < n) : (n : ℝ) ∈ S
+
+theorem quadratic_mem_S (θ : ℝ) (hθ : θ ∈ S) (hdeg : (minpoly ℚ θ).natDegree = 2) :
+    ∃ q₁ q₀ : ℤ, θ ^ 2 + (q₁ : ℝ) * θ + (q₀ : ℝ) = 0 ∧ q₁ + |1 + q₀| < 0
+
+def T : Set ℝ :=
+  {τ | 1 < τ ∧ IsIntegral ℤ τ ∧ (∀ β ∈ (minpoly ℚ τ).aroots ℂ, β ≠ (τ : ℂ) → ‖β‖ ≤ 1) ∧
+    ∃ β ∈ (minpoly ℚ τ).aroots ℂ, β ≠ (τ : ℂ) ∧ ‖β‖ = 1}
+
+theorem mem_T_iff (τ : ℝ) :
+    τ ∈ T ↔
+      1 < τ ∧ IsIntegral ℤ τ ∧ (∀ β ∈ (minpoly ℚ τ).aroots ℂ, β ≠ (τ : ℂ) → ‖β‖ ≤ 1) ∧
+        ∃ β ∈ (minpoly ℚ τ).aroots ℂ, β ≠ (τ : ℂ) ∧ ‖β‖ = 1
+
+theorem U_eq_S_union_T : U = S ∪ T
+
+theorem exists_real_root_gt_one (f : Polynomial ℤ) (hf : f.Monic) (h1 : f.eval 1 < 0) :
+    ∃ θ : ℝ, 1 < θ ∧ (Polynomial.aeval θ) f = 0
+
+axiom exists_mem_S_root_of_dominant (f : Polynomial ℤ) (hf : f.Monic) (hi : f.eval 1 < 0)
+    (hii : 1 + ∑ i ∈ Finset.range (f.natDegree - 1), |f.coeff i| < |f.coeff (f.natDegree - 1)|) :
+    ∃ θ : ℝ, 1 < θ ∧ θ ∈ S ∧ (Polynomial.aeval θ) f = 0
+
+informal_result "conjugates-of-power-are-powers-of-conjugates"
+  latex "For an algebraic number $\\theta$ and $n\\ge 1$, every $\\mathbb{Q}$-conjugate of $\\theta^n$ equals $\\beta^n$ for some $\\mathbb{Q}$-conjugate $\\beta$ of $\\theta$: each embedding $\\mathbb{Q}(\\theta^n)\\hookrightarrow\\mathbb{C}$ extends to $\\mathbb{Q}(\\theta)$, sending $\\theta\\mapsto\\beta$ and $\\theta^n\\mapsto\\beta^n$. Hence if every conjugate of $\\theta$ other than $\\theta$ has modulus $<1$, then so does every conjugate of $\\theta^n$ other than $\\theta^n$."
+  refs "Ber92"
+
+axiom pow_mem_S (θ : ℝ) (hθ : θ ∈ S) (n : ℕ) (hn : 1 ≤ n) : θ ^ n ∈ S
+
+private theorem prod_of_card_three {M : Type*} [CommMonoid M] [DecidableEq M] (R : Multiset M)
+    (hcard : R.card = 3) (a b c : M) (ha : a ∈ R) (hb : b ∈ R) (hc : c ∈ R)
+    (hab : a ≠ b) (hac : a ≠ c) (hbc : b ≠ c) : R.prod = a * b * c
+
+theorem no_salem_lt_four (τ : ℝ) (hτ : τ ∈ T) : 4 ≤ (minpoly ℚ τ).natDegree
+
+theorem salem_gamma_gt_two (τ : ℝ) (hτ : 1 < τ) : 2 < τ + τ⁻¹
+
+theorem circle_conj_gamma (β : ℂ) (hβ : ‖β‖ = 1) (h1 : β ≠ 1) (h2 : β ≠ -1) :
+    β + β⁻¹ = (2 * β.re : ℝ) ∧ 2 * β.re ∈ Set.Ioo (-2 : ℝ) 2
+
+axiom salem_inv_mem_aroots (τ : ℝ) (hτ : τ ∈ T) :
+    ((τ⁻¹ : ℝ) : ℂ) ∈ (minpoly ℚ τ).aroots ℂ
+
+informal_result "salem-degree-four-classification"
+  latex "The Salem numbers of degree $4$ are exactly the zeros $>1$ of the reciprocal integer quartics $X^4+q_1X^3+q_2X^2+q_1X+1$ with $2(q_1-1)<q_2<-2(q_1+1)$. Under $Y=X+1/X$ the quartic becomes $Q(Y)=Y^2+q_1Y+(q_2-2)$, with roots $\\gamma=\\tau+1/\\tau>2$ and $\\gamma'=\\tau'+1/\\tau'\\in(-2,2)$; the two inequalities are exactly $Q(2)<0$ and $Q(-2)>0$."
+  refs "Ber92"
+
+axiom quartic_salem_iff (τ : ℝ) :
+    (τ ∈ T ∧ (minpoly ℚ τ).natDegree = 4) ↔
+      (1 < τ ∧ ∃ q₁ q₂ : ℤ, 2 * (q₁ - 1) < q₂ ∧ q₂ < -2 * (q₁ + 1) ∧
+        (aeval τ) (X ^ 4 + C q₁ * X ^ 3 + C q₂ * X ^ 2 + C q₁ * X + 1 : Polynomial ℤ) = 0)
+
+theorem smallest_quartic_salem_root :
+    ∃ θ : ℝ, 1 < θ ∧ (aeval θ) (X ^ 4 - X ^ 3 - X ^ 2 - X + 1 : Polynomial ℤ) = 0
+
+theorem smallest_quartic_mem_T :
+    ∃ θ : ℝ, θ ∈ T ∧ (minpoly ℚ θ).natDegree = 4 ∧
+      (aeval θ) (X ^ 4 - X ^ 3 - X ^ 2 - X + 1 : Polynomial ℤ) = 0
+
+axiom infinitely_many_pisot_in_real_field (K : IntermediateField ℚ ℝ) [FiniteDimensional ℚ K]
+    (hK : 2 ≤ Module.finrank ℚ K) :
+    {θ : ℝ | θ ∈ K ∧ θ ∈ S ∧ (minpoly ℚ θ).natDegree = Module.finrank ℚ K}.Infinite ∧
+    ∃ θ : ℝ, θ ∈ K ∧ θ ∈ S ∧ (minpoly ℚ θ).natDegree = Module.finrank ℚ K ∧
+      IsIntegral ℤ θ⁻¹
+
+theorem salem_roots_quadratic (τ : ℝ) (hτ : τ ∈ T) :
+    τ ^ 2 - (τ + τ⁻¹) * τ + 1 = 0 ∧ (τ⁻¹) ^ 2 - (τ + τ⁻¹) * τ⁻¹ + 1 = 0
+
+axiom salem_aroots_inv_closed (τ : ℝ) (hτ : τ ∈ T) :
+    ∀ δ ∈ (minpoly ℚ τ).aroots ℂ, δ ≠ 0 ∧ δ⁻¹ ∈ (minpoly ℚ τ).aroots ℂ
+
+theorem salem_conj_real_or_unit (τ : ℝ) (hτ : τ ∈ T) :
+    ∀ δ ∈ (minpoly ℚ τ).aroots ℂ, δ.im = 0 ∨ ‖δ‖ = 1
+
+private lemma salem_conj_trace_real (τ : ℝ) (hτ : τ ∈ T) :
+    ∀ δ ∈ (minpoly ℚ τ).aroots ℂ, (δ + δ⁻¹).im = 0
+
+axiom salem_gamma_minpoly_structure (τ : ℝ) (hτ : τ ∈ T) :
+    (∀ α ∈ (minpoly ℚ (τ + τ⁻¹)).aroots ℂ, ∃ δ ∈ (minpoly ℚ τ).aroots ℂ, α = δ + δ⁻¹) ∧
+      (minpoly ℚ τ).natDegree = 2 * (minpoly ℚ (τ + τ⁻¹)).natDegree
+
+theorem salem_gamma_totally_real (τ : ℝ) (hτ : τ ∈ T) :
+    ∀ α ∈ (minpoly ℚ (τ + τ⁻¹)).aroots ℂ, α.im = 0
+
+theorem salem_field_finrank_two (τ : ℝ) (hτ : τ ∈ T) :
+    Module.finrank ℚ (IntermediateField.adjoin ℚ ({τ} : Set ℝ))
+      = 2 * Module.finrank ℚ (IntermediateField.adjoin ℚ ({τ + τ⁻¹} : Set ℝ))
+
+axiom theorem_5_2_3 (τ : ℝ) (hτ : τ ∈ T) :
+
+    ((∀ β ∈ (minpoly ℚ (τ + τ⁻¹)).aroots ℂ, β.im = 0) ∧
+      Module.finrank ℚ (IntermediateField.adjoin ℚ ({τ} : Set ℝ))
+        = 2 * Module.finrank ℚ (IntermediateField.adjoin ℚ ({τ + τ⁻¹} : Set ℝ))) ∧
+
+    (∃ τ₀ : ℝ, τ₀ ∈ T ∧ τ₀ ∈ IntermediateField.adjoin ℚ ({τ} : Set ℝ) ∧
+      IntermediateField.adjoin ℚ ({τ₀} : Set ℝ) = IntermediateField.adjoin ℚ ({τ} : Set ℝ) ∧
+      ∀ σ : ℝ, (σ ∈ IntermediateField.adjoin ℚ ({τ} : Set ℝ) ∧ σ ∈ T)
+        ↔ ∃ n : ℕ, 1 ≤ n ∧ σ = τ₀ ^ n) ∧
+
+    (∀ σ : ℝ, σ ∈ IntermediateField.adjoin ℚ ({τ} : Set ℝ) → σ ∈ T →
+      ∃ a b : ℝ, a ∈ IntermediateField.adjoin ℚ ({τ} : Set ℝ) ∧ a ∈ S ∧
+        b ∈ IntermediateField.adjoin ℚ ({τ} : Set ℝ) ∧ b ∈ S ∧ σ = a / b)
+
+axiom theorem_5_2_4_necessary (α : ℝ) (hα : 1 < α) (hU : α ∈ U) :
+    ∃ lam : ℝ, 1 ≤ lam ∧ ∀ n : ℕ,
+      distToNearestInt (lam * α ^ n) ≤
+        1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))
+
+theorem theorem_5_2_4 (α : ℝ) (hα : 1 < α) :
+    α ∈ U ↔ ∃ lam : ℝ, 1 ≤ lam ∧ ∀ n : ℕ,
+      distToNearestInt (lam * α ^ n) ≤
+        1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))
+
+axiom pisotSalem_theorem_5_1_2 (α lam ρ : ℝ) (hα : 1 < α) (hlam : (1 : ℝ) / 2 ≤ lam)
+    (h4 : ∀ m n : ℕ, (α + 1) ^ 2 * ∑ i ∈ Finset.Icc m (m + n),
+        (ε lam α (i + 1) - α * ε lam α i) ^ 2 < ρ * ((n : ℝ) + 1))
+    (h5 : ρ ≤ 1 / (Real.exp 1 * (Real.log ((u lam α 0 : ℝ) ^ 2 + 1 / (α + 1) ^ 3) + 2))) :
+    α ∈ Bertin.U
+
+theorem pisotSalem_theorem_5_1_3 (α lam : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
+    (h11 : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+      1 / (Real.exp 1 * (α + 1) ^ 2 * (2 + Real.sqrt (Real.log lam)))) :
+    α ∈ Bertin.U
+
+private lemma distToNearestInt_le_int (x : ℝ) (k : ℤ) : distToNearestInt x ≤ |x - (k : ℝ)|
+
+private lemma exists_unif_bound (m : Multiset ℝ) (h : ∀ x ∈ m, x < 1) (h0 : ∀ x ∈ m, 0 ≤ x) :
+    ∃ δ, 0 ≤ δ ∧ δ < 1 ∧ ∀ x ∈ m, x ≤ δ
+
+theorem conj_powerSum_isInt (θ : ℝ) (hθ : IsIntegral ℤ θ) (n : ℕ) :
+    ∃ m : ℤ, (((minpoly ℚ θ).aroots ℂ).map (· ^ n)).sum = (m : ℂ)
+
+theorem pisot_pow_approx_int (θ : ℝ) (hθ : θ ∈ S) :
+    ∃ C δ : ℝ, 0 ≤ C ∧ 0 ≤ δ ∧ δ < 1 ∧ ∀ n : ℕ, ∃ k : ℤ, |θ ^ n - (k : ℝ)| ≤ C * δ ^ n
+
+theorem theorem_5_3_1 (θ : ℝ) (hθ : θ ∈ S) :
+    Tendsto (fun n => distToNearestInt (θ ^ n)) atTop (𝓝 0)
+
+private lemma distToNearestInt_le_int (x : ℝ) (k : ℤ) : distToNearestInt x ≤ |x - (k : ℝ)|
+
+theorem trace_smul_pow_isInt (θ : ℝ) (hθ : IsIntegral ℤ θ) (μ : ℚ⟮θ⟯) (hμ : IsIntegral ℤ μ)
+    (n : ℕ) : ∃ m : ℤ, Algebra.trace ℚ ℚ⟮θ⟯ (μ * AdjoinSimple.gen ℚ θ ^ n) = (m : ℚ)
+
+theorem pisot_smul_pow_approx_int (θ : ℝ) (hθ : θ ∈ S) (μ : ℚ⟮θ⟯) (hμ : IsIntegral ℤ μ) :
+    ∃ C δ : ℝ, 0 ≤ C ∧ 0 ≤ δ ∧ δ < 1 ∧
+      ∀ n : ℕ, ∃ k : ℤ, |(μ : ℝ) * θ ^ n - (k : ℝ)| ≤ C * δ ^ n
+
+theorem pisot_smul_pow_tendsto_zero (θ : ℝ) (hθ : θ ∈ S) (μ : ℚ⟮θ⟯) (hμ : IsIntegral ℤ μ) :
+    Tendsto (fun n => distToNearestInt ((μ : ℝ) * θ ^ n)) atTop (𝓝 0)
+
+theorem round_smul_pow_recurrence (θ lam : ℝ) (P : Polynomial ℤ) (hPθ : aeval θ P = 0)
+    (hlim : Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)) :
+    ∃ N : ℕ, ∀ n, N ≤ n → ∑ i ∈ Finset.range (P.natDegree + 1),
+      P.coeff i * round (lam * θ ^ (n + i)) = 0
+
+theorem round_smul_pow_isRationalSeries (θ lam : ℝ) (halg : IsAlgebraic ℚ θ)
+    (hlim : Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)) :
+    IsRationalSeries (PowerSeries.mk (fun n => round (lam * θ ^ n)) : ℤ⟦X⟧)
+
+axiom pisot_of_rational_round_series (θ : ℝ) (halg : IsAlgebraic ℚ θ) (hθ : 1 < θ)
+    (lam : ℝ) (hlam : lam ≠ 0)
+    (hlim : Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0))
+    (hrat : IsRationalSeries (PowerSeries.mk (fun n => round (lam * θ ^ n)) : ℤ⟦X⟧)) :
+    θ ∈ S
+
+theorem theorem_5_4_1_sufficiency (θ : ℝ) (halg : IsAlgebraic ℚ θ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧
+      Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)) :
+    θ ∈ S
+
+theorem theorem_5_4_1 (θ : ℝ) (halg : IsAlgebraic ℚ θ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧
+      Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)
+
+theorem pisot_of_smul_pow_tendsto_zero (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧
+      Tendsto (fun n : ℕ => distToNearestInt (lam * θ ^ n)) atTop (𝓝 0)) :
+    θ ∈ S
+
+private lemma geom_isLittleO {δ : ℝ} (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) (C : ℝ) :
+    (fun n : ℕ => C * δ ^ n) =o[atTop] (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))
+
+theorem pisot_imp_smul_pow_isLittleO (θ : ℝ) (hθ : θ ∈ S) :
+    (fun n : ℕ => distToNearestInt (θ ^ n)) =o[atTop] (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))
+
+axiom theorem_5_4_3_sufficiency (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))) :
+    θ ∈ S
+
+theorem theorem_5_4_3 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))
+
+theorem pisot_imp_summable_sq (θ : ℝ) (hθ : θ ∈ S) :
+    Summable (fun n : ℕ => distToNearestInt (θ ^ n) ^ 2)
+
+axiom summable_sq_imp_smul_pow_isLittleO (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2)) :
+    ∃ lam : ℝ, lam ≠ 0 ∧
+      (fun n : ℕ => distToNearestInt (lam * θ ^ n)) =o[atTop]
+        (fun n : ℕ => (n : ℝ) ^ (-(1/2) : ℝ))
+
+theorem theorem_5_4_2_sufficiency (θ : ℝ) (hθ : 1 < θ)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2)) :
+    θ ∈ S
+
+theorem theorem_5_4_2 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧ Summable (fun n : ℕ => distToNearestInt (lam * θ ^ n) ^ 2)
+
+axiom theorem_5_4_4 (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam a : ℝ, 0 < lam ∧ 0 < a ∧ a < 1 / (2 * Real.sqrt 2 * (θ + 1) ^ 2) ∧
+      ∃ n₀ : ℕ, 1 ≤ n₀ ∧ ∀ n : ℕ, n₀ ≤ n → distToNearestInt (lam * θ ^ n) ≤ a / Real.sqrt n
+
+informal_result "gelfond-sharp-sqrt-bound"
+  latex "A real $\\theta>1$ belongs to $S$ if and only if there exist reals $\\lambda>0$ and $a$ with $0<a<\\dfrac{1}{\\sqrt{2e(\\theta+1)}}$ and an integer $n_0\\ge 1$ such that $\\|\\lambda\\theta^n\\|\\le\\dfrac{a}{\\sqrt n}$ for all $n\\ge n_0$. This is Gelfond's theorem (A.~O.~Gelfond, 1941), sharpening Theorem 5.4.4: for $\\theta>1$ the admissible constant $1/\\sqrt{2e(\\theta+1)}$ exceeds the bound $1/(2\\sqrt2(\\theta+1)^2)$ of Theorem 5.4.4, so the criterion applies to a wider range of $a$. Owing to its date, the very small number of copies of the article, and the Russian language in which it was written, Pisot and Salem were unaware of this result; it was rediscovered by Korneyei in 1984."
+  refs "Gel41" "Ber92" "Kor84"
+
+axiom gelfond_sqrt_criterion (θ : ℝ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam a : ℝ, 0 < lam ∧ 0 < a ∧ a < 1 / Real.sqrt (2 * Real.exp 1 * (θ + 1)) ∧
+      ∃ n₀ : ℕ, 1 ≤ n₀ ∧ ∀ n : ℕ, n₀ ≤ n → distToNearestInt (lam * θ ^ n) ≤ a / Real.sqrt n
+
+theorem smul_pow_recurrence_identity (lam α : ℝ) (n : ℕ) :
+    (round (lam * α ^ (n + 2)) : ℝ) * (round (lam * α ^ n) : ℝ)
+        - (round (lam * α ^ (n + 1)) : ℝ) ^ 2
+      = -(lam * α ^ n) * (α ^ 2 * ε (lam * α ^ n) - 2 * α * ε (lam * α ^ (n + 1))
+          + ε (lam * α ^ (n + 2)))
+        + (ε (lam * α ^ n) * ε (lam * α ^ (n + 2)) - ε (lam * α ^ (n + 1)) ^ 2)
+
+theorem tendsto_round_smul_pow_ratio (lam α : ℝ) (hlam : 0 < lam) (hα : 1 < α) :
+    Tendsto (fun n : ℕ => (round (lam * α ^ (n + 1)) : ℝ) / (round (lam * α ^ n) : ℝ)) atTop (𝓝 α)
+
+axiom theorem_5_6_1 :
+    { p : ℝ × ℝ | 0 < p.1 ∧ 1 < p.2 ∧
+        ∃ n₀ : ℕ, ∃ K : ℝ, K < 1 / (2 * (1 + p.2) ^ 2) ∧
+          ∀ n : ℕ, n₀ ≤ n → distToNearestInt (p.1 * p.2 ^ n) ≤ K }.Countable
+
+theorem exists_int_mul_isIntegral_of_isAlgebraic (x : ℝ) (hx : IsAlgebraic ℚ x) :
+    ∃ h : ℤ, h ≠ 0 ∧ IsIntegral ℤ (h • x)
+
+theorem int_mul_eps_sub_eps_isInt (h : ℤ) (x : ℝ) :
+    ∃ m : ℤ, (h : ℝ) * ε x - ε ((h : ℝ) * x) = (m : ℝ)
+
+axiom finite_rational_clusterPt_distToNearestInt (lam θ : ℝ) (h : ℤ) (hh : h ≠ 0)
+    (hlim : Tendsto (fun n : ℕ => distToNearestInt ((h : ℝ) * (lam * θ ^ n))) atTop (𝓝 0)) :
+    {x : ℝ | MapClusterPt x atTop (fun n : ℕ => distToNearestInt (lam * θ ^ n))}.Finite ∧
+      ∀ x, MapClusterPt x atTop (fun n : ℕ => distToNearestInt (lam * θ ^ n)) → ∃ q : ℚ, x = (q : ℝ)
+
+informal_result "algebraic-finite-limit-points-iff-pisot"
+  latex "($\\Leftarrow$) Suppose $\\theta>1$ is algebraic, a zero of $P=\\sum_{i=0}^{s}q_iX^i\\in\\mathbb{Z}[X]$, and $\\lambda\\ne 0$ is real such that $(\\lambda\\theta^n)$ has finitely many limit points modulo $1$. Let $k$ be the number of irrational limit points of $(\\varepsilon(\\lambda\\theta^n))$, and pick an integer $q>2\\sum_{i=0}^{s}|q_i|$. By Theorem 4.1 there is an integer $h$ with $0<h\\le q^{k}$ such that $h\\lambda\\theta^n=v_n+\\eta_n$ with $v_n\\in\\mathbb{Z}$ and $|\\eta_n|\\le 2/q$ for $n\\ge n_0$. Since $P(\\theta)=0$, $\\sum_{i=0}^{s}q_i\\,h\\lambda\\theta^{n+i}=h\\lambda\\theta^n P(\\theta)=0$, so $\\sum_{i=0}^{s}q_iv_{n+i}=-\\sum_{i=0}^{s}q_i\\eta_{n+i}$ has absolute value $\\le\\big(\\sum_i|q_i|\\big)\\tfrac{2}{q}<1$; being an integer it vanishes, $\\sum_{i=0}^{s}q_iv_{n+i}=0$ for $n\\ge n_0$. Hence the generating series $\\sum_n v_nX^n$ is rational. As in Theorem 5.4.1 this forces $\\theta\\in U$; and $\\theta$ cannot belong to $T$ (a Salem number has $(\\theta^n)$ dense modulo $1$, hence infinitely many limit points, Theorem 5.3.2, contradicting finiteness), so $\\theta\\in S$. ($\\Rightarrow$) If $\\theta\\in S$ then $\\lambda=1$ works: by Theorem 5.3.1 $\\|\\theta^n\\|\\to 0$, so $(\\theta^n)$ has the single limit point $0$ modulo $1$ --- finitely many. $\\qquad\\blacksquare$"
+  refs "Ber92"
+
+axiom theorem_5_6_2 (θ : ℝ) (hθalg : IsAlgebraic ℚ θ) (hθ : 1 < θ) :
+    θ ∈ S ↔ ∃ lam : ℝ, lam ≠ 0 ∧ (limitPointsModOne (fun n : ℕ => lam * θ ^ n)).Finite
+
+theorem pisot_of_finite_limitPointsModOne (α : ℝ) (hα : 1 < α)
+    (h : ∃ lam : ℝ, lam ≠ 0 ∧ (limitPointsModOne (fun n : ℕ => lam * α ^ n)).Finite) :
+    α ∈ S
+
+theorem abs_coeff_zero_le_one_lemma_3_5_1 {f : ℂ → ℂ} (hf : f ∈ schurClass) {a : ℕ → ℝ}
+    (hsum : ∀ z ∈ ball (0 : ℂ) 1, HasSum (fun n => (a n : ℂ) * z ^ n) (f z)) :
+    |a 0| ≤ 1
+
+axiom abs_coeff_le_one_sub_sq_lemma_3_5_1 {f : ℂ → ℂ} (hf : f ∈ schurClass) {a : ℕ → ℝ}
+    (hsum : ∀ z ∈ ball (0 : ℂ) 1, HasSum (fun n => (a n : ℂ) * z ^ n) (f z)) (k : ℕ) :
+    |a k| ≤ 1 - (a 0) ^ 2
+
+axiom coeff_two_mul_bounds_lemma_3_5_1 {f : ℂ → ℂ} (hf : f ∈ schurClass) {a : ℕ → ℝ}
+    (hsum : ∀ z ∈ ball (0 : ℂ) 1, HasSum (fun n => (a n : ℂ) * z ^ n) (f z)) (k : ℕ) (hk : 1 ≤ k) :
+    -(1 - (a 0) ^ 2 - (a k) ^ 2 / (1 + a 0)) ≤ a (2 * k) ∧
+      a (2 * k) ≤ 1 - (a 0) ^ 2 - (a k) ^ 2 / (1 - a 0)
+
+theorem coeff_taylorSeries_eq {f : ℂ → ℂ} {a : ℕ → ℝ}
+    (hsum : ∀ z ∈ ball (0 : ℂ) 1, HasSum (fun m => (a m : ℂ) * z ^ m) (f z)) (n : ℕ) :
+    PowerSeries.coeff n (taylorSeries f) = (a n : ℂ)
+
+theorem exch_mul_toeplitz_apply (F : PowerSeries ℂ) (l : ℕ) (i j : Fin (l + 1)) :
+    (exchangeMatrix l * schurToeplitz F l) i j
+      = if (i : ℕ) + (j : ℕ) ≤ l then PowerSeries.coeff (l - (i : ℕ) - (j : ℕ)) F else 0
+
+theorem posSemidef_sub_mul_self_of_fromBlocks_one {N : Type*} [Fintype N] [DecidableEq N]
+    (P B : Matrix N N ℂ) (hB : Bᴴ = B) (h : (fromBlocks P B B 1).PosSemidef) :
+    (P - B * B).PosSemidef
+
+theorem posSemidef_one_sub_sq_pm_lemma_3_5_2 {f : ℂ → ℂ} (hf : f ∈ schurClass) {a : ℕ → ℝ}
+    (hsum : ∀ z ∈ ball (0 : ℂ) 1, HasSum (fun n => (a n : ℂ) * z ^ n) (f z))
+    {k l : ℕ} (hkl : k < l) (hl2k : l < 2 * k) :
+    ((1 : Matrix (Fin 2) (Fin 2) ℂ) - (!![(a (l - k) : ℂ), (a 0 : ℂ); (a 0 : ℂ), 0]) ^ 2
+        + !![(a l : ℂ), (a k : ℂ); (a k : ℂ), (a (2 * k - l) : ℂ)]).PosSemidef ∧
+      ((1 : Matrix (Fin 2) (Fin 2) ℂ) - (!![(a (l - k) : ℂ), (a 0 : ℂ); (a 0 : ℂ), 0]) ^ 2
+        - !![(a l : ℂ), (a k : ℂ); (a k : ℂ), (a (2 * k - l) : ℂ)]).PosSemidef
+
+axiom smyth_theorem_3_5 (P : Polynomial ℤ) (hmonic : P.Monic) (h0 : P.eval 0 ≠ 0)
+    (hnonrecip : P ≠ P.reverse ∧ P ≠ -P.reverse)
+    (θ₀ : ℝ) (hθ₀ : θ₀ ^ 3 - θ₀ - 1 = 0) (hθ₀pos : 0 < θ₀) :
+    θ₀ ≤ (((P.map (Int.castRingHom ℂ)).roots.filter (fun θ => 1 < ‖θ‖)).map
+      (fun θ => ‖θ‖)).prod
+
+noncomputable def countModOne (x : ℕ → ℝ) (a b : ℝ) (N : ℕ) : ℕ :=
+  ((Finset.range N).filter (fun n => ε (x n) ∈ Set.Ico a b)).card
+
+def UniformlyDistributedModOne (x : ℕ → ℝ) : Prop :=
+  ∀ a b : ℝ, -(1/2) ≤ a → a < b → b ≤ 1/2 →
+    Tendsto (fun N : ℕ => (countModOne x a b N : ℝ) / N) atTop (𝓝 (b - a))
+
+theorem countModOne_le (x : ℕ → ℝ) (a b : ℝ) (N : ℕ) : countModOne x a b N ≤ N
+
+axiom not_uniformlyDistributedModOne_log :
+    ¬ UniformlyDistributedModOne (fun n => Real.log n)
+
+def IsRiemannIntegrableOn (f : ℝ → ℝ) (s : Set ℝ) : Prop :=
+  (∃ C, ∀ t ∈ s, |f t| ≤ C) ∧ volume {t ∈ s | ¬ ContinuousAt f t} = 0
+
+def IntegralCriterion (x : ℕ → ℝ) : Prop :=
+  ∀ f : ℝ → ℝ, IsRiemannIntegrableOn f (Set.Icc (-(1/2) : ℝ) (1/2)) →
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, f (ε (x n))) / N) atTop
+      (𝓝 (∫ t in (-(1/2) : ℝ)..(1/2), f t))
+
+theorem uniformlyDistributedModOne_of_integralCriterion (x : ℕ → ℝ)
+    (h : IntegralCriterion x) : UniformlyDistributedModOne x
+
+theorem integralCriterion_of_uniformlyDistributedModOne (x : ℕ → ℝ)
+    (h : UniformlyDistributedModOne x) : IntegralCriterion x
+
+theorem uniformlyDistributedModOne_iff_integralCriterion (x : ℕ → ℝ) :
+    UniformlyDistributedModOne x ↔ IntegralCriterion x
+
+noncomputable def epsRangeIndicator (x : ℕ → ℝ) : ℝ → ℝ :=
+  (Set.range fun m => ε (x m)).indicator (fun _ => 1)
+
+theorem integrableOn_epsRangeIndicator (x : ℕ → ℝ) :
+    IntegrableOn (epsRangeIndicator x) (Set.Icc (-(1/2) : ℝ) (1/2))
+
+theorem integral_epsRangeIndicator_eq_zero (x : ℕ → ℝ) :
+    ∫ t in (-(1/2) : ℝ)..(1/2), epsRangeIndicator x t = 0
+
+theorem average_epsRangeIndicator_eq_one (x : ℕ → ℝ) {N : ℕ} (hN : 0 < N) :
+    (∑ n ∈ Finset.range N, epsRangeIndicator x (ε (x n))) / N = 1
+
+noncomputable def WeylCriterion (x : ℕ → ℝ) : Prop :=
+  ∀ h : ℤ, h ≠ 0 →
+    Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * h * x n)) / N) atTop (𝓝 0)
+
+private theorem isRiemann_trig {g : ℝ → ℝ} (hg : Continuous g) (hb : ∀ t, |g t| ≤ 1) :
+    IsRiemannIntegrableOn g (Set.Icc (-(1/2) : ℝ) (1/2))
+
+private theorem integral_cos_eq_zero (h : ℤ) (hh : h ≠ 0) :
+    ∫ t in (-(1/2) : ℝ)..(1/2), Real.cos (2 * Real.pi * h * t) = 0
+
+private theorem integral_sin_eq_zero (h : ℤ) (hh : h ≠ 0) :
+    ∫ t in (-(1/2) : ℝ)..(1/2), Real.sin (2 * Real.pi * h * t) = 0
+
+private theorem weyl_term (h : ℤ) (z e : ℝ) (k : ℤ) (hz : z = (k : ℝ) + e) :
+    Complex.exp (2 * Real.pi * Complex.I * h * z)
+      = ↑(Real.cos (2 * Real.pi * h * e)) + ↑(Real.sin (2 * Real.pi * h * e)) * Complex.I
+
+theorem weylCriterion_of_uniformlyDistributedModOne (x : ℕ → ℝ)
+    (h : UniformlyDistributedModOne x) : WeylCriterion x
+
+axiom uniformlyDistributedModOne_of_weylCriterion (x : ℕ → ℝ)
+    (h : WeylCriterion x) : UniformlyDistributedModOne x
+
+theorem uniformlyDistributedModOne_iff_weylCriterion (x : ℕ → ℝ) :
+    UniformlyDistributedModOne x ↔ WeylCriterion x
+
+theorem weylCriterion_nα_of_irrational {α : ℝ} (hα : Irrational α) :
+    WeylCriterion (fun n => (n : ℝ) * α)
+
+theorem irrational_of_uniformlyDistributedModOne_nα {α : ℝ}
+    (hud : UniformlyDistributedModOne (fun n => (n : ℝ) * α)) : Irrational α
+
+theorem uniformlyDistributedModOne_nα_iff_irrational (α : ℝ) :
+    UniformlyDistributedModOne (fun n => (n : ℝ) * α) ↔ Irrational α
+
+private theorem isRiemannIntegrableOn_of_continuousOn {g : ℝ → ℝ} {C : ℝ}
+    (hg : ContinuousOn g (Set.Icc (-(1/2) : ℝ) (1/2))) (hb : ∀ t, |g t| ≤ C) :
+    IsRiemannIntegrableOn g (Set.Icc (-(1/2) : ℝ) (1/2))
+
+theorem tendsto_average_exp_comp (x : ℕ → ℝ) (hx : UniformlyDistributedModOne x)
+    {φ : ℝ → ℝ} (hφ : ContinuousOn φ (Set.Icc (-(1/2) : ℝ) (1/2))) (h : ℤ) :
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N,
+        Complex.exp (2 * Real.pi * Complex.I * h * φ (ε (x n)))) / N) atTop
+      (𝓝 (∫ t in (-(1/2) : ℝ)..(1/2), Complex.exp (2 * Real.pi * Complex.I * h * φ t)))
+
+theorem uniformlyDistributedModOne_comp_continuous_iff (x : ℕ → ℝ)
+    (hx : UniformlyDistributedModOne x) {φ : ℝ → ℝ}
+    (hφ : ContinuousOn φ (Set.Icc (-(1/2) : ℝ) (1/2))) :
+    UniformlyDistributedModOne (fun n => φ (ε (x n))) ↔
+      ∀ h : ℤ, h ≠ 0 →
+        (∫ t in (-(1/2) : ℝ)..(1/2), Complex.exp (2 * Real.pi * Complex.I * h * φ t)) = 0
+
+theorem vanDerCorput_theorem_4_4_1 (x : ℕ → ℝ)
+    (h : ∀ k : ℕ, 0 < k → UniformlyDistributedModOne (fun n => x (n + k) - x n)) :
+    UniformlyDistributedModOne x
+
+axiom fejer_theorem_4_4_2 (g g' : ℝ → ℝ)
+    (hderiv : ∀ t : ℝ, 1 ≤ t → HasDerivAt g (g' t) t)
+    (hg'_cont : ContinuousOn g' (Set.Ici 1))
+    (hg_mono : MonotoneOn g (Set.Ici 1))
+    (hg_top : Tendsto g atTop atTop)
+    (hg'_anti : AntitoneOn g' (Set.Ici 1))
+    (hg'_zero : Tendsto g' atTop (𝓝 0))
+    (hg'_mul_top : Tendsto (fun t => t * g' t) atTop atTop) :
+    UniformlyDistributedModOne (fun n : ℕ => g n)
+
+axiom denseNotUniformlyDistributedModOne_theorem_4_4_3 (g g' : ℝ → ℝ)
+    (hderiv : ∀ t : ℝ, 1 ≤ t → HasDerivAt g (g' t) t)
+    (hg'_cont : ContinuousOn g' (Set.Ici 1))
+    (hg_mono : MonotoneOn g (Set.Ici 1))
+    (hg_top : Tendsto g atTop atTop)
+    (hg'_anti : AntitoneOn g' (Set.Ici 1))
+    (hg'_mul_zero : Tendsto (fun t => t * g' t) atTop (𝓝 0)) :
+    (Set.Ico (-(1/2) : ℝ) (1/2) ⊆ closure (Set.range (fun n : ℕ => ε (g n))))
+      ∧ ¬ UniformlyDistributedModOne (fun n : ℕ => g n)
+
+axiom uniformlyDistributedModOne_eval_iff_exists_irrational_coeff (P : Polynomial ℝ) :
+    UniformlyDistributedModOne (fun n : ℕ => P.eval (n : ℝ)) ↔
+      ∃ j : ℕ, 1 ≤ j ∧ Irrational (P.coeff j)
+
+axiom uniformlyDistributedModOne_mul_rpow_theorem_4_4_4_i (a α : ℝ) (ha : 0 < a) (hα : 0 < α)
+    (hαnotint : ∀ m : ℤ, α ≠ (m : ℝ)) :
+    UniformlyDistributedModOne (fun n : ℕ => a * (n : ℝ) ^ α)
+
+axiom mul_log_rpow_theorem_4_4_4_ii (a β : ℝ) (ha : 0 < a) (hβ : 0 < β) :
+    (1 < β → UniformlyDistributedModOne (fun n : ℕ => a * (Real.log n) ^ β)) ∧
+      (β ≤ 1 →
+        (Set.Ico (-(1/2) : ℝ) (1/2) ⊆
+            closure (Set.range (fun n : ℕ => ε (a * (Real.log n) ^ β))))
+          ∧ ¬ UniformlyDistributedModOne (fun n : ℕ => a * (Real.log n) ^ β))
+
+axiom uniformlyDistributedModOne_mul_rpow_log_rpow_theorem_4_4_4_iii (a α β : ℝ) (ha : 0 < a)
+    (hα : 0 < α) (hβ : 0 < β) (hαnotint : ∀ m : ℤ, α ≠ (m : ℝ)) :
+    UniformlyDistributedModOne (fun n : ℕ => a * (n : ℝ) ^ α * (Real.log n) ^ β)
+
+axiom not_uniformlyDistributedModOne_log_log_theorem_4_4_4_iv :
+    ¬ UniformlyDistributedModOne (fun n : ℕ => Real.log (Real.log n))
+
+theorem exists_strictMono_ratio_tendsto_one_summable (N : ℕ → ℕ) (hmono : StrictMono N)
+    (hpos : 0 < N 0) (hratio : Tendsto (fun ν => (N (ν + 1) : ℝ) / (N ν)) atTop (𝓝 1)) :
+    ∃ φ : ℕ → ℕ, StrictMono φ ∧
+      Tendsto (fun k => (N (φ (k + 1)) : ℝ) / (N (φ k))) atTop (𝓝 1) ∧
+      Summable (fun k => (1 : ℝ) / (N (φ k)))
+
+theorem exists_monotone_tendsto_atTop_summable_mul (u : ℕ → ℝ) (hpos : ∀ n, 0 < u n)
+    (hu : Summable u) :
+    ∃ γ : ℕ → ℝ, Monotone γ ∧ Tendsto γ atTop atTop ∧ Summable (fun n => u n * γ n)
+
+axiom koksma_theorem_4_5_1 (a b : ℝ) (hab : a < b) (f f' : ℕ → ℝ → ℝ)
+    (hderiv : ∀ n, ∀ t ∈ Set.Icc a b, HasDerivAt (f n) (f' n t) t)
+    (hcont : ∀ n, ContinuousOn (f' n) (Set.Icc a b))
+    (hmono : ∀ m n, m ≠ n →
+      MonotoneOn (fun t => f' m t - f' n t) (Set.Icc a b) ∨
+        AntitoneOn (fun t => f' m t - f' n t) (Set.Icc a b))
+    (hnonzero : ∀ m n, m ≠ n → ∀ t ∈ Set.Icc a b, f' m t - f' n t ≠ 0)
+    (hii : ∃ Nν : ℕ → ℕ, StrictMono Nν ∧ 0 < Nν 0 ∧
+      Tendsto (fun ν => (Nν (ν + 1) : ℝ) / (Nν ν)) atTop (𝓝 1) ∧
+      Summable (fun ν => (1 / (Nν ν : ℝ) ^ 2) *
+        ∑ n ∈ Finset.Icc 2 (Nν ν), ∑ m ∈ Finset.Icc 1 (n - 1),
+          max (1 / |f' m a - f' n a|) (1 / |f' m b - f' n b|))) :
+    ∀ᵐ t ∂(volume.restrict (Set.Icc a b)), UniformlyDistributedModOne (fun n => f n t)
+
+axiom koksma_theorem_4_5_1_condition_iii (a b : ℝ) (hab : a < b) (f f' : ℕ → ℝ → ℝ)
+    (hderiv : ∀ n, ∀ t ∈ Set.Icc a b, HasDerivAt (f n) (f' n t) t)
+    (hcont : ∀ n, ContinuousOn (f' n) (Set.Icc a b))
+    (hmono : ∀ m n, m ≠ n →
+      MonotoneOn (fun t => f' m t - f' n t) (Set.Icc a b) ∨
+        AntitoneOn (fun t => f' m t - f' n t) (Set.Icc a b))
+    (hnonzero : ∀ m n, m ≠ n → ∀ t ∈ Set.Icc a b, f' m t - f' n t ≠ 0)
+    (hiii : ∃ K : ℝ, 0 < K ∧ ∀ m n, m ≠ n → ∀ t ∈ Set.Icc a b, K ≤ |f' m t - f' n t|) :
+    ∀ᵐ t ∂(volume.restrict (Set.Icc a b)), UniformlyDistributedModOne (fun n => f n t)
+
+def boxIcc (a b : Fin p → ℝ) : Set (Fin p → ℝ) := Set.univ.pi (fun k => Set.Icc (a k) (b k))
+
+def boxIco (a b : Fin p → ℝ) : Set (Fin p → ℝ) := Set.univ.pi (fun k => Set.Ico (a k) (b k))
+
+def boxIoc (a b : Fin p → ℝ) : Set (Fin p → ℝ) := Set.univ.pi (fun k => Set.Ioc (a k) (b k))
+
+def boxIoo (a b : Fin p → ℝ) : Set (Fin p → ℝ) := Set.univ.pi (fun k => Set.Ioo (a k) (b k))
+
+def cube : Set (Fin p → ℝ) := Set.univ.pi (fun _ => Set.Ico (-(1/2) : ℝ) (1/2))
+
+def closedCube : Set (Fin p → ℝ) := Set.univ.pi (fun _ => Set.Icc (-(1/2) : ℝ) (1/2))
+
+noncomputable def E (x : Fin p → ℝ) : Fin p → ℤ := fun k => round (x k)
+
+noncomputable def ε (x : Fin p → ℝ) : Fin p → ℝ := fun k => Bertin.ε (x k)
+
+theorem ε_mem_cube (x : Fin p → ℝ) : ε x ∈ cube
+
+theorem self_eq_E_add_ε (x : Fin p → ℝ) : x = (fun k => (E x k : ℝ)) + ε x
+
+theorem existsUnique_intPart (x : Fin p → ℝ) :
+    ∃! e : Fin p → ℤ, x - (fun k => (e k : ℝ)) ∈ cube
+
+noncomputable def count (x : ℕ → Fin p → ℝ) (a b : Fin p → ℝ) (N : ℕ) : ℕ := by
+  classical
+  exact ((Finset.range N).filter (fun n => ε (x n) ∈ boxIco a b)).card
+
+theorem count_le (x : ℕ → Fin p → ℝ) (a b : Fin p → ℝ) (N : ℕ) : count x a b N ≤ N
+
+def UniformlyDistributedModOne (x : ℕ → Fin p → ℝ) : Prop :=
+  ∀ a b : Fin p → ℝ, a ∈ closedCube → b ∈ closedCube → StrongLT a b →
+    Tendsto (fun N : ℕ => (count x a b N : ℝ) / N) atTop (𝓝 (∏ k, (b k - a k)))
+
+def IsRiemannIntegrableOn (f : (Fin p → ℝ) → ℝ) (s : Set (Fin p → ℝ)) : Prop :=
+  (∃ C, ∀ t ∈ s, |f t| ≤ C) ∧ volume {t ∈ s | ¬ ContinuousAt f t} = 0
+
+def IntegralCriterion (x : ℕ → Fin p → ℝ) : Prop :=
+  ∀ f : (Fin p → ℝ) → ℝ, IsRiemannIntegrableOn f closedCube →
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, f (ε (x n))) / N) atTop
+      (𝓝 (∫ t in closedCube, f t))
+
+informal_result "riemann-step-function-approximation-multidim"
+  latex "On $\\mathbb{R}^p$, every Riemann-integrable function $f$ on a box is squeezed, for each $\\varepsilon > 0$, between step functions $g \\le f \\le h$ that are constant on the cells of a grid of sub-boxes, with $\\int (h - g) < \\varepsilon$ (the multidimensional Darboux / step-function approximation, equivalently convergence of upper and lower Darboux sums over dyadic box partitions to $\\int f$)."
+  refs "Ber92"
+
+axiom uniformlyDistributedModOne_iff_integralCriterion (x : ℕ → Fin p → ℝ) :
+    UniformlyDistributedModOne x ↔ IntegralCriterion x
+
+noncomputable def WeylCriterion (x : ℕ → Fin p → ℝ) : Prop :=
+  ∀ h : Fin p → ℤ, h ≠ 0 →
+    Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N,
+        Complex.exp (2 * Real.pi * Complex.I * ((∑ j, (h j : ℝ) * x n j : ℝ) : ℂ))) / N)
+      atTop (𝓝 0)
+
+informal_result "weyl-equidistribution-torus-multidim"
+  latex "On the $p$-torus $\\mathbb{R}^p / \\mathbb{Z}^p$ the characters $t \\mapsto e^{2\\pi i \\langle h, t \\rangle}$, $h \\in \\mathbb{Z}^p$, span a dense subalgebra of the continuous functions (Stone–Weierstrass); hence a sequence whose Weyl sums $\\frac1N \\sum_{n<N} e^{2\\pi i \\langle h, x_n \\rangle}$ all tend to $0$ for $h \\ne 0$ is uniformly distributed modulo one — the converse half of Weyl's criterion in $\\mathbb{R}^p$."
+  refs "Ber92"
+
+axiom uniformlyDistributedModOne_iff_weylCriterion (x : ℕ → Fin p → ℝ) :
+    UniformlyDistributedModOne x ↔ WeylCriterion x
+
+theorem weylCriterion_nα (α : Fin p → ℝ)
+    (hα : LinearIndependent ℚ (Fin.cons (1 : ℝ) α)) :
+    WeylCriterion (fun n k => (n : ℝ) * α k)
+
+theorem uniformlyDistributedModOne_nα (α : Fin p → ℝ)
+    (hα : LinearIndependent ℚ (Fin.cons (1 : ℝ) α)) :
+    UniformlyDistributedModOne (fun n k => (n : ℝ) * α k)
+
+axiom kronecker_theorem_4_6_4 (α : Fin p → ℝ)
+    (hα : LinearIndependent ℚ (Fin.cons (1 : ℝ) α))
+    (μ : Fin p → ℝ) (N : ℕ) (η : ℝ) (hη : 0 < η) :
+    ∃ n : ℕ, N < n ∧ ∀ k, |ε (fun j => (n : ℝ) * α j - μ j) k| < η
+
+informal_result "uniform-distribution-image-continuous-map"
+  latex "Weyl's principle on continuous images of a uniformly distributed sequence: if $(x_n)$ is uniformly distributed modulo one (in $\\mathbb{R}$ or $\\mathbb{R}^p$) and $\\varphi$ is Riemann-integrable, then $\\frac1N \\sum_{n<N} \\varphi(\\varepsilon(x_n)) \\to \\int \\varphi$ over the unit cube; consequently a continuous image is itself uniformly distributed if and only if the integrals $\\int \\exp(2\\pi i h\\,\\varphi)$ vanish for every $h \\ne 0$. This is the mechanism behind Theorems 4.3.3 and 4.6.5."
+  refs "Ber92"
+
+informal_result "product-measure-integral-factorization"
+  latex "Factorization of the integral of a separable product over a product (cube) measure (Fubini/Tonelli): $\\int_{\\bar\\Pi^p} \\prod_{k=1}^p \\Phi(t_k)\\,dt = \\prod_{k=1}^p \\int_{-1/2}^{1/2} \\Phi(t_k)\\,dt_k = \\left(\\int_{-1/2}^{1/2} \\Phi\\right)^p$ for integrable $\\Phi$ — the integral over the cube of a function that separates as a product of one-variable factors is the product of the one-dimensional integrals."
+  refs "Ber92"
+
+axiom uniformlyDistributedModOne_sum_comp_continuous_iff (x : ℕ → Fin p → ℝ)
+    (hx : UniformlyDistributedModOne x) {φ : ℝ → ℝ}
+    (hφ : ContinuousOn φ (Set.Icc (-(1/2) : ℝ) (1/2))) :
+    _root_.Bertin.UniformlyDistributedModOne (fun n => ∑ k, φ (ε (x n) k)) ↔
+      ∀ h : ℤ, h ≠ 0 →
+        (∫ t in (-(1/2) : ℝ)..(1/2), Complex.exp (2 * Real.pi * Complex.I * h * φ t)) = 0
+
+theorem salem_conj_powerSum_isInt (τ : ℝ) (hτ : τ ∈ T) (n : ℕ) :
+    ∃ m : ℤ, (((minpoly ℚ τ).aroots ℂ).map (· ^ n)).sum = (m : ℂ)
+
+axiom theorem_5_3_2 (τ : ℝ) (hτ : τ ∈ T) :
+    (Set.Ico (-(1/2) : ℝ) (1/2) ⊆ closure (Set.range (fun n : ℕ => ε (τ ^ n))))
+      ∧ ¬ UniformlyDistributedModOne (fun n : ℕ => τ ^ n)
+
+informal_result "salem-scaled-power-small-dense"
+  latex "Let $\\tau$ be a Salem ($T$-) number of degree $2s$, with conjugates $\\tau,\\tau^{-1}$ (real, $\\tau>1>\\tau^{-1}>0$) and $s-1$ unimodular conjugate pairs $\\tau^{(j)}=e^{2\\pi i\\omega^{(j)}}$ ($j=2,\\dots,s$); put $\\gamma=\\tau+\\tau^{-1}$, $K=\\mathbb{Q}(\\tau)$, and fix $\\eta$ with $0<\\eta<\\tfrac12$. By Theorem 5.2.3 the field $\\mathbb{Q}(\\gamma)$ is totally real; choose a Pisot number $\\theta\\in S\\cap\\mathbb{Q}(\\gamma)$ and set $\\lambda=\\theta^{2h}$ ($h\\in\\mathbb{N}^{*}$). Since $\\theta\\in S\\subset\\mathbb{Q}(\\gamma)$ is totally real its conjugates $\\theta^{(j)}$ are real, so the conjugates $\\lambda^{(j)}=\\theta^{(j)2h}$ ($j=2,\\dots,s$) of $\\lambda$ are real and positive. The trace $\\lambda(\\tau^n+\\tau^{-n})+2\\sum_{j=2}^{s}\\lambda^{(j)}\\cos 2\\pi n\\omega^{(j)}=\\operatorname{Tr}_{K/\\mathbb{Q}}(\\lambda\\tau^n)$ is a rational integer (the algebraic integer $\\lambda\\tau^n$ has integer trace). Set $\\delta=\\max_{j=2,\\dots,s}|\\theta^{(j)}|<1$ (the non-dominant conjugates of the Pisot number $\\theta$ have modulus $<1$). Then $0<2\\sum_{j=2}^{s}\\lambda^{(j)}\\le 2(s-1)\\delta^{2h}$. Choose $h$, and then $n_0\\ge 1$, so that $2(s-1)\\delta^{2h}<\\eta/2$ and $\\lambda\\tau^{-n_0}<\\eta/2$. For $n\\ge n_0$ the residue of $\\lambda\\tau^n$ modulo $1$ is $-\\bigl(\\lambda\\tau^{-n}+2\\sum_{j=2}^{s}\\lambda^{(j)}\\cos 2\\pi n\\omega^{(j)}\\bigr)$ (the integer trace removed), so $\\|\\lambda\\tau^n\\|\\le\\lambda\\tau^{-n}+2\\sum_{j=2}^{s}\\lambda^{(j)}<\\tfrac{\\eta}{2}+\\tfrac{\\eta}{2}=\\eta$. Hence $\\|\\lambda\\tau^n\\|<\\eta$ for all $n\\ge n_0$. \\emph{Density.} Assume w.l.o.g. $\\lambda^{(2)}=\\max_{j}\\lambda^{(j)}$. Exactly as in the proof of Theorem 5.3.2 --- the reals $1,\\omega^{(2)},\\dots,\\omega^{(s)}$ are $\\mathbb{Q}$-linearly independent (a Galois argument) and the inhomogeneous Kronecker theorem applies to $(\\omega^{(j)})_{2\\le j\\le s}$ --- for every $\\rho\\in[-\\lambda^{(2)},\\lambda^{(2)}]$ and every neighbourhood $V$ of $\\rho$ there are arbitrarily large integers $m$ with $\\varepsilon_m:=\\varepsilon(\\lambda\\tau^m)\\in V$. Thus $(\\lambda\\tau^n)$ is dense modulo $1$ in $[-\\lambda^{(2)},\\lambda^{(2)}]$, an interval centred at $0$ and (by the choice of $h,n_0$, since $\\lambda^{(2)}\\le\\sum_j\\lambda^{(j)}<\\eta$) contained in $[-\\eta,\\eta]$. $\\qquad\\blacksquare$"
+  refs "Ber92"
+
+axiom theorem_5_5_1 (τ : ℝ) (hτ : τ ∈ T) (η : ℝ) (hη0 : 0 < η) (hη : η < 1/2) :
+    ∃ lam : ℝ, lam ≠ 0 ∧
+      (∃ n₀ : ℕ, 1 ≤ n₀ ∧ ∀ n : ℕ, n₀ ≤ n → distToNearestInt (lam * τ ^ n) < η) ∧
+      (∃ c : ℝ, 0 < c ∧ c ≤ η ∧
+        Set.Icc (-c) c ⊆ closure (Set.range (fun n : ℕ => ε (lam * τ ^ n))))
+
+informal_result "salem-eps-reBddAbove-not-H2"
+  latex "A real $\\tau>1$ belongs to $T$ (is a Salem number) if and only if there exists a non-zero real $\\lambda$ such that the residue generating function $\\varepsilon(z)=\\sum_{n\\ge 0}\\varepsilon(\\lambda\\tau^n)\\,z^n$ --- analytic on $D(0,1)$ --- has its real part bounded above on $D(0,1)$, i.e. $\\sup_{|z|<1}\\operatorname{Re}\\varepsilon(z)<\\infty$, yet $\\varepsilon\\notin H^2$ (equivalently, by Parseval, $\\sum_{n}\\varepsilon(\\lambda\\tau^n)^2=\\infty$). This is the Salem ($T$) counterpart of Theorem 5.4.2: there $\\tau$ is a Pisot number iff $\\varepsilon\\in H^2$ for some $\\lambda\\ne 0$; here, for a Salem number, $\\varepsilon$ fails $H^2$ while keeping its real part bounded above on the disk. (Bertin §5.5; stated without proof in the source.)"
+  refs "Ber92"
+
+axiom theorem_5_5_2 (τ : ℝ) (hτ : 1 < τ) :
+    τ ∈ T ↔ ∃ lam : ℝ, lam ≠ 0 ∧
+      (∃ M : ℝ, ∀ z : ℂ, ‖z‖ < 1 → ((AlphaPow.εTaylor lam τ).sum z).re ≤ M) ∧
+      ¬ Summable (fun n : ℕ => (AlphaPow.ε lam τ n) ^ 2)

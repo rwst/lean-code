@@ -29,8 +29,6 @@ noncomputable def parityVector (n : ℕ) : ℤ_[2] := Q (n : ℤ_[2])
 
 theorem Φ_parityVector (n : ℕ) : Φ (parityVector n) = (n : ℤ_[2])
 
-theorem ratInt_odd_den {x : ℤ_[2]} (q : ℚ) (hx : (x : ℚ_[2]) = (q : ℚ_[2])) : Odd ((q.den : ℤ))
-
 theorem digitExpansion_injective {x y : ℤ_[2]}
     (h : ∀ k, parity (S^[k] x) = parity (S^[k] y)) : x = y
 
@@ -39,15 +37,6 @@ theorem shiftPeriodicPoint_mem_ratInt {w : ℤ_[2]} {p : ℕ} (hp : 0 < p)
 
 theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
     ¬ AB.IsEventuallyPeriodic (binaryDigit v)
-
-theorem boundedRat_finite (D : ℕ) (hD : 0 < D) (M : ℚ) :
-    {r : ℚ | (r.den : ℤ) ∣ (D : ℤ) ∧ |r| ≤ M}.Finite
-
-theorem S_value {v : ℤ_[2]} {q : ℚ} (hq : (v : ℚ_[2]) = (q : ℚ_[2])) :
-    ∀ k, ∃ q' : ℚ, (S^[k] v : ℚ_[2]) = (q' : ℚ_[2]) ∧ (q'.den : ℤ) ∣ (q.den : ℤ) ∧ |q'| ≤ max |q| 1
-
-theorem ratInt_S_orbit_finite {v : ℤ_[2]} (hv : v ∈ RatInt) :
-    (Set.range fun k => S^[k] v).Finite
 
 theorem ratInt_eventuallyPeriodic_binaryDigit {v : ℤ_[2]} (hv : v ∈ RatInt) :
     AB.IsEventuallyPeriodic (binaryDigit v)
