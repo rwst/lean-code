@@ -1,9 +1,11 @@
 import CC.Decomposition
 import CC.Parity
-import CC.Approximation
-import CC.RozierTerracol.CRozLemma22
-import CC.RozierTerracol.CRozLemma23
-import CC.TC
+import CC.CollatzIter
+import RT.Approximation
+import RT.CRozLemma22
+import RT.CRozLemma23
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -18,16 +20,19 @@ open Classical
 
 open CC
 
-namespace CC
+namespace RT
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 def IsParadoxical (j n : ℕ) : Prop := T_iter j n ≥ n ∧ C j n < 1
 
 -- ===== Helper lemmas for T_iter and decomposition formula shifts =====
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 private lemma T_iter_add_shift (k j n : ℕ) :
     T_iter (k + j) n = T_iter j (T_iter k n) := by
   rw [add_comm, T_iter_add]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 private lemma T_iter_pow_two_mul (k n : ℕ) : T_iter k (2 ^ k * n) = n := by
   induction k with
   | zero => simp [T_iter]
@@ -48,6 +53,7 @@ private lemma T_iter_pow_two_mul (k n : ℕ) : T_iter k (2 ^ k * n) = n := by
     rw [this, h_T]
     exact ih
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma num_odd_steps_pow_two_mul (k n : ℕ) : num_odd_steps k (2 ^ k * n) = 0 := by
   induction k generalizing n with
   | zero => simp [num_odd_steps]
@@ -57,6 +63,7 @@ lemma num_odd_steps_pow_two_mul (k n : ℕ) : num_odd_steps k (2 ^ k * n) = 0 :=
     have h_T : T_iter k (2 ^ k * (2 * n)) = 2 * n := T_iter_pow_two_mul k (2 * n)
     rw [h_T, X_even (by omega)]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma num_odd_steps_add (k j n : ℕ) :
     num_odd_steps (k + j) n = num_odd_steps k n + num_odd_steps j (T_iter k n) := by
   induction j with
@@ -65,10 +72,12 @@ lemma num_odd_steps_add (k j n : ℕ) :
     rw [← add_assoc, num_odd_steps_succ, ih, num_odd_steps_succ, T_iter_add_shift]
     ring
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma num_odd_steps_shift (k j n : ℕ) :
     num_odd_steps (k + j) (2 ^ k * n) = num_odd_steps j n := by
   rw [num_odd_steps_add, num_odd_steps_pow_two_mul, T_iter_pow_two_mul, zero_add]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma decomposition_correction_pow_two_mul (k n : ℕ) :
     decomposition_correction k (2 ^ k * n) = 0 := by
   induction k generalizing n with
@@ -87,6 +96,7 @@ lemma decomposition_correction_pow_two_mul (k n : ℕ) :
     rw [h_T, X_even (by omega)]
     ring
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma decomposition_correction_add (k j n : ℕ) :
     decomposition_correction (k + j) n =
       3 ^ num_odd_steps j (T_iter k n) * decomposition_correction k n +
@@ -104,10 +114,12 @@ lemma decomposition_correction_add (k j n : ℕ) :
     rw [hpow, hexp]
     ring
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma decomposition_correction_shift (k j n : ℕ) :
     decomposition_correction (k + j) (2 ^ k * n) = 2 ^ k * decomposition_correction j n := by
   rw [decomposition_correction_add, T_iter_pow_two_mul, decomposition_correction_pow_two_mul, mul_zero, zero_add]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma E_shift_mul (k j n : ℕ) : E (k + j) (2 ^ k * n) = E j n := by
   unfold E
   have h1 : decomposition_correction (k + j) (2 ^ k * n) = 2 ^ k * decomposition_correction j n :=
@@ -121,6 +133,7 @@ lemma E_shift_mul (k j n : ℕ) : E (k + j) (2 ^ k * n) = E j n := by
 
 -- ===== Lemma 3.2 Proof Parts =====
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma lemma32_case_1 (n a b j : ℕ) (hn : stopping_time n = ⊤)
     (h_S : 1 - (1 : ℚ) / (4 * n) < (3 : ℚ) ^ a / 2 ^ b ∧ (3 : ℚ) ^ a / 2 ^ b < 1)
     (h_j : num_odd_steps j n = a)
@@ -152,6 +165,7 @@ lemma lemma32_case_1 (n a b j : ℕ) (hn : stopping_time n = ⊤)
 
 -- Key arithmetic lemma: from 3^a/2^b being close to 1 from below,
 -- derive the inequality needed for T_iter ≥ m
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 private lemma case2_arith (n a b : ℕ) (hn : n ≥ 1) (hba : b ≥ a + 1)
     (h_lower : 1 - (1 : ℚ) / (4 * n) < (3 : ℚ) ^ a / 2 ^ b) :
     (↑n + 1) * (3 : ℚ) ^ a > ↑n * (2 : ℚ) ^ b + (2 : ℚ) ^ a := by
@@ -179,6 +193,7 @@ private lemma case2_arith (n a b : ℕ) (hn : n ≥ 1) (hba : b ≥ a + 1)
   -- Step 4: Combine everything
   nlinarith
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma lemma32_case_2 (n a b j : ℕ) (hn : stopping_time n = ⊤)
     (h_S : 1 - (1 : ℚ) / (4 * n) < (3 : ℚ) ^ a / 2 ^ b ∧ (3 : ℚ) ^ a / 2 ^ b < 1)
     (h_j : num_odd_steps j n = a)
@@ -249,6 +264,7 @@ lemma lemma32_case_2 (n a b j : ℕ) (hn : stopping_time n = ⊤)
 
 /-- If T_iter j n is even for all j in [J, J+k), then 2^k divides T_iter J n
     and T_iter (J+k) n = T_iter J n / 2^k. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 private lemma even_run_exact (J n : ℕ) :
     ∀ k, (∀ i, i < k → T_iter (J + i) n % 2 = 0) →
       2 ^ k ∣ T_iter J n ∧ T_iter (J + k) n = T_iter J n / 2 ^ k := by
@@ -271,6 +287,7 @@ private lemma even_run_exact (J n : ℕ) :
       rw [hsucc, T_even h_ek, heq, pow_succ, Nat.div_div_eq_div_mul]
 
 /-- If n has infinite stopping time and n ≥ 1, then num_odd_steps is unbounded. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma num_odd_steps_unbounded (n : ℕ) (hn : stopping_time n = ⊤) (hn1 : n ≥ 1) :
     ∀ M, ∃ j, num_odd_steps j n ≥ M := by
   by_contra h
@@ -341,6 +358,7 @@ lemma num_odd_steps_unbounded (n : ℕ) (hn : stopping_time n = ⊤) (hn1 : n �
   omega
 
 /-- If n has infinite stopping time and n ≥ 1, num_odd_steps hits every natural number. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma num_odd_steps_hits_all (n : ℕ) (hn : stopping_time n = ⊤) (hn1 : n ≥ 1) :
     ∀ a, ∃ j, num_odd_steps j n = a := by
   -- Follows from: step size ≤ 1, starts at 0, unbounded
@@ -381,6 +399,7 @@ lemma num_odd_steps_hits_all (n : ℕ) (hn : stopping_time n = ⊤) (hn1 : n ≥
   exact num_odd_steps_unbounded n hn hn1
 
 /-- Cast helper: ℝ inequality for 3^a/2^b implies ℚ inequality. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma real_to_rat_approx (a b n : ℕ)
     (h_lower : (1 - 1 / (4 * (n : ℝ))) < (3 : ℝ) ^ a / (2 : ℝ) ^ b)
     (h_upper : (3 : ℝ) ^ a / (2 : ℝ) ^ b < 1) :
@@ -394,6 +413,7 @@ lemma real_to_rat_approx (a b n : ℕ)
     exact_mod_cast this
 
 /-- For each a, there is at most one b with 3^a/2^b ∈ (1-1/(4n), 1) when n ≥ 1. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma unique_b_for_a (a b₁ b₂ n : ℕ) (hn : n ≥ 1)
     (h1 : (1 - 1 / (4 * (n : ℝ))) < (3 : ℝ) ^ a / (2 : ℝ) ^ b₁)
     (h1' : (3 : ℝ) ^ a / (2 : ℝ) ^ b₁ < 1)
@@ -425,6 +445,7 @@ lemma unique_b_for_a (a b₁ b₂ n : ℕ) (hn : n ≥ 1)
 /-- **Theorem 3.2** (Rozier–Terracol). If the integer `n` has an infinite stopping time,
     then there exist infinitely many paradoxical sequences starting from integers of the form
     `2^k n` with `k` a non-negative integer. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_thm_32"]
 lemma CRoz_lemma_32 (n : ℕ) (hn : stopping_time n = ⊤) :
     {p : ℕ × ℕ | IsParadoxical p.1 (2 ^ p.2 * n)}.Infinite := by
   -- Handle n = 0 separately
@@ -509,6 +530,7 @@ lemma CRoz_lemma_32 (n : ℕ) (hn : stopping_time n = ⊤) :
 
 /-- **Corollary 3.3** (Rozier–Terracol). If there are only finitely many paradoxical sequences
 whose first term is greater than 2, then the Collatz conjecture is true. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_cor_33"]
 lemma CRoz_cor_33 (h_fin : { p : ℕ × ℕ | let (j, m) := p; IsParadoxical j m ∧ m > 2 }.Finite) :
     ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1 := by
   intro n
@@ -552,3 +574,5 @@ lemma CRoz_cor_33 (h_fin : { p : ℕ × ℕ | let (j, m) := p; IsParadoxical j m
     exact (((CRoz_lemma_32 m h_stop).image hf_inj).mono <| by
       rintro _ ⟨⟨j, k⟩, hp, rfl⟩
       exact ⟨hp, by dsimp; have := Nat.one_le_two_pow (n := k); nlinarith⟩) h_fin
+
+end RT

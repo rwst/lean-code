@@ -1,5 +1,7 @@
 import CC.Decomposition
 import CC.Parity
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -13,10 +15,11 @@ import CC.Parity
 open Classical
 open CC
 
-namespace CC
+namespace RT
 
 /-- If `E k n < E k m` and the parity bits agree from position `k` to `j-1`,
     then `E j n < E j m`. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma E_suffix_preserves_lt (k j m n : ℕ) (hkj : k ≤ j)
     (hE : E k n < E k m)
     (hsuf : ∀ i, k ≤ i → i < j → X (T_iter i m) = X (T_iter i n)) :
@@ -32,10 +35,12 @@ lemma E_suffix_preserves_lt (k j m n : ℕ) (hkj : k ≤ j)
       subst this; exact hE
 
 /-- Helper: V entry `true` implies `X = 1`, entry `false` implies `X = 0`. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma X_of_V_true (j n i : ℕ) (hi : i < j)
     (htrue : (V j n).get ⟨i, by simp; omega⟩ = true) : X (T_iter i n) = 1 := by
   have h := V_get j n ⟨i, hi⟩; rw [h] at htrue; exact of_decide_eq_true htrue
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma X_of_V_false (j n i : ℕ) (hi : i < j)
     (hfalse : (V j n).get ⟨i, by simp; omega⟩ = false) : X (T_iter i n) = 0 := by
   have h := V_get j n ⟨i, hi⟩; rw [h] at hfalse
@@ -47,6 +52,7 @@ lemma X_of_V_false (j n i : ℕ) (hi : i < j)
     a single elementary swap (01 → 10), then `E j m > E j n`. -/
 
 -- Helper to extract X value from V entry equality with a known Bool
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma X_from_V_eq (j n i : ℕ) (hi : i < j) (b : Bool)
     (hb : (V j n).get ⟨i, by simp; omega⟩ = b) :
     X (T_iter i n) = if b then 1 else 0 := by
@@ -60,16 +66,19 @@ private lemma X_from_V_eq (j n i : ℕ) (hi : i < j) (b : Bool)
 
 -- Helper: get entry from w1 ++ [a, b] ++ w2 - simplified approach
 -- We just state this as an auxiliary fact and handle cases directly in main proof
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma get_append_mid_case1 {α : Type*} (w1 : List α) (a b : α) (w2 : List α)
     (i : ℕ) (hi : i < w1.length) (h : i < (w1 ++ [a, b] ++ w2).length) :
     (w1 ++ [a, b] ++ w2).get ⟨i, h⟩ = w1.get ⟨i, hi⟩ := by
   simp [List.get_eq_getElem, hi]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma get_append_mid_case2 {α : Type*} (w1 : List α) (a b : α) (w2 : List α)
     (h : w1.length < (w1 ++ [a, b] ++ w2).length) :
     (w1 ++ [a, b] ++ w2).get ⟨w1.length, h⟩ = a := by
   simp [List.get_eq_getElem]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma get_append_mid_case3 {α : Type*} (w1 : List α) (a b : α) (w2 : List α)
     (h : w1.length + 1 < (w1 ++ [a, b] ++ w2).length) :
     (w1 ++ [a, b] ++ w2).get ⟨w1.length + 1, h⟩ = b := by
@@ -77,6 +86,7 @@ private lemma get_append_mid_case3 {α : Type*} (w1 : List α) (a b : α) (w2 : 
 
 -- For the suffix case, we just need: entries at same suffix position are equal
 -- regardless of which pair (a,b) is in the middle
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma get_append_suffix_eq {α : Type*} (w1 : List α) (a1 b1 a2 b2 : α) (w2 : List α)
     (i : ℕ) (hi : w1.length + 2 ≤ i)
     (h1 : i < (w1 ++ [a1, b1] ++ w2).length) (h2 : i < (w1 ++ [a2, b2] ++ w2).length) :
@@ -93,6 +103,7 @@ private lemma get_append_suffix_eq {α : Type*} (w1 : List α) (a1 b1 a2 b2 : α
   have hi2 : ¬ i < (w1 ++ [a2, b2]).length := by simp; omega
   simp only [List.getElem_append, hlen1, hlen2, show ¬ i < w1.length + 2 from by omega, ↓reduceDIte]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma decomposition_correction_eq_of_V_prefix_eq (k j m n : ℕ) (hk : k ≤ j)
     (hpre : ∀ i : Fin k, (V j m).get ⟨i.val, by simp; omega⟩ =
       (V j n).get ⟨i.val, by simp; omega⟩) :
@@ -114,12 +125,14 @@ lemma decomposition_correction_eq_of_V_prefix_eq (k j m n : ℕ) (hk : k ≤ j)
     rw [ih', hXk]
 
 /-- Equal prefix of `V` implies equal `E` up to that prefix length. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma E_eq_of_V_prefix_eq (k j m n : ℕ) (hk : k ≤ j)
     (hpre : ∀ i : Fin k, (V j m).get ⟨i.val, by simp; omega⟩ =
       (V j n).get ⟨i.val, by simp; omega⟩) :
     E k m = E k n := by
   simp only [E, decomposition_correction_eq_of_V_prefix_eq k j m n hk hpre]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma E_elementary_lt (v1 v2 : ParityVector)
     (hswap : ElementaryPrecedes v1 v2)
     (j m n : ℕ) (hv1 : V j m = v1) (hv2 : V j n = v2) :
@@ -202,13 +215,16 @@ lemma E_elementary_lt (v1 v2 : ParityVector)
 -- ===== E_pv: E computed directly from a parity vector =====
 
 /-- Step function for computing E from parity bits. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private def E_step (e : ℚ) (b : Bool) : ℚ :=
   (3 ^ b.toNat : ℚ) / 2 * e + (b.toNat : ℚ) / 2
 
 /-- E computed from a parity vector via left fold. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private def E_pv (v : ParityVector) : ℚ := (v : List Bool).foldl E_step 0
 
 /-- E_step is strictly monotone in its first argument. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma E_step_strict_mono' (b : Bool) (a1 a2 : ℚ) (h : a1 < a2) :
     E_step a1 b < E_step a2 b := by
   simp only [E_step]
@@ -216,6 +232,7 @@ private lemma E_step_strict_mono' (b : Bool) (a1 a2 : ℚ) (h : a1 < a2) :
   nlinarith [sq_nonneg (3 : ℚ)]
 
 /-- foldl E_step preserves strict inequality. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma foldl_E_step_lt (xs : List Bool) (a1 a2 : ℚ) (h : a1 < a2) :
     xs.foldl E_step a1 < xs.foldl E_step a2 := by
   induction xs generalizing a1 a2 with
@@ -225,6 +242,7 @@ private lemma foldl_E_step_lt (xs : List Bool) (a1 a2 : ℚ) (h : a1 < a2) :
     exact ih _ _ (E_step_strict_mono' b a1 a2 h)
 
 /-- An elementary swap strictly decreases E_pv. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma E_pv_elementary_lt {v1 v2 : ParityVector}
     (h : ElementaryPrecedes v1 v2) : E_pv v2 < E_pv v1 := by
   cases h with
@@ -236,11 +254,13 @@ private lemma E_pv_elementary_lt {v1 v2 : ParityVector}
     norm_num; linarith
 
 /-- `(decide (x = 1)).toNat = x` when `x ≤ 1`. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma bool_toNat_eq_X (x : ℕ) (hx : x ≤ 1) :
     (decide (x = 1)).toNat = x := by
   interval_cases x <;> simp
 
 /-- `E_pv (V j n) = E j n`: the parity-vector E matches the sequence-based E. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 private lemma E_pv_eq_E (j n : ℕ) : E_pv (V j n) = E j n := by
   induction j with
   | zero => simp [E_pv, V, E_zero]
@@ -269,6 +289,7 @@ private lemma E_pv_eq_E (j n : ℕ) : E_pv (V j n) = E j n := by
     simp only [hbnat]
 
 /-- TransGen of ElementaryPrecedes strictly decreases E_pv. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma E_pv_transGen_lt {v1 v2 : ParityVector}
     (h : Relation.TransGen ElementaryPrecedes v1 v2) : E_pv v2 < E_pv v1 := by
   induction h with
@@ -278,8 +299,11 @@ lemma E_pv_transGen_lt {v1 v2 : ParityVector}
 /-- Lemma 2.1 ([Roz25] p.5)
     If `V j m` strictly precedes `V j n` in the parity-vector partial order
     (i.e., at least one elementary swap), then `E_j(m) > E_j(n)`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_lemma_21"]
 lemma E_lt_of_V_precedes (j m n : ℕ)
     (hprec : Relation.TransGen ElementaryPrecedes (V j m) (V j n)) :
     E j n < E j m := by
   have h := E_pv_transGen_lt hprec
   rwa [E_pv_eq_E, E_pv_eq_E] at h
+
+end RT

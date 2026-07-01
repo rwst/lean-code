@@ -1,8 +1,10 @@
 import CC.Decomposition
 import CC.Parity
 import CC.Periodicity
-import CC.RozierTerracol.CRozLemma21
-import CC.RozierTerracol.CRozLemma22
+import RT.CRozLemma21
+import RT.CRozLemma22
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 /-!
 * [Gar81] Garner, Lynn E. "On the Collatz 3𝑛+ 1 algorithm." Proceedings of the American
@@ -17,7 +19,10 @@ open Classical
 
 open CC
 
+namespace RT
+
 /-- Shift lemma: T^j(m + 2^j) and T^j(m) are related, which implies they have opposite parity. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_23"]
 lemma X_T_iter_shift (j m : ℕ) : X (T_iter j m) + X (T_iter j (m + 2 ^ j)) = 1 := by
   have hE : E_vec j (m + 2 ^ j) = E_vec j m := by
     apply terras_backward
@@ -48,6 +53,7 @@ lemma X_T_iter_shift (j m : ℕ) : X (T_iter j m) + X (T_iter j (m + 2 ^ j)) = 1
   omega
 
 /-- Periodicity of the parity vector implies E_j(m + 2^j) = E_j(m) -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_23"]
 lemma E_shift (j m : ℕ) : E j (m + 2 ^ j) = E j m := by
   apply E_eq_of_V_prefix_eq j j (m + 2 ^ j) m (by rfl)
   intro i
@@ -61,6 +67,7 @@ lemma E_shift (j m : ℕ) : E j (m + 2 ^ j) = E j m := by
   rw [h2, h3, h1]
 
 /-- Pairwise sum of E_{j+1} for m and m+2^j -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_23"]
 lemma E_succ_pair_sum (j m : ℕ) :
     E (j + 1) m + E (j + 1) (m + 2 ^ j) = 2 * E j m + 1 / 2 := by
   rw [E_succ, E_succ, E_shift]
@@ -80,6 +87,7 @@ lemma E_succ_pair_sum (j m : ℕ) :
 
 /-- **Lemma 2.3** (Rozier–Terracol). For every positive integer `j`, the arithmetic
     mean of `{E_j(n)}_{n=1}^{2^j}` is equal to `j/4`. -/
+@[category research solved, AMS 11 37, ref "Roz25" "Ter76", group "roz_lemma_23"]
 lemma CRoz_lemma_23 (j : ℕ) (hj : 0 < j) :
     ((Finset.Icc 1 (2 ^ j)).sum (fun n => E j n)) / (2 ^ j : ℚ) = (j : ℚ) / 4 := by
   induction j with
@@ -146,3 +154,5 @@ lemma CRoz_lemma_23 (j : ℕ) (hj : 0 < j) :
       push_cast
       field_simp
       ring
+
+end RT

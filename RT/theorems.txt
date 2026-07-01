@@ -1,13 +1,25 @@
-import CC.Approximation
+import CC.CollatzIter
 import CC.Decomposition
 import CC.Parity
 import CC.Periodicity
-import CC.RozierTerracol.CRozLemma21
-import CC.RozierTerracol.CRozLemma22
-import CC.RozierTerracol.CRozLemma23
-import CC.RozierTerracol.CRozLemma32
-import CC.TC
+import Mathlib.Analysis.Complex.ExponentialBounds
+import Mathlib.Analysis.MeanInequalities
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.NumberTheory.DiophantineApproximation.Basic
+
+noncomputable def ξ : ℝ := Real.log 2 / Real.log 3
+
+lemma xi_pos : 0 < ξ
+
+lemma half_lt_xi : (1 : ℝ) / 2 < ξ
+
+lemma xi_lt_one : ξ < 1
+
+lemma irrational_xi : Irrational ξ
+
+lemma exists_infinite_pairs_approx (ε : ℝ) (hε_pos : 0 < ε) (hε_lt : ε < 1) :
+    {p : ℕ × ℕ | 0 < p.1 ∧ 0 < p.2 ∧
+      (1 - ε) < (3 : ℝ) ^ p.1 / (2 : ℝ) ^ p.2 ∧ (3 : ℝ) ^ p.1 / (2 : ℝ) ^ p.2 < 1}.Infinite
 
 lemma E_suffix_preserves_lt (k j m n : ℕ) (hkj : k ≤ j)
     (hE : E k n < E k m)
@@ -136,8 +148,117 @@ lemma CRoz_lemma_32 (n : ℕ) (hn : stopping_time n = ⊤) :
 lemma CRoz_cor_33 (h_fin : { p : ℕ × ℕ | let (j, m) := p; IsParadoxical j m ∧ m > 2 }.Finite) :
     ∀ (n : ℕ), n = 0 ∨ ∃ k, collatz_iter k n = 1
 
+noncomputable def maxExcursion (n : ℕ) : ℕ∞ := ⨆ k : ℕ, (T_iter k n : ℕ∞)
+
+noncomputable def delayCol (n : ℕ) : ℕ∞ :=
+  if h : ∃ j, T_iter j n = 1 then ((Nat.find h + num_odd_steps (Nat.find h) n : ℕ) : ℕ∞) else ⊤
+
+axiom base_case_exhaustive :
+    ∀ j n : ℕ, IsParadoxical j n → 3 ≤ n → n ≤ 10 ^ 9 → n ≤ 4614 ∧ j ≤ 92
+
+axiom maxexc_record_m0 :
+    ∀ m : ℕ, maxExcursion m ≥ (10 ^ 9 : ℕ) → m ≥ 113383
+
+axiom delay_record_col :
+    ∀ n : ℕ, 2 ≤ n → delayCol n ≤ (2456 : ℕ) ∨ n > 28 * 10 ^ 18
+
+axiom maxexc_record_m1 :
+    ∀ m : ℕ, maxExcursion m > (28 * 10 ^ 18 : ℕ) → m ≥ 23035537407
+
+def oddFactor (x : ℕ) : ℚ := if x % 2 = 1 then 1 + 1 / (3 * (x : ℚ)) else 1
+
+lemma oddFactor_even {x : ℕ} (h : x % 2 = 0) : oddFactor x = 1
+
+lemma oddFactor_odd {x : ℕ} (h : x % 2 = 1) : oddFactor x = 1 + 1 / (3 * (x : ℚ))
+
+lemma one_le_oddFactor (x : ℕ) : 1 ≤ oddFactor x
+
+lemma oddFactor_pos (x : ℕ) : 0 < oddFactor x
+
+theorem T_iter_eq_prod (j n : ℕ) :
+    (T_iter j n : ℚ) = (n : ℚ) * C j n * ∏ k ∈ Finset.range j, oddFactor (T_iter k n)
+
+theorem correction_exact_product (j n : ℕ) (hn : 0 < n) :
+    1 + E j n / (C j n * (n : ℚ)) = ∏ k ∈ Finset.range j, oddFactor (T_iter k n)
+
 lemma isParadoxical_bound {j n : ℕ} (hn : n > 0) (h : IsParadoxical j n) :
     0 < 1 - C j n ∧ 1 - C j n ≤ E j n / n
+
+def oddIdx (j n : ℕ) : Finset ℕ := (Finset.range j).filter (fun k => T_iter k n % 2 = 1)
+
+lemma oddIdx_card (j n : ℕ) : (oddIdx j n).card = num_odd_steps j n
+
+lemma prod_range_oddFactor_eq_oddIdx (j n : ℕ) :
+    ∏ k ∈ Finset.range j, oddFactor (T_iter k n) = ∏ k ∈ oddIdx j n, oddFactor (T_iter k n)
+
+theorem geom_mean_le {ι : Type*} (s : Finset ι) (f : ι → ℝ) (hf : ∀ i ∈ s, 0 ≤ f i)
+    (hs : s.Nonempty) :
+    ∏ i ∈ s, f i ≤ ((∑ i ∈ s, f i) / s.card) ^ s.card
+
+noncomputable def recipSum (j n : ℕ) : ℝ := ∑ k ∈ oddIdx j n, 1 / (T_iter k n : ℝ)
+
+noncomputable def harmonicMean (j n : ℕ) : ℝ := (num_odd_steps j n : ℝ) / recipSum j n
+
+lemma recipSum_pos (j n : ℕ) (hn : 0 < n) (hq : 0 < num_odd_steps j n) : 0 < recipSum j n
+
+lemma harmonicMean_pos (j n : ℕ) (hn : 0 < n) (hq : 0 < num_odd_steps j n) :
+    0 < harmonicMean j n
+
+lemma sum_oddFactor_eq (j n : ℕ) :
+    ∑ k ∈ oddIdx j n, ((oddFactor (T_iter k n) : ℚ) : ℝ)
+      = (num_odd_steps j n : ℝ) + (1 / 3) * recipSum j n
+
+theorem prod_oddFactor_le_harmonic (j n : ℕ) (hn : 0 < n) (hq : 0 < num_odd_steps j n) :
+    ∏ k ∈ Finset.range j, ((oddFactor (T_iter k n) : ℚ) : ℝ)
+      ≤ (1 + 1 / (3 * harmonicMean j n)) ^ num_odd_steps j n
+
+theorem correction_ratio_bound_harmonic (j n : ℕ) (hn : 0 < n) (hq : 0 < num_odd_steps j n) :
+    (E j n : ℝ) / (n : ℝ)
+      ≤ ((3 + 1 / harmonicMean j n) ^ num_odd_steps j n - 3 ^ num_odd_steps j n) / 2 ^ j
+
+lemma paradoxical_ratio_real (j q : ℕ) (μ : ℝ) (hj_pos : j > 0) (hμ : 0 < μ)
+    (h_para : (1 : ℝ) - (3 : ℝ) ^ q / (2 : ℝ) ^ j > 0)
+    (h_E : (1 : ℝ) - (3 : ℝ) ^ q / (2 : ℝ) ^ j ≤ ((3 + 1 / μ) ^ q - (3 : ℝ) ^ q) / (2 : ℝ) ^ j) :
+    Real.log 2 / Real.log (3 + 1 / μ) ≤ (q : ℝ) / (j : ℝ) ∧
+    (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3
+
+lemma log_ratio_not_int (j k : ℕ) (hj_ge_2 : j ≥ 2) :
+    (j : ℝ) * Real.log 2 / Real.log 3 ≠ (k : ℝ)
+
+lemma strict_floor_log_ratio (j : ℕ) (hj_ge_2 : j ≥ 2) :
+    ((⌊(j : ℝ) * Real.log 2 / Real.log 3⌋ : ℤ) : ℝ) < (j : ℝ) * Real.log 2 / Real.log 3
+
+lemma paradoxical_m_bound_q_real (j q : ℕ) (μ : ℝ) (hj_pos : j > 0) (hq_pos : q > 0) (hμ : 0 < μ)
+    (h_ratio_lower : Real.log 2 / Real.log (3 + 1 / μ) ≤ (q : ℝ) / (j : ℝ))
+    (h_ratio_upper : (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3) :
+    (2 : ℝ) ^ ((j : ℝ) / (q : ℝ)) - 3 > 0 ∧
+    μ ≤ 1 / ((2 : ℝ) ^ ((j : ℝ) / (q : ℝ)) - 3)
+
+lemma paradoxical_m_bound_floor_real (j q : ℕ) (μ : ℝ) (hj_ge_2 : j ≥ 2) (hμ : 0 < μ)
+    (h_q_bounds : Real.log 2 / Real.log (3 + 1 / μ) ≤ (q : ℝ) / (j : ℝ) ∧
+                  (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3) :
+    let r
+
+theorem paradoxical_ratio_bounds_harmonic (j n : ℕ) (hn : 0 < n) (hq : 0 < num_odd_steps j n)
+    (h_para : IsParadoxical j n) :
+    Real.log 2 / Real.log (3 + 1 / harmonicMean j n) ≤ (num_odd_steps j n : ℝ) / (j : ℝ) ∧
+    (num_odd_steps j n : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3
+
+theorem paradoxical_m_bound_harmonic (j n : ℕ) (hj_ge_2 : j ≥ 2) (hn : 0 < n)
+    (hq : 0 < num_odd_steps j n) (h_para : IsParadoxical j n) :
+    let r
+
+noncomputable def rExp (j : ℕ) : ℝ := (j : ℝ) / (⌊(j : ℝ) * Real.log 2 / Real.log 3⌋ : ℝ)
+
+noncomputable def H (j : ℕ) : ℝ := 1 / ((2 : ℝ) ^ rExp j - 3)
+
+theorem q_lower_from_j0 (j q : ℕ) (hj : 1539 ≤ j)
+    (hratio : Real.log 2 / Real.log (3 + 1 / (113383 : ℝ)) ≤ (q : ℝ) / (j : ℝ)) :
+    971 ≤ q
+
+axiom H_cross_j0 (j : ℕ) (hj : 1 < j) (hH : (113383 : ℝ) ≤ H j) : 1539 ≤ j
+
+axiom j1_cross (j : ℕ) (hj : 1 < j) (hH : (23035537407 : ℝ) ≤ H j) : 301994 ≤ j
 
 lemma odd_step_bound (x m : ℕ) (hm : m > 0) (hx : x ≥ m) (hodd : x % 2 = 1) :
     (T x : ℚ) ≤ (x : ℚ) * (3 + (1 : ℚ) / (m : ℚ)) / 2
@@ -153,35 +274,61 @@ lemma correction_ratio_bound_theorem_4_1 (j n m : ℕ) (hn : n > 0) (hm_pos : m 
     (h_odd_bounded : ∀ (k : ℕ), k < j → T_iter k n % 2 = 1 → T_iter k n ≥ m) :
     E j n / n ≤ ((3 + (1 : ℚ) / m) ^ num_odd_steps j n - 3 ^ num_odd_steps j n) / 2 ^ j
 
-lemma paradoxical_ratio_real (j q m : ℕ) (hj_pos : j > 0) (hm_pos : m > 0)
-    (h_para : (1 : ℝ) - (3 : ℝ)^q / (2 : ℝ)^j > 0)
-    (h_E : (1 : ℝ) - (3 : ℝ)^q / (2 : ℝ)^j ≤ ((3 + 1 / (m : ℝ))^q - (3 : ℝ)^q) / (2 : ℝ)^j) :
-    Real.log 2 / Real.log (3 + 1 / (m : ℝ)) ≤ (q : ℝ) / (j : ℝ) ∧
-    (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3
-
 lemma paradoxical_ratio_bounds (j n m : ℕ) (hn : n > 0) (hm_pos : m > 0)
     (h_odd_bounded : ∀ (k : ℕ), k < j → T_iter k n % 2 = 1 → T_iter k n ≥ m)
     (h_para : IsParadoxical j n) :
     let q
 
-lemma log_ratio_not_int (j k : ℕ) (hj_ge_2 : j ≥ 2) :
-    (j : ℝ) * Real.log 2 / Real.log 3 ≠ (k : ℝ)
-
-lemma strict_floor_log_ratio (j : ℕ) (hj_ge_2 : j ≥ 2) :
-    ((⌊(j : ℝ) * Real.log 2 / Real.log 3⌋ : ℤ) : ℝ) < (j : ℝ) * Real.log 2 / Real.log 3
-
-lemma paradoxical_m_bound_q_real (j q m : ℕ) (hj_pos : j > 0) (hq_pos : q > 0) (hm_pos : m > 0)
-    (h_ratio_lower : Real.log 2 / Real.log (3 + 1 / (m : ℝ)) ≤ (q : ℝ) / (j : ℝ))
-    (h_ratio_upper : (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3) :
-    (2 : ℝ)^((j : ℝ) / (q : ℝ)) - 3 > 0 ∧
-    (m : ℝ) ≤ 1 / ((2 : ℝ)^((j : ℝ) / (q : ℝ)) - 3)
-
-lemma paradoxical_m_bound_floor_real (j q m : ℕ) (hj_ge_2 : j ≥ 2) (hm_pos : m > 0)
-    (h_q_bounds : (Real.log 2 / Real.log (3 + 1 / (m : ℝ)) ≤ (q : ℝ) / (j : ℝ)) ∧
-                  ((q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3)) :
-    let r
-
 lemma paradoxical_m_bound (j n m : ℕ) (hj_ge_2 : j ≥ 2) (hn : n > 0) (hm_pos : m > 0)
     (h_odd_bounded : ∀ (k : ℕ), k < j → T_iter k n % 2 = 1 → T_iter k n ≥ m)
     (h_para : IsParadoxical j n) :
     let r
+
+lemma two_le_j_of_paradoxical (j n : ℕ) (h_para : IsParadoxical j n) (hn : 1 ≤ n) : 2 ≤ j
+
+lemma le_maxExcursion (a i : ℕ) : (T_iter i a : ℕ∞) ≤ maxExcursion a
+
+lemma m_le_H {j n m : ℕ} (hj2 : 2 ≤ j) (hn : 0 < n) (hm_pos : 0 < m)
+    (h_odd_bounded : ∀ k, k < j → T_iter k n % 2 = 1 → T_iter k n ≥ m)
+    (h_para : IsParadoxical j n) : (m : ℝ) ≤ H j
+
+lemma paradoxical_delayCol_ge (j n : ℕ) (hn2 : 2 < T_iter j n) :
+    (↑(j + num_odd_steps j n) : ℕ∞) ≤ delayCol n
+
+theorem theorem_5_3 (j n : ℕ) (h_para : IsParadoxical j n) (hn : 3 ≤ n) :
+    (n ≤ 4614 ∧ j ≤ 92) ∨ (28 * 10 ^ 18 < n ∧ 301994 ≤ j)
+
+theorem no_paradoxical_mid_j (j n : ℕ) (h_para : IsParadoxical j n) (hn : 3 ≤ n)
+    (hj : 93 ≤ j) : 301994 ≤ j
+
+theorem no_paradoxical_mid_n (j n : ℕ) (h_para : IsParadoxical j n) (hn : 4615 ≤ n) :
+    28 * 10 ^ 18 < n
+
+lemma coeff_le_stopping (n : ℕ) : coeff_stopping_time n ≤ stopping_time n
+
+axiom cst_verified_small :
+    ∀ n : ℕ, 2 ≤ n → n ≤ 250000 → stopping_time n = coeff_stopping_time n
+
+theorem cst_below (n : ℕ) (hn2 : 2 ≤ n) (hle : n ≤ 28 * 10 ^ 18) :
+    stopping_time n = coeff_stopping_time n
+
+theorem heuristic_19 (j q m : ℕ) (hj : 0 < j) (hq : 0 < q) (hm : 1 ≤ m)
+    (h_ratio : Real.log 2 / Real.log (3 + 1 / (m : ℝ)) ≤ (q : ℝ) / (j : ℝ))
+    (h_upper : (q : ℝ) / (j : ℝ) < Real.log 2 / Real.log 3) :
+    0 < (j : ℝ) / (q : ℝ) - Real.log 3 / Real.log 2 ∧
+    (j : ℝ) / (q : ℝ) - Real.log 3 / Real.log 2 < 1 / (3 * (m : ℝ) * Real.log 2)
+
+noncomputable def dT (n : ℕ) : ℕ := if h : ∃ i, T_iter i n = 1 then Nat.find h else 0
+
+def Conjecture61 : Prop := ∀ j n : ℕ, IsParadoxical j n → n ≤ 4614
+
+def Conjecture62 (α β : ℝ) : Prop :=
+  0 < α ∧ 0 < β ∧
+  (∀ n : ℕ, 2 ≤ n → (∃ i, T_iter i n = 1) ∧ (dT n : ℝ) ≤ α * Real.log n) ∧
+  (∀ n : ℕ, 2 ≤ n → ∀ k, (T_iter k n : ℝ) ≤ (n : ℝ) ^ β)
+
+theorem heuristic_chain (α β : ℝ) (hConj : Conjecture62 α β) (j n : ℕ)
+    (h_para : IsParadoxical j n) (hn : 2 < n) :
+    0 < (j : ℝ) * Real.log 2 - (num_odd_steps j n : ℝ) * Real.log 3 ∧
+    (j : ℝ) * Real.log 2 - (num_odd_steps j n : ℝ) * Real.log 3
+      < (num_odd_steps j n : ℝ) / 3 * Real.exp (-(j : ℝ) / (α * β))

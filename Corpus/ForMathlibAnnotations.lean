@@ -44,8 +44,10 @@ linear-algebra, power-series, and Hardy-space blocks additionally carry the lite
 docstrings). The headline Hardy `H²` characterisation `Complex.memHardy_two_iff_summable` is tagged
 `research solved` (a proved, named result), in the spirit of the Lagrange exception below.
 
-Exception: `ForMathlib/NumberTheory/ContinuedFractions/Lagrange.lean` carries its
-annotations in-file (`lagrange` is `research solved`), so it is not listed here.
+`ForMathlib/NumberTheory/ContinuedFractions/Lagrange.lean` carries **no** corpus annotations and
+does **not** import `Corpus.Util.Attributes` — its literature references live in its module docstring,
+so it is not listed here. New `ForMathlib/` additions follow the same rule: no in-file
+`@[category]`/`@[ref]` annotations and no `Corpus.Util.Attributes` import; citations go in docstrings.
 -/
 
 -- `ForMathlib/Analysis/Equidistribution/ModOne.lean`

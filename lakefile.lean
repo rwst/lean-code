@@ -57,3 +57,6 @@ lean_lib B3 where
 lean_lib L90 where
   globs := #[.submodules `L90]
 
+lean_lib RT where
+  globs := #[.submodules `RT]
+

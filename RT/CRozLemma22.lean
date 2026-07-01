@@ -1,5 +1,7 @@
 import CC.Decomposition
 import CC.Parity
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 
 /-!
@@ -15,12 +17,17 @@ open Classical
 
 open CC
 
+namespace RT
+
 /-- The lower bound sequence: `L_j(q) = (3^q - 2^q) / 2^j`. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 def L (j q : ℕ) : ℚ := ((3 : ℚ) ^ q - 2 ^ q) / 2 ^ j
 
 /-- The upper bound: `R(q) = (3^q - 2^q) / 2^q`. -/
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 def R (q : ℕ) : ℚ := ((3 : ℚ) ^ q - 2 ^ q) / 2 ^ q
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma L_nonneg (j q : ℕ) : L j q ≥ 0 := by
   unfold L
   apply div_nonneg
@@ -28,6 +35,7 @@ lemma L_nonneg (j q : ℕ) : L j q ≥ 0 := by
     gcongr; norm_num
   · positivity
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma R_nonneg (q : ℕ) : R q ≥ 0 := by
   unfold R
   apply div_nonneg
@@ -35,17 +43,21 @@ lemma R_nonneg (q : ℕ) : R q ≥ 0 := by
     gcongr; norm_num
   · positivity
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma L_succ_even (j q : ℕ) : L (j + 1) q = L j q / 2 := by
   unfold L; rw [pow_succ]; ring
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma L_succ_odd (j q : ℕ) : L (j + 1) (q + 1) = (3 * L j q + (2 : ℚ) ^ q / 2 ^ j) / 2 := by
   unfold L; rw [pow_succ, pow_succ, pow_succ]
   field_simp; ring
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma R_succ_even (q : ℕ) : R q / 2 ≤ R q := by
   have : R q ≥ 0 := R_nonneg q
   linarith
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 lemma R_succ_odd (q : ℕ) : R (q + 1) = (3 * R q + 1) / 2 := by
   unfold R; rw [pow_succ, pow_succ]
   field_simp; ring
@@ -53,6 +65,7 @@ lemma R_succ_odd (q : ℕ) : R (q + 1) = (3 * R q + 1) / 2 := by
 /-- **Theorem 2.2** (Rozier–Terracol), inequality (3).
     For every positive integers `j` and `n`, writing `q = num_odd_steps j n`,
     we have `(3^q - 2^q) / 2^j ≤ E_j(n) ≤ (3^q - 2^q) / 2^q`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 theorem E_bounds (j n : ℕ) (hj : 0 < j) :
     let q := num_odd_steps j n
     L j q ≤ E j n ∧ E j n ≤ R q := by
@@ -105,12 +118,14 @@ theorem E_bounds (j n : ℕ) (hj : 0 < j) :
             _ ≤ (3 * R q + 1) / 2 := by gcongr
             _ = R (q + 1) := by rw [R_succ_odd]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 private lemma V_succ (j n : ℕ) : (V (j + 1) n : List Bool) = List.append (V j n : List Bool)
     [decide (X (T_iter j n) = 1)] := by
   simp only [V, List.finRange_succ_last, List.map_append, List.map_map, Function.comp_def,
     Fin.castSucc, Fin.last, List.map_cons, List.map_nil, Fin.val_castAdd]
   rfl
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 private lemma R_eq_zero_iff (q : ℕ) : R q = 0 ↔ q = 0 := by
   constructor
   · intro h
@@ -127,6 +142,7 @@ private lemma R_eq_zero_iff (q : ℕ) : R q = 0 ↔ q = 0 := by
     · linarith
   · rintro rfl; simp [R]
 
+@[category API, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 private lemma L_eq_zero_iff (j q : ℕ) : L j q = 0 ↔ q = 0 := by
   constructor
   · intro h
@@ -145,6 +161,7 @@ private lemma L_eq_zero_iff (j q : ℕ) : L j q = 0 ↔ q = 0 := by
 
 /-- The upper bound in Theorem 2.2 is reached iff `V_j(n) = ⟨0^{j-q} 1^q⟩`,
     i.e. `n ≡ -2^{j-q} (mod 2^j)`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 theorem E_upper_bound_iff (j n : ℕ) (hj : 0 < j) :
     let q := num_odd_steps j n
     E j n = R q ↔
@@ -235,6 +252,7 @@ theorem E_upper_bound_iff (j n : ℕ) (hj : 0 < j) :
 
 /-- The lower bound in Theorem 2.2 is reached iff `V_j(n) = ⟨1^q 0^{j-q}⟩`,
     i.e. `n ≡ (2/3)^q - 1 (mod 2^j)`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_lemma_22"]
 theorem E_lower_bound_iff (j n : ℕ) (hj : 0 < j) :
     let q := num_odd_steps j n
     E j n = L j q ↔
@@ -325,3 +343,5 @@ theorem E_lower_bound_iff (j n : ℕ) (hj : 0 < j) :
             List.append_cancel_right hV
           have hEq := hih.mpr (by rw [hqeqj]; simp; exact hVj)
           rw [E_succ, hX, hEq, L_succ_odd, hqeqj]; norm_num; ring
+
+end RT
