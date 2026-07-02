@@ -1,8 +1,8 @@
 import AB.StammeringSequences
 import AB.SubspaceTheoremE
-import AS.Basic
 import BL.ConjugacyMap
 import BL.ForwardFormula
+import CITED.AlloucheShallitBasic
 import ForMathlib.NumberTheory.RatPadicFinitePlace
 import L90.DivergentAperiodic
 import Mathlib.Analysis.SpecialFunctions.Log.Basic

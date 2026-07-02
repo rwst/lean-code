@@ -1,0 +1,16 @@
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.Set.Finite.Basic
+
+def kKernel (k : ℕ) (a : ℕ → ℕ) : Set (ℕ → ℕ) :=
+  {s | ∃ i r, r < k ^ i ∧ s = fun n => a (k ^ i * n + r)}
+
+def IsAutomatic (a : ℕ → ℕ) : Prop :=
+  ∃ k, 2 ≤ k ∧ (kKernel k a).Finite
+
+noncomputable def logForm (u₀ u₁ u₂ : ℤ) : ℝ :=
+  (u₀ : ℝ) + (u₁ : ℝ) * Real.log 2 + (u₂ : ℝ) * Real.log 3
+
+def logHeight (u₁ u₂ : ℤ) : ℤ := max |u₁| |u₂|
+
+axiom logForm_lower_bound (u₀ u₁ u₂ : ℤ) (hH : 2 ≤ logHeight u₁ u₂) :
+    (logHeight u₁ u₂ : ℝ) ^ (-(13.3 : ℝ)) ≤ |logForm u₀ u₁ u₂|

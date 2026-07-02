@@ -42,8 +42,8 @@ lean_lib SRS where
 lean_lib CC where
   globs := #[.submodules `CC]
 
-lean_lib AS where
-  globs := #[.submodules `AS]
+lean_lib CITED where
+  globs := #[.submodules `CITED]
 
 lean_lib AB where
   globs := #[.submodules `AB]

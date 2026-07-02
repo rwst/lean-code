@@ -1,0 +1,64 @@
+import CITED.AlloucheShallitBasic
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
+import Mathlib.Algebra.Order.Floor.Defs
+import Mathlib.LinearAlgebra.Dual.Defs
+import Mathlib.NumberTheory.Height.NumberField
+import Mathlib.NumberTheory.Padics.PadicNumbers
+import Mathlib.NumberTheory.Real.Irrational
+import Mathlib.RingTheory.Algebraic.Basic
+import Mathlib.Topology.Algebra.InfiniteSum.Basic
+
+noncomputable def baseValue (b : ℕ) (a : ℕ → ℕ) : ℝ :=
+  ∑' n, (a n : ℝ) / (b : ℝ) ^ (n + 1)
+
+axiom irrational_automatic_transcendental
+    (b : ℕ) (hb : 2 ≤ b) (a : ℕ → ℕ) (ha : ∀ n, a n < b)
+    (hauto : IsAutomatic a) (hirr : Irrational (baseValue b a)) :
+    Transcendental ℚ (baseValue b a)
+
+noncomputable def henselValue (m : ℕ) (a : ℕ → ℕ) : Padic p :=
+  ∑' n, (a n : Padic p) * (p : Padic p) ^ ((n : ℤ) - m)
+
+def PadicIrrational (α : Padic p) : Prop := α ∉ Set.range ((↑) : ℚ → Padic p)
+
+axiom irrational_automatic_padic_transcendental
+    (m : ℕ) (a : ℕ → ℕ) (ha : ∀ n, a n < p)
+    (hauto : IsAutomatic a) (hirr : PadicIrrational p (henselValue p m a)) :
+    Transcendental ℚ (henselValue p m a)
+
+def IsEventuallyPeriodic (a : ℕ → ℕ) : Prop :=
+  ∃ N p : ℕ, 0 < p ∧ ∀ k, N ≤ k → a (k + p) = a k
+
+def ConditionStar (w : ℝ) (a : ℕ → ℕ) : Prop :=
+  ¬ IsEventuallyPeriodic a ∧
+  ∃ r s : ℕ → ℕ,
+    (∀ n, 0 < s n) ∧
+    (∀ n i, r n + s n ≤ i → i < r n + ⌊w * (s n : ℝ)⌋₊ → a i = a (i - s n)) ∧
+    (∃ C : ℝ, ∀ n, (r n : ℝ) ≤ C * (s n : ℝ)) ∧
+    StrictMono s
+
+def IsStammering (a : ℕ → ℕ) : Prop := ∃ w : ℝ, 1 < w ∧ ConditionStar w a
+
+axiom isStammering_of_automatic (a : ℕ → ℕ) (hauto : IsAutomatic a)
+    (hnep : ¬ IsEventuallyPeriodic a) : IsStammering a
+
+axiom transcendental_of_conditionStar (p : ℕ) [Fact p.Prime] (m : ℕ) (a : ℕ → ℕ)
+    (ha : ∀ k, a k < p) (w : ℝ) (hw : 1 < w) (hcond : ConditionStar w a) :
+    Transcendental ℚ (henselValue p m a)
+
+theorem transcendental_of_isStammering (p : ℕ) [Fact p.Prime] (m : ℕ) (a : ℕ → ℕ)
+    (ha : ∀ k, a k < p) (hstam : IsStammering a) :
+    Transcendental ℚ (henselValue p m a)
+
+axiom subspace_theorem_E (K : Type*) [Field K] [NumberField K] (m : ℕ) (hm : 2 ≤ m)
+    (S : Finset (AbsoluteValue K ℝ))
+    (hS_inf : ∀ v ∈ archAbsVal (K := K), v ∈ S)
+    (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := K) ∨ v ∈ nonarchAbsVal (K := K))
+    (L : AbsoluteValue K ℝ → Fin m → Module.Dual K (Fin m → K))
+    (hL : ∀ v ∈ S, LinearIndependent K (L v))
+    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) :
+    ∃ W : Finset (Submodule K (Fin m → K)), (∀ U ∈ W, U ≠ ⊤) ∧
+      ∀ x : Fin m → K, x ≠ 0 →
+        (∏ v ∈ S, ∏ i : Fin m, v ((L v i) x) / (⨆ j, v (x j))) ≤
+          Height.mulHeight x ^ (-(m : ℝ) - ε) →
+        ∃ U ∈ W, x ∈ U

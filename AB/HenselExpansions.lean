@@ -3,7 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import AS.Basic
+import CITED.AlloucheShallitBasic
 import Mathlib.NumberTheory.Padics.PadicNumbers
 import Mathlib.RingTheory.Algebraic.Basic
 import Mathlib.Topology.Algebra.InfiniteSum.Basic

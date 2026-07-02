@@ -6,7 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.RingTheory.Algebraic.Basic
 import Mathlib.Topology.Algebra.InfiniteSum.Basic
-import AS.Basic
+import CITED.AlloucheShallitBasic
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 

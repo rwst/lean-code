@@ -3,7 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import AS.Basic
+import CITED.AlloucheShallitBasic
 import Mathlib.Algebra.Order.Floor.Defs
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Corpus.Util.Attributes.Basic
