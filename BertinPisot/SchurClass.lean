@@ -8,6 +8,7 @@ import Mathlib.Analysis.Analytic.OfScalars
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.PosDef
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import ForMathlib.Analysis.Complex.TaylorSeries
 import BertinPisot.SchurAlgorithm
 import BertinPisot.CompactFamily
 import Corpus.Util.Attributes.Database
@@ -142,15 +143,11 @@ axiom isTaylorSeriesOfSchurClass_iff (F : PowerSeries ℂ) :
 
 /-! ### Notation — Schur data of an analytic function; indefinite rank
 
-Bertin extends the Schur matrices/determinants from a power series to an analytic function `f` near `0`
-through its Taylor series, and names the non-terminating case of Theorem 3.2.1. -/
-
-/-- The **Taylor series** `F` of `f` at `0`, `F = ∑ₙ (f⁽ⁿ⁾(0) / n!) zⁿ`. For analytic `f` it is the
-power-series expansion of `f`; Bertin's Schur matrices/determinants of `f` are those of `F`
-(`Fₙ`, `F*ₙ`, `δₙ(f) := δₙ(F) = schurDelta (taylorSeries f) n`). -/
-@[category API, AMS 30, ref "Ber92"]
-noncomputable def taylorSeries (f : ℂ → ℂ) : PowerSeries ℂ :=
-  PowerSeries.mk fun n => iteratedDeriv n f 0 / (n.factorial : ℂ)
+Bertin extends the Schur matrices/determinants from a power series to an analytic function `f` near
+`0` through its **Taylor series** `F = Complex.taylorSeries f = ∑ₙ (f⁽ⁿ⁾(0) / n!) zⁿ` (imported from
+`ForMathlib.Analysis.Complex.TaylorSeries`; for analytic `f` it is the power-series expansion of `f`,
+so Bertin's Schur data of `f` are those of `F`: `Fₙ`, `F*ₙ`, `δₙ(f) := δₙ(F) = schurDelta (taylorSeries f) n`),
+and names the non-terminating case of Theorem 3.2.1. -/
 
 /-- **Notation** (Bertin): `f` has **indefinite rank** when its Schur determinants
 `δₙ(f) = schurDelta (taylorSeries f) n` do **not** eventually all vanish — there is no `N` with

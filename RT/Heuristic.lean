@@ -4,32 +4,47 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import RT.FinitePar
+import RT.CRozLemma22
+import CITED.RhinLogForm
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
 /-!
-# §6 heuristic analysis (Step 5): conditional finiteness
+# §6 heuristic analysis (Step 5): finiteness of paradoxical sequences
 
-This file formalizes the algebraic heart of [Roz25] §6 — the chain of inequalities (19)–(21) that,
-assuming Conjecture 6.2, constrain the paradoxical sequences.  Following the plan, the two
-conjectures 6.1 and 6.2 are recorded as **`Prop` definitions** (hypotheses / documentation), never
-asserted as facts, and the heuristic is a theorem *conditional* on Conjecture 6.2.  The harmonic
-mean is eliminated throughout: everything runs on the smallest term via Corollary 4.3′.
+This file formalizes [Roz25] §6 — the chain of inequalities (19)–(21) that, assuming Conjecture 6.2,
+constrain the paradoxical sequences, and their combination with Rhin's linear-forms-in-logarithms
+bound (Proposition 6.3) to force the excursion length `j` to be **bounded** (the §6 finiteness
+conclusion).  The harmonic mean is eliminated throughout: everything runs on the smallest odd term
+via Corollary 4.3′.
 
 * `heuristic_19` — the **unconditional** inequality (19): from Corollary 4.3′,
   `0 < j/q − log3/log2 < 1/(3 m log 2)` for any lower bound `m ≥ 1` on the odd terms.
-* `Conjecture61`, `Conjecture62` — the two conjectures as `Prop`s.
-* `heuristic_chain` — assuming `Conjecture62 α β`, every paradoxical `Ωⱼ(n)` (`n > 2`) satisfies
-  the §6 inequality (21): `0 < j log2 − q log3 < (q/3)·exp(−j/(αβ))`.
-
-The finiteness conclusion of §6 combines (21) with Rhin's linear-forms-in-logarithms bound
-(Prop 6.3, `|j log2 − q log3| ≥ j^{-13.3}`), a cited transcendence result that the paper leaves
-external; per the plan that final step is not reformalized here.
+* `Conjecture62` — the effective-bound predicate of §6 (delay bound (15) + excursion bound (16)).
+* `conjecture_61`, `conjecture_62` — Conjectures 6.1 and 6.2, recorded as **`research open`
+  theorems with `sorry`** (never asserted as established facts); `conjecture_62` asserts that
+  effective constants `α, β` exist, i.e. `∃ α β, Conjecture62 α β`.
+* `heuristic_chain` — assuming `Conjecture62 α β`, every paradoxical `Ωⱼ(n)` (`n > 2`) satisfies the
+  §6 inequality (21): `0 < j log2 − q log3 < (q/3)·exp(−j/(αβ))`.
+* `paradoxical_length_bounded_of_conjecture_62` — the **§6 finiteness argument**, a pure implication
+  from `conjecture_62`'s statement: combining (21) with Rhin's Proposition 6.3 (`CITED.RhinLogForm`,
+  `Rhin.logForm_lower_bound`, `|j log2 − q log3| ≥ j^{-13.3}`), `∃ α β, Conjecture62 α β` implies the
+  excursion length `j` of a paradoxical `Ωⱼ(n)` (`n > 2`) is bounded by a constant.  Sorry-free —
+  rests only on Rhin's cited bound (an exp-versus-power crossover discharges the boundedness).
+* `paradoxical_start_le` — a paradoxical `Ωⱼ(n)` (`n > 2`) has starting value `n ≤ 2^j · 3^j`.
+* `finite_paradoxical_of_length` — for each **fixed** length `j`, only finitely many paradoxical
+  `Ωⱼ(n)` (`n > 2`).
+* `finitely_many_paradoxical_of_paradoxical_length_bounded` — if the length is bounded (the conclusion
+  of `paradoxical_length_bounded_of_conjecture_62`), the set of paradoxical sequences (`n > 2`) is
+  finite.  Chaining the two implications through `conjecture_62` yields finiteness outright,
+  contingent only on that open conjecture.
 
 ## References
 * [Roz25] Rozier, Olivier, and Claude Terracol. "Paradoxical behavior in Collatz sequences."
-  arXiv preprint arXiv:2502.00948 (2025). §6, eqs (15)–(21), Conjectures 6.1, 6.2.
-* [Rhi87] G. Rhin, effective irrationality measure (Prop 6.3).
+  arXiv preprint arXiv:2502.00948 (2025). §6, eqs (15)–(21), Conjectures 6.1, 6.2, Proposition 6.3.
+* [Rhi87] G. Rhin, effective irrationality measure for `u₀ + u₁ log 2 + u₂ log 3` (Proposition 6.3),
+  formalized in `CITED.RhinLogForm`.
 -/
 
 open Classical
@@ -80,26 +95,35 @@ theorem heuristic_19 (j q m : ℕ) (hj : 0 < j) (hq : 0 < q) (hm : 1 ≤ m)
       _ < (1 / (3 * (m : ℝ))) / Real.log 2 := by gcongr
       _ = 1 / (3 * (m : ℝ) * Real.log 2) := by rw [div_div]
 
-/-! ### The conjectures (Props; never asserted) -/
+/-! ### The conjectures (open; recorded as `sorry`ed theorems, never asserted) -/
 
 /-- The T-delay `d_T(n)`: the least `i` with `Tⁱ(n) = 1` (`0` if none). -/
 @[category API, AMS 11 37, ref "Roz25", group "roz_heuristic"]
 noncomputable def dT (n : ℕ) : ℕ := if h : ∃ i, T_iter i n = 1 then Nat.find h else 0
 
 /-- **Conjecture 6.1** (Rozier–Terracol): there is no paradoxical sequence for `T` whose first term
-exceeds `4614`. An open conjecture — recorded as a `Prop`, never asserted. Stronger than both the
-Collatz and CST conjectures (Corollary 3.3). -/
-@[category API, AMS 11 37, ref "Roz25", group "roz_heuristic"]
-def Conjecture61 : Prop := ∀ j n : ℕ, IsParadoxical j n → n ≤ 4614
+exceeds `4614`. An **open** conjecture (stronger than both the Collatz and CST conjectures,
+Corollary 3.3) — recorded as a `research open` theorem with `sorry`, not established here. -/
+@[category research open, AMS 11 37, ref "Roz25", group "roz_heuristic"]
+theorem conjecture_61 : ∀ j n : ℕ, IsParadoxical j n → n ≤ 4614 := by
+  sorry
 
-/-- **Conjecture 6.2** (Rozier–Terracol), in the effective form used in §6: a delay bound (15),
-`d_T(n) ≤ α log n`, together with the derived maximal-excursion bound (16), `M_T(n) ≤ n^β`
-(phrased as `Tᵏ(n) ≤ n^β` for every `k`). An open hypothesis — recorded as a `Prop`. -/
+/-- The effective-bound predicate of §6: for constants `α, β > 0`, a delay bound (15)
+`d_T(n) ≤ α log n` (and every `n ≥ 2` reaches `1`), together with the derived maximal-excursion
+bound (16) `M_T(n) ≤ n^β` (phrased as `Tᵏ(n) ≤ n^β` for every `k`). This is the content of
+Conjecture 6.2 for a *given* pair of constants; `conjecture_62` asserts such constants exist. -/
 @[category API, AMS 11 37, ref "Roz25", group "roz_heuristic"]
 def Conjecture62 (α β : ℝ) : Prop :=
   0 < α ∧ 0 < β ∧
   (∀ n : ℕ, 2 ≤ n → (∃ i, T_iter i n = 1) ∧ (dT n : ℝ) ≤ α * Real.log n) ∧
   (∀ n : ℕ, 2 ≤ n → ∀ k, (T_iter k n : ℝ) ≤ (n : ℝ) ^ β)
+
+/-- **Conjecture 6.2** (Rozier–Terracol): there exist effective constants `α, β > 0` for which the
+delay bound (15) and maximal-excursion bound (16) hold. An **open** hypothesis — recorded as a
+`research open` theorem with `sorry`, not established here. -/
+@[category research open, AMS 11 37, ref "Roz25", group "roz_heuristic"]
+theorem conjecture_62 : ∃ α β : ℝ, Conjecture62 α β := by
+  sorry
 
 /-! ### The conditional heuristic -/
 
@@ -108,9 +132,9 @@ def Conjecture62 (α β : ℝ) : Prop :=
 
   `0 < j·log 2 − q·log 3 < (q/3)·exp(−j/(αβ))`.
 
-Combined with Rhin's Proposition 6.3 (external), the right-hand side forces `j` to be bounded,
-supporting Conjecture 6.1 (finiteness of paradoxical sequences). Proved on the min-term layer via
-`heuristic_19`; the harmonic mean is never used. -/
+Combined with Rhin's Proposition 6.3 (`paradoxical_length_bounded_of_conjecture_62`), the right-hand
+side forces `j` to be bounded, supporting Conjecture 6.1 (finiteness of paradoxical sequences).
+Proved on the min-term layer via `heuristic_19`; the harmonic mean is never used. -/
 @[category research solved, AMS 11 37, ref "Roz25", group "roz_heuristic"]
 theorem heuristic_chain (α β : ℝ) (hConj : Conjecture62 α β) (j n : ℕ)
     (h_para : IsParadoxical j n) (hn : 2 < n) :
@@ -218,5 +242,172 @@ theorem heuristic_chain (α β : ℝ) (hConj : Conjecture62 α β) (j n : ℕ)
           field_simp
       _ < (num_odd_steps j n : ℝ) / 3 * Real.exp (-(j : ℝ) / (α * β)) :=
           mul_lt_mul_of_pos_left hexp_lt (by positivity)
+
+/-! ### §6 finiteness: (21) + Rhin's Proposition 6.3 bound the excursion length -/
+
+/-- **§6 finiteness argument** ([Roz25], §6), as a pure implication from Conjecture 6.2. Given
+`h : ∃ α β, Conjecture62 α β` (the statement of `conjecture_62`), the excursion length `j` of every
+paradoxical `Ωⱼ(n)` with `n > 2` is bounded by a single constant, so there are only finitely many
+possible lengths.
+
+The mechanism is [Roz25]'s: inequality (21) (`heuristic_chain`) gives
+`Λ := j·log 2 − q·log 3 < (q/3)·exp(−j/(αβ)) ≤ (j/3)·exp(−j/(αβ))` (using `q ≤ j`), while Rhin's
+Proposition 6.3 (`Rhin.logForm_lower_bound`, with `(u₀,u₁,u₂) = (0, j, −q)`, whence
+`H = max(j,q) = j`) gives `j^(−13.3) ≤ Λ`. Chaining, `3 < j^(14.3)·exp(−j/(αβ))`, which the
+exp-versus-power crossover `tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero` refutes for large `j`.
+No `sorry`: rests only on Rhin's cited bound. Discharge the hypothesis with the open `conjecture_62`. -/
+@[category research solved, AMS 11 37, ref "Roz25" "Rhi87", group "roz_heuristic"]
+theorem paradoxical_length_bounded_of_conjecture_62
+    (h : ∃ α β : ℝ, Conjecture62 α β) :
+    ∃ J : ℕ, ∀ j n : ℕ, IsParadoxical j n → 2 < n → j ≤ J := by
+  obtain ⟨α, β, hConj⟩ := h
+  have hα : 0 < α := hConj.1
+  have hβ : 0 < β := hConj.2.1
+  have hb : (0 : ℝ) < 1 / (α * β) := by positivity
+  -- `exp` outgrows the `14.3`-power: eventually `x^14.3 · exp(−x/(αβ)) < 3`.
+  have htend := tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero 14.3 (1 / (α * β)) hb
+  have hev := htend.eventually_lt_const (show (0 : ℝ) < 3 by norm_num)
+  obtain ⟨M, hM⟩ := Filter.eventually_atTop.mp hev
+  refine ⟨⌈M⌉₊, ?_⟩
+  intro j n h_para hn
+  by_contra hjJ
+  push Not at hjJ
+  -- basic facts about this paradoxical window
+  have hn1 : 1 ≤ n := by omega
+  have hj2 : 2 ≤ j := two_le_j_of_paradoxical j n h_para hn1
+  have hj0 : (0 : ℝ) < (j : ℝ) := by positivity
+  -- inequality (21)
+  have hchain := heuristic_chain α β hConj j n h_para hn
+  have hE_pos : (0 : ℝ) < Real.exp (-(j : ℝ) / (α * β)) := Real.exp_pos _
+  have hqj_le : (num_odd_steps j n : ℝ) ≤ (j : ℝ) := by exact_mod_cast num_odd_steps_le j n
+  have hΛ_ub : (j : ℝ) * Real.log 2 - (num_odd_steps j n : ℝ) * Real.log 3
+      < (j : ℝ) / 3 * Real.exp (-(j : ℝ) / (α * β)) := by
+    refine lt_of_lt_of_le hchain.2 ?_
+    refine mul_le_mul_of_nonneg_right ?_ (le_of_lt hE_pos)
+    linarith [hqj_le]
+  -- Rhin Prop 6.3 with `(u₀,u₁,u₂) = (0, j, −q)`: `H = max j q = j` and `|Λ| = Λ`.
+  have hqj_int : (num_odd_steps j n : ℤ) ≤ (j : ℤ) := by exact_mod_cast num_odd_steps_le j n
+  have hH_eq : Rhin.logHeight (j : ℤ) (-(num_odd_steps j n : ℤ)) = (j : ℤ) := by
+    simp only [Rhin.logHeight, abs_neg,
+      abs_of_nonneg (show (0 : ℤ) ≤ (j : ℤ) by positivity),
+      abs_of_nonneg (show (0 : ℤ) ≤ (num_odd_steps j n : ℤ) by positivity)]
+    exact max_eq_left hqj_int
+  have hH2 : (2 : ℤ) ≤ Rhin.logHeight (j : ℤ) (-(num_odd_steps j n : ℤ)) := by
+    rw [hH_eq]; exact_mod_cast hj2
+  have hrhin := Rhin.logForm_lower_bound 0 (j : ℤ) (-(num_odd_steps j n : ℤ)) hH2
+  rw [hH_eq] at hrhin
+  have hform : Rhin.logForm 0 (j : ℤ) (-(num_odd_steps j n : ℤ))
+      = (j : ℝ) * Real.log 2 - (num_odd_steps j n : ℝ) * Real.log 3 := by
+    simp only [Rhin.logForm]; push_cast; ring
+  rw [hform, abs_of_pos hchain.1] at hrhin
+  push_cast at hrhin
+  -- `j^(−13.3) < (j/3)·E`
+  have hRC : (j : ℝ) ^ (-(13.3 : ℝ)) < (j : ℝ) / 3 * Real.exp (-(j : ℝ) / (α * β)) :=
+    lt_of_le_of_lt hrhin hΛ_ub
+  -- rearrange to `3 < j^(14.3)·E`
+  have hP : (0 : ℝ) < (j : ℝ) ^ (13.3 : ℝ) := Real.rpow_pos_of_pos hj0 _
+  have e1 : (j : ℝ) ^ (-(13.3 : ℝ)) * (j : ℝ) ^ (13.3 : ℝ) = 1 := by
+    rw [← Real.rpow_add hj0, show (-(13.3 : ℝ) + 13.3) = 0 by norm_num, Real.rpow_zero]
+  have e2 : (j : ℝ) ^ (14.3 : ℝ) = (j : ℝ) ^ (13.3 : ℝ) * (j : ℝ) := by
+    rw [show (14.3 : ℝ) = 13.3 + 1 by norm_num, Real.rpow_add hj0, Real.rpow_one]
+  have key : (3 : ℝ) < (j : ℝ) ^ (14.3 : ℝ) * Real.exp (-(j : ℝ) / (α * β)) := by
+    have hm := mul_lt_mul_of_pos_right hRC hP
+    rw [e1] at hm
+    rw [show ((j : ℝ) / 3 * Real.exp (-(j : ℝ) / (α * β))) * (j : ℝ) ^ (13.3 : ℝ)
+          = (j : ℝ) ^ (14.3 : ℝ) * Real.exp (-(j : ℝ) / (α * β)) / 3 by rw [e2]; ring] at hm
+    linarith
+  -- contradiction with the crossover at `x = j`
+  have hjM : M ≤ (j : ℝ) :=
+    le_of_lt (lt_of_le_of_lt (Nat.le_ceil M) (by exact_mod_cast hjJ))
+  have hcross : (j : ℝ) ^ (14.3 : ℝ) * Real.exp (-(1 / (α * β)) * (j : ℝ)) < 3 := hM (j : ℝ) hjM
+  rw [show -(1 / (α * β)) * (j : ℝ) = -(j : ℝ) / (α * β) by ring] at hcross
+  linarith [key, hcross]
+
+/-! ### Finiteness of the set of paradoxical sequences -/
+
+/-- For a paradoxical `Ωⱼ(n)` with `n > 2` the starting value is bounded in terms of the length:
+`n ≤ 2^j · 3^j`.  Indeed `T_iter j n = C_j(n)·n + E_j(n)` (`linear_decomposition'`) with
+`T_iter j n ≥ n`, so `n·(1 − C_j(n)) ≤ E_j(n) ≤ R(q) ≤ 3^q ≤ 3^j` (Theorem 2.2, `q ≤ j`), while
+`C_j(n) = 3^q/2^j < 1` forces `2^j − 3^q ≥ 1`, i.e. `1 − C_j(n) ≥ 2^{-j}`; combining pins `n`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_heuristic"]
+theorem paradoxical_start_le (j n : ℕ) (h : IsParadoxical j n) (hn : 2 < n) :
+    n ≤ 2 ^ j * 3 ^ j := by
+  have hn0 : 0 < n := by omega
+  have hj : 0 < j := by have := two_le_j_of_paradoxical j n h (by omega); omega
+  have hnQ : (0 : ℚ) < n := by exact_mod_cast hn0
+  have h2j : (0 : ℚ) < 2 ^ j := by positivity
+  have hqj : num_odd_steps j n ≤ j := num_odd_steps_le j n
+  -- paradoxical ⟹ `1 − C ≤ E/n`; Theorem 2.2 ⟹ `E ≤ R q`
+  have hb := (isParadoxical_bound hn0 h).2
+  have hEub : E j n ≤ R (num_odd_steps j n) := (E_bounds j n hj).2
+  -- `n·(1 − C) ≤ R q`
+  have hnC : (n : ℚ) * (1 - C j n) ≤ R (num_odd_steps j n) := by
+    rw [le_div_iff₀ hnQ] at hb
+    nlinarith [hEub]
+  -- `3^q < 2^j`, hence `3^q + 1 ≤ 2^j`
+  have h3q : (3 : ℚ) ^ num_odd_steps j n < 2 ^ j := by
+    have hC := h.2; rw [C, div_lt_one h2j] at hC; exact hC
+  have h3qn : (3 : ℚ) ^ num_odd_steps j n + 1 ≤ 2 ^ j := by
+    have hnat : (3 : ℕ) ^ num_odd_steps j n < 2 ^ j := by exact_mod_cast h3q
+    calc (3 : ℚ) ^ num_odd_steps j n + 1 = ((3 ^ num_odd_steps j n + 1 : ℕ) : ℚ) := by push_cast; ring
+      _ ≤ ((2 ^ j : ℕ) : ℚ) := by exact_mod_cast hnat
+      _ = 2 ^ j := by push_cast; ring
+  -- `1/2^j ≤ 1 − C`
+  have hge1 : (1 : ℚ) / 2 ^ j ≤ 1 - C j n := by
+    rw [C, le_sub_iff_add_le, ← add_div, div_le_one h2j]; linarith [h3qn]
+  -- `n ≤ R q · 2^j`
+  have hnR : (n : ℚ) ≤ R (num_odd_steps j n) * 2 ^ j := by
+    have hstep : (n : ℚ) * (1 / 2 ^ j) ≤ R (num_odd_steps j n) :=
+      le_trans (mul_le_mul_of_nonneg_left hge1 (le_of_lt hnQ)) hnC
+    rw [mul_one_div, div_le_iff₀ h2j] at hstep
+    exact hstep
+  -- `R q ≤ 3^q ≤ 3^j`
+  have hRq : R (num_odd_steps j n) ≤ 3 ^ num_odd_steps j n := by
+    rw [R, div_le_iff₀ (by positivity : (0 : ℚ) < 2 ^ num_odd_steps j n)]
+    have h1 : (1 : ℚ) ≤ 2 ^ num_odd_steps j n := one_le_pow₀ (by norm_num)
+    have h3 : (0 : ℚ) < 3 ^ num_odd_steps j n := by positivity
+    nlinarith [mul_nonneg (le_of_lt h3) (show (0 : ℚ) ≤ 2 ^ num_odd_steps j n - 1 by linarith), h1]
+  have h3j : (3 : ℚ) ^ num_odd_steps j n ≤ 3 ^ j := pow_le_pow_right₀ (by norm_num) hqj
+  -- assemble and drop to `ℕ`
+  have hfin : (n : ℚ) ≤ 2 ^ j * 3 ^ j :=
+    calc (n : ℚ) ≤ R (num_odd_steps j n) * 2 ^ j := hnR
+      _ ≤ 3 ^ j * 2 ^ j := by
+          apply mul_le_mul_of_nonneg_right (le_trans hRq h3j) (le_of_lt h2j)
+      _ = 2 ^ j * 3 ^ j := by ring
+  exact_mod_cast hfin
+
+/-- **Finitely many paradoxical sequences of a given length.** For each fixed length `j`, only
+finitely many `n > 2` yield a paradoxical `Ωⱼ(n)` — their starting values are all `≤ 2^j · 3^j`
+(`paradoxical_start_le`). -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_heuristic"]
+theorem finite_paradoxical_of_length (j : ℕ) :
+    {n : ℕ | IsParadoxical j n ∧ 2 < n}.Finite := by
+  apply Set.Finite.subset (Set.finite_Iic (2 ^ j * 3 ^ j))
+  intro n hn
+  exact paradoxical_start_le j n hn.1 hn.2
+
+/-- **Bounded length ⟹ finitely many paradoxical sequences.** If the excursion length `j` of every
+paradoxical `Ωⱼ(n)` with `n > 2` is bounded by a single constant (the conclusion of
+`paradoxical_length_bounded_of_conjecture_62`), then there are only finitely many such paradoxical
+sequences (pairs `(j, n)`): there are finitely many admissible lengths, and for each the starting
+value is bounded by `paradoxical_start_le`. A pure implication — no `sorry`.
+
+Chaining the two implications, `finitely_many_paradoxical_of_paradoxical_length_bounded
+(paradoxical_length_bounded_of_conjecture_62 conjecture_62)` gives the finiteness of the paradoxical
+set outright, contingent (only) on the open `conjecture_62`. -/
+@[category research solved, AMS 11 37, ref "Roz25", group "roz_heuristic"]
+theorem finitely_many_paradoxical_of_paradoxical_length_bounded
+    (h : ∃ J : ℕ, ∀ j n : ℕ, IsParadoxical j n → 2 < n → j ≤ J) :
+    {p : ℕ × ℕ | IsParadoxical p.1 p.2 ∧ 2 < p.2}.Finite := by
+  obtain ⟨J, hJ⟩ := h
+  apply Set.Finite.subset (Set.finite_Icc ((0, 0) : ℕ × ℕ) (J, 2 ^ J * 3 ^ J))
+  rintro ⟨j, n⟩ ⟨hpar, hn⟩
+  have hjJ : j ≤ J := hJ j n hpar hn
+  have hnB : n ≤ 2 ^ J * 3 ^ J :=
+    le_trans (paradoxical_start_le j n hpar hn)
+      (Nat.mul_le_mul (Nat.pow_le_pow_right (by norm_num) hjJ)
+        (Nat.pow_le_pow_right (by norm_num) hjJ))
+  simp only [Set.mem_Icc, Prod.mk_le_mk]
+  exact ⟨⟨Nat.zero_le _, Nat.zero_le _⟩, hjJ, hnB⟩
 
 end RT
