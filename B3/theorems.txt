@@ -3,7 +3,6 @@ import AB.SubspaceTheoremE
 import BL.ConjugacyMap
 import BL.ForwardFormula
 import CITED.AlloucheShallitBasic
-import ForMathlib.NumberTheory.RatPadicFinitePlace
 import L90.DivergentAperiodic
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -17,6 +16,7 @@ import Mathlib.NumberTheory.Ostrowski
 import Mathlib.NumberTheory.Padics.PadicIntegers
 import Mathlib.NumberTheory.Padics.PadicNorm
 import Mathlib.NumberTheory.Padics.PadicNumbers
+import Mathlib.NumberTheory.Padics.PadicVal.Basic
 import Mathlib.NumberTheory.Padics.WithVal
 
 instance : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
@@ -487,34 +487,6 @@ theorem conditionStar_hover (vinf : AbsoluteValue ℚ ℝ) (hne : vinf ≠ Rat.A
           ∏ i, v' (phiForms (n : ℤ) v' i (placePoint (D m : ℚ) (P m : ℚ))) /
             (⨆ j, v' (placePoint (D m : ℚ) (P m : ℚ) j))) ≤ (2 : ℝ) ^ (-(N m : ℤ))
 
-theorem mulHeight_placePoint (D P : ℤ) :
-    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) = ((⨆ i, |(![D, -1, P] : Fin 3 → ℤ) i| : ℤ) : ℝ)
-
-theorem mulHeight_placePoint_le (D P : ℤ) {B : ℝ} (h1 : 1 ≤ B)
-    (hD : |(D : ℝ)| ≤ B) (hP : |(P : ℝ)| ≤ B) :
-    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) ≤ B
-
-theorem mulHeight_placePoint_pos (D P : ℤ) :
-    0 < Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
-
-theorem sup_vinf_placePoint_eq_mulHeight (D P : ℤ) (vinf : AbsoluteValue ℚ ℝ)
-    (hvinf : ∀ q : ℚ, vinf q = ((|q| : ℚ) : ℝ)) :
-    (⨆ j, vinf (placePoint (D : ℚ) (P : ℚ) j)) = Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
-
-def phiExp (D P : ℕ → ℤ) : ℕ → ℕ :=
-  fun k => Nat.clog 3 (max (D k).natAbs (max (P k).natAbs 1))
-
-axiom phiPoints_index (n : ℕ) (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) :
-    IndexConditionExpFreq 2 (phiExp D P) N ε
-
-theorem phiPoints_rate_pointwise (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) (hε : 0 < ε) (k : ℕ)
-    (hidx : (2 + ε) * (phiExp D P k : ℝ) * Real.log 3 ≤ (N k : ℝ) * Real.log 2) :
-    (2 : ℝ) ^ (-(N k : ℝ)) ≤ Height.mulHeight (placePoint (D k : ℚ) (P k : ℚ)) ^ (-(2 : ℝ) - ε)
-
-theorem phiPoints_rate (n : ℕ) (D P : ℕ → ℤ) (N : ℕ → ℕ) (ε : ℝ) (hε : 0 < ε) :
-    ∃ᶠ k in atTop, (2 : ℝ) ^ (-(N k : ℝ)) ≤
-      Height.mulHeight (placePoint (D k : ℚ) (P k : ℚ)) ^ (-(2 : ℝ) - ε)
-
 noncomputable def repForms (n : ℤ) : Fin 3 → Module.Dual ℚ (Fin 3 → ℚ) :=
   ![LinearMap.proj 0, LinearMap.proj 1,
     (n : ℚ) • LinearMap.proj 0 + (n : ℚ) • LinearMap.proj 1 + LinearMap.proj 2]
@@ -628,32 +600,39 @@ theorem subspace_contradiction_of_rate_sharp_frequently {m : ℕ} (hm : 2 ≤ m)
     (hncf : ¬ Confinable x) :
     False
 
+theorem mulHeight_placePoint (D P : ℤ) :
+    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) = ((⨆ i, |(![D, -1, P] : Fin 3 → ℤ) i| : ℤ) : ℝ)
+
+theorem mulHeight_placePoint_le (D P : ℤ) {B : ℝ} (h1 : 1 ≤ B)
+    (hD : |(D : ℝ)| ≤ B) (hP : |(P : ℝ)| ≤ B) :
+    Height.mulHeight (placePoint (D : ℚ) (P : ℚ)) ≤ B
+
+theorem mulHeight_placePoint_pos (D P : ℤ) :
+    0 < Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
+
+theorem sup_vinf_placePoint_eq_mulHeight (D P : ℤ) (vinf : AbsoluteValue ℚ ℝ)
+    (hvinf : ∀ q : ℚ, vinf q = ((|q| : ℚ) : ℝ)) :
+    (⨆ j, vinf (placePoint (D : ℚ) (P : ℚ) j)) = Height.mulHeight (placePoint (D : ℚ) (P : ℚ))
+
+def phiExp (D P : ℕ → ℤ) : ℕ → ℕ :=
+  fun k => Nat.clog 3 (max (D k).natAbs (max (P k).natAbs 1))
+
+theorem ratInt_liouville_two_adic (n : ℕ) (D P : ℤ) (hDodd : Odd D) (hDpos : 1 ≤ D)
+    (q : ℚ) (hq : (D : ℚ) * q = -(P : ℚ)) (hqn : q ≠ (n : ℚ)) :
+    (((n : ℝ) + 1) * Height.mulHeight (placePoint (D : ℚ) (P : ℚ)))⁻¹ ≤
+      Rat.AbsoluteValue.padic 2 ((n : ℚ) - q)
+
+theorem not_indexCondition_of_bounds (n : ℕ) (D P : ℕ → ℤ) (N : ℕ → ℕ) (q : ℕ → ℚ)
+    (τ ε : ℝ) (hτ : 1 < τ) (hε : 0 < ε)
+    (hDodd : ∀ m, Odd (D m)) (hDpos : ∀ m, 1 ≤ D m)
+    (hrel : ∀ m, (D m : ℚ) * q m = -(P m : ℚ))
+    (hbound : ∀ m, Rat.AbsoluteValue.padic 2 ((n : ℚ) - q m) ≤ (2 : ℝ) ^ (-(N m : ℤ)))
+    (htend : Tendsto (fun m => Rat.AbsoluteValue.padic 2 ((n : ℚ) - q m)) atTop (nhds 0))
+    (hdist : ∀ m, q m ≠ (n : ℚ)) :
+    ¬ IndexConditionExpFreq τ (phiExp D P) N ε
+
 theorem confinable_iff_exists_dual {m : ℕ} (x : ℕ → (Fin m → ℚ)) :
     Confinable x ↔ ∃ f : Module.Dual ℚ (Fin m → ℚ), f ≠ 0 ∧ {k | f (x k) = 0}.Infinite
 
 theorem unused_placePoint_dual_apply (f : Module.Dual ℚ (Fin 3 → ℚ)) (D P : ℚ) :
     f (placePoint D P) = D * f (Pi.single 0 1) - f (Pi.single 1 1) + P * f (Pi.single 2 1)
-
-axiom phiPoints_nonConfined (n : ℤ) (D P : ℕ → ℤ) (q : ℕ → ℚ)
-    (hodd : ∀ k, Odd (D k)) (hrel : ∀ k, (D k : ℚ) * q k = -(P k : ℚ))
-    (hconv : Tendsto (fun k => Rat.AbsoluteValue.padic 2 ((n : ℚ) - q k)) atTop (nhds 0))
-    (hdist : ∀ k, q k ≠ (n : ℚ)) :
-    ¬ Confinable (fun k => placePoint (D k : ℚ) (P k : ℚ))
-
-theorem rat_arch_padic_places : ∃ vinf : AbsoluteValue ℚ ℝ,
-    (∀ w ∈ archAbsVal (K := ℚ), w = vinf) ∧ vinf ∈ archAbsVal (K := ℚ) ∧
-      Rat.AbsoluteValue.padic 2 ∈ nonarchAbsVal (K := ℚ) ∧ vinf ≠ Rat.AbsoluteValue.padic 2 ∧
-      (∀ q : ℚ, vinf q = ((|q| : ℚ) : ℝ))
-
-theorem phi_ne_natCast (v : ℤ_[2]) (hauto : IsAutomatic2Adic v) (hirr : v ∉ RatInt)
-    (n : ℕ) : Φ v ≠ (n : ℤ_[2])
-
-theorem automatic_parityVector_ratInt
-    (n : ℕ) (hauto : IsAutomatic2Adic (parityVector n)) :
-    parityVector n ∈ RatInt
-
-theorem l90Divergent_of_divergent {n : ℕ} (h : Divergent n) : L90.Divergent (n : ℚ)
-
-theorem divergent_imp_not_automatic
-    (n : ℕ) (_hn : 0 < n) (hdiv : Divergent n) :
-    ¬ IsAutomatic2Adic (parityVector n)
