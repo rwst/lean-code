@@ -1,0 +1,228 @@
+import CC.Decomposition
+import CC.Elementary
+import CC.Terras
+import CITED.RhinLogForm
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.List.TakeWhile
+import Mathlib.Data.Set.Finite.Lattice
+import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Zify
+import RT.CRozLemma32
+import RT.FinitePar
+import RT.Heuristic
+
+def retDiff (j n : ℕ) : ℤ := (T_iter j n : ℤ) - (n : ℤ)
+
+theorem closure_identity (j n : ℕ) :
+    ((2 : ℤ) ^ j - 3 ^ num_odd_steps j n) * (n : ℤ)
+      = (decomposition_correction j n : ℤ) - 2 ^ j * retDiff j n
+
+theorem closure_identity_nat (j n : ℕ)
+    (hC : 3 ^ num_odd_steps j n ≤ 2 ^ j) (hd : n ≤ T_iter j n) :
+    (2 ^ j - 3 ^ num_odd_steps j n) * n + 2 ^ j * (T_iter j n - n)
+      = decomposition_correction j n
+
+theorem pow_three_le_of_C_lt_one {j n : ℕ} (hC : C j n < 1) :
+    3 ^ num_odd_steps j n ≤ 2 ^ j
+
+theorem closure_identity_of_paradoxical (j n : ℕ)
+    (hC : C j n < 1) (hd : n ≤ T_iter j n) :
+    (2 ^ j - 3 ^ num_odd_steps j n) * n + 2 ^ j * (T_iter j n - n)
+      = decomposition_correction j n
+
+def remStep (st : ℕ × ℕ) (x : ℕ) : ℕ × ℕ := (2 * st.1, 3 ^ x * st.2 + st.1 * x)
+
+def pbits (j n : ℕ) : List ℕ := (List.range j).map (fun k => X (T_iter k n))
+
+def wordOfShape : List (ℕ × ℕ) → List ℕ
+  | [] => []
+  | (a, e) :: rest => List.replicate a 1 ++ List.replicate e 0 ++ wordOfShape rest
+
+def ones (S : List (ℕ × ℕ)) : ℕ := (S.map Prod.fst).sum
+
+def wlen (S : List (ℕ × ℕ)) : ℕ := (S.map (fun p => p.1 + p.2)).sum
+
+lemma wordOfShape_append (S₁ S₂ : List (ℕ × ℕ)) :
+    wordOfShape (S₁ ++ S₂) = wordOfShape S₁ ++ wordOfShape S₂
+
+lemma wordOfShape_length (S : List (ℕ × ℕ)) : (wordOfShape S).length = wlen S
+
+lemma wordOfShape_cons (p : ℕ × ℕ) (rest : List (ℕ × ℕ)) :
+    wordOfShape (p :: rest) = List.replicate p.1 1 ++ List.replicate p.2 0 ++ wordOfShape rest
+
+lemma wordOfShape_split (S : List (ℕ × ℕ)) (i : ℕ) (hi : i < S.length) :
+    wordOfShape S = wordOfShape (S.take i) ++
+      (List.replicate (S[i]'hi).1 1 ++ (List.replicate (S[i]'hi).2 0 ++ wordOfShape (S.drop (i + 1))))
+
+lemma wlen_append (A B : List (ℕ × ℕ)) : wlen (A ++ B) = wlen A + wlen B
+
+lemma wlen_cons (p : ℕ × ℕ) (rest : List (ℕ × ℕ)) : wlen (p :: rest) = p.1 + p.2 + wlen rest
+
+lemma pbits_getElem? (j n m : ℕ) :
+    (pbits j n)[m]? = if m < j then some (X (T_iter m n)) else none
+
+lemma odd_of_X_eq_one {n : ℕ} (h : X n = 1) : n % 2 = 1
+
+lemma even_of_X_eq_zero {n : ℕ} (h : X n = 0) : n % 2 = 0
+
+lemma odd_of_word_bit_one (S : List (ℕ × ℕ)) (n m : ℕ) (hshape : pbits (wlen S) n = wordOfShape S)
+    (hbit : (wordOfShape S)[m]? = some 1) : T_iter m n % 2 = 1
+
+lemma even_of_word_bit_zero (S : List (ℕ × ℕ)) (n m : ℕ) (hshape : pbits (wlen S) n = wordOfShape S)
+    (hbit : (wordOfShape S)[m]? = some 0) : T_iter m n % 2 = 0
+
+def circSum : List (ℕ × ℕ) → ℕ
+  | [] => 0
+  | (a, e) :: rest => 3 ^ ones rest * (3 ^ a - 2 ^ a) + 2 ^ (a + e) * circSum rest
+
+lemma foldl_pbits (j n : ℕ) :
+    (pbits j n).foldl remStep (1, 0) = (2 ^ j, decomposition_correction j n)
+
+lemma foldl_burst (a p2 s : ℕ) :
+    (List.replicate a 1).foldl remStep (p2, s)
+      = (2 ^ a * p2, 3 ^ a * s + p2 * (3 ^ a - 2 ^ a))
+
+lemma foldl_gap (e p2 s : ℕ) :
+    (List.replicate e 0).foldl remStep (p2, s) = (2 ^ e * p2, s)
+
+lemma foldl_wordOfShape (S : List (ℕ × ℕ)) (p2 s : ℕ) :
+    (wordOfShape S).foldl remStep (p2, s)
+      = (2 ^ wlen S * p2, 3 ^ ones S * s + p2 * circSum S)
+
+theorem decomposition_correction_eq_circSum (S : List (ℕ × ℕ)) (j n : ℕ)
+    (hshape : pbits j n = wordOfShape S) :
+    decomposition_correction j n = circSum S
+
+theorem closure_identity_circuit (S : List (ℕ × ℕ)) (j n : ℕ)
+    (hshape : pbits j n = wordOfShape S) :
+    ((2 : ℤ) ^ j - 3 ^ num_odd_steps j n) * (n : ℤ)
+      = (circSum S : ℤ) - 2 ^ j * retDiff j n
+
+lemma two_pow_dvd_of_even_run (n e p : ℕ) (h : ∀ i, i < e → T_iter (p + i) n % 2 = 0) :
+    2 ^ e ∣ T_iter p n
+
+lemma two_pow_dvd_succ_of_odd_run (n a p : ℕ) (h : ∀ i, i < a → T_iter (p + i) n % 2 = 1) :
+    2 ^ a ∣ (T_iter p n + 1)
+
+lemma pow_le_maxExcursion_of_even_run (n e p : ℕ) (hn : 1 ≤ n)
+    (h : ∀ i, i < e → T_iter (p + i) n % 2 = 0) : ((2 ^ e : ℕ) : ℕ∞) ≤ maxExcursion n
+
+lemma pow_pred_le_maxExcursion_of_odd_run (n a p : ℕ)
+    (h : ∀ i, i < a → T_iter (p + i) n % 2 = 1) : ((2 ^ a - 1 : ℕ) : ℕ∞) ≤ maxExcursion n
+
+lemma exp_poly_collision (a : ℝ) (ha : 0 < a) (K Q : ℝ) (hK : 0 ≤ K) (hQ : 0 ≤ Q) :
+    ∃ J : ℕ, ∀ j : ℕ, Real.exp (a * j) - 1 ≤ K * (j : ℝ) ^ Q → j ≤ J
+
+theorem finite_of_pigeonhole (R : ℕ) (hR : 0 < R) (β Pw C : ℝ)
+    (hβ : 0 ≤ β) (hPw : 0 ≤ Pw) (hC : 0 < C)
+    (P : ℕ → ℕ → Prop) (Exc m : ℕ → ℕ → ℝ)
+    (hpar : ∀ j n, P j n → IsParadoxical j n)
+    (hn : ∀ j n, P j n → 2 < n)
+    (hpigeon : ∀ j n, P j n → (2 : ℝ) ^ ((j : ℝ) / (2 * R)) - 1 ≤ Exc j n)
+    (hm1 : ∀ j n, P j n → 1 ≤ m j n)
+    (hmH : ∀ j n, P j n → m j n ≤ C * (j : ℝ) ^ Pw)
+    (hexc : ∀ j n, P j n → Exc j n ≤ (m j n) ^ β) :
+    {p : ℕ × ℕ | P p.1 p.2}.Finite
+
+def RCircuitSlice (R j n : ℕ) : Prop :=
+  2 < n ∧ IsParadoxical j n ∧
+    ∃ S : List (ℕ × ℕ), S.length = R ∧ wlen S = j ∧ pbits j n = wordOfShape S
+
+def shapeOf : List ℕ → List (ℕ × ℕ)
+  | [] => []
+  | x :: xs =>
+    (((x :: xs).takeWhile (· == 1)).length,
+      (((x :: xs).dropWhile (· == 1)).takeWhile (· != 1)).length) ::
+      shapeOf (((x :: xs).dropWhile (· == 1)).dropWhile (· != 1))
+termination_by w => w.length
+decreasing_by
+  have hs1 : ((x :: xs).takeWhile (· == 1)).length
+      + ((x :: xs).dropWhile (· == 1)).length = (x :: xs).length := by
+    rw [← List.length_append, List.takeWhile_append_dropWhile]
+  have hs2 : (((x :: xs).dropWhile (· == 1)).takeWhile (· != 1)).length
+      + (((x :: xs).dropWhile (· == 1)).dropWhile (· != 1)).length
+      = ((x :: xs).dropWhile (· == 1)).length := by
+    rw [← List.length_append, List.takeWhile_append_dropWhile]
+  have hlc : (x :: xs).length = xs.length + 1 := rfl
+  by_cases hx : x = 1
+  ·
+    have ht : 0 < ((x :: xs).takeWhile (· == 1)).length := by
+      simp [hx]
+    omega
+  ·
+    have ht2 : 0 < (((x :: xs).dropWhile (· == 1)).takeWhile (· != 1)).length := by
+      simp [hx]
+    omega
+
+lemma shapeOf_ne_nil {w : List ℕ} (hw : w ≠ []) : shapeOf w ≠ []
+
+theorem wordOfShape_shapeOf : ∀ w : List ℕ, (∀ x ∈ w, x = 0 ∨ x = 1) →
+    wordOfShape (shapeOf w) = w
+
+lemma wlen_shapeOf (w : List ℕ) (hw : ∀ x ∈ w, x = 0 ∨ x = 1) :
+    wlen (shapeOf w) = w.length
+
+lemma length_pbits (j n : ℕ) : (pbits j n).length = j
+
+lemma pbits_binary (j n : ℕ) : ∀ x ∈ pbits j n, x = 0 ∨ x = 1
+
+def circuitCount (j n : ℕ) : ℕ := (shapeOf (pbits j n)).length
+
+lemma circuitCount_pos (j n : ℕ) (hj : 0 < j) : 0 < circuitCount j n
+
+theorem rCircuitSlice_circuitCount (j n : ℕ) (hn : 2 < n) (hpara : IsParadoxical j n) :
+    RCircuitSlice (circuitCount j n) j n
+
+theorem iUnion_rCircuitSlice :
+    ⋃ R : ℕ, {p : ℕ × ℕ | RCircuitSlice R p.1 p.2}
+      = {p : ℕ × ℕ | IsParadoxical p.1 p.2 ∧ 2 < p.2}
+
+theorem finitely_many_paradoxical_of_uniform_slice_length_bound
+    (h : ∃ J : ℕ, ∀ R j n : ℕ, RCircuitSlice R j n → j ≤ J) :
+    {p : ℕ × ℕ | IsParadoxical p.1 p.2 ∧ 2 < p.2}.Finite
+
+theorem uniform_slice_length_bound_iff_finitely_many_paradoxical :
+    (∃ J : ℕ, ∀ R j n : ℕ, RCircuitSlice R j n → j ≤ J) ↔
+      {p : ℕ × ℕ | IsParadoxical p.1 p.2 ∧ 2 < p.2}.Finite
+
+theorem H_le_rpow (j : ℕ) (hj : 2 ≤ j) : H j ≤ (j : ℝ) ^ (14.3 : ℝ) / 3
+
+theorem least_odd_poly_bound (j n m : ℕ) (hn : 1 ≤ n) (hm_pos : 0 < m)
+    (h_odd_bounded : ∀ k, k < j → T_iter k n % 2 = 1 → T_iter k n ≥ m)
+    (h_para : IsParadoxical j n) :
+    (m : ℝ) ≤ 1 / 3 * (j : ℝ) ^ (14.3 : ℝ)
+
+lemma burst_odd_run (S : List (ℕ × ℕ)) (n i : ℕ) (hi : i < S.length)
+    (hshape : pbits (wlen S) n = wordOfShape S) :
+    ∀ k, k < (S[i]'hi).1 → T_iter (wlen (S.take i) + k) n % 2 = 1
+
+lemma gap_even_run (S : List (ℕ × ℕ)) (n i : ℕ) (hi : i < S.length)
+    (hshape : pbits (wlen S) n = wordOfShape S) :
+    ∀ k, k < (S[i]'hi).2 → T_iter (wlen (S.take i) + (S[i]'hi).1 + k) n % 2 = 0
+
+lemma exists_ge_avg (l : List ℕ) (hl : l ≠ []) : ∃ x ∈ l, l.sum ≤ l.length * x
+
+theorem shape_excursion_bound (S : List (ℕ × ℕ)) (n : ℕ) (hn : 1 ≤ n) (hS : S ≠ [])
+    (hshape : pbits (wlen S) n = wordOfShape S) :
+    ∃ L p : ℕ, wlen S ≤ 2 * S.length * L ∧ p ≤ wlen S ∧ 2 ^ L - 1 ≤ T_iter p n
+
+def excWin (j n : ℕ) : ℕ := (Finset.range (j + 1)).sup (fun k => T_iter k n)
+
+theorem pigeonhole_hyp (S : List (ℕ × ℕ)) (n : ℕ) (hn : 1 ≤ n) (hS : S ≠ [])
+    (hshape : pbits (wlen S) n = wordOfShape S) :
+    (2 : ℝ) ^ ((wlen S : ℝ) / (2 * S.length)) - 1 ≤ (excWin (wlen S) n : ℝ)
+
+def minWin (j n : ℕ) : ℕ :=
+  (Finset.range (j + 1)).inf' ⟨0, Finset.mem_range.mpr (Nat.succ_pos j)⟩
+    fun k => T_iter k n
+
+lemma one_le_minWin (j n : ℕ) (hn : 1 ≤ n) : 1 ≤ minWin j n
+
+lemma minWin_le (j n k : ℕ) (hk : k ≤ j) : minWin j n ≤ T_iter k n
+
+theorem finite_RCircuitSlice (R : ℕ) (hR : 0 < R) (β : ℝ) (hβ : 0 ≤ β)
+    (hexc : ∀ j n, RCircuitSlice R j n → (excWin j n : ℝ) ≤ (minWin j n : ℝ) ^ β) :
+    {p : ℕ × ℕ | RCircuitSlice R p.1 p.2}.Finite

@@ -1,0 +1,459 @@
+import Mathlib.Algebra.EuclideanDomain.Basic
+import Mathlib.Algebra.EuclideanDomain.Int
+import Mathlib.Algebra.Order.Ring.Star
+import Mathlib.Analysis.Normed.Ring.Lemmas
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Data.Finset.Lattice.Fold
+import Mathlib.Data.Fintype.Pi
+import Mathlib.Data.Int.Star
+import Mathlib.Data.Nat.Factorization.Basic
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Tactic
+import SRS.ArcticInterpretation
+import SRS.CollatzSRS
+
+lemma pow_two_mod_three (k : ℕ) : 2^k % 3 = if k % 2 = 0 then 1 else 2
+
+lemma ordCompl_two_div_two (x : ℕ) (hx : x % 2 = 0) : ordCompl[2] (x / 2) = ordCompl[2] x
+
+lemma ordCompl_two_pow_mul (k x : ℕ) :
+    ordCompl[2] (2^k * x) = ordCompl[2] x
+
+lemma ordCompl_two_mul_pow (k m : ℕ) (hm_odd : m % 2 = 1) :
+    ordCompl[2] (2^k * m) = m
+
+lemma exists_predecessor_of_odd (y : ℕ) (h_odd : y % 2 = 1) (h_not_div3 : y % 3 ≠ 0) :
+  ∃ x k : ℕ, x % 2 = 1 ∧ (3 * x + 1) = 2^k * y
+
+lemma no_odd_predecessor_for_div3 (y : ℕ) (h_div3 : y % 3 = 0) :
+  ∀ n k : ℕ, 3 * n + 1 ≠ y * 2^k
+
+lemma exists_predecessor_gt_one_mod1 (y : ℕ) (hy_mod6 : y % 6 = 1) (hy_gt : y > 1) :
+    ∃ x : ℕ, x % 2 = 1 ∧ x > 1 ∧ (3 * x + 1) = 2^2 * y
+
+lemma exists_predecessor_gt_one_mod5 (y : ℕ) (hy_mod6 : y % 6 = 5) :
+    ∃ x : ℕ, x % 2 = 1 ∧ x > 1 ∧ (3 * x + 1) = 2^1 * y
+
+lemma parity_of_mod_pow_succ {k m n : ℕ} (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
+    m % 2 = n % 2
+
+lemma int_dvd_sub_of_mod_eq {a b c : ℕ} (h : a % c = b % c) :
+    (c : ℤ) ∣ ((a : ℤ) - (b : ℤ))
+
+lemma nat_mod_eq_of_int_dvd_sub {a b c : ℕ} (h : (c : ℤ) ∣ ((a : ℤ) - (b : ℤ))) :
+    a % c = b % c
+
+lemma coprime_pow_three_pow_two (s k : ℕ) : Nat.Coprime (3 ^ s) (2 ^ k)
+
+def X (n : ℕ) : ℕ := ((1 - (-1 : ℤ)^n) / 2).toNat
+
+lemma X_even {n : ℕ} (h : n % 2 = 0) : X n = 0
+
+lemma X_odd {n : ℕ} (h : n % 2 = 1) : X n = 1
+
+lemma X_eq_mod (n : ℕ) : X n = n % 2
+
+lemma X_congr {m n : ℕ} (h : m % 2 = n % 2) : X m = X n
+
+def T (n : ℕ) : ℕ := (n * 3 ^ X n + X n) / 2
+
+lemma T_even {n : ℕ} (h : n % 2 = 0) : T n = n / 2
+
+lemma T_odd {n : ℕ} (h : n % 2 = 1) : T n = (3 * n + 1) / 2
+
+def T_iter : ℕ → ℕ → ℕ
+  | 0, n     => n
+  | k + 1, n => T (T_iter k n)
+
+lemma T_one : T 1 = 2
+
+lemma T_two : T 2 = 1
+
+lemma T_iter_one_cycle (j : ℕ) : T_iter j 1 = 1 ∨ T_iter j 1 = 2
+
+lemma T_pos {n : ℕ} (hn : n ≥ 1) : T n ≥ 1
+
+lemma T_iter_pos {n : ℕ} (hn : n ≥ 1) (k : ℕ) : T_iter k n ≥ 1
+
+lemma T_iter_add (a b n : ℕ) : T_iter (a + b) n = T_iter a (T_iter b n)
+
+lemma T_iter_succ_right (i n : ℕ) : T_iter (i + 1) n = T_iter i (T n)
+
+def num_odd_steps (k n : ℕ) : ℕ :=
+  (Finset.range k).sum (fun i => X (T_iter i n))
+
+lemma num_odd_steps_le (j n : ℕ) : num_odd_steps j n ≤ j
+
+lemma T_expand (m : ℕ) : 2 * T m = 3 ^ X m * m + X m
+
+lemma T_closed_form (n : ℕ) :
+    (4 : ℤ) * T n = 4 * n + 1 - (2 * n + 1) * (-1) ^ n
+
+lemma T_congr (k m n : ℕ) (h : m % 2 ^ (k + 1) = n % 2 ^ (k + 1)) :
+    T m % 2 ^ k = T n % 2 ^ k
+
+noncomputable def stopping_time (n : ℕ) : ℕ∞ :=
+  if h : ∃ k : ℕ, k ≥ 1 ∧ T_iter k n < n then
+    (Nat.find h : ℕ∞)
+  else
+    ⊤
+
+lemma stopping_time_ne_top_iff (n : ℕ) :
+    stopping_time n ≠ ⊤ ↔ ∃ k : ℕ, k ≥ 1 ∧ T_iter k n < n
+
+noncomputable def total_stopping_time (n : ℕ) : ℕ∞ :=
+  if h : ∃ k : ℕ, k ≥ 1 ∧ T_iter k n = 1 then
+    (Nat.find h : ℕ∞)
+  else
+    ⊤
+
+def collatz_step (n : ℕ) : ℕ := if n % 2 = 0 then n / 2 else 3 * n + 1
+
+lemma collatz_step_even {n : ℕ} (h : n % 2 = 0) : collatz_step n = n / 2
+
+lemma collatz_step_odd {n : ℕ} (h : n % 2 = 1) : collatz_step n = 3 * n + 1
+
+def collatz_iter : ℕ → ℕ → ℕ
+  | 0, n => n
+  | k + 1, n => collatz_step (collatz_iter k n)
+
+lemma collatz_iter_add (a b n : ℕ) :
+    collatz_iter (a + b) n = collatz_iter a (collatz_iter b n)
+
+lemma T_step_collatz (n : ℕ) : ∃ j, j ≥ 1 ∧ collatz_iter j n = T n
+
+lemma T_iter_implies_collatz_iter (k n : ℕ) : ∃ j ≥ k, collatz_iter j n = T_iter k n
+
+theorem reaches_one_of_descent
+    (H : ∀ n, 1 < n → ∃ k, T_iter k n < n) :
+    ∀ n, 1 < n → ∃ k, T_iter k n = 1
+
+theorem descent_of_reaches_one
+    (H : ∀ n, 1 < n → ∃ k, T_iter k n = 1) :
+    ∀ n, 1 < n → ∃ k, T_iter k n < n
+
+theorem descent_iff_reaches_one :
+    (∀ n, 1 < n → ∃ k, T_iter k n < n) ↔ (∀ n, 1 < n → ∃ k, T_iter k n = 1)
+
+theorem exists_descent_iff (n : ℕ) :
+    (∃ k, T_iter k n < n) ↔ (∃ k, k ≥ 1 ∧ T_iter k n < n)
+
+theorem exists_reaches_one_iff {n : ℕ} (hn : 1 < n) :
+    (∃ k, T_iter k n = 1) ↔ (∃ k, k ≥ 1 ∧ T_iter k n = 1)
+
+theorem total_stopping_time_ne_top_iff (n : ℕ) :
+    total_stopping_time n ≠ ⊤ ↔ ∃ k : ℕ, k ≥ 1 ∧ T_iter k n = 1
+
+theorem finite_stopping_iff_finite_total_stopping :
+    (∀ n, 1 < n → stopping_time n ≠ ⊤) ↔ (∀ n, 1 < n → total_stopping_time n ≠ ⊤)
+
+def ParityVector := List Bool
+
+deriving instance DecidableEq for ParityVector
+
+instance : GetElem ParityVector ℕ Bool fun v i => i < v.length :=
+  inferInstanceAs (GetElem (List Bool) ℕ Bool _)
+
+def toNat (b : Bool) : ℕ := if b then 1 else 0
+
+def q (v : ParityVector) : ℕ := v.count true
+
+def size (v : ParityVector) : ℕ := v.length
+
+def onesRatio (v : ParityVector) : ℚ := (q v : ℚ) / (size v : ℚ)
+
+def V (j n : ℕ) : ParityVector :=
+  (List.finRange j).map (fun i => decide (X (T_iter i.val n) = 1))
+
+lemma V_length (j n : ℕ) : (V j n).length = j
+
+lemma V_get (j n : ℕ) (i : Fin j) :
+    (V j n).get ⟨i.val, by simp [V_length]⟩ = decide (X (T_iter i.val n) = 1)
+
+def Precedes (v1 v2 : ParityVector) : Prop :=
+  Relation.ReflTransGen ElementaryPrecedes v1 v2
+
+infix:50 " ≼ " => Precedes
+
+def E_vec (k : ℕ) (n : ℕ) : Fin k → ℕ :=
+  fun i => X (T_iter i.val n)
+
+lemma E_vec_apply (k n : ℕ) (i : Fin k) : E_vec k n i = X (T_iter i.val n)
+
+lemma E_vec_le_one (k n : ℕ) (i : Fin k) : E_vec k n i ≤ 1
+
+lemma num_odd_steps_eq_E_vec_sum (k n : ℕ) :
+    num_odd_steps k n = Finset.sum Finset.univ (E_vec k n)
+
+lemma E_vec_restrict (k m n : ℕ) (h : E_vec (k + 1) m = E_vec (k + 1) n) :
+    E_vec k m = E_vec k n
+
+lemma num_odd_steps_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
+    num_odd_steps k m = num_odd_steps k n
+
+def decomposition_correction : ℕ → ℕ → ℕ
+  | 0, _     => 0
+  | k + 1, n => 3 ^ X (T_iter k n) * decomposition_correction k n + 2 ^ k * X (T_iter k n)
+
+lemma decomposition_correction_eq_of_E_vec_eq (k m n : ℕ) (h : E_vec k m = E_vec k n) :
+    decomposition_correction k m = decomposition_correction k n
+
+lemma linear_decomposition (k n : ℕ) :
+    2 ^ k * T_iter k n = 3 ^ num_odd_steps k n * n + decomposition_correction k n
+
+lemma num_odd_steps_mono {j k : ℕ} (hjk : j ≤ k) (n : ℕ) :
+    num_odd_steps j n ≤ num_odd_steps k n
+
+lemma num_odd_steps_succ (k n : ℕ) :
+    num_odd_steps (k + 1) n = num_odd_steps k n + X (T_iter k n)
+
+def decomposition_correction_sum (k n : ℕ) : ℕ :=
+  (Finset.range k).sum (fun j =>
+    X (T_iter j n) * 2 ^ j * 3 ^ (num_odd_steps k n - num_odd_steps (j + 1) n))
+
+lemma decomposition_correction_eq_sum (k n : ℕ) :
+    decomposition_correction k n = decomposition_correction_sum k n
+
+def C (k n : ℕ) : ℚ := (3 ^ num_odd_steps k n : ℚ) / (2 ^ k : ℚ)
+
+noncomputable def coeff_stopping_time (n : ℕ) : ℕ∞ :=
+  if h : ∃ j : ℕ, j ≥ 1 ∧ C j n < 1 then
+    (Nat.find h : ℕ∞)
+  else
+    ⊤
+
+def E (j n : ℕ) : ℚ := (decomposition_correction j n : ℚ) / (2 ^ j : ℚ)
+
+lemma E_zero (n : ℕ) : E 0 n = 0
+
+lemma E_succ (k n : ℕ) :
+    E (k + 1) n = (3 ^ X (T_iter k n) : ℚ) / 2 * E k n +
+      (X (T_iter k n) : ℚ) / 2
+
+lemma E_step_strict_mono (x : ℕ) (a b : ℚ) (hab : a < b) :
+    (3 ^ x : ℚ) / 2 * a + (x : ℚ) / 2 < (3 ^ x : ℚ) / 2 * b + (x : ℚ) / 2
+
+lemma linear_decomposition' (j n : ℕ) : T_iter j n = C j n * n + E j n
+
+lemma terras_backward (k : ℕ) : ∀ m n : ℕ, m % 2 ^ k = n % 2 ^ k →
+    E_vec k m = E_vec k n
+
+lemma terras_forward (k m n : ℕ) (_hm : m ≥ 1) (_hn : n ≥ 1)
+    (h : E_vec k m = E_vec k n) : m % 2 ^ k = n % 2 ^ k
+
+theorem terras_periodicity (k : ℕ) (m n : ℕ) (hm : m ≥ 1) (hn : n ≥ 1) :
+    E_vec k m = E_vec k n ↔ m % 2 ^ k = n % 2 ^ k
+
+noncomputable def criticalRatio : ℝ := Real.log 2 / Real.log 3
+
+noncomputable def tropWeight (k n : ℕ) : ℝ :=
+  (num_odd_steps k n : ℝ) * Real.log 3 - (k : ℝ) * Real.log 2
+
+noncomputable def arcticWeight (k n : ℕ) : Arctic ℝ := (tropWeight k n : ℝ)
+
+lemma V_eq_range_map (k n : ℕ) :
+    V k n = (List.range k).map (fun i => decide (X (T_iter i n) = 1))
+
+lemma count_true_range_map (k : ℕ) (f : ℕ → ℕ) (hf : ∀ i, f i ≤ 1) :
+    List.count true ((List.range k).map (fun i => decide (f i = 1)))
+      = ∑ i ∈ Finset.range k, f i
+
+lemma q_V (k n : ℕ) : q (V k n) = num_odd_steps k n
+
+lemma onesRatio_V (k n : ℕ) : onesRatio (V k n) = (num_odd_steps k n : ℚ) / (k : ℚ)
+
+lemma C_cast (k n : ℕ) : ((C k n : ℝ)) = (3 : ℝ) ^ num_odd_steps k n / (2 : ℝ) ^ k
+
+lemma C_pos (k n : ℕ) : (0 : ℝ) < (C k n : ℝ)
+
+theorem tropWeight_eq_log_C (k n : ℕ) :
+    tropWeight k n = Real.log ((C k n : ℝ))
+
+theorem C_lt_one_iff_tropWeight_neg (k n : ℕ) :
+    (C k n : ℝ) < 1 ↔ tropWeight k n < 0
+
+theorem C_lt_one_iff_arcticWeight_neg (k n : ℕ) :
+    (C k n : ℝ) < 1 ↔ arcticWeight k n < (0 : Arctic ℝ)
+
+theorem tropWeight_neg_iff_ratio {k : ℕ} (hk : 1 ≤ k) (n : ℕ) :
+    tropWeight k n < 0 ↔ (num_odd_steps k n : ℝ) / k < criticalRatio
+
+theorem C_lt_one_iff_onesRatio {k : ℕ} (hk : 1 ≤ k) (n : ℕ) :
+    (C k n : ℝ) < 1 ↔ ((onesRatio (V k n) : ℚ) : ℝ) < criticalRatio
+
+theorem half_lt_criticalRatio : (1 : ℝ) / 2 < criticalRatio
+
+theorem criticalRatio_lt_one : criticalRatio < 1
+
+structure StatDist (𝒞 : Finset ι) where
+
+  p : ι → ℝ
+
+  nonneg : ∀ i, 0 ≤ p i
+
+  supported : ∀ i, p i ≠ 0 → i ∈ 𝒞
+
+  sum_one : ∑ i ∈ 𝒞, p i = 1
+
+noncomputable def lam (𝒞 : Finset ι) (h : 𝒞.Nonempty) (mean : ι → ℝ) : ℝ := 𝒞.sup' h mean
+
+noncomputable def drift (𝒞 : Finset ι) (mean : ι → ℝ) (μ : StatDist 𝒞) : ℝ :=
+  ∑ i ∈ 𝒞, μ.p i * mean i
+
+noncomputable def pointMass {𝒞 : Finset ι} {i₀ : ι} (h : i₀ ∈ 𝒞) : StatDist 𝒞 where
+  p := fun i => if i = i₀ then 1 else 0
+  nonneg := fun i => by by_cases hi : i = i₀ <;> simp [hi]
+  supported := fun i hi => by by_cases hi' : i = i₀ <;> simp_all
+  sum_one := by simp [Finset.sum_ite_eq', h]
+
+theorem drift_pointMass {𝒞 : Finset ι} {i₀ : ι} (h : i₀ ∈ 𝒞) (mean : ι → ℝ) :
+    drift 𝒞 mean (pointMass h) = mean i₀
+
+theorem drift_le_lam (𝒞 : Finset ι) (h : 𝒞.Nonempty) (mean : ι → ℝ) (μ : StatDist 𝒞) :
+    drift 𝒞 mean μ ≤ lam 𝒞 h mean
+
+theorem exists_drift_eq_lam (𝒞 : Finset ι) (h : 𝒞.Nonempty) (mean : ι → ℝ) :
+    ∃ μ : StatDist 𝒞, drift 𝒞 mean μ = lam 𝒞 h mean
+
+theorem lam_neg_iff_drift_neg (𝒞 : Finset ι) (h : 𝒞.Nonempty) (mean : ι → ℝ) :
+    lam 𝒞 h mean < 0 ↔ ∀ μ : StatDist 𝒞, drift 𝒞 mean μ < 0
+
+structure Cycle (V : Type*) where
+
+  len : ℕ
+
+  pos : 0 < len
+
+  vert : Fin len → V
+
+def cycleNext {n : ℕ} (hn : 0 < n) (i : Fin n) : Fin n := ⟨(i.val + 1) % n, Nat.mod_lt _ hn⟩
+
+noncomputable def cycleWeight {V : Type*} (w : V → V → ℝ) (c : Cycle V) : ℝ :=
+  ∑ i : Fin c.len, w (c.vert i) (c.vert (cycleNext c.pos i))
+
+noncomputable def cycleMean {V : Type*} (w : V → V → ℝ) (c : Cycle V) : ℝ :=
+  cycleWeight w c / c.len
+
+noncomputable def stepWeight (u : ℕ) : ℝ :=
+  if u % 2 = 1 then Real.log 3 - Real.log 2 else -Real.log 2
+
+theorem stepWeight_eq (u : ℕ) :
+    stepWeight u = (if u % 2 = 1 then (1 : ℝ) else 0) * Real.log 3 - Real.log 2
+
+noncomputable def residueW (u _v : ℕ) : ℝ := stepWeight u
+
+noncomputable def oddCount (c : Cycle ℕ) : ℝ :=
+  ∑ i : Fin c.len, (if (c.vert i) % 2 = 1 then (1 : ℝ) else 0)
+
+theorem cycleWeight_residue (c : Cycle ℕ) :
+    cycleWeight residueW c = oddCount c * Real.log 3 - (c.len : ℝ) * Real.log 2
+
+theorem cycleMean_residue (c : Cycle ℕ) :
+    cycleMean residueW c = oddCount c / (c.len : ℝ) * Real.log 3 - Real.log 2
+
+theorem ratio_threshold (r : ℝ) :
+    r * Real.log 3 - Real.log 2 < 0 ↔ r < SRSBridge.criticalRatio
+
+theorem cycleMean_residue_neg_iff (c : Cycle ℕ) :
+    cycleMean residueW c < 0 ↔ oddCount c / (c.len : ℝ) < SRSBridge.criticalRatio
+
+theorem residue_drift_dictionary {𝒞 : Finset (Cycle ℕ)} (h : 𝒞.Nonempty) :
+    (∀ μ : StatDist 𝒞, drift 𝒞 (cycleMean residueW) μ < 0)
+      ↔ ∀ c ∈ 𝒞, oddCount c / (c.len : ℝ) < SRSBridge.criticalRatio
+
+def syrHalvings (u : ℕ) : ℕ := (3 * u + 1).factorization 2
+
+def syr (u : ℕ) : ℕ := ordCompl[2] (3 * u + 1)
+
+noncomputable def syrWeight (u : ℕ) : ℝ :=
+  Real.log 3 - (1 + (syrHalvings u : ℝ)) * Real.log 2
+
+theorem syr_spec (u : ℕ) : 2 ^ syrHalvings u * syr u = 3 * u + 1
+
+theorem syr_odd (u : ℕ) : syr u % 2 = 1
+
+theorem syrWeight_odd {u : ℕ} (h : u % 2 = 1) :
+    syrWeight u = stepWeight u - (syrHalvings u : ℝ) * Real.log 2
+
+structure WeightedDigraph (V : Type*) where
+
+  Adj : V → V → Prop
+
+  w : V → V → ℝ
+
+def GRVerts (k : ℕ) (R : Finset ℕ) : Finset ℕ :=
+  (Finset.range (2 ^ k)).filter (fun u => u % 2 = 1 ∧ u ∉ R)
+
+noncomputable def GR (k : ℕ) (R : Finset ℕ) : WeightedDigraph ℕ where
+  Adj u v := u ∈ GRVerts k R ∧ v = syr u % 2 ^ k
+  w u _ := syrWeight u
+
+theorem GR_w (k : ℕ) (R : Finset ℕ) (u v : ℕ) : (GR k R).w u v = syrWeight u
+
+theorem GR_verts_odd {k : ℕ} {R : Finset ℕ} {u : ℕ} (hu : u ∈ GRVerts k R) : u % 2 = 1
+
+theorem GR_next_lt (k u : ℕ) : syr u % 2 ^ k < 2 ^ k
+
+noncomputable def totalHalvings (c : ResidueGraphDrift.Cycle ℕ) : ℝ :=
+  ∑ i : Fin c.len, (syrHalvings (c.vert i) : ℝ)
+
+theorem cycleWeight_syr (c : ResidueGraphDrift.Cycle ℕ) :
+    cycleWeight (fun u _ => syrWeight u) c
+      = (c.len : ℝ) * Real.log 3 - ((c.len : ℝ) + totalHalvings c) * Real.log 2
+
+theorem cycleMean_syr (c : ResidueGraphDrift.Cycle ℕ) :
+    cycleMean (fun u _ => syrWeight u) c
+      = Real.log 3 - (1 + totalHalvings c / (c.len : ℝ)) * Real.log 2
+
+theorem cycleMean_syr_neg_iff (c : ResidueGraphDrift.Cycle ℕ) :
+    cycleMean (fun u _ => syrWeight u) c < 0
+      ↔ (c.len : ℝ) * Real.log 3 < ((c.len : ℝ) + totalHalvings c) * Real.log 2
+
+theorem gr_drift_dictionary {𝒞 : Finset (ResidueGraphDrift.Cycle ℕ)} (h : 𝒞.Nonempty) :
+    lam 𝒞 h (cycleMean fun u _ => syrWeight u) < 0
+      ↔ ∀ μ : StatDist 𝒞, drift 𝒞 (cycleMean fun u _ => syrWeight u) μ < 0
+
+theorem gr_lam_neg_iff {𝒞 : Finset (ResidueGraphDrift.Cycle ℕ)} (h : 𝒞.Nonempty) :
+    lam 𝒞 h (cycleMean fun u _ => syrWeight u) < 0
+      ↔ ∀ c ∈ 𝒞, (c.len : ℝ) * Real.log 3 < ((c.len : ℝ) + totalHalvings c) * Real.log 2
+
+theorem syr_example : syrHalvings 3 = 1 ∧ syr 3 = 5
+
+theorem grverts_example : GRVerts 2 ∅ = {1, 3}
+
+theorem T_agree (n : ℕ) : CC.T n = CollatzSRS.T n
+
+def dynFireL (m : ℕ) : List CollatzSRS.TSym := if m % 2 = 0 then [f, rhd] else [t, rhd]
+
+def dynFireR (m : ℕ) : List CollatzSRS.TSym := if m % 2 = 0 then [rhd] else [d2, rhd]
+
+theorem dynFiring_mem (m : ℕ) : CollatzSRS.dynRules (dynFireL m) (dynFireR m)
+
+theorem dynFireL_eval (m : ℕ) : CollatzSRS.compFun (dynFireL m) (m / 2) = m
+
+theorem dynFireR_eval (m : ℕ) : CollatzSRS.compFun (dynFireR m) (m / 2) = CollatzSRS.T m
+
+theorem dynFiring_advances (n i : ℕ) :
+    CollatzSRS.compFun (dynFireR (T_iter i n)) (T_iter i n / 2) = T_iter (i + 1) n
+
+def firedT (m : ℕ) : Bool := decide (m % 2 = 1)
+
+theorem dynFire_eq_firedT (m : ℕ) :
+    (dynFireL m, dynFireR m)
+      = (if firedT m then ([t, rhd], [d2, rhd]) else ([f, rhd], [rhd]))
+
+def dynTrace (k n : ℕ) : ParityVector := (List.range k).map (fun i => firedT (T_iter i n))
+
+theorem dynTrace_eq_V (k n : ℕ) : dynTrace k n = V k n
+
+theorem q_dynTrace (k n : ℕ) : q (dynTrace k n) = num_odd_steps k n
+
+theorem terras_forward' (k m n : ℕ) (h : E_vec k m = E_vec k n) : m % 2 ^ k = n % 2 ^ k
+
+def parityVec (k : ℕ) (r : ZMod (2 ^ k)) : Fin k → ZMod 2 :=
+  fun i => (E_vec k r.val i : ZMod 2)
+
+theorem terras_bijection (k : ℕ) : Function.Bijective (parityVec k)
+
+noncomputable def terrasEquiv (k : ℕ) : ZMod (2 ^ k) ≃ (Fin k → ZMod 2) :=
+  Equiv.ofBijective (parityVec k) (terras_bijection k)

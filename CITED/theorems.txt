@@ -1,11 +1,73 @@
+import ForMathlib.Data.Rat.NearestInt
+import Mathlib.Analysis.SpecialFunctions.Complex.Log
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Set.Finite.Basic
+import Mathlib.NumberTheory.Height.NumberField
 
 def kKernel (k : ℕ) (a : ℕ → ℕ) : Set (ℕ → ℕ) :=
   {s | ∃ i r, r < k ^ i ∧ s = fun n => a (k ^ i * n + r)}
 
 def IsAutomatic (a : ℕ → ℕ) : Prop :=
   ∃ k, 2 ≤ k ∧ (kKernel k a).Finite
+
+noncomputable def C (n d : ℕ) : ℝ :=
+  18 * (n + 1).factorial * (n : ℝ) ^ (n + 1) *
+    (32 * (d : ℝ)) ^ (n + 2) * Real.log (2 * n * d)
+
+noncomputable def modifiedHeight
+    {K : Type*} [Field K] [NumberField K] (φ : K →+* ℂ) (α : K) : ℝ :=
+  let d : ℝ := Module.finrank ℚ K
+  max (Height.logHeight₁ α / d) (max (‖Complex.log (φ α)‖ / d) (1 / d))
+
+axiom linearForms_logs
+    {n : ℕ} (hn : 0 < n)
+    {K : Type*} [Field K] [NumberField K] (φ : K →+* ℂ)
+    (α : Fin n → K) (hα : ∀ i, α i ≠ 0)
+    (b : Fin n → ℤ) {B : ℕ} (hB : 2 ≤ B) (hbB : ∀ i, (b i).natAbs ≤ B)
+    (hΛ_ne_zero : (∑ i, (b i : ℂ) * Complex.log (φ (α i))) ≠ 0) :
+    Real.log ‖∑ i, (b i : ℂ) * Complex.log (φ (α i))‖
+      ≥ -(BakerWustholz.C n (Module.finrank ℚ K)
+          * max (Real.log B) (1 / (Module.finrank ℚ K : ℝ))
+          * ∏ i, BakerWustholz.modifiedHeight φ (α i))
+
+def height23 (x y : ℤ) : ℕ :=
+  max (2 ^ x.toNat * 3 ^ y.toNat) (2 ^ (-x).toNat * 3 ^ (-y).toNat)
+
+def sval (δ : ℚ) (q : ℕ) (x y : ℤ) : ℚ := δ * q * ((2 : ℚ) ^ x * (3 : ℚ) ^ y)
+
+axiom pseudoPisot_approx (δ : ℚ) (hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
+    {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
+      1 < |sval δ p.1 p.2.1 p.2.2| ∧
+      ¬ (∃ n : ℤ, sval δ p.1 p.2.1 p.2.2 = n) ∧
+      0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
+      ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
+        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite
+
+lemma not_intCast_of_distToNearestInt_pos {x : ℚ} (h : 0 < x.distToNearestInt) :
+    ¬ ∃ n : ℤ, x = n
+
+lemma height23_neg_natCast (a : ℕ) : height23 (-(a : ℤ)) a = 3 ^ a
+
+axiom pillai_lower_bound (j q : ℕ) (hj : 28 ≤ j) :
+    (2 : ℝ) ^ j * Real.exp (-(j : ℝ) / 10) < |(2 : ℝ) ^ j - 3 ^ q|
+
+def uval (x y : ℤ) : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y
+
+lemma uval_neg_natCast (n : ℕ) : uval (-(n : ℤ)) n = (3 / 2 : ℚ) ^ n
+
+axiom sUnit_pair_integrality
+    (α₁ α₂ : ℚ) (hα₁ : α₁ ≠ 0) (hα₂ : α₂ ≠ 0) (ε₁ : ℝ) (hε₁ : 0 < ε₁)
+    (𝒩 : Set ((ℤ × ℤ) × (ℤ × ℤ))) (hinf : 𝒩.Infinite)
+    (habs : ∀ q ∈ 𝒩, 1 ≤ |uval q.1.1 q.1.2| ∧ 1 ≤ |uval q.2.1 q.2.2|)
+    (hP2 : ∀ q ∈ 𝒩, uval q.1.1 q.1.2 ≠ -uval q.2.1 q.2.2)
+    (hratio : ∀ q ∈ 𝒩, ∀ q' ∈ 𝒩, q ≠ q' →
+      uval q.1.1 q.1.2 / uval q.2.1 q.2.2 ≠ uval q'.1.1 q'.1.2 / uval q'.2.1 q'.2.2 ∧
+      uval q.2.1 q.2.2 / uval q.1.1 q.1.2 ≠ uval q'.2.1 q'.2.2 / uval q'.1.1 q'.1.2)
+    (happrox : ∀ q ∈ 𝒩,
+      ((α₁ * uval q.1.1 q.1.2 + α₂ * uval q.2.1 q.2.2).distToNearestInt : ℝ)
+        < ((CZ.height23 q.1.1 q.1.2 * CZ.height23 q.2.1 q.2.2 : ℕ) : ℝ) ^ (-ε₁)) :
+    ∃ q ∈ 𝒩, (∃ n : ℤ, uval q.1.1 q.1.2 = n) ∧ (∃ n : ℤ, uval q.2.1 q.2.2 = n)
 
 noncomputable def logForm (u₀ u₁ u₂ : ℤ) : ℝ :=
   (u₀ : ℝ) + (u₁ : ℝ) * Real.log 2 + (u₂ : ℝ) * Real.log 3

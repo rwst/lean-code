@@ -60,3 +60,14 @@ lean_lib L90 where
 lean_lib RT where
   globs := #[.submodules `RT]
 
+-- Author-original results for research-program.html Part I (paradoxical Collatz
+-- sequences).  Files live in ./paradoxical/ (a research dir with PDFs/HTML/Python);
+-- globbed like the other libs (module namespace = the lowercase dir name).
+lean_lib Paradoxical where
+  globs := #[.submodules `paradoxical]
+
+-- "Three halves": M4/A3 program (plan-M4A3.html) — subword complexity of the
+-- (3/2)^n steering word.  Extract.lean corpusRoots registration: user's call.
+lean_lib TH where
+  globs := #[.submodules `TH]
+
