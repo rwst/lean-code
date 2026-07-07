@@ -1,0 +1,255 @@
+import CollatzMapBasics.Base3div2.Base3div2Basics
+import CollatzMapBasics.Decomposition
+import CollatzMapBasics.Terras
+import Mathlib.Order.Filter.AtTopBot.Basic
+import Mathlib.Topology.Algebra.Order.Field
+import Mathlib.Topology.Order.Basic
+
+def lsd (n : ℕ) : ℕ := (2 * n) % 3
+
+def parent (n : ℕ) : ℕ := (2 * n) / 3
+
+theorem two_mul_eq (n : ℕ) : 2 * n = 3 * parent n + lsd n
+
+theorem lsd_lt_three (n : ℕ) : lsd n < 3
+
+theorem parent_lt (n : ℕ) (hn : n ≥ 1) : parent n < n
+
+theorem lsd_mod_two_eq_parent (n : ℕ) : lsd n % 2 = parent n % 2
+
+def digits₃₂ (n : ℕ) : List ℕ :=
+  if n = 0 then [] else lsd n :: digits₃₂ (parent n)
+termination_by n
+decreasing_by exact parent_lt n (by omega)
+
+theorem digits₃₂_zero : digits₃₂ 0 = []
+
+theorem digits₃₂_pos (n : ℕ) (hn : n ≥ 1) :
+    digits₃₂ n = lsd n :: digits₃₂ (parent n)
+
+theorem mem_digits₃₂_lt_three (n : ℕ) : ∀ d ∈ digits₃₂ n, d < 3
+
+theorem digits₃₂_length_eq_zero_iff (n : ℕ) : (digits₃₂ n).length = 0 ↔ n = 0
+
+def eval₃₂ : List ℕ → ℕ
+  | [] => 0
+  | a :: rest => (a + 3 * eval₃₂ rest) / 2
+
+theorem eval₃₂_nil : eval₃₂ [] = 0
+
+theorem eval₃₂_cons (a : ℕ) (rest : List ℕ) :
+    eval₃₂ (a :: rest) = (a + 3 * eval₃₂ rest) / 2
+
+theorem eval₃₂_digits₃₂ (n : ℕ) : eval₃₂ (digits₃₂ n) = n
+
+def U (n : ℕ) : ℕ :=
+  if n % 2 = 0 then (3 * n + 2) / 2 else (3 * n + 1) / 2
+
+theorem U_even {n : ℕ} (h : n % 2 = 0) : U n = (3 * n + 2) / 2
+
+theorem U_odd {n : ℕ} (h : n % 2 = 1) : U n = (3 * n + 1) / 2
+
+theorem U_odd_eq_T {n : ℕ} (h : n % 2 = 1) : U n = T n
+
+theorem U_mod_two (n : ℕ) : U n % 2 = (T n + n + 1) % 2
+
+theorem parent_U (n : ℕ) : parent (U n) = n
+
+theorem lsd_U_odd {n : ℕ} (h : n % 2 = 1) : lsd (U n) = 1
+
+theorem lsd_U_even {n : ℕ} (h : n % 2 = 0) : lsd (U n) = 2
+
+theorem U_pos (n : ℕ) : U n ≥ 1
+
+theorem digits₃₂_U (n : ℕ) :
+    digits₃₂ (U n) = (if n % 2 = 1 then 1 else 2) :: digits₃₂ n
+
+theorem lsd_T_odd {n : ℕ} (h : n % 2 = 1) : lsd (T n) = 1
+
+theorem parent_T_odd {n : ℕ} (h : n % 2 = 1) : parent (T n) = n
+
+theorem digits₃₂_T_odd {n : ℕ} (hn : n % 2 = 1) :
+    digits₃₂ (T n) = 1 :: digits₃₂ n
+
+theorem lsd_extend_zero {n : ℕ} (h : n % 2 = 0) : lsd (3 * n / 2) = 0
+
+theorem parent_extend_zero {n : ℕ} (h : n % 2 = 0) : parent (3 * n / 2) = n
+
+theorem digits₃₂_extend_zero {n : ℕ} (hn : n % 2 = 0) (hn1 : n ≥ 1) :
+    digits₃₂ (3 * n / 2) = 0 :: digits₃₂ n
+
+theorem lsd_extend_two {n : ℕ} (h : n % 2 = 0) : lsd ((3 * n + 2) / 2) = 2
+
+theorem parent_extend_two {n : ℕ} (h : n % 2 = 0) : parent ((3 * n + 2) / 2) = n
+
+theorem digits₃₂_extend_two {n : ℕ} (hn : n % 2 = 0) :
+    digits₃₂ ((3 * n + 2) / 2) = 2 :: digits₃₂ n
+
+theorem odd_of_lsd_one {n : ℕ} (h : lsd n = 1) : parent n % 2 = 1
+
+theorem even_of_lsd_zero {n : ℕ} (h : lsd n = 0) : parent n % 2 = 0
+
+theorem even_of_lsd_two {n : ℕ} (h : lsd n = 2) : parent n % 2 = 0
+
+def U_iter : ℕ → ℕ → ℕ
+  | 0, n     => n
+  | k + 1, n => U (U_iter k n)
+
+theorem U_iter_zero (n : ℕ) : U_iter 0 n = n
+
+theorem U_iter_succ (k n : ℕ) : U_iter (k + 1) n = U (U_iter k n)
+
+def sat (k : ℕ) : ℕ := U_iter k 0
+
+theorem sat_zero : sat 0 = 0
+
+theorem sat_one : sat 1 = 1
+
+theorem sat_two : sat 2 = 2
+
+theorem sat_three : sat 3 = 4
+
+theorem sat_four : sat 4 = 7
+
+theorem sat_five : sat 5 = 11
+
+theorem sat_six : sat 6 = 17
+
+theorem sat_seven : sat 7 = 26
+
+theorem sat_succ (k : ℕ) : sat (k + 1) = U (sat k)
+
+theorem digits₃₂_sat_no_zero {k : ℕ} (hk : k ≥ 1) {d : ℕ} (hd : d ∈ digits₃₂ (sat k)) :
+    d = 1 ∨ d = 2
+
+theorem sat_digits_prefix (k : ℕ) :
+    digits₃₂ (sat (k + 1)) = (if sat k % 2 = 1 then 1 else 2) :: digits₃₂ (sat k)
+
+def σ (d : ℕ) : ℕ := (d + 2) % 3
+
+theorem σ_zero : σ 0 = 2
+
+theorem σ_one : σ 1 = 0
+
+theorem σ_two : σ 2 = 1
+
+theorem lsd_succ (n : ℕ) (_hn : n ≥ 1) : lsd (n + 1) = σ (lsd n)
+
+theorem parent_succ_of_lsd_zero {n : ℕ} (_hn : n ≥ 1) (h : lsd n = 0) :
+    parent (n + 1) = parent n
+
+theorem parent_succ_of_lsd_pos {n : ℕ} (_hn : n ≥ 1) (h : lsd n ≠ 0) :
+    parent (n + 1) = parent n + 1
+
+def splitAtFirstZero : List ℕ → List ℕ × List ℕ
+  | [] => ([], [])
+  | d :: rest =>
+    if d = 0 then ([], rest)
+    else let p := splitAtFirstZero rest; (d :: p.1, p.2)
+
+theorem splitAtFirstZero_nil : splitAtFirstZero [] = ([], [])
+
+theorem splitAtFirstZero_zero (rest : List ℕ) :
+    splitAtFirstZero (0 :: rest) = ([], rest)
+
+theorem splitAtFirstZero_fst_cons_pos {d : ℕ} (hd : d ≠ 0) (rest : List ℕ) :
+    (splitAtFirstZero (d :: rest)).1 = d :: (splitAtFirstZero rest).1
+
+theorem splitAtFirstZero_snd_cons_pos {d : ℕ} (hd : d ≠ 0) (rest : List ℕ) :
+    (splitAtFirstZero (d :: rest)).2 = (splitAtFirstZero rest).2
+
+theorem odometer (n : ℕ) :
+    digits₃₂ (n + 1) =
+      (splitAtFirstZero (digits₃₂ n)).1.map σ ++
+        2 :: (splitAtFirstZero (digits₃₂ n)).2
+
+def scaledEval : List ℕ → ℕ
+  | [] => 0
+  | a :: rest => 2 ^ rest.length * a + 3 * scaledEval rest
+
+theorem scaledEval_nil : scaledEval [] = 0
+
+theorem scaledEval_cons (a : ℕ) (rest : List ℕ) :
+    scaledEval (a :: rest) = 2 ^ rest.length * a + 3 * scaledEval rest
+
+theorem scaledEval_digits₃₂ (n : ℕ) :
+    scaledEval (digits₃₂ n) = 2 ^ (digits₃₂ n).length * n
+
+theorem parity_criterion {n : ℕ} (_hn : n ≥ 1) :
+    n % 2 = 0 ↔
+      scaledEval (digits₃₂ n) % 2 ^ ((digits₃₂ n).length + 1) = 0
+
+lemma num_odd_steps_split (a b n : ℕ) :
+    num_odd_steps (a + b) n = num_odd_steps a n + num_odd_steps b (T_iter a n)
+
+lemma T_iter_one_even (j : ℕ) : T_iter (2 * j) 1 = 1
+
+lemma T_iter_one_odd (j : ℕ) : T_iter (2 * j + 1) 1 = 2
+
+lemma X_T_iter_one (i : ℕ) : X (T_iter i 1) = if i % 2 = 0 then 1 else 0
+
+lemma num_odd_steps_one_even (j : ℕ) : num_odd_steps (2 * j) 1 = j
+
+lemma num_odd_steps_one_odd (j : ℕ) : num_odd_steps (2 * j + 1) 1 = j + 1
+
+lemma num_odd_steps_one_bounds (m : ℕ) :
+    m ≤ 2 * num_odd_steps m 1 + 1 ∧ 2 * num_odd_steps m 1 ≤ m + 1
+
+lemma forward (n : ℕ) (_hn : n ≥ 1) (k₀ : ℕ) (hk₀ : k₀ ≥ 1) (hreach : T_iter k₀ n = 1) :
+    Tendsto (fun k => (↑(k - num_odd_steps k n) : ℚ) / ↑k)
+      atTop (nhds (1 / 2 : ℚ))
+
+lemma small_cases (n : ℕ) (hn : 1 ≤ n) (hn9 : n ≤ 9) :
+    ∃ k, k ≥ 1 ∧ T_iter k n = 1
+
+lemma T_odd_upper (n : ℕ) (hn : n ≥ 10) (hodd : n % 2 = 1) :
+    10 * (3 * n + 1) ≤ 31 * n
+
+lemma T_iter_bound (k n : ℕ) (h : ∀ j, j ≤ k → T_iter j n ≥ 10) :
+    10 ^ num_odd_steps k n * (2 ^ k * T_iter k n) ≤
+    31 ^ num_odd_steps k n * n
+
+lemma ratio_bound : ∀ s k : ℕ, 5 * s + 1 ≤ 3 * k → 31 ^ s < 2 ^ k * 10 ^ s
+
+lemma orbit_lower_bound (m : ℕ) (hm : m ≥ 1)
+    (h_never : ∀ k, k ≥ 1 → T_iter k m ≠ 1)
+    (h_min : ∀ n, n < m → n ≥ 1 → ∃ k, k ≥ 1 ∧ T_iter k n = 1) :
+    ∀ j, T_iter j m ≥ m
+
+lemma exists_ratio_bound_of_tendsto (n : ℕ)
+    (ht : Tendsto (fun k => (↑(k - num_odd_steps k n) : ℚ) / ↑k)
+      atTop (nhds (1 / 2 : ℚ))) :
+    ∃ k : ℕ, k ≥ 1 ∧ 5 * num_odd_steps k n + 1 ≤ 3 * k
+
+lemma conjecture_2_4_iff_2_5 :
+    (∀ n : ℕ, n ≥ 1 → ∃ k, k ≥ 1 ∧ T_iter k n = 1) ↔
+    (∀ n : ℕ, n ≥ 1 → Tendsto (fun k => (↑(k - num_odd_steps k n) : ℚ) / ↑k)
+      atTop (nhds (1 / 2 : ℚ)))
+
+def satWord (j : ℕ) : ℕ := if sat j % 2 = 1 then 1 else 2
+
+def numOnesSat (k : ℕ) : ℕ :=
+  ((Finset.range k).filter (fun j => sat j % 2 = 1)).card
+
+def conjecture_4_2 : Prop :=
+  Tendsto (fun k => (numOnesSat k : ℚ) / ↑k) atTop (nhds (1 / 2 : ℚ))
+
+def subwordCount (w : List ℕ) (n : ℕ) : ℕ :=
+  ((Finset.range n).filter (fun i =>
+    (List.range w.length).map (fun j => satWord (i + j)) = w)).card
+
+def conjecture_4_3 : Prop :=
+  ∀ (w : List ℕ), (∀ d ∈ w, d = 1 ∨ d = 2) →
+    Tendsto (fun n => (subwordCount w n : ℚ) / ↑n) atTop (nhds (1 / 2 ^ w.length : ℚ))
+
+theorem conjecture_4_3_implies_4_2 : conjecture_4_3 → conjecture_4_2
+
+def numOddU (k n₀ : ℕ) : ℕ :=
+  ((Finset.range k).filter (fun j => U_iter j n₀ % 2 = 1)).card
+
+def U_orbit_density (n₀ : ℕ) : Prop :=
+  Tendsto (fun k => (numOddU k n₀ : ℚ) / ↑k) atTop (nhds (1 / 2 : ℚ))
+
+def conjecture_U_orbit_density : Prop := ∀ n₀ : ℕ, U_orbit_density n₀
+
+theorem conjecture_4_2_eq_U_orbit_zero : conjecture_4_2 ↔ U_orbit_density 0

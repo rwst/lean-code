@@ -45,10 +45,15 @@ the `B3.subspaceDen 3^c − 2^p` and is the explicit periodic point underlying
   heart of `(2.1)`; that the denominator `2ⁿ − 3^{Σv}` is odd and nonzero (`cycleDen_*`), so
   `x(v) ∈ Q[(2)]` (`xCycle_mem_Q2`); and the **uniqueness + formula** direction
   (`eq_xCycle_of_periodic`: any rational periodic point with parity sequence `v` *equals* `x(v)`).
-* **Cited (`xCycle_realizes`, a literature `axiom`).** The **realization** direction — that the
-  explicit `x(v)` really is a period-`n` point whose parity sequence starts with `v` — is the
-  Böhm–Sontacchi content; recorded as a cited `axiom`. The headline **Theorem 2.1** (`theorem_2_1`) is
-  then *proved* (`∃!`) by combining this realization with the proved uniqueness.
+* **Proved — realization (was a cited `axiom`).** The **realization** direction — that the explicit
+  `x(v)` really is a period-`n` point whose parity sequence starts with `v` (`xCycle_realizes`) — is the
+  Böhm–Sontacchi content. It is now *proved* from the **path/telescope identity** `(2.16)` (the CTUHSK
+  "generative-parameter" form `3^k·m + ∑_{i<k} 3^i·2^{zᵢ} = 2^z`, [CTUHSK, Eqn.16]) specialised to a
+  closed path: a shift `sh` on parity words, the **left-peel recurrence** `cycleSum_peel` (dual to the
+  right-peel `cycleSum_succ`), the base parity `parity_xCycle`, the **shift-covariance**
+  `T (x(v)) = x(sh v)` (`T_xCycle_sh`), and its iteration `iterate_T_xCycle` around the `n`-periodic
+  extension of `v`. The headline **Theorem 2.1** (`theorem_2_1`) is then *proved* (`∃!`) by combining
+  this realization with the proved uniqueness — so the entire section is now free of the cited axiom.
 
 ## References
 * [Lag90] Lagarias, Jeffrey C. *The set of rational cycles for the `3x+1` problem.* Acta Arithmetica
@@ -56,6 +61,8 @@ the `B3.subspaceDen 3^c − 2^p` and is the explicit periodic point underlying
 * [BoS78] Böhm, Corrado, and Giovanni Sontacchi. *On the existence of cycles of given length in
   integer sequences like `xₙ₊₁ = xₙ/2` if `xₙ` even, and `xₙ₊₁ = 3xₙ+1` otherwise.* Atti Accad. Naz.
   Lincei Rend. Cl. Sci. Fis. Mat. Natur. (8) 64 (1978), no. 3, 260–264 (Thm 5: the explicit cycle).
+* [CTUHSK] Halemane, Keshava Prasad. *Collatz-Thwaites-Ulam-Hasse-Syracuse-Kakutani (CTUHSK) Theorem.*
+  (2026), Eqn. 16: the finite path/telescope identity `3^k·m + ∑_{i<k} 3^i·2^{zᵢ} = 2^z`.
 * [BL96] Bernstein, Daniel J., and Jeffrey C. Lagarias. *The 3x+1 conjugacy map.* Canadian J. Math.
   48 (1996), no. 6, 1154–1169 (the `2`-adic map `T₂` and parity sequences this restricts/extends).
 -/
@@ -264,14 +271,238 @@ theorem eq_xCycle_of_periodic (n : ℕ) (v : ℕ → ℕ) (x : ℚ) (hn : 0 < n)
   unfold cycleDen
   linear_combination hrec
 
-/-- **Realization (Böhm–Sontacchi; cited literature `axiom`).** The explicit point `x(v)` of `(2.1)`
-really is a period-`n` point of `T` whose parity sequence starts with the `0`-`1` vector `v`. This is
-the existence half of Theorem 2.1, proved in [Lag90] via Böhm–Sontacchi [BoS78, Thm 5]; recorded as a
-cited `axiom`, from which `theorem_2_1` is assembled together with the proved uniqueness
-`eq_xCycle_of_periodic`. -/
+/-! ### The path/telescope identity and the realization proof
+
+The realization direction of Theorem 2.1 — that `x(v)` really is a period-`n` point with parity
+sequence `v` — was originally recorded as a cited Böhm–Sontacchi `axiom`. It is now **proved** from
+the *path identity* (`(2.16)`, the CTUHSK "generative-parameter" telescope
+`3^k·m + ∑_{i<k} 3^i·2^{zᵢ} = 2^z`, [CTUHSK, Eqn.16]) specialised to a closed path, via the following
+chain: a **shift** `sh` on parity words, a **left-peel recurrence** `cycleSum_peel` (dual to the
+already-proved right-peel `cycleSum_succ`), the base-parity **Lemma A** `parity_xCycle`, the
+**shift-covariance** `T (x(v)) = x(sh v)`, and its iteration. -/
+
+/-- Index shift on parity words: `(sh v) j = v (j+1)` (the successor/cyclic shift underlying `(2.1)`). -/
+@[category API, AMS 11 37, ref "Lag90"]
+def sh (v : ℕ → ℕ) : ℕ → ℕ := fun j => v (j + 1)
+
+@[simp, category API, AMS 11 37, ref "Lag90"]
+theorem sh_apply (v : ℕ → ℕ) (j : ℕ) : sh v j = v (j + 1) := rfl
+
+/-- Iterated shift is a plain index translation: `(sh^[i] v) j = v (j + i)`. -/
+@[category API, AMS 11 37, ref "Lag90"]
+theorem sh_iterate (v : ℕ → ℕ) (i j : ℕ) : (sh^[i] v) j = v (j + i) := by
+  induction i generalizing j with
+  | zero => simp
+  | succ i ih =>
+    rw [Function.iterate_succ_apply', sh_apply, ih]
+    congr 1
+    omega
+
+/-- `totalOdd n (sh v) + v 0 = totalOdd n v + v n`: shifting cycles the summation window. -/
+@[category API, AMS 11 37, ref "Lag90"]
+theorem totalOdd_sh_add (n : ℕ) (v : ℕ → ℕ) :
+    totalOdd n (sh v) + v 0 = totalOdd n v + v n := by
+  simp only [totalOdd, sh]
+  rw [← Finset.sum_range_succ v n, ← Finset.sum_range_succ' v n]
+
+/-- For a locally periodic word (`v n = v 0`) the odd-count is shift-invariant. -/
+@[category API, AMS 11 37, ref "Lag90"]
+theorem totalOdd_sh (n : ℕ) (v : ℕ → ℕ) (hper : v n = v 0) :
+    totalOdd n (sh v) = totalOdd n v := by
+  have h := totalOdd_sh_add n v
+  omega
+
+/-- Hence the denominator `2ⁿ − 3^{Σv}` is shift-invariant for a locally periodic word. -/
+@[category API, AMS 11 37, ref "Lag90"]
+theorem cycleDen_sh (n : ℕ) (v : ℕ → ℕ) (hper : v n = v 0) :
+    cycleDen n (sh v) = cycleDen n v := by
+  unfold cycleDen
+  rw [totalOdd_sh n v hper]
+
+/-- **Left-peel recurrence (the path identity `(2.16)` in telescope form).** Peeling the `j = 0` term
+off `cycleSum (m+1) v` and reindexing the rest as a shift:
+`cycleSum (m+1) v = 2·cycleSum m (sh v) + v₀·3^{∑_{1≤k<m+1} vₖ}`. The dual of `cycleSum_succ`; together
+they drive shift-covariance and, closed up, the Böhm–Sontacchi identity of `(2.1)`. -/
 @[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
-axiom xCycle_realizes (n : ℕ) (hn : 0 < n) (v : ℕ → ℕ) (hv : ∀ j < n, v j < 2) :
-    T^[n] (xCycle n v) = xCycle n v ∧ ∀ j < n, parity (T^[j] (xCycle n v)) = v j
+theorem cycleSum_peel (m : ℕ) (v : ℕ → ℕ) :
+    cycleSum (m + 1) v =
+      2 * cycleSum m (sh v) + (v 0 : ℚ) * 3 ^ (∑ k ∈ Finset.Ico 1 (m + 1), v k) := by
+  unfold cycleSum
+  rw [Finset.sum_range_succ'
+      (fun j => (v j : ℚ) * 2 ^ j * 3 ^ (∑ k ∈ Finset.Ico (j + 1) (m + 1), v k)) m]
+  simp only [sh, pow_zero, mul_one, Nat.zero_add, Finset.mul_sum]
+  congr 1
+  refine Finset.sum_congr rfl (fun j hj => ?_)
+  rw [Finset.mem_range] at hj
+  have hreindex :
+      (∑ k ∈ Finset.Ico (j + 1 + 1) (m + 1), v k)
+        = (∑ k ∈ Finset.Ico (j + 1) m, v (k + 1)) := by
+    rw [Finset.sum_Ico_eq_sum_range, Finset.sum_Ico_eq_sum_range]
+    refine Finset.sum_congr (by congr 1; omega) (fun i _ => ?_)
+    congr 1
+    omega
+  rw [hreindex]
+  ring
+
+/-- `cycleSumNat (m+1) v ≡ v₀ (mod 2)`: only the `j = 0` term survives mod `2` (higher terms carry
+`2^{j+1}`), and `3^e` is odd. The mod-`2` heart of Lemma A. -/
+@[category API, AMS 11 37, ref "Lag90"]
+theorem cycleSumNat_mod_two (m : ℕ) (v : ℕ → ℕ) :
+    cycleSumNat (m + 1) v % 2 = v 0 % 2 := by
+  unfold cycleSumNat
+  rw [Finset.sum_range_succ'
+      (fun j => v j * 2 ^ j * 3 ^ (∑ k ∈ Finset.Ico (j + 1) (m + 1), v k)) m]
+  have heven :
+      2 ∣ ∑ j ∈ Finset.range m,
+          v (j + 1) * 2 ^ (j + 1) * 3 ^ (∑ k ∈ Finset.Ico (j + 1 + 1) (m + 1), v k) := by
+    apply Finset.dvd_sum
+    intro j _
+    exact Dvd.dvd.mul_right (Dvd.dvd.mul_left (dvd_pow_self 2 (Nat.succ_ne_zero j)) _) _
+  have hodd : (3 : ℕ) ^ (∑ k ∈ Finset.Ico 1 (m + 1), v k) % 2 = 1 := by
+    rw [Nat.pow_mod]
+    simp
+  obtain ⟨c, hc⟩ := heven
+  simp only [pow_zero, mul_one, Nat.zero_add, hc]
+  rw [Nat.add_comm, Nat.mul_comm 2 c, Nat.add_mul_mod_self_right, Nat.mul_mod, hodd, Nat.mul_one,
+    Nat.mod_mod]
+
+/-- **Lemma A (base parity).** The numerator parity of the explicit point is the first bit:
+`parity (x(v)) = v₀`. *Proof:* for the odd-denominator rational `x(v) = S/(2ⁿ−3^{Σv})`, the numerator
+satisfies `x.num ≡ S (mod 2)`, and `S = cycleSumNat ≡ v₀ (mod 2)`. -/
+@[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
+theorem parity_xCycle (n : ℕ) (v : ℕ → ℕ) (hn : 0 < n) (hbit : v 0 < 2) :
+    parity (xCycle n v) = v 0 := by
+  obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
+  set x := xCycle (m + 1) v with hxdef
+  have hB : (cycleDenInt (m + 1) v : ℚ) ≠ 0 := by
+    exact_mod_cast cycleDenInt_ne_zero (m + 1) v (by omega)
+  have hden : (x.den : ℚ) ≠ 0 := by exact_mod_cast x.den_nz
+  have e1 : x = (cycleSumNat (m + 1) v : ℚ) / (cycleDenInt (m + 1) v : ℚ) := by
+    rw [hxdef, xCycle, cycleSum_eq_cast, cycleDen_eq_cast]
+  have e2 : (x.num : ℚ) / (x.den : ℚ)
+      = (cycleSumNat (m + 1) v : ℚ) / (cycleDenInt (m + 1) v : ℚ) := by
+    rw [Rat.num_div_den, e1]
+  rw [div_eq_div_iff hden hB] at e2
+  have hcross : x.num * cycleDenInt (m + 1) v = (cycleSumNat (m + 1) v : ℤ) * x.den := by
+    exact_mod_cast e2
+  have hBodd : cycleDenInt (m + 1) v % 2 = 1 := Int.odd_iff.mp (cycleDenInt_odd (m + 1) v (by omega))
+  have hxmemQ2 : x ∈ Q2 := hxdef ▸ xCycle_mem_Q2 (m + 1) v (by omega)
+  have hdenodd : (x.den : ℤ) % 2 = 1 := by
+    have : Odd x.den := hxmemQ2
+    rcases this with ⟨t, ht⟩
+    omega
+  have hnummod : x.num % 2 = (cycleSumNat (m + 1) v : ℤ) % 2 := by
+    have h := congrArg (· % 2) hcross
+    simp only [Int.mul_emod, hBodd, hdenodd, Int.mul_one] at h
+    simpa using h
+  unfold parity
+  rw [hnummod]
+  have hcs := cycleSumNat_mod_two m v
+  have hv0 : v 0 % 2 = v 0 := Nat.mod_eq_of_lt hbit
+  have hnat : cycleSumNat (m + 1) v % 2 = v 0 := hcs.trans hv0
+  omega
+
+/-- **The path identity (★).** `2·cycleSum (m+1) (sh v) = 3^{v₀}·cycleSum (m+1) v + v₀·cycleDen (m+1) v`
+for a locally periodic word (`v (m+1) = v 0`). Assembled from the left-peel `cycleSum_peel` and the
+right-peel `cycleSum_succ`, with `3^{v₀}·3^{∑_{1≤k} vₖ} = 3^{totalOdd}`. -/
+@[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
+theorem two_cycleSum_sh (m : ℕ) (v : ℕ → ℕ) (hper : v (m + 1) = v 0) :
+    2 * cycleSum (m + 1) (sh v)
+      = 3 ^ (v 0) * cycleSum (m + 1) v + (v 0 : ℚ) * cycleDen (m + 1) v := by
+  have hL := cycleSum_peel m v
+  have hR := cycleSum_succ m (sh v)
+  have hshm : sh v m = v 0 := by rw [sh_apply, hper]
+  rw [hshm] at hR
+  have hexp : (3 : ℚ) ^ (v 0) * 3 ^ (∑ k ∈ Finset.Ico 1 (m + 1), v k)
+      = 3 ^ (totalOdd (m + 1) v) := by
+    rw [← pow_add]
+    congr 1
+    have hsplit : (∑ i ∈ Finset.range 1, v i) + (∑ i ∈ Finset.Ico 1 (m + 1), v i)
+        = ∑ i ∈ Finset.range (m + 1), v i :=
+      Finset.sum_range_add_sum_Ico v (Nat.le_add_left 1 m)
+    rw [Finset.sum_range_one] at hsplit
+    rw [totalOdd]
+    omega
+  unfold cycleDen
+  rw [hR, hL]
+  linear_combination (-(v 0 : ℚ)) * hexp
+
+/-- **Shift covariance.** One `T`-step advances the parametric point along the cyclic shift:
+`T (x(v)) = x(sh v)` for a locally periodic bit-word. Combines `parity_xCycle` (which branch of `T`
+fires) with the path identity `two_cycleSum_sh`. -/
+@[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
+theorem T_xCycle_sh (m : ℕ) (v : ℕ → ℕ) (hper : v (m + 1) = v 0) (hbit : v 0 < 2) :
+    T (xCycle (m + 1) v) = xCycle (m + 1) (sh v) := by
+  have hpar : parity (xCycle (m + 1) v) = v 0 := parity_xCycle (m + 1) v (by omega) hbit
+  have hden : cycleDen (m + 1) v ≠ 0 := cycleDen_ne_zero (m + 1) v (by omega)
+  have h2 : 2 * T (xCycle (m + 1) v) = xCycle (m + 1) v * 3 ^ (v 0) + (v 0 : ℚ) := by
+    rw [two_mul_T, hpar]
+  have key : 2 * xCycle (m + 1) (sh v) = xCycle (m + 1) v * 3 ^ (v 0) + (v 0 : ℚ) := by
+    rw [xCycle, xCycle, cycleDen_sh (m + 1) v hper]
+    field_simp
+    linear_combination two_cycleSum_sh m v hper
+  have hcancel : 2 * T (xCycle (m + 1) v) = 2 * xCycle (m + 1) (sh v) := by rw [h2, key]
+  exact mul_left_cancel₀ (by norm_num : (2 : ℚ) ≠ 0) hcancel
+
+/-- Iterating covariance: `Tⁱ (x(w)) = x(shⁱ w)` for a globally `n`-periodic bit-word `w`. -/
+@[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
+theorem iterate_T_xCycle (m : ℕ) (w : ℕ → ℕ)
+    (hper : ∀ j, w (j + (m + 1)) = w j) (hbit : ∀ j, w j < 2) (i : ℕ) :
+    T^[i] (xCycle (m + 1) w) = xCycle (m + 1) (sh^[i] w) := by
+  induction i with
+  | zero => simp
+  | succ i ih =>
+    rw [Function.iterate_succ_apply', ih]
+    have hp1 : (sh^[i] w) (m + 1) = (sh^[i] w) 0 := by
+      rw [sh_iterate, sh_iterate]
+      rw [Nat.zero_add, show m + 1 + i = i + (m + 1) from by omega]
+      exact hper i
+    have hb1 : (sh^[i] w) 0 < 2 := by rw [sh_iterate, Nat.zero_add]; exact hbit i
+    rw [T_xCycle_sh m (sh^[i] w) hp1 hb1,
+      show sh^[i + 1] w = sh (sh^[i] w) from Function.iterate_succ_apply' sh i w]
+
+/-- **Realization (Böhm–Sontacchi) — now a proved theorem.** The explicit point `x(v)` of `(2.1)`
+really is a period-`n` point of `T` whose parity sequence starts with the `0`-`1` vector `v`. This is
+the existence half of Theorem 2.1; formerly recorded as a cited `axiom`, it is now **discharged** by
+the path-identity machinery above (extend `v` `n`-periodically, iterate shift-covariance
+`T_xCycle_sh` `n` times, close the loop with `sh^[n] = id` on the periodic word, and read the parities
+off `parity_xCycle`). -/
+@[category research solved, AMS 11 37, ref "Lag90" "BoS78", group "lag90_rational_cycles"]
+theorem xCycle_realizes (n : ℕ) (hn : 0 < n) (v : ℕ → ℕ) (hv : ∀ j < n, v j < 2) :
+    T^[n] (xCycle n v) = xCycle n v ∧ ∀ j < n, parity (T^[j] (xCycle n v)) = v j := by
+  obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
+  set w : ℕ → ℕ := fun j => v (j % (m + 1)) with hw
+  have hjmod : ∀ j < m + 1, w j = v j := by
+    intro j hj; simp only [hw, Nat.mod_eq_of_lt hj]
+  have hbit : ∀ j, w j < 2 := by
+    intro j; simp only [hw]; exact hv _ (Nat.mod_lt _ (by omega))
+  have hper : ∀ j, w (j + (m + 1)) = w j := by
+    intro j; simp only [hw, Nat.add_mod_right]
+  have hcs : cycleSum (m + 1) w = cycleSum (m + 1) v := by
+    unfold cycleSum
+    refine Finset.sum_congr rfl (fun j hj => ?_)
+    rw [Finset.mem_range] at hj
+    rw [hjmod j hj]
+    congr 2
+    refine Finset.sum_congr rfl (fun k hk => ?_)
+    rw [Finset.mem_Ico] at hk
+    exact hjmod k (by omega)
+  have hct : totalOdd (m + 1) w = totalOdd (m + 1) v := by
+    unfold totalOdd
+    exact Finset.sum_congr rfl (fun j hj => hjmod j (Finset.mem_range.mp hj))
+  have hxeq : xCycle (m + 1) w = xCycle (m + 1) v := by
+    unfold xCycle cycleDen
+    rw [hcs, hct]
+  have hIt := iterate_T_xCycle m w hper hbit
+  refine ⟨?_, ?_⟩
+  · rw [← hxeq, hIt (m + 1)]
+    have hfix : sh^[m + 1] w = w := by
+      funext j; rw [sh_iterate]; exact hper j
+    rw [hfix]
+  · intro j hj
+    rw [← hxeq, hIt j,
+      parity_xCycle (m + 1) (sh^[j] w) (by omega) (by rw [sh_iterate, Nat.zero_add]; exact hbit j),
+      sh_iterate, Nat.zero_add, hjmod j hj]
 
 /-- **Theorem 2.1 (Lagarias 1990, §2).** *Given any `0`-`1` vector `v = (v₀, …, v_{n-1})` there is a
 **unique** `x ∈ Q[(2)]` which is periodic of period `n` under `T` and whose parity sequence starts

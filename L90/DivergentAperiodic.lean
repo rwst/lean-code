@@ -41,8 +41,9 @@ form of Lagarias's argument, powered directly by the **affine recurrence**
 
 This is the `2`-adic *valuation trap* of Lagarias's `plan2`, now clean because `RationalCycles`
 supplies the recurrence as a finished lemma. It uses **only** elementary integer divisibility — no
-`padicValRat`, and crucially **not** the cited realization axiom `L90.xCycle_realizes`. The whole file
-is therefore `sorry`-free and rests only on the standard `[propext, Classical.choice, Quot.sound]`.
+`padicValRat`, and crucially **not** the realization result `L90.xCycle_realizes` (now a proved
+theorem, formerly a cited axiom). The whole file is therefore `sorry`-free and rests only on the
+standard `[propext, Classical.choice, Quot.sound]`.
 
 ## Relation to the `B3` capstone
 
