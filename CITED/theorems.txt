@@ -1,9 +1,16 @@
 import ForMathlib.Data.Rat.NearestInt
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Algebra.GCDMonoid.Finset
+import Mathlib.Algebra.Order.Round
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
+import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.Nat.GCD.Basic
 import Mathlib.Data.Set.Finite.Basic
 import Mathlib.NumberTheory.Height.NumberField
+import Mathlib.NumberTheory.Padics.PadicVal.Basic
+import Mathlib.Topology.Instances.Real.Lemmas
 
 def kKernel (k : ℕ) (a : ℕ → ℕ) : Set (ℕ → ℕ) :=
   {s | ∃ i r, r < k ^ i ∧ s = fun n => a (k ^ i * n + r)}
@@ -31,6 +38,17 @@ axiom linearForms_logs
           * max (Real.log B) (1 / (Module.finrank ℚ K : ℝ))
           * ∏ i, BakerWustholz.modifiedHeight φ (α i))
 
+def MultIndep (a b : ℕ) : Prop := ∀ m n : ℕ, a ^ m = b ^ n → m = 0 ∧ n = 0
+
+lemma multIndep_two_three : MultIndep 2 3
+
+axiom gcd_pow_sub_one_lt (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (hind : MultIndep a b)
+    (ε : ℝ) (hε : 0 < ε) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (Nat.gcd (a ^ n - 1) (b ^ n - 1) : ℝ) < Real.exp (ε * n)
+
+lemma gcd_two_three_pow_lt (ε : ℝ) (hε : 0 < ε) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (Nat.gcd (2 ^ n - 1) (3 ^ n - 1) : ℝ) < Real.exp (ε * n)
+
 def height23 (x y : ℤ) : ℕ :=
   max (2 ^ x.toNat * 3 ^ y.toNat) (2 ^ (-x).toNat * 3 ^ (-y).toNat)
 
@@ -51,6 +69,21 @@ lemma height23_neg_natCast (a : ℕ) : height23 (-(a : ℤ)) a = 3 ^ a
 
 axiom pillai_lower_bound (j q : ℕ) (hj : 28 ≤ j) :
     (2 : ℝ) ^ j * Real.exp (-(j : ℝ) / 10) < |(2 : ℝ) ^ j - 3 ^ q|
+
+def IsSUnit (x : ℤ) : Prop := ∃ a b : ℕ, x = 2 ^ a * 3 ^ b ∨ x = -(2 ^ a * 3 ^ b)
+
+lemma isSUnit_two_pow_three_pow (a b : ℕ) : IsSUnit ((2 : ℤ) ^ a * 3 ^ b)
+
+lemma IsSUnit.ne_zero {x : ℤ} (h : IsSUnit x) : x ≠ 0
+
+lemma IsSUnit.one_le_natAbs {x : ℤ} (h : IsSUnit x) : 1 ≤ x.natAbs
+
+axiom sUnit_sum_lower (n : ℕ) (hn : 1 ≤ n) (ε : ℝ) (hε : 0 < ε) :
+    { x : Fin n → ℤ |
+        (∀ i, IsSUnit (x i)) ∧
+        Finset.univ.gcd (fun i => x i) = 1 ∧
+        (∀ I : Finset (Fin n), I.Nonempty → I ⊂ Finset.univ → ∑ i ∈ I, x i ≠ 0) ∧
+        ((|∑ i, x i| : ℤ) : ℝ) < ((Finset.univ.sup fun i => (x i).natAbs : ℕ) : ℝ) ^ (1 - ε) }.Finite
 
 def uval (x y : ℤ) : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y
 
@@ -76,3 +109,33 @@ def logHeight (u₁ u₂ : ℤ) : ℤ := max |u₁| |u₂|
 
 axiom logForm_lower_bound (u₀ u₁ u₂ : ℤ) (hH : 2 ≤ logHeight u₁ u₂) :
     (logHeight u₁ u₂ : ℝ) ^ (-(13.3 : ℝ)) ≤ |logForm u₀ u₁ u₂|
+
+def limitPoints (θ : ℝ) : Set ℝ :=
+  {x : ℝ | MapClusterPt x Filter.atTop (fun n : ℕ => Int.fract (θ ^ n))}
+
+axiom limitPoints_infinite (p q : ℕ) (hcop : Nat.Coprime p q) (hq : 1 < q) (hpq : q < p) :
+    (limitPoints ((p : ℝ) / q)).Infinite
+
+theorem limitPoints_three_halves_infinite : (limitPoints (3 / 2)).Infinite
+
+noncomputable def yuHeight (α : ℚ) : ℝ :=
+  max (Height.logHeight₁ α) (1 / (16 * Real.exp 1 ^ 2))
+
+lemma yuHeight_pos (α : ℚ) : 0 < yuHeight α
+
+noncomputable def C₀ (n p : ℕ) : ℝ :=
+  (16 * Real.exp 1) ^ (2 * (n + 1)) * (n : ℝ) ^ ((3 : ℝ) / 2) *
+    Real.log (2 * n) * Real.log 2 * (p : ℝ) / Real.log (p : ℝ) ^ 2
+
+axiom padicVal_prod_sub_one_lt (p : ℕ) (hp : p.Prime) (n : ℕ) (hn : 2 ≤ n)
+    (α : Fin n → ℚ) (hα : ∀ j, α j ≠ 0) (b : Fin n → ℤ) (hb : ∃ j, b j ≠ 0)
+    (hΞ : (∏ j, α j ^ b j) ≠ 1)
+    (B : ℝ) (hB : (3 : ℝ) ≤ B) (hbB : ∀ j, (|b j| : ℝ) ≤ B) :
+    ((padicValRat p ((∏ j, α j ^ b j) - 1) : ℤ) : ℝ)
+      < (n : ℝ) * C₀ n p * (∏ j, yuHeight (α j)) * Real.log B
+
+lemma padicVal2_prod_sub_one_lt (n : ℕ) (hn : 2 ≤ n) (α : Fin n → ℚ) (hα : ∀ j, α j ≠ 0)
+    (b : Fin n → ℤ) (hb : ∃ j, b j ≠ 0) (hΞ : (∏ j, α j ^ b j) ≠ 1)
+    (B : ℝ) (hB : (3 : ℝ) ≤ B) (hbB : ∀ j, (|b j| : ℝ) ≤ B) :
+    ((padicValRat 2 ((∏ j, α j ^ b j) - 1) : ℤ) : ℝ)
+      < (n : ℝ) * C₀ n 2 * (∏ j, yuHeight (α j)) * Real.log B
