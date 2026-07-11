@@ -7,6 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Tactic.IntervalCases
 import CITED.EllisonsTheorem
+import CITED.RhinLogForm
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -32,15 +33,31 @@ The range `13 ≤ q ≤ 18` is handled by a direct finite check (`nearCycle_smal
 for `exp`.  Both avoid `native_decide` and any configuration change, so **the only cited input is
 Ellison's theorem** (`Ellison.pillai_lower_bound`).
 
+## The Rhin companion (`plan-formalize-logforms.html` M-5, F-5b)
+
+`nearCycle_rhin_bound` is a second, *complementary* gap bound resting on Rhin's linear-form
+estimate (`CITED/RhinLogForm.lean`, [Rhi87]) rather than Ellison's: for `max(j, q) ≥ 2`,
+`|2ʲ − 3^q| ≥ (3^q / e) · max(j, q)^(−13.3)`.  Its loss factor is *polynomial* in `max(j, q)`
+where Ellison's `nearCycle_lower_bound` loses an *exponential* `e^{−j/10}` — so the Rhin bound
+is asymptotically far stronger and wins for `q ≳ 550`, while Ellison wins for small `q`.  The two
+are complementary; `Ellison.pillai_lower_bound` stays untouched (it is what [Roz25] Appendix B
+actually cites).  Proof: with `Λ = j·log 2 − q·log 3`, `2ʲ − 3^q = 3^q(e^Λ − 1)`, and Rhin's
+`|Λ| ≥ max(j,q)^(−13.3)` is turned into the gap by `|e^x − 1| ≥ |x|e^{−|x|}` (small `Λ`) and
+`|e^x − 1| ≥ 1 − 1/e` (`|Λ| ≥ 1`).  Footprint std3 + [Rhi87] only — no new axiom.
+
 ## Contents
 * `RT.nearCycleBase` / `RT.nearCycleExp` / `RT.nearCycleConst` — the constants `c`, `ρ`, `A`.
 * `RT.nearCycleConst_gt` — `2.56 < A` (the paper's constant `A = 2.560278…`); proved via `exp` Taylor bound.
 * `RT.nearCycle_small_q` — the base range `13 ≤ q ≤ 18`; proved by a finite `interval_cases` check.
 * `RT.nearCycle_lower_bound` — **Lemma B.1** ([Roz25]).
+* `RT.nearCycle_rhin_bound` — the **Rhin companion** ([Rhi87]): `|2ʲ − 3^q| ≥ (3^q/e)·max(j,q)^(−13.3)`.
 
 ## References
 * [Ell71] Ellison, W. J. "On a theorem of S. Sivasankaranarayana Pillai."
   *Séminaire de théorie des nombres de Bordeaux* (1971): 1–10.
+* [Rhi87] Rhin, Georges. "Approximants de Padé et mesures effectives d'irrationalité."
+  *Séminaire de Théorie des Nombres, Paris 1985–86*, 155–164. Birkhäuser, 1987.
+  (Via `CITED/RhinLogForm.lean`.)
 * [Roz25] Rozier, Olivier, and Claude Terracol. "Paradoxical behavior in Collatz sequences."
   arXiv preprint arXiv:2502.00948 (2025). Appendix B, Lemma B.1, eq. (24).
 -/
@@ -253,5 +270,128 @@ theorem nearCycle_lower_bound (j q : ℕ) (hq : 12 < q) :
         have h256lt3 : (2.56 : ℝ) ^ q < (3 : ℝ) ^ q :=
           pow_lt_pow_left₀ (by norm_num) (by norm_num) (by omega)
         rw [hDeq]; linarith [h2j, h256lt3]
+
+/-! ## The Rhin companion bound (`plan-formalize-logforms.html` M-5, F-5b) -/
+
+/-- Elementary: `|x| e^{−|x|} ≤ |e^x − 1|` for every real `x` (the exponential is at
+least linear away from `0`).  The small-`Λ` half of `nearCycle_rhin_bound`. -/
+private lemma abs_exp_sub_one_ge (x : ℝ) :
+    |x| * Real.exp (-|x|) ≤ |Real.exp x - 1| := by
+  rcases le_or_gt 0 x with hx | hx
+  · rw [abs_of_nonneg hx,
+      abs_of_nonneg (by linarith [Real.add_one_le_exp x] : (0 : ℝ) ≤ Real.exp x - 1)]
+    have h1 : Real.exp (-x) ≤ 1 := by rw [Real.exp_le_one_iff]; linarith
+    have h2 : x * Real.exp (-x) ≤ x * 1 := mul_le_mul_of_nonneg_left h1 hx
+    linarith [h2, Real.add_one_le_exp x]
+  · rw [abs_of_neg hx]
+    have hexp1 : Real.exp x < 1 := by rw [Real.exp_lt_one_iff]; exact hx
+    rw [abs_of_neg (by linarith [hexp1] : Real.exp x - 1 < 0), neg_neg]
+    have h := Real.add_one_le_exp (-x)
+    have hepos : (0 : ℝ) < Real.exp x := Real.exp_pos x
+    have hmul : (-x + 1) * Real.exp x ≤ 1 := by
+      calc (-x + 1) * Real.exp x ≤ Real.exp (-x) * Real.exp x :=
+            mul_le_mul_of_nonneg_right h (le_of_lt hepos)
+        _ = 1 := by rw [← Real.exp_add]; simp
+    nlinarith [hmul]
+
+/-- Elementary: `1 − 1/e ≤ |e^x − 1|` once `|x| ≥ 1` (the exponential is bounded away
+from `1` outside `(−1, 1)`).  The large-`Λ` half of `nearCycle_rhin_bound`. -/
+private lemma abs_exp_sub_one_ge_one (x : ℝ) (hx : 1 ≤ |x|) :
+    1 - (Real.exp 1)⁻¹ ≤ |Real.exp x - 1| := by
+  have hinvpos : 0 < (Real.exp 1)⁻¹ := inv_pos.mpr (Real.exp_pos 1)
+  rcases le_abs.mp hx with hpos | hneg
+  · rw [abs_of_nonneg (by nlinarith [Real.add_one_le_exp x] : (0 : ℝ) ≤ Real.exp x - 1)]
+    have hexp : Real.exp 1 ≤ Real.exp x := Real.exp_le_exp.mpr hpos
+    have he2 : (2 : ℝ) ≤ Real.exp 1 := by linarith [Real.add_one_le_exp (1 : ℝ)]
+    linarith [hexp, hinvpos, he2]
+  · have hxle : x ≤ -1 := by linarith
+    have hexp : Real.exp x ≤ Real.exp (-1) := Real.exp_le_exp.mpr hxle
+    have hexpinv : Real.exp (-1) = (Real.exp 1)⁻¹ := by rw [Real.exp_neg]
+    have hx1 : Real.exp x ≤ 1 := Real.exp_le_one_iff.mpr (by linarith)
+    rw [abs_of_nonpos (by linarith : Real.exp x - 1 ≤ 0)]
+    linarith [hexp, hexpinv]
+
+/-- **The Rhin near-cycle bound** ([Rhi87], `plan-formalize-logforms.html` M-5, F-5b): a proved
+companion to `nearCycle_lower_bound` (Lemma B.1) resting on Rhin's linear-form estimate
+(`CITED/RhinLogForm.lean`) instead of Ellison's.  For every `j, q` with `max(j, q) ≥ 2`,
+
+  `|2ʲ − 3^q| ≥ (3^q / e) · max(j, q)^(−13.3)`.
+
+Proof: with `Λ = j·log 2 − q·log 3`, one has `2ʲ − 3^q = 3^q(e^Λ − 1)`; Rhin's
+`Rhin.logForm_lower_bound` gives `|Λ| ≥ max(j,q)^(−13.3)`, converted to the gap by the elementary
+`abs_exp_sub_one_ge` (`|Λ| ≤ 1`) and `abs_exp_sub_one_ge_one` (`|Λ| ≥ 1`).  The loss factor is
+**polynomial** `max(j,q)^{−13.3}` where Ellison's bound loses an **exponential** `e^{−j/10}`
+(`nearCycle_lower_bound`): the two are complementary — this wins for `q ≳ 550`, Ellison for small
+`q`, and `Ellison.pillai_lower_bound` is untouched ([Roz25] App B cites it).  Footprint
+std3 + [Rhi87] only — no new axiom. -/
+@[category research solved, AMS 11 37, ref "Rhi87", group "roz_lemma_b1"]
+theorem nearCycle_rhin_bound (j q : ℕ) (hH : 2 ≤ max j q) :
+    (3 : ℝ) ^ q / Real.exp 1 * ((max j q : ℕ) : ℝ) ^ (-(13.3 : ℝ))
+      ≤ |(2 : ℝ) ^ j - 3 ^ q| := by
+  set H : ℝ := ((max j q : ℕ) : ℝ) with hHdef
+  have hH2 : 2 ≤ H := by rw [hHdef]; exact_mod_cast hH
+  -- ## the linear form `Λ = j·log 2 − q·log 3` and its Rhin lower bound
+  set Λ : ℝ := (j : ℝ) * Real.log 2 - (q : ℝ) * Real.log 3 with hΛdef
+  have hHeight : Rhin.logHeight (j : ℤ) (-(q : ℤ)) = ((max j q : ℕ) : ℤ) := by
+    unfold Rhin.logHeight
+    rw [abs_of_nonneg (by positivity : (0 : ℤ) ≤ (j : ℤ)), abs_neg,
+      abs_of_nonneg (by positivity : (0 : ℤ) ≤ (q : ℤ)), Nat.cast_max]
+  have hHge2 : 2 ≤ Rhin.logHeight (j : ℤ) (-(q : ℤ)) := by rw [hHeight]; exact_mod_cast hH
+  have hForm : Rhin.logForm 0 (j : ℤ) (-(q : ℤ)) = Λ := by
+    rw [hΛdef]; unfold Rhin.logForm; push_cast; ring
+  have hcastH : ((Rhin.logHeight (j : ℤ) (-(q : ℤ)) : ℤ) : ℝ) = H := by
+    rw [hHeight, hHdef]; push_cast; ring
+  have hRhin : H ^ (-(13.3 : ℝ)) ≤ |Λ| := by
+    have h := Rhin.logForm_lower_bound 0 (j : ℤ) (-(q : ℤ)) hHge2
+    rwa [hForm, hcastH] at h
+  -- ## the factorization `2ʲ − 3^q = 3^q(e^Λ − 1)`
+  have e2 : Real.exp ((j : ℝ) * Real.log 2) = (2 : ℝ) ^ j := by
+    rw [mul_comm, ← Real.rpow_def_of_pos (by norm_num : (0 : ℝ) < 2), Real.rpow_natCast]
+  have e3 : Real.exp ((q : ℝ) * Real.log 3) = (3 : ℝ) ^ q := by
+    rw [mul_comm, ← Real.rpow_def_of_pos (by norm_num : (0 : ℝ) < 3), Real.rpow_natCast]
+  have h3q : (3 : ℝ) ^ q ≠ 0 := by positivity
+  have hΛexp : (3 : ℝ) ^ q * Real.exp Λ = (2 : ℝ) ^ j := by
+    rw [hΛdef, Real.exp_sub, e2, e3]; field_simp
+  have hfactor : (2 : ℝ) ^ j - 3 ^ q = 3 ^ q * (Real.exp Λ - 1) := by
+    rw [mul_sub, hΛexp, mul_one]
+  have habs : |(2 : ℝ) ^ j - 3 ^ q| = 3 ^ q * |Real.exp Λ - 1| := by
+    rw [hfactor, abs_mul, abs_of_pos (by positivity : (0 : ℝ) < 3 ^ q)]
+  -- ## `H^(−13.3) / e ≤ |e^Λ − 1|`
+  have hHpow_le1 : H ^ (-(13.3 : ℝ)) ≤ 1 := by
+    rw [← Real.rpow_zero H]
+    exact Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
+  have hkey : H ^ (-(13.3 : ℝ)) / Real.exp 1 ≤ |Real.exp Λ - 1| := by
+    rcases le_or_gt (|Λ|) 1 with hle | hgt
+    · -- `|Λ| ≤ 1`: `H^(−13.3)/e ≤ |Λ|/e ≤ |Λ| e^{−|Λ|} ≤ |e^Λ − 1|`.
+      have hhelp := abs_exp_sub_one_ge Λ
+      have he : (Real.exp 1)⁻¹ ≤ Real.exp (-|Λ|) := by
+        rw [← Real.exp_neg]; exact Real.exp_le_exp.mpr (by linarith)
+      have h1 : |Λ| * (Real.exp 1)⁻¹ ≤ |Λ| * Real.exp (-|Λ|) :=
+        mul_le_mul_of_nonneg_left he (abs_nonneg _)
+      have h2 : H ^ (-(13.3 : ℝ)) * (Real.exp 1)⁻¹ ≤ |Λ| * (Real.exp 1)⁻¹ :=
+        mul_le_mul_of_nonneg_right hRhin (by positivity)
+      calc H ^ (-(13.3 : ℝ)) / Real.exp 1
+          = H ^ (-(13.3 : ℝ)) * (Real.exp 1)⁻¹ := div_eq_mul_inv _ _
+        _ ≤ |Λ| * (Real.exp 1)⁻¹ := h2
+        _ ≤ |Λ| * Real.exp (-|Λ|) := h1
+        _ ≤ |Real.exp Λ - 1| := hhelp
+    · -- `|Λ| ≥ 1`: `H^(−13.3)/e ≤ 1/e ≤ 1 − 1/e ≤ |e^Λ − 1|`.
+      have hge := abs_exp_sub_one_ge_one Λ (le_of_lt hgt)
+      have hstep : H ^ (-(13.3 : ℝ)) / Real.exp 1 ≤ (Real.exp 1)⁻¹ := by
+        rw [div_eq_mul_inv]
+        calc H ^ (-(13.3 : ℝ)) * (Real.exp 1)⁻¹ ≤ 1 * (Real.exp 1)⁻¹ :=
+              mul_le_mul_of_nonneg_right hHpow_le1 (by positivity)
+          _ = (Real.exp 1)⁻¹ := one_mul _
+      have hinvle : (Real.exp 1)⁻¹ ≤ 1 - (Real.exp 1)⁻¹ := by
+        have hpos : (0 : ℝ) < Real.exp 1 := Real.exp_pos 1
+        have he2 : (2 : ℝ) ≤ Real.exp 1 := by linarith [Real.add_one_le_exp (1 : ℝ)]
+        have h2inv : 2 * (Real.exp 1)⁻¹ ≤ 1 := by rw [mul_inv_le_iff₀ hpos]; linarith
+        linarith [h2inv]
+      linarith [hstep, hinvle, hge]
+  -- ## combine
+  rw [habs]
+  calc (3 : ℝ) ^ q / Real.exp 1 * H ^ (-(13.3 : ℝ))
+      = 3 ^ q * (H ^ (-(13.3 : ℝ)) / Real.exp 1) := by ring
+    _ ≤ 3 ^ q * |Real.exp Λ - 1| := mul_le_mul_of_nonneg_left hkey (by positivity)
 
 end RT

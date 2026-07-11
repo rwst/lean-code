@@ -63,6 +63,50 @@ Note the *single-base* case `v₂(3ⁿ − 1)` is elementary (LTE, `n = 1`), so 
 needed for genuinely multi-term forms ([M4A3] §11: on the current A5 route the two-term
 `Γ = ⟨2, 3⟩` forms are LTE-exact, and Yu is a reserve engine).
 
+## The sharp `p = 3` bound (`plan-formalize-logforms.html` F-3)
+
+The first consequence above drops *every* side condition (roots of unity allowed, no
+multiplicative independence, no `ord_𝔭 α_j = 0`), which costs a factor of roughly
+`10²·⁵`–`10⁴` in the constant.  Yu's **Theorem 1** ([Yu07] (1.24), §1.2) keeps those side
+conditions and delivers the sharp bound
+`ord_𝔭(Ξ − 1) < C₁*(n,d,𝔭) · Ω · log B`, with `C₁* = (n+1)·C₁` from (1.6).
+
+`ord3_prod_sub_one_lt_sharp` transcribes Theorem 1 specialized to **`K = ℚ`, `d = 1`,
+`𝔭 = 3`** (§1.3 **case I.2**: `c⁽¹⁾ = 537`, `a⁽¹⁾ = 16`, `q^u = 2`, `e_𝔭 = f_𝔭 = 1`), for
+**multiplicatively independent** rationals.  Two simplifications then apply:
+
+* Multiplicative independence makes `rank Γ = n`, so the height product `Ω` of (1.22)
+  collapses to the **true absolute Weil heights** `∏ⱼ h₀(αⱼ)` — no modified height, **no
+  `1/(16e²d²)` floor** (unlike the first consequence's `yuHeight`).  The modified height
+  `h⁽ⁿ⁾` and the constant `κ₁ = 20` are therefore irrelevant here (they appear only in
+  `Ω`'s `a ∖ b` factors, empty in the independent case).
+* Condition (1.5) is **automatic** over `ℚ` at `p = 3`: with `q = 2` (since `p > 2`) it
+  reads `ord₂(3^{f_𝔭} − 1) = 1`, and `ord₂(3 − 1) = ord₂ 2 = 1`.  So it is stated in the
+  docstring, not carried as a hypothesis.  Multiplicative independence and `ord₃ αⱼ = 0`
+  ((1.15)) *are* carried, as hypotheses.
+
+The resulting constant `C₁sharp n = (n+1)·C₁(n,1,𝔭₃)` is `≈ 1.2×10⁸` at `n = 2` and
+`≈ 5.1×10¹⁰` at `n = 3` — roughly `780×` (`n=2`) to `12000×` (`n=3`) sharper than the
+first-consequence constant `n·C₀`.
+
+### Not transcribed (verdicts, per F-3)
+
+* **Second consequence** (the `δ`-form, Sharpening II — [Yu07] p. 190–191): its constant
+  carries an additive `log c₁(n,d) ≈ 51`–`92` *inside* the outer log, so it loses to the
+  first/sharp consequence for single-shot instances; its habitat is Stewart–Yu-style
+  `Bₙ ≪ B` iterations, of which the corpus has no instance.  Skipped.
+* **The `(10ed)`-for-`(16ed)` remark** ([Yu07] p. 191): for `p > 2` the factor
+  `(16ed)^{2(n+1)}` in the *first-consequence* constant `C₀` may be replaced by
+  `(10ed)^{2(n+1)}` (a `≈17×` gain at `n = 2`).  The printed placement is ambiguous
+  (stated after the second consequence but arguably global); it is **claimed nowhere** and
+  recorded here only.
+* **[Yu98] headline consequence** (`≈20`–`30×` over the first consequence, one-line
+  constant): heights are floored at `log p` and an `ord`-condition is not explicit in
+  print — the documented middle option, not an axiom.
+* **`p = 2` companion.** The sharp `p = 2` bound must be stated over `ℚ(ζ₃)` (`d = 2`,
+  `f_𝔭 = 2`, case VII, `c⁽¹⁾ = 160`) with the bridge `ord_𝔭 ↾_ℚ = ord₂` — heavier plumbing
+  (a concrete `NumberField` instance) for a `≈170×` gain.  **Deferred.**
+
 ## Contents
 
 * `Yu.yuHeight` — the modified height `max(h₀(α), 1/(16 e²))` of [Yu07] (`d = 1`).
@@ -71,6 +115,11 @@ needed for genuinely multi-term forms ([M4A3] §11: on the current A5 route the 
 * `Yu.padicVal_prod_sub_one_lt` — **the first consequence of the Main Theorem** ([Yu07]),
   ℚ-specialized; a cited effective bound recorded as an `axiom`.
 * `Yu.padicVal2_prod_sub_one_lt` — the `p = 2` instance, proved from the axiom.
+* `Yu.C₁sharp` — the explicit sharp constant `C₁*(n) = (n+1)·C₁(n,1,𝔭₃)` of [Yu07]
+  Theorem 1 (§1.3 case I.2).
+* `Yu.ord3_prod_sub_one_lt_sharp` — **Theorem 1** ([Yu07] (1.24)), specialized to `p = 3`,
+  `d = 1`, multiplicatively independent bases; a cited effective bound recorded as an
+  `axiom`.
 
 ## References
 
@@ -132,5 +181,43 @@ lemma padicVal2_prod_sub_one_lt (n : ℕ) (hn : 2 ≤ n) (α : Fin n → ℚ) (h
     ((padicValRat 2 ((∏ j, α j ^ b j) - 1) : ℤ) : ℝ)
       < (n : ℝ) * C₀ n 2 * (∏ j, yuHeight (α j)) * Real.log B :=
   padicVal_prod_sub_one_lt 2 Nat.prime_two n hn α hα b hb hΞ B hB hbB
+
+/-- The **sharp constant** `C₁*(n) = (n+1)·C₁(n,1,𝔭₃)` of [Yu07] Theorem 1, specialized to
+`K = ℚ`, `d = 1`, `𝔭 = 3` (§1.3 **case I.2**: `c⁽¹⁾ = 537`, `a⁽¹⁾ = 16`, `q^u = 2`,
+`e_𝔭 = f_𝔭 = 1`).  From (1.6),
+`C₁(n,1,𝔭₃) = 537·16ⁿ·(nⁿ(n+1)ⁿ⁺¹/n!)·(3/2)·(1/(log 3)ⁿ⁺²)·max(log(e⁴(n+1)), 1, log 3)`,
+where the factor `log max(d,e) = log e = 1` (`d = 1`) is omitted, `p^{f_𝔭}/q^u = 3/2`,
+`(d/(f_𝔭 log p))ⁿ⁺² = 1/(log 3)ⁿ⁺²`, and the last max is
+`max(log(e⁴(n+1)d), e_𝔭, f_𝔭 log p)` at the case values.  Numerically `≈ 1.2×10⁸` at
+`n = 2`, `≈ 5.1×10¹⁰` at `n = 3`. -/
+@[category API, AMS 11, ref "Yu07", group "yu_padic_sharp"]
+noncomputable def C₁sharp (n : ℕ) : ℝ :=
+  ((n : ℝ) + 1) *
+    (537 * 16 ^ n * ((n : ℝ) ^ n * ((n : ℝ) + 1) ^ (n + 1) / (n.factorial : ℝ))
+      * (3 / 2)
+      * (1 / Real.log 3 ^ (n + 2))
+      * max (Real.log (Real.exp 4 * ((n : ℝ) + 1))) (max 1 (Real.log 3)))
+
+/-- **Yu's sharp `p`-adic bound, Theorem 1** ([Yu07] (1.24), §1.2), specialized to `K = ℚ`,
+`d = 1`, `𝔭 = 3` (see the module doc): for `2 ≤ n`, **multiplicatively independent** nonzero
+rationals `α₁, …, αₙ` with `ord₃ αⱼ = 0` ((1.15)), integers `b₁, …, bₙ` not all zero, and
+`Ξ = ∏ⱼ αⱼ^{bⱼ} ≠ 1`,
+
+  `ord₃(Ξ − 1) < C₁sharp(n) · (∏ⱼ h₀(αⱼ)) · log B`,
+
+where `h₀ = Height.logHeight₁` is the **true absolute Weil height** (`d = 1`, *no*
+`yuHeight` floor — multiplicative independence collapses `Ω` of (1.22) to `∏ h₀`) and
+`B ≥ max(|bⱼ|, 3)`.  Condition (1.5) is automatic here (`ord₂(3 − 1) = 1`, module doc), so
+it is not carried.  Recorded as a cited `axiom` on the authority of [Yu07] — the sharp
+sibling of `padicVal_prod_sub_one_lt`, `≈ 780×` (`n=2`) to `12000×` (`n=3`) smaller. -/
+@[category research solved, AMS 11, ref "Yu07", group "yu_padic_sharp"]
+axiom ord3_prod_sub_one_lt_sharp (n : ℕ) (hn : 2 ≤ n)
+    (α : Fin n → ℚ) (hα : ∀ j, α j ≠ 0)
+    (hord : ∀ j, padicValRat 3 (α j) = 0)
+    (hindep : ∀ c : Fin n → ℤ, (∏ j, α j ^ c j) = 1 → ∀ j, c j = 0)
+    (b : Fin n → ℤ) (hb : ∃ j, b j ≠ 0) (hΞ : (∏ j, α j ^ b j) ≠ 1)
+    (B : ℝ) (hB : (3 : ℝ) ≤ B) (hbB : ∀ j, (|b j| : ℝ) ≤ B) :
+    ((padicValRat 3 ((∏ j, α j ^ b j) - 1) : ℤ) : ℝ)
+      < C₁sharp n * (∏ j, Height.logHeight₁ (α j)) * Real.log B
 
 end Yu

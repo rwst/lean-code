@@ -10,6 +10,5 @@ scripts/viewer.html
 scripts/app.html
 *.log
 *.aux
-*.pdf
-*.html
+papers/
 */__pycache__/

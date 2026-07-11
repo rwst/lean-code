@@ -71,3 +71,9 @@ lean_lib Paradoxical where
 lean_lib TH where
   globs := #[.submodules `TH]
 
+-- Flatto–Lagarias–Pollington ⅓-spread theorem (plan-FLT.html, ref "FLP95") —
+-- milestone M3 of the (3/2)ⁿ equidistribution ladder.  Build-only registration;
+-- Extract.lean corpusRoots registration + db regen: user's call.
+lean_lib FLP where
+  globs := #[.submodules `FLP]
+
