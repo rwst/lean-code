@@ -31,8 +31,8 @@ exactly `{∞, 2, 3}`).
   the bases `a, b` general (the theorem's actual generality); the proved lemma
   `gcd_two_three_pow_lt` is the `a = 2`, `b = 3` (`S = {∞, 2, 3}`) case, its
   hypotheses discharged by `multIndep_two_three`.  (Mirrors the sibling engines
-  `CZ.pseudoPisot_approx`/`NKR.sUnit_pair_integrality`, general statement plus the
-  concrete `Γ = ⟨2, 3⟩` instance.)
+  `CZ.pseudoPisot_approx_of_subspace`/`NKR.sUnit_pair_integrality_of_subspace`, general statement
+  plus the concrete `Γ = ⟨2, 3⟩` instance.)
 * **Multiplicative independence** of `a, b ≥ 2` is `MultIndep a b`:
   `∀ m n : ℕ, aᵐ = bⁿ → m = 0 ∧ n = 0`.  For positive bases this is the usual condition
   (`aˣ = bʸ` over `ℤ` forces `x = y = 0`; opposite signs are impossible for bases `≥ 2`).

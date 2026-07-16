@@ -28,8 +28,8 @@ problem on `‖αⁿ‖`:
 
 ## Statement conventions (the ℚ-specialization — all uses in this corpus)
 
-Recorded here as a cited `axiom`, specialized to the situation every current
-consumer needs (each specialization *weakens* the source statement, hence is safe):
+Stated in the ℚ-specialization every current consumer needs (each
+specialization *weakens* the source statement, hence is safe):
 
 * **Group**: `Γ = ⟨2, 3⟩ ≤ ℚ*`, encoded by exponent pairs — `(x, y) : ℤ × ℤ`
   stands for `u = 2^x·3^y` (a bijection onto `Γ`, since `2` and `3` are
@@ -64,12 +64,17 @@ bounded-gap slice of the kernel (K) (`δ = (3/2)^{s₀} − 1`, `q = 1`,
 
 * `CZ.height23` — the absolute Weil height of `2^x·3^y`, explicitly.
 * `CZ.sval` — the value `δ·q·2^x·3^y` under the exponent encoding.
-* `CZ.pseudoPisot_approx` — **the Main Theorem** ([CZ04]), ℚ-specialized; a cited
-  Subspace-theorem consequence recorded as an `axiom`.
 * `CZ.not_intCast_of_distToNearestInt_pos` — discharges the spelled-out
   pseudo-Pisot clause from `‖δqu‖ > 0`.
 * `CZ.height23_neg_natCast` — `H(2^{-a}·3^a) = 3^a`, the height normalization
   used by both consumers.
+
+**The Main Theorem itself** ([CZ04], ℚ-specialized) is stated and **derived**
+from the `S`-arithmetic Subspace Theorem (`Subspace.evertseSchlickewei`, the one
+cited axiom of the refactor) as `CZ.pseudoPisot_approx_of_subspace` in
+`CITED/CorvajaZannierProof.lean`.  The cited `axiom CZ.pseudoPisot_approx` that
+used to live here was **retired 2026-07-14** — the statement survives verbatim
+as that theorem.
 
 ## References
 
@@ -97,29 +102,8 @@ def height23 (x y : ℤ) : ℕ :=
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 def sval (δ : ℚ) (q : ℕ) (x y : ℤ) : ℚ := δ * q * ((2 : ℚ) ^ x * (3 : ℚ) ^ y)
 
-/-- **The Corvaja–Zannier Main Theorem** ([CZ04], p. 2), ℚ-specialized to
-`Γ = ⟨2, 3⟩` and positive integer multipliers `q` (see the module doc for the
-specialization directions, all of which weaken the source statement): for every
-fixed rational `δ ≠ 0` and every `ε > 0`, only finitely many triples
-`(q, x, y) ∈ ℕ × ℤ × ℤ` satisfy, with `v := δ·q·2^x·3^y`,
-
-  `1 ≤ q`,  `1 < |v|`,  `v ∉ ℤ` (= "not pseudo-Pisot", given `1 < |v|`),  and
-  `0 < ‖v‖ < H(2^x·3^y)^{-ε} · q^{-1-ε}`.
-
-Recorded as a cited `axiom` on the authority of [CZ04] — a p-adic Subspace-theorem
-argument (their Lemma 3 plus a Galois/unit-theorem descent; over `ℚ` a single
-Ridout-grade two-variable Subspace application) we do not re-derive.  The
-finiteness is ineffective. -/
-@[category research solved, AMS 11, ref "CZ04", group "three_halves_m4"]
-axiom pseudoPisot_approx (δ : ℚ) (hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
-    {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      1 < |sval δ p.1 p.2.1 p.2.2| ∧
-      ¬ (∃ n : ℤ, sval δ p.1 p.2.1 p.2.2 = n) ∧
-      0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
-      ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
-        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite
-
-/-- Discharge of the spelled-out pseudo-Pisot clause of `pseudoPisot_approx`:
+/-- Discharge of the spelled-out pseudo-Pisot clause of the Main Theorem
+(`pseudoPisot_approx_of_subspace`, `CITED/CorvajaZannierProof.lean`):
 over `ℚ`, a value with `‖v‖ > 0` is not an integer, hence (given `|v| > 1`) not
 pseudo-Pisot.  [CZ04] Definition p. 2, specialized as in the module doc. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]

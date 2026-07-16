@@ -77,3 +77,10 @@ lean_lib TH where
 lean_lib FLP where
   globs := #[.submodules `FLP]
 
+-- Rational base number system 3/2 (plans plan-B1E2.html + plan-B2A2.html, refs
+-- "AFS08"/"Dub09") — the orbit ⌈3x/2⌉, its minimal word g_{3/2}, and K = ω_{3/2}.
+-- Shared root of both plans.  Build-only registration; Extract.lean corpusRoots
+-- registration + db regen: user's call.
+lean_lib RB where
+  globs := #[.submodules `RB]
+

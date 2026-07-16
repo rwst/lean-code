@@ -189,8 +189,8 @@ theorem mulIndep_two_three :
       padicValRat p (q ^ k) = k * padicValRat p q := by
     intro p _ q hq0 k
     obtain ⟨j, rfl | rfl⟩ := Int.eq_nat_or_neg k
-    · rw [zpow_natCast, padicValRat.pow hq0]
-    · rw [zpow_neg, zpow_natCast, padicValRat.inv, padicValRat.pow hq0]; ring
+    · rw [zpow_natCast, padicValRat.pow _]
+    · rw [zpow_neg, zpow_natCast, padicValRat.inv, padicValRat.pow _]; ring
   have v22 : padicValRat 2 (2 : ℚ) = 1 := by
     rw [show (2 : ℚ) = ((2 : ℕ) : ℚ) by norm_num]; exact padicValRat.self (by norm_num)
   have v23 : padicValRat 2 (3 : ℚ) = 0 := by
