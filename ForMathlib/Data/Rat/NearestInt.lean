@@ -23,9 +23,11 @@ affect the distance).  Rational companion of `distToNearestInt : ℝ → ℝ`
 Small API: nonnegativity, minimality over the integers
 (`distToNearestInt_le_abs_sub_intCast`), vanishing exactly on the integers,
 invariance under integer translation, the integer-multiple bound
-`(k·x).dist ≤ |k| · x.dist`, and the dyadic repulsion floor
+`(k·x).dist ≤ |k| · x.dist`, the dyadic repulsion floor
 `one_le_two_pow_mul_distToNearestInt`: a rational whose `2^m`-fold is an *odd*
-integer (`m ≥ 1`) keeps distance at least `2^{-m}` from `ℤ`.
+integer (`m ≥ 1`) keeps distance at least `2^{-m}` from `ℤ`, and the general
+denominator floor `one_le_mul_distToNearestInt`: a non-integral rational whose
+`D`-fold is an integer keeps distance at least `1/D` from `ℤ`.
 -/
 
 namespace Rat
@@ -85,6 +87,35 @@ theorem distToNearestInt_intCast_mul_le (k : ℤ) (x : ℚ) :
         ring
     _ = |(k : ℚ)| * |x - round x| := abs_mul _ _
     _ = |(k : ℚ)| * x.distToNearestInt := rfl
+
+/-- **Denominator repulsion floor**: if `D · x` is an integer for some `D > 0` and `x` is
+not itself an integer (`0 < distToNearestInt x`), then `x` keeps distance at least `1/D`
+from the integers, in the integer-certificate form `1 ≤ D · distToNearestInt x`. -/
+theorem one_le_mul_distToNearestInt {x : ℚ} {D z : ℤ} (hD : 0 < D)
+    (hzx : (z : ℚ) = D * x) (hpos : 0 < x.distToNearestInt) :
+    1 ≤ (D : ℚ) * x.distToNearestInt := by
+  set N : ℤ := z - D * round x with hN
+  have hcast : (N : ℚ) = D * (x - round x) := by
+    rw [hN]
+    push_cast
+    rw [hzx]
+    ring
+  have hNne : N ≠ 0 := by
+    intro h0
+    apply absurd hpos
+    rw [h0] at hcast
+    have hD0 : (D : ℚ) ≠ 0 := Int.cast_ne_zero.mpr hD.ne'
+    have hx0 : x - round x = 0 := by
+      rcases mul_eq_zero.mp hcast.symm with h | h
+      · exact absurd h hD0
+      · exact h
+    simp [distToNearestInt, hx0]
+  have h1 : (1 : ℤ) ≤ |N| := Int.one_le_abs hNne
+  calc (1 : ℚ) ≤ |(N : ℚ)| := by exact_mod_cast h1
+    _ = |(D : ℚ) * (x - round x)| := by rw [hcast]
+    _ = D * |x - round x| := by
+        rw [abs_mul, abs_of_nonneg (by exact_mod_cast hD.le : (0 : ℚ) ≤ (D : ℚ))]
+    _ = D * x.distToNearestInt := rfl
 
 /-- **Dyadic repulsion floor**: if `2^m · x` is an *odd* integer with `m ≥ 1`, then
 `x` keeps distance at least `2^{-m}` from the integers, in the integer-certificate
