@@ -63,6 +63,19 @@ Note the *single-base* case `v₂(3ⁿ − 1)` is elementary (LTE, `n = 1`), so 
 needed for genuinely multi-term forms ([M4A3] §11: on the current A5 route the two-term
 `Γ = ⟨2, 3⟩` forms are LTE-exact, and Yu is a reserve engine).
 
+> **Do not wire `padicVal2_prod_sub_one_lt` into the `p = 2` layer of the `(3/2)ⁿ`
+> program** (plan A5 T5; the standing argument is in `TH/TwoAdic.lean`'s module doc).
+> Despite the `group "three_halves_m4"` tag and the "effective flat-window prime" phrasing
+> above, that route loses information twice: at two terms, because for `Γ = ⟨2, 3⟩` at the
+> place `2` the only units are `±3^m` and `v₂(3^m ∓ 1)` is an *identity*
+> (`TH.v2_three_pow_sub_one`, `TH.orderOf_three_zmod` — exact, std3, no axiom); and at three
+> terms, because the composite term's height grows like `3^a`, so Yu's bound — linear in
+> `h(u)` — exceeds even the trivial size bound `v₂ ≤ log₂|Λ| ≈ 1.585 a`.  Three-term forms
+> there are Subspace territory (`CITED/CorvajaZannier.lean`, `CITED/NairKumarRout.lean`) or
+> are the distribution problem itself.  **This scopes the exclusion to `p = 2` on
+> `Γ = ⟨2, 3⟩` only** — everything else in this file stands, including the sharp `𝔭 = 3`
+> line `ord3_prod_sub_one_lt_sharp`, other primes, and number-field applications.
+
 ## The sharp `p = 3` bound (`plan-formalize-logforms.html` F-3)
 
 The first consequence above drops *every* side condition (roots of unity allowed, no

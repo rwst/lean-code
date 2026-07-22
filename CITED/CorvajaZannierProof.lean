@@ -115,7 +115,7 @@ point `ξ = ![p₀, q·2^x·3^y]`, namely `mulHeight ξ = max(num, den)` of the 
 theorem mulHeight_pair_eq (a b : ℚ) (hb : b ≠ 0) :
     Height.mulHeight ![a, b] = Height.mulHeight₁ (a / b) := by
   have hsm : ![a, b] = b • ![a / b, 1] := by
-    ext i; fin_cases i <;> simp [smul_eq_mul] <;> field_simp
+    ext i; fin_cases i <;> simp [smul_eq_mul]; field_simp
   rw [hsm, Height.mulHeight_smul_eq_mulHeight _ hb, ← Height.mulHeight₁_eq_mulHeight]
 
 /-- **The 2-adic absolute value of the `S`-unit `2^x 3^y` is `2^{-x}`**
@@ -1083,5 +1083,30 @@ theorem pseudoPisot_approx_of_subspace (δ : ℚ) (_hδ : δ ≠ 0) (ε : ℝ) (
         (orbit_mem_ratios δ ε hε p.1 p.2.1 p.2.2 hq1 hv1 hlt hlg)
         ⟨⟨hq1, hv1, hd, hlt⟩, rfl⟩)
   exact hcore.subset (fun p hp => ⟨hp.1, hp.2.1, hp.2.2.2.1, hp.2.2.2.2⟩)
+
+/-! ## The exceptional set, named
+
+The set whose finiteness the Main Theorem asserts, given a name for the consumers that need to
+speak about it (`BB13/Subspace.lean`).  Relocated here on 2026-07-21 from the deleted
+`CITED/CorvajaZannierEffective.lean`; its companion axiom (an *effective* bound on the
+cardinality) was retired — see `CITED/BugeaudEvertseRidout.lean` for what the quantitative
+literature does prove. -/
+
+/-- The **Corvaja–Zannier exceptional set** of `CZ.pseudoPisot_approx_of_subspace`, named: the
+triples `(q, x, y)` with `u = 2ˣ3ʸ`, `1 < |δqu|`, `δqu ∉ ℤ`, and
+`0 < ‖δqu‖ < H(u)^{-ε}·q^{-1-ε}`. -/
+def approxSet (δ : ℚ) (ε : ℝ) : Set (ℕ × ℤ × ℤ) :=
+  {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧ 1 < |sval δ p.1 p.2.1 p.2.2| ∧
+    ¬ (∃ m : ℤ, sval δ p.1 p.2.1 p.2.2 = m) ∧
+    0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
+    ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
+      < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}
+
+/-- The Corvaja–Zannier exceptional set is finite (qualitative theorem, restated on the named
+set).  Footprint `std3 + Subspace.evertseSchlickewei`. -/
+@[category research solved, AMS 11, ref "CZ04", group "three_halves_m4"]
+theorem approxSet_finite (δ : ℚ) (hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
+    (approxSet δ ε).Finite :=
+  pseudoPisot_approx_of_subspace δ hδ ε hε
 
 end CZ

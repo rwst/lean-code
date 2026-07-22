@@ -73,7 +73,7 @@ theorem isCoprime_map_of_isUnit_gcd {P Q : ℤ[X]} (h : IsUnit (gcd P Q)) :
       by_cases hX : X = 0
       · rw [hX]; exact dvd_zero E
       · rw [← IsPrimitive.dvd_primPart_iff_dvd hEprim hX]
-        rw [IsPrimitive.Int.dvd_iff_map_cast_dvd_map_cast E X.primPart hEprim (isPrimitive_primPart X)]
+        rw [IsPrimitive.Int.dvd_iff_map_cast_dvd_map_cast E X.primPart hEprim]
         have hXc : X.content ≠ 0 := by rw [Ne, content_eq_zero_iff]; exact hX
         have hmapX : X.map (Int.castRingHom ℚ)
             = C ((X.content : ℤ) : ℚ) * X.primPart.map (Int.castRingHom ℚ) := by
