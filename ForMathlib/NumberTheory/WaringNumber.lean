@@ -95,4 +95,87 @@ theorem waringNumber_two : waringNumber 2 = 4 := by
   exact not_isSumOfPowers_two_three_seven
     (IsSumOfPowers.mono (by norm_num) (by omega : waringNumber 2 ≤ 3) (hmem' 7))
 
+open Finset in
+/-- **Pillai's lower bound, summand form.**  The number `2ⁿ⌊(3/2)ⁿ⌋ - 1` is smaller than `3ⁿ`, so
+it can only be built from the powers `0ⁿ = 0`, `1ⁿ = 1` and `2ⁿ`; any representation therefore
+uses at least `2ⁿ + ⌊(3/2)ⁿ⌋ - 2` of them.  (`⌊(3/2)ⁿ⌋ = 3ⁿ / 2ⁿ` in `ℕ`.)  This is the
+elementary half of the ideal Waring formula. -/
+theorem le_of_isSumOfPowers_pillai {n s : ℕ} (hn : 2 ≤ n)
+    (h : IsSumOfPowers n s (2 ^ n * (3 ^ n / 2 ^ n) - 1)) :
+    2 ^ n + 3 ^ n / 2 ^ n - 2 ≤ s := by
+  obtain ⟨f, hf⟩ := h
+  have hn0 : n ≠ 0 := by omega
+  have h2pos : 0 < 2 ^ n := by positivity
+  have hq_mul_le : 2 ^ n * (3 ^ n / 2 ^ n) ≤ 3 ^ n := Nat.mul_div_le (3 ^ n) (2 ^ n)
+  set q := 3 ^ n / 2 ^ n with hq
+  set N := 2 ^ n * q - 1 with hN
+  have hqpos : 1 ≤ q := by
+    rw [hq]; exact (Nat.one_le_div_iff h2pos).mpr (Nat.pow_le_pow_left (by norm_num) n)
+  have hPQpos : 0 < 2 ^ n * q := by positivity
+  have hNlt3 : N < 3 ^ n := lt_of_lt_of_le (Nat.sub_lt hPQpos one_pos) hq_mul_le
+  -- Every summand base is at most `2`: a base `≥ 3` gives a term `≥ 3ⁿ > N`.
+  have hfle : ∀ i, f i ≤ 2 := by
+    intro i
+    by_contra hc
+    have h3 : 3 ≤ f i := by omega
+    have hpow : 3 ^ n ≤ f i ^ n := Nat.pow_le_pow_left h3 n
+    have hle : f i ^ n ≤ N := by
+      rw [hf]
+      exact Finset.single_le_sum (f := fun i => f i ^ n) (fun _ _ => Nat.zero_le _) (mem_univ i)
+    omega
+  set a := (univ.filter (fun i => f i = 2)).card with ha
+  -- Per-summand bound `xⁿ ≤ 1 + (2ⁿ-1)·[x = 2]`, valid for `x ∈ {0, 1, 2}`.
+  have hterm : ∀ i ∈ (univ : Finset (Fin s)),
+      f i ^ n ≤ 1 + (2 ^ n - 1) * (if f i = 2 then 1 else 0) := by
+    intro i _
+    have hi := hfle i
+    interval_cases (f i)
+    · simp [zero_pow hn0]
+    · simp
+    · rw [if_pos rfl]; omega
+  -- Summing gives `N ≤ s + (2ⁿ-1)·a`, with `a` the number of `2`-summands.
+  have hsum : N ≤ s + (2 ^ n - 1) * a := by
+    calc N = ∑ i, f i ^ n := hf
+      _ ≤ ∑ i, (1 + (2 ^ n - 1) * (if f i = 2 then 1 else 0)) := Finset.sum_le_sum hterm
+      _ = s + (2 ^ n - 1) * a := by
+          rw [Finset.sum_add_distrib, ← Finset.mul_sum]
+          congr 1
+          · simp
+          · rw [ha, Finset.card_filter]
+  -- The `2`-summands alone contribute `a·2ⁿ ≤ N`, so `a ≤ q - 1`.
+  have hsub : a * 2 ^ n ≤ N := by
+    rw [ha]
+    calc (univ.filter (fun i => f i = 2)).card * 2 ^ n
+        = ∑ _i ∈ univ.filter (fun i => f i = 2), 2 ^ n := by rw [Finset.sum_const, smul_eq_mul]
+      _ = ∑ i ∈ univ.filter (fun i => f i = 2), f i ^ n := by
+          refine Finset.sum_congr rfl fun i hi => ?_
+          rw [(Finset.mem_filter.mp hi).2]
+      _ ≤ ∑ i, f i ^ n := Finset.sum_le_sum_of_subset (Finset.filter_subset _ _)
+      _ = N := hf.symm
+  -- Combine, in `ℤ`: `(2ⁿ-1)(q-1-a) ≥ 0` turns the two bounds into `2ⁿ + q - 2 ≤ s`.
+  have hNval : (N : ℤ) = (2 : ℤ) ^ n * q - 1 := by rw [hN, Nat.cast_sub hPQpos]; push_cast; ring
+  have hsumZ : (N : ℤ) ≤ s + ((2 : ℤ) ^ n - 1) * a := by
+    have h1 : (1 : ℕ) ≤ 2 ^ n := h2pos
+    zify [h1] at hsum; linarith [hsum]
+  have hsubZ : (a : ℤ) * (2 : ℤ) ^ n ≤ N := by exact_mod_cast hsub
+  have hP1 : (0 : ℤ) ≤ (2 : ℤ) ^ n - 1 := by
+    have : (1 : ℤ) ≤ (2 : ℤ) ^ n := by exact_mod_cast h2pos
+    linarith
+  have hAQ : (a : ℤ) < q := by
+    have h2Z : (0 : ℤ) < (2 : ℤ) ^ n := by positivity
+    refine lt_of_mul_lt_mul_right (a := (2 : ℤ) ^ n) ?_ h2Z.le
+    nlinarith [hsubZ, hNval]
+  have hgoalZ : (2 : ℤ) ^ n + q ≤ s + 2 := by
+    nlinarith [hsumZ, hNval, mul_nonneg hP1 (by linarith [hAQ] : (0 : ℤ) ≤ q - 1 - a)]
+  have hgoalN : 2 ^ n + q ≤ s + 2 := by exact_mod_cast hgoalZ
+  omega
+
+/-- **Pillai's lower bound for the Waring number** (Bugeaud, Distribution Modulo One, (3.22)):
+for `n ≥ 2`, if the Waring number is well defined (Hilbert–Waring: the set of universal summand
+counts is nonempty), then `g(n) ≥ 2ⁿ + ⌊(3/2)ⁿ⌋ - 2`. -/
+theorem pillai_le_waringNumber {n : ℕ} (hn : 2 ≤ n)
+    (hne : {s | ∀ N, IsSumOfPowers n s N}.Nonempty) :
+    2 ^ n + 3 ^ n / 2 ^ n - 2 ≤ waringNumber n :=
+  le_of_isSumOfPowers_pillai hn (Nat.sInf_mem hne _)
+
 end Nat

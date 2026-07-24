@@ -26,6 +26,7 @@ polynomial of `θ` over `ℚ`, apart from `θ`, has modulus `< 1`.
 ## Main definitions
 
 * `IsPisot`: a real number is a Pisot–Vijayaraghavan number.
+* `IsSalem`: a real number is a Salem number.
 
 ## Main statements
 
@@ -41,6 +42,16 @@ whose other conjugates lie strictly inside the complex unit disc: every root in
 modulus `< 1`. -/
 def IsPisot (θ : ℝ) : Prop :=
   1 < θ ∧ IsIntegral ℤ θ ∧ ∀ z ∈ (minpoly ℚ θ).aroots ℂ, z ≠ (θ : ℂ) → ‖z‖ < 1
+
+/-- A **Salem number** is a real algebraic integer `τ > 1` all of whose other conjugates lie in the
+*closed* complex unit disc, with at least one on the unit circle: every root in `ℂ` of the minimal
+polynomial of `τ` over `ℚ`, apart from `τ` itself, has modulus `≤ 1`, and at least one such root has
+modulus exactly `1`. This is the companion of `IsPisot` (which demands modulus `< 1` for every other
+conjugate); the two together exhaust the real algebraic integers `> 1` whose conjugates stay in the
+closed unit disc. -/
+def IsSalem (τ : ℝ) : Prop :=
+  1 < τ ∧ IsIntegral ℤ τ ∧ (∀ z ∈ (minpoly ℚ τ).aroots ℂ, z ≠ (τ : ℂ) → ‖z‖ ≤ 1) ∧
+    ∃ z ∈ (minpoly ℚ τ).aroots ℂ, z ≠ (τ : ℂ) ∧ ‖z‖ = 1
 
 open Real in
 /-- The golden ratio `φ = (1 + √5) / 2` is a Pisot number: it is an algebraic

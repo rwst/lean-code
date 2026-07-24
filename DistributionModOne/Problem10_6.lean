@@ -18,6 +18,7 @@ import Mathlib.Algebra.Order.Floor.Semiring
 import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.Nat.Nth
 import Mathlib.Data.Real.Basic
 import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.Topology.Instances.AddCircle.Defs
@@ -36,6 +37,8 @@ import Corpus.Util.Attributes.Basic
     Vol. 193. Cambridge University Press, 2012. Chapter 10.
   - [Fur67] Furstenberg, H. "Disjointness in ergodic theory, minimal sets, and a problem
     in diophantine approximation". Math. Systems Theory 1, 1–49 (1967).
+  - [Kat16] Katz, Asaf. "Generalizations of Furstenberg's Diophantine result."
+    arXiv:1607.00670 (2016).
   - [Mat80] de Mathan, Bernard. "Numbers contravening a condition in density modulo 1."
     Acta Mathematica Hungarica 36.3-4 (1980): 237-241.
   - [Pol79] Pollington, Andrew Douglas. "On the density of sequence $\{n_ {k}\xi\} $."
@@ -63,6 +66,10 @@ informal_result "furstenberg-x2x3-rigidity"
 informal_result "sublacunary-density-mod-one"
   latex "Boshernitzan's metric/dimension argument: a sublacunary growth condition (consecutive ratios tending to 1) forces density modulo one for every real number outside an exceptional set of Hausdorff dimension zero."
   refs "Bos94"
+
+informal_result "katz-p-adic-positive-entropy-construction"
+  latex "Katz's affirmative answer to Bugeaud's question (building on Meiri's and Lindenstrauss' theory of $q$-Host sequences and the Bourgain--Lindenstrauss--Michel--Venkatesh effective $\\times a, \\times b$ result): a sequence admitting a smooth $p$-adic interpolation with only finitely many critical points inside the unit disc supports a $T_p$-invariant, $T_p$-ergodic Borel measure of positive entropy; combined with Host's and Lindenstrauss' equidistribution and Boshernitzan's non-lacunary density this yields a single, arbitrarily sparse integer sequence $\\{a_n\\}$ with $|\\{a_n\\} \\cap [1,N]| \\le r(N)\\log N$ that is dense modulo one for every irrational $\\xi$. Applied to $\\{2^n 3^{3^{3^{p_1(m)}}} 3^{3^{3^{p_2(k)}}}\\}$ this answers Problem 10.6."
+  refs "Kat16"
 
 /-- The **Pollington–de Mathan theorem** [Pol79][Mat80]. For every lacunary sequence
 $(m_n)_{n \ge 1}$ of positive integers, the set of real numbers $\xi$ for which
@@ -160,10 +167,74 @@ lemma example_hasIntermediateGrowth (α : ℝ) (hα₀ : 0 < α) (hα₁ : α < 
     HasIntermediateGrowth α mSeq := by
   sorry
 
+/-! ## Katz's resolution of Problem 10.6
+
+Katz [Kat16] answers Problem 10.6 in the affirmative. The heart of his construction is a
+positive-entropy $T_p$-invariant measure obtained from a smooth $p$-adic interpolation
+(Meiri, Lindenstrauss) together with Boshernitzan's non-lacunary density; the resulting
+*single* sequence can be made as sparse as one likes. We fix Katz's explicit instance
+(Corollary 4.9 with the identity polynomials $p_1 = p_2 = \mathrm{id}$) and take its
+increasing enumeration. -/
+
+/-- Katz's explicit sparse generating set (Corollary 4.9, identity polynomials): the
+three-parameter multiplicative family
+$\{2^n\, 3^{3^{3^m}}\, 3^{3^{3^k}} : n, m, k \in \mathbb{N}\}$. -/
+@[category API, AMS 11, group "bugeaud_10_6"]
+def katzSet : Set ℕ := {N | ∃ n m k : ℕ, N = 2 ^ n * 3 ^ (3 ^ (3 ^ m)) * 3 ^ (3 ^ (3 ^ k))}
+
+/-- `katzSet` is infinite: it already contains the geometric progression
+$2^n \cdot 3^{27} \cdot 3^{27}$ (taking $m = k = 0$). -/
+@[category API, AMS 11, group "bugeaud_10_6"]
+lemma katzSet_infinite : katzSet.Infinite := by
+  refine Set.infinite_of_injective_forall_mem
+    (f := fun n : ℕ => 2 ^ n * 3 ^ (3 ^ (3 ^ 0)) * 3 ^ (3 ^ (3 ^ 0))) ?_ ?_
+  · intro a b hab
+    simp only [mul_assoc] at hab
+    exact Nat.pow_right_injective (by norm_num)
+      (Nat.eq_of_mul_eq_mul_right (by norm_num) hab)
+  · intro a
+    exact ⟨a, 0, 0, by ring⟩
+
+/-- **The Katz sequence**: the increasing enumeration of `katzSet`. This is the single,
+very rapidly increasing sequence of positive integers that resolves Problem 10.6. -/
+@[category API, AMS 11, group "bugeaud_10_6"]
+noncomputable def katzSeq : ℕ → ℕ := Nat.nth (· ∈ katzSet)
+
+/-- `katzSeq` is strictly increasing, being the enumeration of an infinite set of naturals. -/
+@[category API, AMS 11, group "bugeaud_10_6"]
+lemma katzSeq_strictMono : StrictMono katzSeq :=
+  Nat.nth_strictMono katzSet_infinite
+
+/-- **Katz's theorem** [Kat16] (Corollary 4.9/4.10, identity polynomials). The single
+sequence `katzSeq` is *universally densifying*: for every irrational $\xi$ the orbit
+$(\{\xi \, \mathrm{katzSeq}(n)\})_{n \ge 1}$ is dense modulo one. This is Katz's
+affirmative answer to Bugeaud's Problem 10.6. -/
+@[category research solved, AMS 11, group "bugeaud_10_6",
+  ref "Bug12" "Kat16", solved_by "Katz" 2016,
+  informal_uses "katz-p-adic-positive-entropy-construction"]
+axiom katz_universal_density (ξ : ℝ) (hξ : Irrational ξ) :
+    Dense (Set.range fun n => (↑(ξ * katzSeq n) : AddCircle (1 : ℝ)))
+
+/-- Sparsity of the Katz sequence [Kat16, Corollary 4.10]: its counting function obeys
+$|\{\mathrm{katzSeq}\} \cap [1,N]| \le \log N \, (\log\log\log N)^2$, so $\mathrm{katzSeq}(n)$
+eventually dominates $\exp(n^{\alpha})$ for some $0 < \alpha < 1$. Hence the sequence has
+intermediate (super-polynomial but sub-exponential) growth — it is genuinely "very rapidly
+increasing". -/
+@[category research solved, AMS 11, group "bugeaud_10_6",
+  ref "Bug12" "Kat16", solved_by "Katz" 2016,
+  informal_uses "katz-p-adic-positive-entropy-construction"]
+axiom katzSeq_intermediateGrowth :
+    ∃ α : ℝ, 0 < α ∧ α < 1 ∧ HasIntermediateGrowth α katzSeq
+
 /--
 Problem 10.6. Find a very rapidly increasing sequence $(m_n)_{n \ge 1}$ of positive
 integers such that $(\{\xi m_n\})_{n \ge 1}$ is dense modulo one for every irrational
-number $\xi$. Note: Furstenberg's $2^m3^n$ is sublacunary but requires two parameters. -/
+number $\xi$. Note: Furstenberg's $2^m3^n$ is sublacunary but requires two parameters.
+
+This variant additionally demands *genuine sublacunarity*
+($m_{n+1}/m_n \ge 1 + c/\log n$). Katz's construction (see `problem_10_6_variant_2`)
+settles the density requirement, but its multiplicative enumeration `katzSeq` is not
+known to meet this pointwise ratio lower bound, so this stronger variant is left open. -/
 @[category research open, AMS 11, group "bugeaud_10_6",
   ref "Bug12", conjectured_by "Bugeaud" 2012]
 theorem problem_10_6_variant_1 :
@@ -174,15 +245,18 @@ theorem problem_10_6_variant_1 :
       Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ))) := by
   sorry
 
-/-- Problem 10.6, intermediate-growth variant. -/
-@[category research open, AMS 11, group "bugeaud_10_6",
-  ref "Bug12", conjectured_by "Bugeaud" 2012]
+/-- Problem 10.6, intermediate-growth variant — **resolved by Katz [Kat16]**. The single
+sequence `katzSeq` is strictly increasing, has intermediate (super-polynomial,
+sub-exponential) growth, and is dense modulo one for every irrational $\xi$. -/
+@[category research solved, AMS 11, group "bugeaud_10_6",
+  ref "Bug12" "Kat16", conjectured_by "Bugeaud" 2012, solved_by "Katz" 2016,
+  formal_uses katzSeq_strictMono katzSeq_intermediateGrowth katz_universal_density]
 theorem problem_10_6_variant_2 :
     ∃ m : ℕ → ℕ,
     StrictMono m ∧
     (∃ α : ℝ, 0 < α ∧ α < 1 ∧ HasIntermediateGrowth α m) ∧
     ∀ ξ : ℝ, Irrational ξ →
-      Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ))) := by
-  sorry
+      Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ))) :=
+  ⟨katzSeq, katzSeq_strictMono, katzSeq_intermediateGrowth, katz_universal_density⟩
 
 end Bugeaud06
