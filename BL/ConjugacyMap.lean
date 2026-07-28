@@ -53,24 +53,32 @@ Finally, as `T₂` extends the integer map, the **3x+1 conjecture** is recorded 
 *proved equivalence* `t2_reachesOne_iff_collatz`: `(∀ n>0, ∃ j, T₂ʲ(↑n)=1) ↔ (∀ n>0, ∃ j, Tʲ(n)=1)`.
 Only the equivalence is asserted — the conjecture itself is left open and unnamed.
 
-The paper's **Periodicity Conjecture** (`periodicity_conjecture`, `research open`) is
-`Φ(ℚ ∩ ℤ₂) = ℚ ∩ ℤ₂` (`RatInt`): `Φ` preserves the rational 2-adic integers. It would imply the 3x+1
-map has **no divergent trajectory** (`periodicity_imp_no_divergent_trajectories`, **proved** as an
-implication — it takes the conjecture as a hypothesis, see below),
+**The three open conjectures of BL96 §1 are stated in `BL/Conjectures.lean`**, not here: this file is
+`sorry`-free, and the conjectures are `sorry`ed `research open` statements (never `axiom`s — corpus
+policy on open problems). What this file carries is everything *provable* around them, and each
+result that concerns a conjecture takes the statement as an explicit **hypothesis** rather than
+referring to the declaration.
+
+The paper's **Periodicity Conjecture** is `Φ(ℚ ∩ ℤ₂) = ℚ ∩ ℤ₂` (`RatInt`): `Φ` preserves the rational
+2-adic integers. It would imply the 3x+1 map has **no divergent trajectory**
+(`periodicity_imp_no_divergent_trajectories`, **proved** as an implication — it takes the conjecture
+as a hypothesis, see below),
 where a trajectory is **divergent** (`Divergent`) if it has infinitely many distinct elements —
 equivalently `Tᵏ(n) → ∞` (`divergent_iff_tendsto_atTop`, proved via the iteration dichotomy
-`range_iterate_infinite_iff_tendsto`).
+`range_iterate_infinite_iff_tendsto`). The easy inclusion `Φ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂` is cited
+(`Φ_image_ratInt_subset`), and on it rests the unconditional equivalence with the iterate form
+(`periodicity_conjecture_iff_iterate`).
 
-The **Fixed Point Conjecture** (`fixed_point_conjecture`, `research open`) asserts `Φ` has exactly two
-*odd* fixed points, `-1` and `1/3`. We verify both are odd (`parity_neg_one`, `parity_inv_three`),
-distinct (`neg_one_ne_inv_three`), and that `-1` is genuinely fixed (`Φ_neg_one`, proved via
-`S_neg_one` and the `T₂`-fixed-point characterization `eq_zero_or_neg_one_of_T₂_fixed`); only `⊆` —
-that there is no *other* odd fixed point — stays open.
+The **Fixed Point Conjecture** asserts `Φ` has exactly two *odd* fixed points, `-1` and `1/3`. We
+verify both are odd (`parity_neg_one`, `parity_inv_three`), distinct (`neg_one_ne_inv_three`), and
+that `-1` is genuinely fixed (`Φ_neg_one`, proved via `S_neg_one` and the `T₂`-fixed-point
+characterization `eq_zero_or_neg_one_of_T₂_fixed`); only `⊆` — that there is no *other* odd fixed
+point — stays open.
 
-The **Conjugacy Finiteness Conjecture** (`conjugacy_finiteness_conjecture`, `research open`) generalises
-this: for each `j ≥ 0`, `Φ` has finitely many odd periodic points of period `2ʲ` (`Φ^[2ʲ] x = x`). Its
-`j = 0` case is exactly the odd-fixed-point finiteness that the Fixed Point Conjecture sharpens to
-"exactly two" (`conjugacy_finiteness_zero_of_fixed_point`).
+The **Conjugacy Finiteness Conjecture** generalises this: for each `j ≥ 0`, `Φ` has finitely many odd
+periodic points of period `2ʲ` (`Φ^[2ʲ] x = x`). Its `j = 0` case is exactly the odd-fixed-point
+finiteness that the Fixed Point Conjecture sharpens to "exactly two"
+(`conjugacy_finiteness_zero_of_fixed_point`, proved here as an implication).
 
 A first **analytic** fact is recorded (cited): `Φ` and `Φ⁻¹` are **nowhere differentiable** on `ℤ₂`
 (`Φ_nowhereDifferentiable`, `Φsymm_nowhereDifferentiable`/`Q_nowhereDifferentiable`) — a BL96 §1 remark
@@ -93,8 +101,8 @@ later files.
 * `Φ_eq_neg_tsum` (1.6), `Φ_eq_neg_sum` — the explicit formula `Φ(x) = − ∑ 3^{−(i+1)} 2^{dᵢ}` for the
   forward map `Φ` (infinite / finite `1`-bit sequence; cited).
 * `t2_reachesOne_iff_collatz` — the 3x+1 conjecture: 2-adic form ⟺ integer form (proved equivalence).
-* `RatInt`, `periodicity_conjecture` — `ℚ ∩ ℤ₂` and the **Periodicity Conjecture** `Φ(ℚ∩ℤ₂)=ℚ∩ℤ₂`
-  (research open).
+* `RatInt` — the rational 2-adic integers `ℚ ∩ ℤ₂`, the set the **Periodicity Conjecture**
+  (`BL.periodicity_conjecture`, in `BL/Conjectures.lean`) is about.
 * `Divergent`, `divergent_iff_tendsto_atTop` — a divergent 3x+1 trajectory (∞-many distinct elements)
   ⟺ `Tᵏ(n) → ∞`; helpers `orbit_range_finite_of_eq`, `range_iterate_infinite_iff_tendsto`,
   `T_iter_eq_iterate` — the general iteration dichotomy behind it.
@@ -102,13 +110,16 @@ later files.
   integer has a **finite shift-orbit** (its value stays a bounded-height rational).
 * `periodicity_imp_no_divergent_trajectories` — Periodicity Conjecture ⟹ no divergent trajectory
   (**proved** as an implication, via `ratInt_S_orbit_finite` and the conjugacy `Φ ∘ S = T₂ ∘ Φ`).
+* `Φ_image_ratInt_subset`, `Φ_iterate_image_ratInt_subset`, `periodicity_conjecture_iff_iterate` —
+  the known inclusion `Φ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂` (cited) and the *unconditional* equivalence of the
+  Periodicity Conjecture with its `k`-th iterate form.
 * `parity_neg_one`, `parity_inv_three`, `eq_zero_or_neg_one_of_T₂_fixed`, `S_neg_one`, `Φ_neg_one`,
-  `neg_one_ne_inv_three`, `fixed_point_conjecture` — the **Fixed Point Conjecture** (`Φ` has exactly two
-  odd fixed points `-1`, `1/3`; research open) and the verified facts: `-1` is fixed, both are odd and
-  distinct.
-* `conjugacy_finiteness_conjecture`, `conjugacy_finiteness_zero_of_fixed_point` — the **Conjugacy
-  Finiteness Conjecture** (finitely many odd period-`2ʲ` points; research open) and its `j = 0`
-  reduction to the Fixed Point Conjecture.
+  `neg_one_ne_inv_three` — the verified facts behind the **Fixed Point Conjecture**
+  (`BL.fixed_point_conjecture`): `-1` is fixed, both candidates are odd and distinct.
+* `conjugacy_finiteness_zero_of_fixed_point` — the `j = 0` reduction of the **Conjugacy Finiteness
+  Conjecture** (`BL.conjugacy_finiteness_conjecture`) to the Fixed Point Conjecture, proved.
+* The three conjectures themselves are in **`BL/Conjectures.lean`** (`research open`, `sorry`ed);
+  nothing here depends on them.
 * `diffQuotient`, `DifferentiableAt2`, `NowhereDifferentiable2`, `Φ_nowhereDifferentiable`,
   `Φsymm_nowhereDifferentiable`, `Q_nowhereDifferentiable` — `Φ` and `Φ⁻¹` are nowhere differentiable
   on `ℤ₂` (cited).
@@ -511,15 +522,6 @@ denominator. The conjugacy map `Φ` is conjectured to preserve this set. -/
 @[category API, AMS 11 37, ref "BL96"]
 def RatInt : Set ℤ_[2] := {x | ∃ q : ℚ, (x : ℚ_[2]) = (q : ℚ_[2])}
 
-/-- **Periodicity Conjecture (Bernstein–Lagarias 1996).** The 3x+1 conjugacy map `Φ` maps the
-rational 2-adic integers **onto themselves**: `Φ(ℚ ∩ ℤ₂) = ℚ ∩ ℤ₂`. This is **open** — recorded as a
-`sorry`ed `research open` statement (never an `axiom`, per the corpus policy on open conjectures). It
-would imply that the 3x+1 map has no divergent trajectories
-(`periodicity_imp_no_divergent_trajectories`). -/
-@[category research open, AMS 11 37, ref "BL96", group "bl_periodicity_conjecture"]
-theorem periodicity_conjecture : (⇑Φ) '' RatInt = RatInt := by
-  sorry
-
 /-! #### Divergent trajectories and the iteration dichotomy
 
 `divergent_iff_tendsto_atTop` proves the equivalence of the two descriptions BL96 gives of a
@@ -747,7 +749,8 @@ only on the **known** one-sided inclusion `Φ(ℚ∩ℤ₂) ⊆ ℚ∩ℤ₂`. -
 notes it is *known* and "easily proven from the explicit formula `(1.6)`", `Φ_eq_neg_sum` /
 `Φ_eq_neg_tsum`, see `[2] = [Ber94]`). This is the *easy* half: the image of a rational 2-adic integer
 is again rational. The **reverse** inclusion `ℚ∩ℤ₂ ⊆ Φ(ℚ∩ℤ₂)` is the open **Periodicity Conjecture**
-(`periodicity_conjecture`); the two together give `Φ(ℚ∩ℤ₂) = ℚ∩ℤ₂`. Kept as a cited `axiom` (a
+(`BL.periodicity_conjecture`, in `BL/Conjectures.lean`); the two together give
+`Φ(ℚ∩ℤ₂) = ℚ∩ℤ₂`. Kept as a cited `axiom` (a
 literature-proved fact), never assuming the open conjecture. -/
 @[category research solved, AMS 11 37, ref "BL96" "Ber94", group "bl_periodicity_conjecture"]
 axiom Φ_image_ratInt_subset : (⇑Φ) '' RatInt ⊆ RatInt
@@ -793,7 +796,8 @@ theorem periodicity_conjecture_iff_iterate {k : ℕ} (hk : 1 ≤ k) :
 
 `Φ` has the obvious fixed point `0` (`Φ 0 = 0`). Bernstein–Lagarias searched for *odd* (rational) fixed
 points and found exactly two — `-1` and `1/3` — and conjecture these are the only ones. We verify both
-are odd, prove that `-1` is genuinely a fixed point, and record the conjecture (open). -/
+are odd and prove that `-1` is genuinely a fixed point; the conjecture itself is
+`BL.fixed_point_conjecture` in `BL/Conjectures.lean`. -/
 
 /-- `-1 = …111₂` is **odd**: `parity (-1) = 1` (`toZMod (-1) = -1 = 1` in `ZMod 2`). -/
 @[category API, AMS 11 37, ref "BL96"]
@@ -868,33 +872,13 @@ theorem neg_one_ne_inv_three : (-1 : ℤ_[2]) ≠ Ring.inverse 3 := by
   have hcontra : (3 : ℤ_[2]) * (-1) = 1 := by rw [h, three_mul_inverse]
   norm_num at hcontra
 
-/-- **Fixed Point Conjecture (Bernstein–Lagarias 1996).** The 3x+1 conjugacy map `Φ` has **exactly two
-odd fixed points**, `-1` and `1/3`: the set of odd fixed points is `{-1, 1/3}`. **Open** — recorded as a
-`sorry`ed `research open` statement (never an `axiom`). The `⊇` inclusion is *known*: `-1` is a fixed
-point (`Φ_neg_one`, proved here) and `1/3 = Ring.inverse 3` is one (the paper's computation, via the
-explicit formula `(1.6)`), both odd (`parity_neg_one`, `parity_inv_three`) and distinct
-(`neg_one_ne_inv_three`); the open content is `⊆`, that there is no *other* odd fixed point. -/
-@[category research open, AMS 11 37, ref "BL96", group "bl_fixed_point_conjecture"]
-theorem fixed_point_conjecture :
-    {x : ℤ_[2] | Φ x = x ∧ parity x = 1} = {-1, Ring.inverse 3} := by
-  sorry
-
 /-! ### The Conjugacy Finiteness Conjecture (BL96, §1) -/
-
-/-- **3x+1 Conjugacy Finiteness Conjecture (Bernstein–Lagarias 1996).** For each `j ≥ 0`, the conjugacy
-map `Φ` has **finitely many odd periodic points of period `2ʲ`** — i.e. the set of odd `x` with
-`Φ^[2ʲ] x = x` (`Function.IsPeriodicPt Φ (2ʲ) x`) is finite. **Open** — recorded as a `sorry`ed
-`research open` statement (never an `axiom`). It generalises the Fixed Point Conjecture: the `j = 0`
-case (period `2⁰ = 1`) is finiteness of the odd *fixed* points, which `fixed_point_conjecture` sharpens
-to "exactly two" (`conjugacy_finiteness_zero_of_fixed_point`). -/
-@[category research open, AMS 11 37, ref "BL96", group "bl_finiteness_conjecture"]
-theorem conjugacy_finiteness_conjecture (j : ℕ) :
-    {x : ℤ_[2] | (⇑Φ)^[2 ^ j] x = x ∧ parity x = 1}.Finite := by
-  sorry
 
 /-- The `j = 0` case of the Finiteness Conjecture (period `2⁰ = 1`, i.e. odd *fixed* points) **follows
 from the Fixed Point Conjecture**: if the odd fixed points are exactly `{-1, 1/3}`, they are in
-particular finite. (`Φ^[2⁰] = Φ^[1] = Φ`.) A `sorry`-free reduction between the two conjectures. -/
+particular finite. (`Φ^[2⁰] = Φ^[1] = Φ`.) A `sorry`-free reduction between the two conjectures, both
+of which are stated in `BL.Conjectures` — the hypothesis here is the Fixed Point Conjecture spelled
+out, so nothing in this file depends on an unproved statement. -/
 @[category API, AMS 11 37, ref "BL96", group "bl_finiteness_conjecture"]
 theorem conjugacy_finiteness_zero_of_fixed_point
     (h : {x : ℤ_[2] | Φ x = x ∧ parity x = 1} = {-1, Ring.inverse 3}) :

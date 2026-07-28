@@ -168,7 +168,7 @@ theorem terminating_iff_exists_reductionOrder {R : System α} :
     · intro s t u; exact Relation.TransGen.trans
     · intro p q s t hst
       exact Relation.TransGen.lift (fun w => p ++ w ++ q)
-        (fun _ _ hab => RewriteStep.append_context hab p q) hst
+        (fun _ _ hab => RewriteStep.append_context hab p q) s t hst
     · intro ℓ r hr
       exact Relation.TransGen.single (RewriteStep.of_rule hr)
   · rintro ⟨gt, hgt, hrules⟩
