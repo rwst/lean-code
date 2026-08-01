@@ -35,9 +35,10 @@ i.e. `F(z) = M(z)F(z^k)` with
 ## Scope: the matrix, not the analytic identity
 
 `M(z)` is built here (`mahlerMatrix`), general in `(ι, σ)`, together with the row-sum identity
-`Σⱼ M i j = 1 + z + ⋯ + z^{k-1}` — the structural fact behind `(1+z+⋯+z^{k-1}) ∣ det M`, whose
-roots are `k`-th roots of unity, all on `|z| = 1`, and so **never `2/3`** ([B1E2] §0.2(1); check
-against [AF17] §8.1, where `det A = (1+z-z²)(1+z+z²)` at `k = 3`).
+`Σⱼ M i j = 1 + z + ⋯ + z^{k-1}` and the divisibility it implies, `(1+z+⋯+z^{k-1}) ∣ det M`
+(`rowSum_dvd_det`, [B1E2b] WP8) — add every column to one column and pull the common factor out.
+The roots of that factor are `k`-th roots of unity, all on `|z| = 1`, and so **never `2/3`**
+([B1E2] §0.2(1); check against [AF17] §8.1, where `det A = (1+z-z²)(1+z+z²)` at `k = 3`).
 
 The **analytic** identity `F(z) = M(z)F(z^k)` as an equation of functions on `|z| < 1` is *not*
 built.  It is not needed: WP4's live consumer is `RB.Regularity`, which is a statement about
@@ -59,6 +60,7 @@ the instances from `(hK : (AS.kKernel k a).Finite)` via `hK.fintype` and `Classi
 * `RB.kernelMap`, `RB.kernelMap_apply` — `σ` and the decimation identity `σ(s,r)(n) = s(kn+r)`.
 * **`RB.mahlerMatrix`** — `M(z) = Σ_{r<k} zʳPᵣ`.
 * **`RB.mahlerMatrix_row_sum`** — every row sums to `1 + z + ⋯ + z^{k-1}`.
+* **`RB.rowSum_dvd_det`** — hence `(1 + z + ⋯ + z^{k-1}) ∣ det M`.
 * `RB.mahlerMatrix_map_eval_zero` — `M(0) = P₀`, the input to the lever.
 
 ## References
@@ -67,6 +69,8 @@ the instances from `(hK : (AS.kKernel k a).Finite)` via `hK.fintype` and `Classi
   `k = 3` example against which the row-sum identity is checked.)
 * [AS03] Allouche, Shallit. *Automatic Sequences.* CUP 2003.  (The `k`-kernel.)
 * [B1E2] `plans/plan-B1E2.html` (rev. 2, 2026-07): §0.2 (the regularity lemma), WP4, WP5 (parked).
+* [B1E2b] `plans/plan-B1E2b.html` (2026-07-28): WP8 (the row-sum divisibility, and the job it
+  does — see `RB/Regularity.lean`).
 -/
 
 namespace RB
@@ -128,6 +132,36 @@ lemma mahlerMatrix_row_sum (k : ℕ) (σ : ι → Fin k → ι) (i : ι) :
   simp only [Matrix.of_apply]
   rw [Finset.sum_comm]
   exact Finset.sum_congr rfl fun r _ => by simp
+
+/-- **The row-sum factor divides the determinant** ([B1E2b] WP8): `(1 + z + ⋯ + z^{k-1}) ∣ det M`.
+
+Add every column of `M` to one fixed column — this changes no determinant — and that column becomes
+constantly `1 + z + ⋯ + z^{k-1}` by `mahlerMatrix_row_sum`; pulling the scalar out of the column
+(`Matrix.det_updateCol_smul`) exhibits the factor.
+
+The index set must be nonempty: with `ι = ∅` the determinant is `1`, which `1 + z + ⋯ + z^{k-1}`
+does not divide for `k ≥ 2`.
+
+This is the fact behind the non-degeneracy hypothesis of `RB.regular_of_not_dvd_lowest_coeff`: for
+`k ≥ 2` a Mahler determinant always *has* singular points — the `k`-th roots of unity other than
+`1` — so "`det M ≠ 0`", not "`det M` has no roots", is what one can ask for. Those roots sit on
+`|z| = 1` and are therefore never the points the method is evaluated at
+(`RB.aeval_rowSum_pos`). -/
+@[category research solved, AMS 11 68, ref "AF17" "B1E2b", group "rb_mahler_system"]
+theorem rowSum_dvd_det [Nonempty ι] (k : ℕ) (σ : ι → Fin k → ι) :
+    (∑ r : Fin k, (X : Polynomial ℤ) ^ (r : ℕ)) ∣ (mahlerMatrix k σ).det := by
+  obtain ⟨j₀⟩ := ‹Nonempty ι›
+  set A := mahlerMatrix k σ with hA
+  set s : Polynomial ℤ := ∑ r : Fin k, (X : Polynomial ℤ) ^ (r : ℕ) with hs
+  refine ⟨(A.updateCol j₀ (fun _ => 1)).det, ?_⟩
+  have h1 := Matrix.det_updateCol_sum A j₀ (fun _ => (1 : Polynomial ℤ))
+  have h2 : (fun i => ∑ j, (1 : Polynomial ℤ) • A i j) = (fun _ : ι => s) := by
+    funext i
+    simp only [one_smul]
+    rw [hs, hA, mahlerMatrix_row_sum]
+  rw [h2, one_smul] at h1
+  rw [← h1, show (fun _ : ι => s) = s • (fun _ : ι => (1 : Polynomial ℤ)) by funext; simp,
+    Matrix.det_updateCol_smul]
 
 omit [Fintype ι] in
 /-- **`M(0) = P₀`** ([B1E2] §0.2(2)): only the `r = 0` term survives evaluation at `0`.  This is

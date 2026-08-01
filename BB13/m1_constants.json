@@ -1,0 +1,14 @@
+{
+ "subspace_exponent": -0.2618595071429149,
+ "eps": 0.2618595071429149,
+ "linkage_kappa_6d": 0.16055842170362475,
+ "linkage_kappa_sharp": 0.2618595071429149,
+ "towers_per_lnN_6d": 6.715858661180116,
+ "towers_per_lnN_sharp": 4.299476929270693,
+ "BE08_lines": 1856360182226.5378,
+ "BE08_n_min": 10.0,
+ "EF_delta": 0.11577178260451937,
+ "EF_omega0": 18.978930166792185,
+ "EF_interval_windows": 532156021453.0,
+ "EF_direct_lines": 135292939395646.47
+}

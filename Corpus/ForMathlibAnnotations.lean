@@ -120,7 +120,11 @@ attribute [category research solved, AMS 11, ref "Ber92"]
 
 -- `ForMathlib/Analysis/Equidistribution/AddCircleWeyl.lean` — Weyl's criterion on the circle
 attribute [category research solved, AMS 11]
-  tendsto_average_of_tendsto_fourier
+  tendsto_average_of_tendsto_fourier tendsto_average_real_of_tendsto_fourier
+  tendsto_average_of_weylSums integral_fourier_eq_zero
+attribute [category API, AMS 11]
+  haarAddCircle_eq_volume measureReal_closedBall circBump circBump_nonneg circBump_le_one
+  circBump_eq_one circBump_eq_zero integral_circBump_le le_integral_circBump
 
 -- `ForMathlib/Analysis/AbsoluteValue/Equivalence.lean` — `≤ 1` characterisation of equivalence
 attribute [category API, AMS 11]

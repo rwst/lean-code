@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import BertinPisot.DistributionModOneBasics
+import ForMathlib.Analysis.Equidistribution.AddCircleWeyl
 import ForMathlib.Analysis.Equidistribution.VanDerCorput
 import ForMathlib.Analysis.Equidistribution.IntegralCriterion
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
@@ -32,18 +33,21 @@ with the distribution criteria of §4.3 and the theorems of §4.4:
   `ForMathlib.Analysis.Equidistribution.IntegralCriterion`). Riemann-integrability is essential
   (`average_epsRangeIndicator_eq_one`).
 * **Theorem 4.3.2** (`uniformlyDistributedModOne_iff_weylCriterion`): Weyl's criterion — u.d. mod 1
-  ⟺ the Weyl sums `σ_h(N) = (1/N) Σ exp(2πi h xₙ) → 0` for every `h ∈ ℤ*`. The forward direction is
-  proved (via 4.3.1 applied to `cos`/`sin`); the converse is cited.
+  ⟺ the Weyl sums `σ_h(N) = (1/N) Σ exp(2πi h xₙ) → 0` for every `h ∈ ℤ*`. **Both** directions are
+  proved: the forward one via 4.3.1 applied to `cos`/`sin`, the converse from the
+  convergence-determining property of the characters
+  (`ForMathlib.Analysis.Equidistribution.AddCircleWeyl`) plus the arc squeeze below.
 * **Corollary** (`uniformlyDistributedModOne_nα_iff_irrational`): `(nα)` is u.d. mod 1 ⟺ `α` is
   irrational. Both halves are proved here from Weyl's criterion — the irrational case via the
   geometric Weyl-sum bound `weylCriterion_nα_of_irrational`.
 * **Theorem 4.3.3** (`uniformlyDistributedModOne_comp_continuous_iff`): for continuous `φ`, the image
   `(φ(ε xₙ))` of a u.d. sequence is u.d. ⟺ `∫_{-1/2}^{1/2} exp(2πi h φ) = 0` for all `h ∈ ℤ*` (via
-  the proved displayed limit `tendsto_average_exp_comp`; the iff is cited through 4.3.2).
+  the proved displayed limit `tendsto_average_exp_comp` and 4.3.2).
 * **§4.4** — **Van der Corput's theorem** (`vanDerCorput_theorem_4_4_1`: all difference sequences
-  `(xₙ₊ₖ − xₙ)` u.d. ⟹ `(xₙ)` u.d.) and **Fejér's theorem** (`fejer_theorem_4_4_2`: smooth `g` with
-  the stated growth of `g'` makes `(g(n))` u.d.), both cited (van der Corput inequality / lemma — not
-  in Mathlib).
+  `(xₙ₊ₖ − xₙ)` u.d. ⟹ `(xₙ)` u.d.), proved in full and now axiom-free, from the fundamental
+  inequality of `ForMathlib.Analysis.Equidistribution.VanDerCorput` together with both halves of
+  4.3.2; and **Fejér's theorem** (`fejer_theorem_4_4_2`: smooth `g` with the stated growth of `g'`
+  makes `(g(n))` u.d.), still cited (van der Corput's *lemma* is not in Mathlib).
 
 *References:*
   - [Ber92] Bertin, Marie José et al. *Pisot and Salem Numbers.* Birkhäuser, 1992. §4.2–4.4.
@@ -288,7 +292,8 @@ private theorem integral_cos_eq_zero (h : ℤ) (hh : h ≠ 0) :
     have h1 : HasDerivAt (fun t : ℝ => 2 * Real.pi * (h : ℝ) * t) (2 * Real.pi * h) t := by
       simpa using (hasDerivAt_id t).const_mul (2 * Real.pi * (h : ℝ))
     have h2 := ((Real.hasDerivAt_sin (2 * Real.pi * h * t)).comp t h1).div_const (2 * Real.pi * h)
-    convert h2 using 1; field_simp
+    rw [mul_div_assoc, div_self hne, mul_one] at h2
+    exact h2
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv
       ((Real.continuous_cos.comp (by fun_prop)).intervalIntegrable _ _)]
   have e1 : (2 * Real.pi * (h : ℝ) * (1/2)) = ((h : ℤ) : ℝ) * Real.pi := by ring
@@ -307,8 +312,12 @@ private theorem integral_sin_eq_zero (h : ℤ) (hh : h ≠ 0) :
     intro t _
     have h1 : HasDerivAt (fun t : ℝ => 2 * Real.pi * (h : ℝ) * t) (2 * Real.pi * h) t := by
       simpa using (hasDerivAt_id t).const_mul (2 * Real.pi * (h : ℝ))
-    have h2 := (((Real.hasDerivAt_cos (2 * Real.pi * h * t)).comp t h1).neg).div_const (2 * Real.pi * h)
-    convert h2 using 1; field_simp
+    have h2 := (((Real.hasDerivAt_cos (2 * Real.pi * h * t)).comp t h1).neg).div_const
+      (2 * Real.pi * h)
+    rw [show -(-Real.sin (2 * Real.pi * h * t) * (2 * Real.pi * h)) / (2 * Real.pi * h)
+        = Real.sin (2 * Real.pi * h * t) * (2 * Real.pi * h) / (2 * Real.pi * h) by ring,
+      mul_div_assoc, div_self hne, mul_one] at h2
+    exact h2
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv
       ((Real.continuous_sin.comp (by fun_prop)).intervalIntegrable _ _)]
   have e1 : (2 * Real.pi * (h : ℝ) * (1/2)) = ((h : ℤ) : ℝ) * Real.pi := by ring
@@ -362,21 +371,135 @@ theorem weylCriterion_of_uniformlyDistributedModOne (x : ℕ → ℝ)
     rwa [Complex.ofReal_zero] at hc
   simpa using ha.add (hb.mul_const Complex.I)
 
+/-! The converse direction of Theorem 4.3.2 needs two pieces of bookkeeping relating Bertin's
+centered `ε` to the norm of the unit circle `AddCircle 1`, on which the analytic engine
+(`tendsto_average_of_weylSums`) lives. Recall `‖(y : AddCircle 1)‖ = |y - round y| = |ε y|`. -/
+
+/-- On the unit circle `‖y mod 1‖` is the distance from `y` to the *nearest* integer, hence at most
+`|y - k|` for every integer `k`. -/
+private theorem norm_coe_le_abs_sub_int (y : ℝ) (k : ℤ) :
+    ‖((y : ℝ) : AddCircle (1 : ℝ))‖ ≤ |y - (k : ℝ)| := by
+  rw [UnitAddCircle.norm_eq]
+  rcases eq_or_ne k (round y) with rfl | hk
+  · exact le_rfl
+  · have h1 : |y - (round y : ℝ)| ≤ 1 / 2 := abs_sub_round y
+    have h2 : (1 : ℝ) ≤ |(k : ℝ) - (round y : ℝ)| := by
+      have hz : (1 : ℤ) ≤ |k - round y| := Int.one_le_abs (sub_ne_zero.mpr hk)
+      have hc : ((|k - round y| : ℤ) : ℝ) = |(k : ℝ) - (round y : ℝ)| := by
+        rw [Int.cast_abs]; congr 1; push_cast; ring
+      calc (1 : ℝ) = ((1 : ℤ) : ℝ) := by norm_num
+        _ ≤ ((|k - round y| : ℤ) : ℝ) := by exact_mod_cast hz
+        _ = _ := hc
+    have h3 : |(k : ℝ) - (round y : ℝ)| ≤ |(k : ℝ) - y| + |y - (round y : ℝ)| := abs_sub_le _ _ _
+    have h4 : |(k : ℝ) - y| = |y - (k : ℝ)| := abs_sub_comm _ _
+    linarith
+
+/-- If `ε y` lies in the interval `[a, b)` then `y mod 1` lies in the closed arc of radius
+`(b-a)/2` about the midpoint `(a+b)/2`. -/
+private theorem circ_dist_le_of_mem {a b y : ℝ} (hy : ε y ∈ Set.Ico a b) :
+    ‖((y : ℝ) : AddCircle (1 : ℝ)) - (((a + b) / 2 : ℝ) : AddCircle (1 : ℝ))‖ ≤ (b - a) / 2 := by
+  rw [← QuotientAddGroup.mk_sub]
+  refine le_trans (norm_coe_le_abs_sub_int (y - (a + b) / 2) (round y)) ?_
+  have he : y - (a + b) / 2 - (round y : ℝ) = ε y - (a + b) / 2 := by rw [ε]; ring
+  rw [Set.mem_Ico] at hy
+  rw [he, abs_le]
+  constructor <;> linarith [hy.1, hy.2]
+
+/-- Conversely, a point of the *open* arc of radius `(b-a)/2` about `(a+b)/2` has `ε y ∈ [a, b)`.
+Here `-1/2 ≤ a` and `b ≤ 1/2` are what rule out the two neighbouring lifts of the arc. -/
+private theorem mem_of_circ_dist_lt {a b y : ℝ} (ha : -(1/2) ≤ a) (hb : b ≤ 1/2)
+    (h : ‖((y : ℝ) : AddCircle (1 : ℝ)) - (((a + b) / 2 : ℝ) : AddCircle (1 : ℝ))‖
+      < (b - a) / 2) : ε y ∈ Set.Ico a b := by
+  rw [← QuotientAddGroup.mk_sub, UnitAddCircle.norm_eq] at h
+  have h2 := abs_lt.mp h
+  -- the lift `round (y - (a+b)/2)` already puts `y` into `[-1/2, 1/2)`, so it *is* `round y`
+  have hmem : y - ((round (y - (a + b) / 2) : ℤ) : ℝ) ∈ Set.Ico (-(1/2) : ℝ) (1/2) := by
+    rw [Set.mem_Ico]
+    constructor <;> linarith [h2.1, h2.2]
+  have hround : round (y - (a + b) / 2) = round y :=
+    (existsUnique_intPart y).unique hmem (by simpa [ε] using ε_mem_Ico y)
+  rw [Set.mem_Ico, ε, ← hround]
+  constructor <;> linarith [h2.1, h2.2]
+
 /-- The converse direction of **Theorem 4.3.2** (Weyl): vanishing exponential sums imply u.d. mod 1.
-Its proof expands a continuous `1`-periodic function in trigonometric polynomials (Fejér /
-Stone–Weierstrass), passes the limit through the finite exponential sums, and concludes via the
-integral criterion (Theorem 4.3.1). The trigonometric-density step is available in Mathlib
-(`AddCircle.span_fourier_closure_eq_top`), but assembling it — through the centered `ε`-averages and
-a continuous-to-step squeeze — into the equidistribution statement is a separate development, so the
-converse is recorded here as a cited result. -/
-@[category research solved, AMS 11, ref "Ber92"]
-axiom uniformlyDistributedModOne_of_weylCriterion (x : ℕ → ℝ)
-    (h : WeylCriterion x) : UniformlyDistributedModOne x
+
+The analytic engine is `tendsto_average_of_weylSums`
+(`ForMathlib.Analysis.Equidistribution.AddCircleWeyl`): the characters are convergence-determining
+because their span is dense in `C(AddCircle 1, ℂ)` (Mathlib's `span_fourier_closure_eq_top`), so
+the averages of *every* continuous function along `(xₙ mod 1)` converge to its Haar integral. The
+step from continuous test functions to the indicator of `[a, b)` is the classical squeeze: for
+small `η > 0` the two plateau bumps `circBump` of the concentric arcs of radii `(b-a)/2` and
+`(b-a)/2 + η` sandwich that indicator, and their Haar integrals are within `2η` of `b - a`. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses tendsto_average_of_weylSums]
+theorem uniformlyDistributedModOne_of_weylCriterion (x : ℕ → ℝ)
+    (h : WeylCriterion x) : UniformlyDistributedModOne x := by
+  classical
+  intro a b ha hab hb
+  refine Metric.tendsto_atTop.2 fun δ hδ => ?_
+  set η : ℝ := min (δ / 8) ((b - a) / 4) with hηdef
+  have hη0 : 0 < η := lt_min (by linarith) (by linarith)
+  have hη1 : η ≤ δ / 8 := min_le_left _ _
+  have hη2 : η ≤ (b - a) / 4 := min_le_right _ _
+  set c : AddCircle (1 : ℝ) := (((a + b) / 2 : ℝ) : AddCircle (1 : ℝ)) with hc
+  -- the two limits supplied by the engine
+  have hup := tendsto_average_of_weylSums h (circBump c ((b - a) / 2 + η) η)
+  have hlo := tendsto_average_of_weylSums h (circBump c ((b - a) / 2) η)
+  -- their integrals bracket `b - a` to within `2η`
+  have hIup : (∫ z, circBump c ((b - a) / 2 + η) η z
+        ∂(AddCircle.haarAddCircle : Measure (AddCircle (1 : ℝ)))) ≤ (b - a) + 2 * η :=
+    le_trans (integral_circBump_le c (by linarith) hη0)
+      (le_trans (min_le_right _ _) (by linarith))
+  have hIlo : (b - a) - 2 * η ≤ ∫ z, circBump c ((b - a) / 2) η z
+        ∂(AddCircle.haarAddCircle : Measure (AddCircle (1 : ℝ))) :=
+    le_trans (le_min (by linarith) (by linarith)) (le_integral_circBump c hη0 (by linarith))
+  -- the counting function as a sum of indicators
+  have hcount : ∀ N : ℕ, (countModOne x a b N : ℝ)
+      = ∑ n ∈ Finset.range N, (if ε (x n) ∈ Set.Ico a b then (1 : ℝ) else 0) := by
+    intro N; rw [Finset.sum_boole, countModOne]
+  -- the sandwich, termwise
+  have hupper : ∀ N : ℕ, (countModOne x a b N : ℝ)
+      ≤ ∑ n ∈ Finset.range N,
+          circBump c ((b - a) / 2 + η) η ((x n : ℝ) : AddCircle (1 : ℝ)) := by
+    intro N
+    rw [hcount N]
+    refine Finset.sum_le_sum fun n _ => ?_
+    by_cases hmem : ε (x n) ∈ Set.Ico a b
+    · have hd := circ_dist_le_of_mem (a := a) (b := b) hmem
+      rw [if_pos hmem, circBump_eq_one hη0 (by rw [hc]; linarith)]
+    · rw [if_neg hmem]; exact circBump_nonneg
+  have hlower : ∀ N : ℕ,
+      (∑ n ∈ Finset.range N, circBump c ((b - a) / 2) η ((x n : ℝ) : AddCircle (1 : ℝ)))
+        ≤ (countModOne x a b N : ℝ) := by
+    intro N
+    rw [hcount N]
+    refine Finset.sum_le_sum fun n _ => ?_
+    by_cases hmem : ε (x n) ∈ Set.Ico a b
+    · rw [if_pos hmem]; exact circBump_le_one
+    · rw [if_neg hmem]
+      refine le_of_eq (circBump_eq_zero hη0 ?_)
+      by_contra hlt
+      refine hmem (mem_of_circ_dist_lt ha hb ?_)
+      rw [← hc]; exact not_le.mp hlt
+  -- and the endgame
+  obtain ⟨N₁, hN₁⟩ := Metric.tendsto_atTop.1 hup (δ / 8) (by linarith)
+  obtain ⟨N₂, hN₂⟩ := Metric.tendsto_atTop.1 hlo (δ / 8) (by linarith)
+  refine ⟨max N₁ N₂, fun N hN => ?_⟩
+  have h1 := hN₁ N (le_trans (le_max_left _ _) hN)
+  have h2 := hN₂ N (le_trans (le_max_right _ _) hN)
+  have hNn : (0 : ℝ) ≤ 1 / N := by positivity
+  have key : ∀ u v : ℝ, u ≤ v → u / N ≤ v / N := by
+    intro u v huv
+    rw [div_eq_mul_one_div u, div_eq_mul_one_div v]
+    exact mul_le_mul_of_nonneg_right huv hNn
+  have hdiv1 := key _ _ (hupper N)
+  have hdiv2 := key _ _ (hlower N)
+  rw [Real.dist_eq, abs_lt] at h1 h2 ⊢
+  constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
 
 /-- **Theorem 4.3.2** (Weyl's criterion). A sequence `(xₙ)` of real numbers is uniformly distributed
 modulo one **iff** `lim_{N→∞} (1/N) Σ_{n<N} exp(2πi h xₙ) = 0` for every non-zero integer `h`. The
-forward direction is proved (via Theorem 4.3.1, applied to `cos` and `sin`); the converse is cited
-(trigonometric-polynomial density). -/
+forward direction is proved via Theorem 4.3.1 (applied to `cos` and `sin`), the converse via
+trigonometric-polynomial density; both halves are axiom-free. -/
 @[category research solved, AMS 11, ref "Ber92",
   formal_uses weylCriterion_of_uniformlyDistributedModOne uniformlyDistributedModOne_of_weylCriterion]
 theorem uniformlyDistributedModOne_iff_weylCriterion (x : ℕ → ℝ) :
@@ -601,8 +724,8 @@ i.e. `(xₙ)` is u.d. by Theorem 4.3.2. This is **proved here in full**: the fun
 applied to `uₙ = e^{2πi h xₙ}` with `a = 1`, `L = H+1`; the differences' Weyl sums vanish by the
 hypothesis through Weyl's forward direction (`weylCriterion_of_uniformlyDistributedModOne`); a double
 limit (`N → ∞` then `H → ∞`) gives `σ_h(N) → 0`; and the conclusion uses Weyl's converse
-(`uniformlyDistributedModOne_of_weylCriterion`) — the **only** remaining cited axiom this proof rests
-on. -/
+(`uniformlyDistributedModOne_of_weylCriterion`), itself proved. The whole proof is therefore
+axiom-free. -/
 @[category research solved, AMS 11, ref "Ber92" "vdC31",
   formal_uses vanDerCorput_fundamental_inequality weylCriterion_of_uniformlyDistributedModOne
     uniformlyDistributedModOne_of_weylCriterion]

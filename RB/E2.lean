@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import RB.QuadraticPisot
 import RB.Basic
+import Mathlib.Logic.Encodable.Basic
 import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
@@ -53,6 +54,23 @@ hypothesis is about.  The fix used below is to quantify over an **arbitrary fait
 only on the sequence up to injective relabelling of the alphabet, so "some faithful `f` is
 automatic" is exactly "`w` is automatic" — with no arbitrary choice of offset.
 
+## The trap, downgraded to a lemma ([B1E2b] WP11a, review item F7d)
+
+Since `AS.IsAutomatic'` (`CITED.AlloucheShallitBasic`) states automaticity for `ℕ → α`, the
+apparatus above is no longer needed to *say* the thing:
+
+* **`RB.E2Quadratic'`** is E.2 stated directly about the `ℤ`-valued word, and
+  **`RB.e2Quadratic_iff_e2Quadratic'`** proves the two formulations equivalent — so the faithful
+  encoding was neither adding nor losing content, and the paper may state the clean version.
+* **`RB.toNat_encoding_trap`** turns the trap itself into a one-line theorem: `n ↦ −n−1` is
+  injective, hence not automatic (`AS.not_isAutomatic'_of_injective`), while its `Int.toNat` image
+  is the constant `0`, which is.  So a non-injective encoding really can manufacture
+  automaticity — the counterexample no longer has to be the delicate `β = (5+√5)/2` computation
+  recorded above, which stays here because it is the witness *inside the E.2 family*.
+
+The general-degree form of the conjecture lives in `RB.RigidityDegrees` (`RB.EAll`), which cannot
+be stated here: it speaks about `RB.Alg.word`, and `RB.AlgebraicBase` imports this file.
+
 ## Where E.2 has content, and where it does not
 
 * **Off `U`** it is a real statement — and that is where our `β = 3/2` lives:
@@ -74,6 +92,9 @@ half is E.2.
 * **`RB.three_halves_not_mem_Bertin_U`** — `3/2` is not Pisot or Salem (not an algebraic
   integer): our `β` is not exempt.
 * `RB.not_isIntegral_three_halves` — the underlying integrality failure.
+* **`RB.E2Quadratic'`**, **`RB.e2Quadratic_iff_e2Quadratic'`** — the encoding-free form, and its
+  equivalence with `E2Quadratic` ([B1E2b] WP11a).
+* **`RB.toNat_encoding_trap`** — the encoding trap as a theorem.
 
 ## References
 
@@ -113,9 +134,14 @@ class [Dub09] Thm 2 exempts, and `3/2` is not in it.  So E.2's hypothesis is not
 
 It also gives a **second proof of `RB.not_eventually_periodic`**, via the literature rather than
 via the corpus: [Dub09] Thm 2 says an ultimately periodic `w` forces `β ∈ U`, and `3/2 ∉ U`.  The
-corpus's own proof is `RB.not_eventually_periodic` (std3, [AFS08] Prop 26), so this is a
-cross-check on the identification, not a new dependency — Thm 2 is deliberately **not**
-axiomatized here, since its only consumer would be a theorem we already have. -/
+corpus's own proof is `RB.not_eventually_periodic` (std3, [AFS08] Prop 26), so at `β = 3/2` this
+is a cross-check on the identification, not a new dependency.
+
+*Update ([B1E2b] WP5, 2026-07-28):* Thm 2 **is** now carried, as `Dubickas.periodic_imp_mem_U` in
+`CITED.Dubickas`.  The earlier decision not to axiomatize it — recorded here — was justified by
+the absence of a consumer that was not already proved; `RB.Alg.not_isPRecursive_word_of_not_mem_U`
+is that consumer, and it covers *every* algebraic `β ∉ U`, not just `3/2`.  Nothing in this file
+depends on it: `three_halves_not_mem_Bertin_U` and `e2Quadratic_converse` remain `std3`. -/
 @[category research solved, AMS 11, ref "Ber92" "Dub09", group "rb_quadratic_pisot"]
 theorem three_halves_not_mem_Bertin_U : ((3 : ℝ) / 2) ∉ Bertin.U := by
   rintro ⟨-, hint, -⟩
@@ -164,5 +190,60 @@ theorem e2Quadratic_converse {β : ℝ} {a b : ℤ} (h : IsQuadraticPisot β a b
     exact (hfaithful n 0).mpr (by rw [hc, hc])
   rw [hconst]
   exact isAutomatic_const _
+
+/-! ## The encoding trap, as a theorem ([B1E2b] WP11a) -/
+
+/-- **A non-injective encoding can manufacture automaticity.**  The `ℤ`-valued sequence
+`wₙ = −n−1` is injective, hence *not* automatic (`AS.not_isAutomatic'_of_injective`: its diagonal
+decimations `n ↦ w(kⁱn)` are pairwise distinct); but it is everywhere `≤ 0`, so `Int.toNat ∘ w` is
+the constant `0`, which is automatic.
+
+This is the module doc's trap in its cheapest form.  The witness that matters for E.2 itself is
+the quadratic `β = (5+√5)/2`, where the two values `{−1, 0}` of the word are identified by
+`Int.toNat`; the point of both is the same, namely that `AS.isAutomatic'_congr_of_injective`
+cannot drop its injectivity hypothesis. -/
+@[category research solved, AMS 11 68, ref "B1E2b", group "rb_quadratic_pisot"]
+theorem toNat_encoding_trap :
+    ¬ AS.IsAutomatic' (fun n : ℕ => -(n : ℤ) - 1) ∧
+      AS.IsAutomatic (fun n : ℕ => (-(n : ℤ) - 1).toNat) := by
+  refine ⟨AS.not_isAutomatic'_of_injective (fun m n h => by omega), ?_⟩
+  have hconst : (fun n : ℕ => (-(n : ℤ) - 1).toNat) = fun _ => 0 := by
+    funext n
+    exact Int.toNat_of_nonpos (by omega)
+  rw [hconst]
+  exact isAutomatic_const 0
+
+/-! ## E.2 without the encoding apparatus ([B1E2b] WP11a) -/
+
+/-- **E.2 at `d = 2`, stated encoding-free**: the hypothesis is automaticity of the `ℤ`-valued word
+itself (`AS.IsAutomatic'`), with no `ℕ`-encoding anywhere.
+
+`e2Quadratic_iff_e2Quadratic'` proves this equivalent to `E2Quadratic`, so the faithful-encoding
+formulation was a Lean artefact, not a mathematical hedge.  Still **open**, still a `def`. -/
+@[category API, AMS 11 68, ref "Dub09" "B1E2b", group "rb_quadratic_pisot"]
+def E2Quadratic' : Prop :=
+  ∀ (β : ℝ) (a b x₀ : ℤ),
+    1 < β → Irrational β → β ^ 2 - a * β + b = 0 → 0 < x₀ →
+    AS.IsAutomatic' (pisotWord β a b x₀) → β ∈ Bertin.S
+
+/-- **The two formulations of E.2 at `d = 2` agree** ([B1E2b] WP11a).
+
+`⟸` is `AS.isAutomatic'_iff_faithful_encoding`: a faithful `ℕ`-encoding is automatic exactly when
+the word is.  `⟹` needs one encoding to exist at all, and `Encodable.encode : ℤ → ℕ` is an
+injective one; injective ⇒ faithful, and `AS.isAutomatic'_congr_of_injective` transports
+automaticity across it.
+
+So nothing is lost by stating the conjecture over `ℕ`-encodings, and nothing is gained: the
+statement `E2Quadratic'` is the one the paper should print. -/
+@[category research solved, AMS 11 68, ref "Dub09" "B1E2b", group "rb_quadratic_pisot"]
+theorem e2Quadratic_iff_e2Quadratic' : E2Quadratic ↔ E2Quadratic' := by
+  constructor
+  · intro h β a b x₀ hβ hirr hroot hx₀ hauto
+    refine h β a b x₀ (Encodable.encode ∘ pisotWord β a b x₀) hβ hirr hroot hx₀
+      (fun m n => Encodable.encode_injective.eq_iff) ?_
+    exact (AS.isAutomatic_iff_isAutomatic' _).mpr
+      ((AS.isAutomatic'_congr_of_injective Encodable.encode_injective).mpr hauto)
+  · intro h β a b x₀ f hβ hirr hroot hx₀ hfaithful hf
+    exact h β a b x₀ hβ hirr hroot hx₀ ((AS.isAutomatic'_iff_faithful_encoding hfaithful).mp hf)
 
 end RB

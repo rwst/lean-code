@@ -225,7 +225,7 @@ private theorem reach_contains_binary (m : List TSym)
   refine ⟨(lhd :: pre0) ++ mid', b', hb', ?_⟩
   have hsrc : lhd :: ((pre0 ++ b :: ts) ++ [rhd]) = (lhd :: pre0) ++ b :: (ts ++ [rhd]) := by simp
   rw [hsrc]
-  exact hpush.mono lift
+  exact ReflTransGen.mono lift _ _ hpush
 
 /-- **Reaching a binary-before-`▷` configuration, in general** ([YAH], Claim 3). For a *non-empty*
 digit block `mid`, the canonical string `◁ mid ▷` `𝒳`-rewrites to some `pre · b · ▷` with `b` binary.
@@ -309,7 +309,7 @@ theorem claim_3 (ν : ℕ) (hν : 1 < ν) (N : List TSym) (hc : canonicalForm N)
     rintro u v ⟨p, q, ℓ, r, hr, rfl, rfl⟩
     exact ⟨p, q, ℓ, r, Or.inr hr, rfl, rfl⟩
   have hreach' : ReflTransGen (RewriteStep collatzSRS) (lhd :: (mid ++ [rhd])) (pre ++ [b, rhd]) :=
-    hreach.mono lift2
+    ReflTransGen.mono lift2 _ _ hreach
   rcases hbbin with rfl | rfl
   · refine ⟨pre ++ [rhd], hreach'.tail ?_, ?_⟩
     · have hr : collatzSRS [f, rhd] [rhd] := Or.inl (Or.inl ⟨rfl, rfl⟩)

@@ -4,9 +4,12 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
+import ForMathlib.Combinatorics.Involution
 import Mathlib.FieldTheory.Minpoly.Basic
+import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 import Mathlib.FieldTheory.Minpoly.IsConjRoot
+import Mathlib.FieldTheory.Separable
 import Mathlib.RingTheory.Polynomial.RationalRoot
 import Mathlib.Algebra.Polynomial.Roots
 import Mathlib.Analysis.Complex.Basic
@@ -578,6 +581,88 @@ theorem salem_conj_real_or_unit (τ : ℝ) (hτ : τ ∈ T) :
       right
       have hc := mul_inv_cancel₀ (ne_of_gt hpos)
       nlinarith [mul_le_mul_of_nonneg_left hle2 hpos.le, hc, hle]
+
+/-- An irreducible rational polynomial of degree `≥ 2` has no rational root: a root `c` would make
+`X − C c` a non-unit factor, forcing degree `1`. -/
+private lemma not_isRoot_of_irreducible {P : Polynomial ℚ} (hirr : Irreducible P)
+    (hdeg : 2 ≤ P.natDegree) (c : ℚ) : ¬ P.IsRoot c := by
+  intro h
+  obtain ⟨q, hq⟩ := (Polynomial.dvd_iff_isRoot).mpr h
+  rcases hirr.isUnit_or_isUnit hq with hu | hu
+  · exact (Polynomial.not_isUnit_X_sub_C c) hu
+  · have hq0 : q ≠ 0 := hu.ne_zero
+    have hd : P.natDegree = 1 := by
+      rw [hq, Polynomial.natDegree_mul (Polynomial.X_sub_C_ne_zero c) hq0,
+        Polynomial.natDegree_X_sub_C, Polynomial.natDegree_eq_zero_of_isUnit hu]
+    omega
+
+/-- **A Salem number has even degree** (Bertin §5.2; the parity half of Salem's structure theorem).
+
+Proved, not axiomatized: the conjugates of `τ ∈ T` are closed under `δ ↦ δ⁻¹`
+(`salem_aroots_inv_closed`, the corpus's one cited reciprocity axiom), that map is an involution
+with no fixed point on the root set — a fixed point satisfies `δ² = 1`, i.e. `δ = ±1`, and
+`minpoly ℚ τ` is irreducible of degree `≥ 4` (`no_salem_lt_four`), hence has no rational root — and
+the roots are distinct (char `0` ⇒ separable) and `natDegree` many (`ℂ` is algebraically closed).
+So `Finset.even_card_of_involution` pairs them off.
+
+Consequence: **at odd degree, "Pisot or Salem" collapses to "Pisot"**
+(`mem_S_of_mem_U_of_odd_natDegree`), the odd-degree companion of the degree-`2` collapse
+`RB.mem_S_iff_mem_U_of_natDegree_two`.
+
+Footprint: `std3 + salem_aroots_inv_closed`. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses T,
+  informal_uses "salem-minpoly-reciprocal"]
+theorem natDegree_even_of_mem_T (τ : ℝ) (hτ : τ ∈ T) : Even (minpoly ℚ τ).natDegree := by
+  classical
+  have hintQ : IsIntegral ℚ τ := hτ.2.1.tower_top
+  set P := minpoly ℚ τ with hP
+  have hirr : Irreducible P := minpoly.irreducible hintQ
+  have hdeg4 : 4 ≤ P.natDegree := no_salem_lt_four τ hτ
+  have hsep : (P.map (algebraMap ℚ ℂ)).Separable := (hirr.separable).map
+  have hnodup : (P.aroots ℂ).Nodup := Polynomial.nodup_roots hsep
+  have hcard : Multiset.card (P.aroots ℂ) = P.natDegree := by
+    rw [Polynomial.aroots_def, ← Polynomial.natDegree_map (algebraMap ℚ ℂ) (p := P)]
+    exact (Polynomial.Splits.natDegree_eq_card_roots
+      (IsAlgClosed.splits (P.map (algebraMap ℚ ℂ)))).symm
+  have hroot : ∀ c : ℚ, ((algebraMap ℚ ℂ) c) ∈ P.aroots ℂ → P.IsRoot c := by
+    intro c hc
+    have h := (Polynomial.mem_aroots.mp hc).2
+    rw [Polynomial.aeval_def, Polynomial.eval₂_at_apply] at h
+    exact (map_eq_zero_iff _ (algebraMap ℚ ℂ).injective).mp h
+  have hRcard : (P.aroots ℂ).toFinset.card = P.natDegree := by
+    rw [Multiset.toFinset_card_of_nodup hnodup, hcard]
+  rw [← hRcard]
+  refine Finset.even_card_of_involution (f := fun z : ℂ => z⁻¹) (fun z => inv_inv z) ?_ ?_
+  · intro x hx
+    exact Multiset.mem_toFinset.mpr (salem_aroots_inv_closed τ hτ x (Multiset.mem_toFinset.mp hx)).2
+  · intro x hx hfix
+    have hxm := Multiset.mem_toFinset.mp hx
+    have hx0 : x ≠ 0 := (salem_aroots_inv_closed τ hτ x hxm).1
+    have hsq : (x - 1) * (x + 1) = 0 := by
+      have hxx : x * x = 1 := by
+        nth_rewrite 2 [← hfix]
+        exact mul_inv_cancel₀ hx0
+      linear_combination hxx
+    rcases mul_eq_zero.mp hsq with h | h
+    · have hx1 : x = 1 := by linear_combination h
+      subst hx1
+      exact not_isRoot_of_irreducible hirr (by omega) 1 (hroot 1 (by simpa using hxm))
+    · have hx1 : x = -1 := by linear_combination h
+      subst hx1
+      exact not_isRoot_of_irreducible hirr (by omega) (-1) (hroot (-1) (by simpa using hxm))
+
+/-- **At odd degree, "Pisot or Salem" collapses to "Pisot"** (Bertin §5.2, review item D16): an
+`α ∈ U` whose minimal polynomial has odd degree is a Pisot number, because Salem numbers have even
+degree (`natDegree_even_of_mem_T`).
+
+The odd-degree companion of `RB.mem_S_iff_mem_U_of_natDegree_two`.  Footprint:
+`std3 + salem_aroots_inv_closed`. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S T U]
+theorem mem_S_of_mem_U_of_odd_natDegree {α : ℝ} (hα : α ∈ U)
+    (hdeg : Odd (minpoly ℚ α).natDegree) : α ∈ S := by
+  rcases (Set.ext_iff.mp U_eq_S_union_T α).mp hα with h | h
+  · exact h
+  · exact absurd (natDegree_even_of_mem_T α h) (Nat.not_even_iff_odd.mpr hdeg)
 
 /-- The trace `δ + δ⁻¹` of any conjugate of a Salem number is real (real conjugate ⟹ real trace;
 unit-modulus conjugate ⟹ `δ⁻¹ = conj δ`, so `δ + δ⁻¹ = 2 Re δ`). -/

@@ -87,7 +87,7 @@ open Relation
 private theorem rtg_context {u v : List ZSym} (s t : List ZSym)
     (h : ReflTransGen (RewriteStep Z) u v) :
     ReflTransGen (RewriteStep Z) (s ++ u ++ t) (s ++ v ++ t) :=
-  ReflTransGen.lift (fun w => s ++ w ++ t) (fun _ _ hab => hab.append_context s t) h
+  ReflTransGen.lift (fun w => s ++ w ++ t) (fun _ _ hab => hab.append_context s t) _ _ h
 
 /-- Sweeping the head right over `2n` ones via `h11 → 1h`, emitting `n` ones: `h 1²ⁿ →*_𝒵 1ⁿ h`. -/
 private theorem headSweep (n : ℕ) :

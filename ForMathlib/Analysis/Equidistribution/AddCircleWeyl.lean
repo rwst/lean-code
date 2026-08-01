@@ -6,6 +6,11 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 module
 
 public import Mathlib.Analysis.Fourier.AddCircle
+public import Mathlib.Analysis.Normed.Group.AddCircle
+public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+public import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+public import Mathlib.MeasureTheory.Integral.Bochner.Set
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 
 @[expose] public section
 
@@ -23,6 +28,23 @@ measures to Haar measure.
 The proof is the standard two-step argument: linearity propagates the hypothesis from characters to
 their finite `ℂ`-linear combinations (`Submodule.span_induction`), and a uniform (sup-norm)
 approximation `ε`-squeeze extends it from the dense span to all of `C(AddCircle T, ℂ)`.
+
+## Converse of Weyl's criterion
+
+The rest of the file turns that statement into the usable converse half of Weyl's criterion for a
+real sequence `(xₙ)` on the unit circle `AddCircle (1 : ℝ)`:
+
+* `tendsto_average_real_of_tendsto_fourier` — the real-valued form of the above;
+* `tendsto_average_of_weylSums` — the hypothesis in its arithmetic shape: if the exponential sums
+  `(1/N) Σ_{n<N} exp(2πi k xₙ)` vanish for every `k ≠ 0`, then the averages of every continuous
+  `G : C(AddCircle 1, ℝ)` along `(xₙ mod 1)` converge to `∫ G` against Haar;
+* `circBump` — the continuous plateau bump used to squeeze an arc's indicator between continuous
+  functions, with `integral_circBump_le` and `le_integral_circBump` bounding its integral by the
+  Haar measure of the two concentric arcs (`measureReal_closedBall`).
+
+Together these reduce the converse of Weyl's criterion (Kuipers–Niederreiter, Theorem 1.2.1; Weyl
+1916) to a bookkeeping argument about the centered fractional part; that final step is carried out
+in `BertinPisot.UniformDistribution`.
 -/
 
 open MeasureTheory Filter Topology AddCircle
@@ -102,3 +124,148 @@ theorem tendsto_average_of_tendsto_fourier (Y : ℕ → AddCircle T)
           + ((∫ b, p b ∂μ) - ∫ b, F b ∂μ) := by ring
     rw [heq]; exact norm_add₃_le
   linarith [htri, h1, h2, hN0', hdist]
+
+/-- Real-valued form of `tendsto_average_of_tendsto_fourier`: under the same hypothesis, the
+averages of every *real*-valued continuous function converge to its Haar integral. -/
+theorem tendsto_average_real_of_tendsto_fourier (Y : ℕ → AddCircle T)
+    (hfou : ∀ k : ℤ, Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, fourier k (Y n)) / N) atTop
+      (𝓝 (∫ b, fourier k b ∂(haarAddCircle (T := T)))))
+    (G : C(AddCircle T, ℝ)) :
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, G (Y n)) / N) atTop
+      (𝓝 (∫ b, G b ∂(haarAddCircle (T := T)))) := by
+  have hC := tendsto_average_of_tendsto_fourier Y hfou
+    ⟨fun z => ((G z : ℝ) : ℂ), Complex.continuous_ofReal.comp G.continuous⟩
+  simp only [ContinuousMap.coe_mk, integral_complex_ofReal] at hC
+  have hpush : ∀ N : ℕ, (∑ n ∈ Finset.range N, ((G (Y n) : ℝ) : ℂ)) / (N : ℂ)
+      = (((∑ n ∈ Finset.range N, G (Y n)) / N : ℝ) : ℂ) := by
+    intro N; push_cast; ring
+  simp only [hpush] at hC
+  have h2 := (Complex.continuous_re.tendsto _).comp hC
+  simpa [Function.comp_def] using h2
+
+/-! ### The unit circle -/
+
+/-- On the unit circle `AddCircle 1` the Haar probability measure *is* the Lebesgue volume. -/
+theorem haarAddCircle_eq_volume :
+    (haarAddCircle : Measure (AddCircle (1 : ℝ))) = volume := by
+  rw [AddCircle.volume_eq_smul_haarAddCircle, ENNReal.ofReal_one, one_smul]
+
+/-- The Haar measure of the arc `closedBall c s` on the unit circle is `min 1 (2s)`. -/
+theorem measureReal_closedBall (c : AddCircle (1 : ℝ)) {s : ℝ} (hs : 0 ≤ s) :
+    (haarAddCircle : Measure (AddCircle (1 : ℝ))).real (Metric.closedBall c s)
+      = min 1 (2 * s) := by
+  rw [measureReal_def, haarAddCircle_eq_volume, AddCircle.volume_closedBall,
+    ENNReal.toReal_ofReal (le_min zero_le_one (by linarith))]
+
+/-- The continuous *plateau bump* of the arc `closedBall c s` with skirt width `η`: it equals `1`
+on `closedBall c (s - η)`, vanishes off `closedBall c s`, and takes values in `[0, 1]`. -/
+noncomputable def circBump (c : AddCircle (1 : ℝ)) (s η : ℝ) : C(AddCircle (1 : ℝ), ℝ) :=
+  ⟨fun z => max 0 (min 1 ((s - ‖z - c‖) / η)), by fun_prop⟩
+
+variable {c : AddCircle (1 : ℝ)} {s η : ℝ} {z : AddCircle (1 : ℝ)}
+
+theorem circBump_nonneg : 0 ≤ circBump c s η z := le_max_left _ _
+
+theorem circBump_le_one : circBump c s η z ≤ 1 := max_le zero_le_one (min_le_left _ _)
+
+/-- The bump is `1` on the inner arc. -/
+theorem circBump_eq_one (hη : 0 < η) (hz : ‖z - c‖ ≤ s - η) : circBump c s η z = 1 := by
+  have h1 : (1 : ℝ) ≤ (s - ‖z - c‖) / η := by rw [le_div_iff₀ hη]; linarith
+  simp only [circBump, ContinuousMap.coe_mk, min_eq_left h1, max_eq_right zero_le_one]
+
+/-- The bump vanishes off the outer arc. -/
+theorem circBump_eq_zero (hη : 0 < η) (hz : s ≤ ‖z - c‖) : circBump c s η z = 0 := by
+  have h1 : (s - ‖z - c‖) / η ≤ 0 := by rw [div_le_iff₀ hη]; linarith
+  simp only [circBump, ContinuousMap.coe_mk]
+  exact max_eq_left (le_trans (min_le_right _ _) h1)
+
+private theorem integrable_circBump (c : AddCircle (1 : ℝ)) (s η : ℝ) :
+    Integrable (circBump c s η) (haarAddCircle : Measure (AddCircle (1 : ℝ))) :=
+  (circBump c s η).continuous.integrable_of_hasCompactSupport
+    (HasCompactSupport.of_compactSpace _)
+
+/-- The bump's integral is at most the measure of the outer arc. -/
+theorem integral_circBump_le (c : AddCircle (1 : ℝ)) {s η : ℝ} (hs : 0 ≤ s) (hη : 0 < η) :
+    ∫ z, circBump c s η z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) ≤ min 1 (2 * s) := by
+  have hle : ∀ z, circBump c s η z
+      ≤ (Metric.closedBall c s).indicator (1 : AddCircle (1 : ℝ) → ℝ) z := by
+    intro z
+    by_cases hz : z ∈ Metric.closedBall c s
+    · rw [Set.indicator_of_mem hz]; exact circBump_le_one
+    · rw [Set.indicator_of_notMem hz, circBump_eq_zero hη]
+      rw [Metric.mem_closedBall, dist_eq_norm] at hz
+      exact le_of_not_ge hz
+  calc ∫ z, circBump c s η z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ)))
+      ≤ ∫ z, (Metric.closedBall c s).indicator (1 : AddCircle (1 : ℝ) → ℝ) z
+          ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) :=
+        integral_mono (integrable_circBump c s η)
+          ((integrable_const (1 : ℝ)).indicator measurableSet_closedBall) hle
+    _ = min 1 (2 * s) := by
+        rw [integral_indicator_one measurableSet_closedBall, measureReal_closedBall c hs]
+
+/-- The bump's integral is at least the measure of the inner arc. -/
+theorem le_integral_circBump (c : AddCircle (1 : ℝ)) {s η : ℝ} (hη : 0 < η) (hs : 0 ≤ s - η) :
+    min 1 (2 * (s - η))
+      ≤ ∫ z, circBump c s η z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) := by
+  have hle : ∀ z, (Metric.closedBall c (s - η)).indicator (1 : AddCircle (1 : ℝ) → ℝ) z
+      ≤ circBump c s η z := by
+    intro z
+    by_cases hz : z ∈ Metric.closedBall c (s - η)
+    · have hz' : ‖z - c‖ ≤ s - η := by rwa [Metric.mem_closedBall, dist_eq_norm] at hz
+      rw [Set.indicator_of_mem hz, circBump_eq_one hη hz']
+      exact le_rfl
+    · rw [Set.indicator_of_notMem hz]; exact circBump_nonneg
+  calc min 1 (2 * (s - η))
+      = ∫ z, (Metric.closedBall c (s - η)).indicator (1 : AddCircle (1 : ℝ) → ℝ) z
+          ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) := by
+        rw [integral_indicator_one measurableSet_closedBall, measureReal_closedBall c hs]
+    _ ≤ _ := integral_mono ((integrable_const (1 : ℝ)).indicator measurableSet_closedBall)
+        (integrable_circBump c s η) hle
+
+/-- The integral of a character over the unit circle vanishes for every non-zero frequency. -/
+theorem integral_fourier_eq_zero {k : ℤ} (hk : k ≠ 0) :
+    ∫ z, fourier k z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) = 0 := by
+  have hc : (2 * (Real.pi : ℂ) * Complex.I * k) ≠ 0 :=
+    mul_ne_zero (mul_ne_zero (mul_ne_zero two_ne_zero
+      (Complex.ofReal_ne_zero.mpr Real.pi_ne_zero)) Complex.I_ne_zero)
+      (Int.cast_ne_zero.mpr hk)
+  have hpre := AddCircle.intervalIntegral_preimage (1 : ℝ) 0 (fun z => fourier k z)
+  rw [haarAddCircle_eq_volume, ← hpre]
+  have hfun : ∀ t : ℝ, fourier k ((t : ℝ) : AddCircle (1 : ℝ))
+      = Complex.exp ((2 * (Real.pi : ℂ) * Complex.I * k) * t) := by
+    intro t; rw [fourier_coe_apply]; congr 1; push_cast; ring
+  simp only [hfun]
+  rw [integral_exp_mul_complex hc]
+  have h1 : (2 * (Real.pi : ℂ) * Complex.I * k) * ((0 : ℝ) + 1 : ℝ)
+      = (k : ℂ) * (2 * (Real.pi : ℂ) * Complex.I) := by push_cast; ring
+  have h0 : (2 * (Real.pi : ℂ) * Complex.I * k) * ((0 : ℝ) : ℂ) = 0 := by push_cast; ring
+  rw [h1, h0, Complex.exp_int_mul_two_pi_mul_I, Complex.exp_zero, sub_self, zero_div]
+
+/-- **Weyl's criterion, converse direction** (Weyl 1916; Kuipers–Niederreiter, Theorem 1.2.1), in
+the shape in which it is used: if the exponential sums `(1/N) Σ_{n<N} exp(2πi k xₙ)` vanish in the
+limit for every non-zero integer `k`, then for every continuous `G` on the circle the averages of
+`G` along `(xₙ mod 1)` converge to the Haar integral of `G`. -/
+theorem tendsto_average_of_weylSums {x : ℕ → ℝ}
+    (hw : ∀ k : ℤ, k ≠ 0 → Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * k * x n)) / N) atTop (𝓝 0))
+    (G : C(AddCircle (1 : ℝ), ℝ)) :
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, G ((x n : ℝ) : AddCircle (1 : ℝ))) / N) atTop
+      (𝓝 (∫ z, G z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))))) := by
+  refine tendsto_average_real_of_tendsto_fourier (fun n => ((x n : ℝ) : AddCircle (1 : ℝ))) ?_ G
+  intro k
+  rcases eq_or_ne k 0 with rfl | hk
+  · have hint : ∫ z, fourier (0 : ℤ) z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) = 1 := by
+      simp
+    rw [hint]
+    refine Tendsto.congr' ?_ (tendsto_const_nhds (x := (1 : ℂ)))
+    filter_upwards [eventually_gt_atTop 0] with N hN
+    have hN' : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr hN.ne'
+    simp [Finset.sum_const, Finset.card_range, div_self hN']
+  · rw [integral_fourier_eq_zero hk]
+    refine (hw k hk).congr fun N => ?_
+    congr 1
+    refine Finset.sum_congr rfl fun n _ => ?_
+    rw [fourier_coe_apply]
+    congr 1
+    push_cast
+    ring

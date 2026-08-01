@@ -103,7 +103,7 @@ This is how the carry sweep, built purely from `𝒳`, plugs into the full simul
 theorem auxDeriv_to_antihydra {u v : List ASym}
     (h : ReflTransGen (RewriteStep auxRules) u v) :
     ReflTransGen (RewriteStep antihydraSRS) u v :=
-  ReflTransGen.mono (fun _ _ hab => auxStep_to_antihydra hab) h
+  ReflTransGen.mono (fun _ _ hab => auxStep_to_antihydra hab) _ _ h
 
 /-! ### The carry sweep
 
