@@ -12,8 +12,10 @@ import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 # Theorem B3: the Morse–Hedlund complexity floor for the binary expansion of `3^m`
 
 Milestone **M-7 = Theorem B3** of the digit-block plan ([A4+] §3.3), the
-**capstone**: the binary digit string of `3^m` eventually has full low-order
-subword complexity `p_{3^m}(n) ≥ n + 1`.
+**capstone**: the binary digit string of `3^m` eventually meets the Morse–Hedlund
+floor `p_{3^m}(n) ≥ n + 1` in its low-order digits.  This is the aperiodicity
+threshold — the *minimum* over aperiodic words, attained identically by Sturmian
+words — and not a maximal-complexity statement; nothing superlinear is claimed.
 
 The proof is a two-line contraposition of the two shipped pieces:
 

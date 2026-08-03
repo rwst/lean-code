@@ -241,18 +241,17 @@ theorem integral_fourier_eq_zero {k : ℤ} (hk : k ≠ 0) :
   have h0 : (2 * (Real.pi : ℂ) * Complex.I * k) * ((0 : ℝ) : ℂ) = 0 := by push_cast; ring
   rw [h1, h0, Complex.exp_int_mul_two_pi_mul_I, Complex.exp_zero, sub_self, zero_div]
 
-/-- **Weyl's criterion, converse direction** (Weyl 1916; Kuipers–Niederreiter, Theorem 1.2.1), in
-the shape in which it is used: if the exponential sums `(1/N) Σ_{n<N} exp(2πi k xₙ)` vanish in the
-limit for every non-zero integer `k`, then for every continuous `G` on the circle the averages of
-`G` along `(xₙ mod 1)` converge to the Haar integral of `G`. -/
-theorem tendsto_average_of_weylSums {x : ℕ → ℝ}
+/-- Vanishing exponential sums give the Fourier-coefficient hypothesis of
+`tendsto_average_of_tendsto_fourier` at `T = 1`. The `k = 0` character contributes the constant `1`
+(both sides), and each `k ≠ 0` character has vanishing Haar integral (`integral_fourier_eq_zero`),
+so the hypothesis is exactly the vanishing of the `k`-th Weyl sum. -/
+theorem tendsto_fourier_of_weylSums {x : ℕ → ℝ}
     (hw : ∀ k : ℤ, k ≠ 0 → Tendsto (fun N : ℕ =>
       (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * k * x n)) / N) atTop (𝓝 0))
-    (G : C(AddCircle (1 : ℝ), ℝ)) :
-    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, G ((x n : ℝ) : AddCircle (1 : ℝ))) / N) atTop
-      (𝓝 (∫ z, G z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))))) := by
-  refine tendsto_average_real_of_tendsto_fourier (fun n => ((x n : ℝ) : AddCircle (1 : ℝ))) ?_ G
-  intro k
+    (k : ℤ) :
+    Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N, fourier k ((x n : ℝ) : AddCircle (1 : ℝ))) / N) atTop
+      (𝓝 (∫ b, fourier k b ∂(haarAddCircle (T := (1 : ℝ))))) := by
   rcases eq_or_ne k 0 with rfl | hk
   · have hint : ∫ z, fourier (0 : ℤ) z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))) = 1 := by
       simp
@@ -269,3 +268,29 @@ theorem tendsto_average_of_weylSums {x : ℕ → ℝ}
     congr 1
     push_cast
     ring
+
+/-- **Weyl's criterion, converse direction** (Weyl 1916; Kuipers–Niederreiter, Theorem 1.2.1), in
+the shape in which it is used: if the exponential sums `(1/N) Σ_{n<N} exp(2πi k xₙ)` vanish in the
+limit for every non-zero integer `k`, then for every continuous `G` on the circle the averages of
+`G` along `(xₙ mod 1)` converge to the Haar integral of `G`. -/
+theorem tendsto_average_of_weylSums {x : ℕ → ℝ}
+    (hw : ∀ k : ℤ, k ≠ 0 → Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * k * x n)) / N) atTop (𝓝 0))
+    (G : C(AddCircle (1 : ℝ), ℝ)) :
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, G ((x n : ℝ) : AddCircle (1 : ℝ))) / N) atTop
+      (𝓝 (∫ z, G z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))))) :=
+  tendsto_average_real_of_tendsto_fourier (fun n => ((x n : ℝ) : AddCircle (1 : ℝ)))
+    (tendsto_fourier_of_weylSums hw) G
+
+/-- The complex-valued companion of `tendsto_average_of_weylSums`: vanishing Weyl sums make the
+averages of every continuous `F : C(AddCircle 1, ℂ)` along `(xₙ mod 1)` converge to `∫ F` against
+Haar. This is the form needed to transport the criterion to continuous 1-periodic functions
+`ℝ → ℂ`. -/
+theorem tendsto_average_complex_of_weylSums {x : ℕ → ℝ}
+    (hw : ∀ k : ℤ, k ≠ 0 → Tendsto (fun N : ℕ =>
+      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * k * x n)) / N) atTop (𝓝 0))
+    (F : C(AddCircle (1 : ℝ), ℂ)) :
+    Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, F ((x n : ℝ) : AddCircle (1 : ℝ))) / N) atTop
+      (𝓝 (∫ z, F z ∂(haarAddCircle : Measure (AddCircle (1 : ℝ))))) :=
+  tendsto_average_of_tendsto_fourier (fun n => ((x n : ℝ) : AddCircle (1 : ℝ)))
+    (tendsto_fourier_of_weylSums hw) F

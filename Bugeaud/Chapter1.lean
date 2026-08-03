@@ -4,8 +4,11 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import ForMathlib.Analysis.Equidistribution.ModOne
+import ForMathlib.Analysis.Equidistribution.AddCircleWeyl
+import BertinPisot.ModOneEquivalence
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 import ForMathlib.Analysis.Equidistribution.VanDerCorput
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
@@ -32,12 +35,23 @@ Bugeaud's proof: the first equivalence "follows from the definition of the Riema
 ℂ-linear combinations of the characters `x ↦ e^{2πi h x}`, `h ∈ ℤ`, are sup-norm dense in the
 continuous 1-periodic functions.
 
-The character half of `ContinuousPeriodicCriterion ↔ WeylCriterion` is proved here
-(`weylCriterion_of_continuousPeriodicCriterion`); the two deep directions are recorded as cited
-results, with axiom-free engines available in `ForMathlib`:
-* the Riemann/step-function approximation in `ForMathlib.Analysis.Equidistribution.IntegralCriterion`;
-* the harmonic-analytic Stone–Weierstrass core `tendsto_average_of_tendsto_fourier` (on `AddCircle 1`)
-  in `ForMathlib.Analysis.Equidistribution.AddCircleWeyl`.
+**Everything in this file is now proved; there are no cited axioms left.** `WeylCriterion` itself
+is not defined here: it is the shared definition in `ForMathlib.Analysis.Equidistribution.ModOne`,
+next to `IsEquidistributedModuloOne`. (This file and `BertinPisot.UniformDistribution` formerly
+carried character-for-character identical private copies of it.)
+
+The three ingredients:
+* the character half `weylCriterion_of_continuousPeriodicCriterion`, proved directly here;
+* its Stone–Weierstrass converse `continuousPeriodicCriterion_of_weylCriterion`, obtained by
+  transporting `tendsto_average_complex_of_weylSums` (on `AddCircle 1`,
+  `ForMathlib.Analysis.Equidistribution.AddCircleWeyl`) across the `ℝ/ℤ ≃ AddCircle 1`
+  identification — a continuous 1-periodic `f : ℝ → ℂ` descends to `C(AddCircle 1, ℂ)` via
+  `Function.Periodic.lift`, and `AddCircle.intervalIntegral_preimage` matches the Haar integral
+  with `∫₀¹ f`;
+* `theorem_1_2`, whose reverse direction closes the loop through the centered-`ε` development:
+  `ContinuousPeriodicCriterion → WeylCriterion → Bertin.UniformlyDistributedModOne`
+  (`Bertin.uniformlyDistributedModOne_of_weylCriterion`)
+  `→ IsEquidistributedModuloOne` (`Bertin.uniformlyDistributedModOne_iff_isEquidistributedModuloOne`).
 
 The Bertin-corpus counterparts state the same content for the centered-`ε` convention on
 `[-1/2, 1/2]` and a larger (Riemann-integrable) test class:
@@ -76,13 +90,10 @@ def ContinuousPeriodicCriterion (x : ℕ → ℝ) : Prop :=
     Tendsto (fun N : ℕ => (∑ n ∈ Finset.range N, f (x n)) / N) atTop
       (𝓝 (∫ t in (0 : ℝ)..1, f t))
 
-/-- **Weyl's criterion** condition: the exponential sums `(1/N) Σ_{n<N} e^{2πi h xₙ}` vanish in the
-limit, for every non-zero integer `h`. -/
-@[category API, AMS 11, ref "Bug12"]
-noncomputable def WeylCriterion (x : ℕ → ℝ) : Prop :=
-  ∀ h : ℤ, h ≠ 0 →
-    Tendsto (fun N : ℕ =>
-      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * h * x n)) / N) atTop (𝓝 0)
+/-! **Weyl's criterion** condition — the exponential sums `(1/N) Σ_{n<N} e^{2πi h xₙ}` vanishing in
+the limit for every non-zero integer `h` — is `WeylCriterion`, the shared definition in
+`ForMathlib.Analysis.Equidistribution.ModOne`. Bugeaud's Theorem 1.2 and Bertin's Theorem 4.3.2
+state the same condition, so it is defined once, there. -/
 
 /-- The character half of the equivalence in Theorem 1.2 (the easy direction): each character
 `t ↦ e^{2πi h t}` with `h ≠ 0` is continuous and 1-periodic with `∫₀¹ e^{2πi h t} dt = 0`
@@ -117,42 +128,67 @@ theorem weylCriterion_of_continuousPeriodicCriterion (x : ℕ → ℝ)
   have hap := h _ hcont hper
   rwa [hint] at hap
 
+/-- The Stone–Weierstrass half of Theorem 1.2: vanishing Weyl sums imply the continuous-periodic
+criterion. Bugeaud's proof: finite ℂ-linear combinations of the characters `x ↦ e^{2πi h x}`,
+`h ∈ ℤ`, are sup-norm dense in the continuous 1-periodic functions (Stone–Weierstrass), so
+convergence of the averages propagates from the characters to every continuous periodic `f` by a
+uniform-approximation squeeze.
+
+Proved here by transport: a continuous 1-periodic `f : ℝ → ℂ` descends along `ℝ → ℝ/ℤ` to a
+continuous map on `AddCircle 1` (`Function.Periodic.lift`, continuous because the circle carries the
+quotient topology), the harmonic-analytic core `tendsto_average_complex_of_weylSums` applies to it,
+and `AddCircle.intervalIntegral_preimage` identifies the Haar integral with `∫₀¹ f`. -/
+@[category research solved, AMS 11, ref "Bug12",
+  formal_uses tendsto_average_complex_of_weylSums]
+theorem continuousPeriodicCriterion_of_weylCriterion (x : ℕ → ℝ)
+    (h : WeylCriterion x) : ContinuousPeriodicCriterion x := by
+  intro f hcont hper
+  -- `f` descends to a continuous map on the circle.
+  set F : C(AddCircle (1 : ℝ), ℂ) := ⟨hper.lift, continuous_coinduced_dom.mpr hcont⟩ with hF
+  have hFcoe : ∀ t : ℝ, F ((t : ℝ) : AddCircle (1 : ℝ)) = f t := fun t => hper.lift_coe t
+  -- Its Haar integral is `∫₀¹ f`.
+  have hint : (∫ z, F z ∂(AddCircle.haarAddCircle :
+      MeasureTheory.Measure (AddCircle (1 : ℝ)))) = ∫ t in (0 : ℝ)..1, f t := by
+    rw [haarAddCircle_eq_volume, ← AddCircle.intervalIntegral_preimage (1 : ℝ) 0 (fun z => F z),
+      zero_add]
+    exact intervalIntegral.integral_congr fun t _ => hFcoe t
+  have key := tendsto_average_complex_of_weylSums (x := x) h F
+  rw [hint] at key
+  -- `F ↑t` reduces to `f t` definitionally (`Function.Periodic.lift` is a `Quotient.liftOn'`).
+  exact key.congr fun N => by congr 1
+
 /-- **Theorem 1.2** (Bugeaud), integral form. A sequence `(xₙ)` of real numbers is uniformly
 distributed modulo one **iff**, for every continuous, 1-periodic, complex-valued `f`,
 `(1/N) Σ_{n<N} f(xₙ) → ∫₀¹ f(x) dx`.
 
 Bugeaud's proof: this "follows from the definition of the Riemann integral" — the indicator of a
-subinterval `[c, d) ⊆ [0, 1)` is squeezed between continuous 1-periodic functions, so the
-interval-counting Definition 1.1 (`IsEquidistributedModuloOne`) is equivalent to convergence of the
-averages against every continuous periodic test function. The Riemann/step-function approximation
-engine is formalised axiom-free in `ForMathlib.Analysis.Equidistribution.IntegralCriterion`; the
-analogous statement for the larger Riemann-integrable test class (centered-`ε` convention) is
-`Bertin.uniformlyDistributedModOne_iff_integralCriterion` (Theorem 4.3.1). Recorded here as a cited
-result. -/
-@[category research solved, AMS 11, ref "Bug12"]
-axiom theorem_1_2 (x : ℕ → ℝ) :
-    IsEquidistributedModuloOne x ↔ ContinuousPeriodicCriterion x
-
-/-- The Stone–Weierstrass half of Theorem 1.2: vanishing Weyl sums imply the continuous-periodic
-criterion. Bugeaud's proof: finite ℂ-linear combinations of the characters `x ↦ e^{2πi h x}`,
-`h ∈ ℤ`, are sup-norm dense in the continuous 1-periodic functions (Stone–Weierstrass), so
-convergence of the averages propagates from the characters to every continuous periodic `f` by a
-uniform-approximation squeeze. The harmonic-analytic core is formalised axiom-free as
-`tendsto_average_of_tendsto_fourier` (on `AddCircle 1`,
-`ForMathlib.Analysis.Equidistribution.AddCircleWeyl`); transporting it across the
-`ℝ/ℤ ≃ AddCircle 1` identification is a separate development, so this direction is recorded as a
-cited result. -/
-@[category research solved, AMS 11, ref "Bug12"]
-axiom continuousPeriodicCriterion_of_weylCriterion (x : ℕ → ℝ)
-    (h : WeylCriterion x) : ContinuousPeriodicCriterion x
+subinterval `[c, d) ⊆ [0, 1)` is squeezed between continuous 1-periodic functions. The proof here
+instead closes a loop through the centered-`ε` development, which is already axiom-free on both
+sides: forwards, `IsEquidistributedModuloOne → Bertin.UniformlyDistributedModOne`
+(`Bertin.uniformlyDistributedModOne_iff_isEquidistributedModuloOne`) `→ WeylCriterion`
+(Bertin's Theorem 4.3.2) `→ ContinuousPeriodicCriterion` (the Stone–Weierstrass half above);
+backwards, the same chain read in reverse via `weylCriterion_of_continuousPeriodicCriterion` and
+`Bertin.uniformlyDistributedModOne_of_weylCriterion`. -/
+@[category research solved, AMS 11, ref "Bug12",
+  formal_uses continuousPeriodicCriterion_of_weylCriterion
+    weylCriterion_of_continuousPeriodicCriterion]
+theorem theorem_1_2 (x : ℕ → ℝ) :
+    IsEquidistributedModuloOne x ↔ ContinuousPeriodicCriterion x := by
+  constructor
+  · intro hud
+    refine continuousPeriodicCriterion_of_weylCriterion x ?_
+    exact Bertin.weylCriterion_of_uniformlyDistributedModOne x
+      ((Bertin.uniformlyDistributedModOne_iff_isEquidistributedModuloOne x).mpr hud)
+  · intro hcp
+    refine (Bertin.uniformlyDistributedModOne_iff_isEquidistributedModuloOne x).mp ?_
+    exact Bertin.uniformlyDistributedModOne_of_weylCriterion x
+      (weylCriterion_of_continuousPeriodicCriterion x hcp)
 
 /-- **Theorem 1.2** (Bugeaud), Weyl form. A sequence `(xₙ)` is uniformly distributed modulo one
 **iff** `lim_{N→∞} (1/N) Σ_{n<N} e^{2πi h xₙ} = 0` for every non-zero integer `h`.
 
-Proved here by chaining the integral form (`theorem_1_2`) with the two halves of
-`ContinuousPeriodicCriterion ↔ WeylCriterion`: the character direction
-`weylCriterion_of_continuousPeriodicCriterion` is proved, and the Stone–Weierstrass converse
-`continuousPeriodicCriterion_of_weylCriterion` is cited. -/
+Proved by chaining the integral form (`theorem_1_2`) with the two halves of
+`ContinuousPeriodicCriterion ↔ WeylCriterion`. -/
 @[category research solved, AMS 11, ref "Bug12",
   formal_uses theorem_1_2 weylCriterion_of_continuousPeriodicCriterion
     continuousPeriodicCriterion_of_weylCriterion]

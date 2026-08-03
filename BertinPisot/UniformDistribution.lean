@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import BertinPisot.DistributionModOneBasics
+import ForMathlib.Analysis.Equidistribution.ModOne
 import ForMathlib.Analysis.Equidistribution.AddCircleWeyl
 import ForMathlib.Analysis.Equidistribution.VanDerCorput
 import ForMathlib.Analysis.Equidistribution.IntegralCriterion
@@ -207,9 +208,12 @@ theorem integralCriterion_of_uniformlyDistributedModOne (x : ℕ → ℝ)
   exact key
 
 /-- **Theorem 4.3.1** (Bertin). A sequence `(xₙ)` is uniformly distributed modulo one **iff**, for
-every Riemann-integrable `f` on `[-1/2, 1/2]`, `(1/N) Σ_{n<N} f(ε xₙ) → ∫_{-1/2}^{1/2} f`. The
-forward direction is cited (`integralCriterion_of_uniformlyDistributedModOne`); the reverse is
-proved (`uniformlyDistributedModOne_of_integralCriterion`). -/
+every Riemann-integrable `f` on `[-1/2, 1/2]`, `(1/N) Σ_{n<N} f(ε xₙ) → ∫_{-1/2}^{1/2} f`. Both
+directions are proved: the forward one (`integralCriterion_of_uniformlyDistributedModOne`) by
+instantiating the axiom-free Riemann/Darboux engine of
+`ForMathlib.Analysis.Equidistribution.IntegralCriterion` at the centered fractional parts, the
+reverse (`uniformlyDistributedModOne_of_integralCriterion`) by testing against interval
+indicators. The whole iff is therefore axiom-free. -/
 @[category research solved, AMS 11, ref "Ber92",
   formal_uses integralCriterion_of_uniformlyDistributedModOne
     uniformlyDistributedModOne_of_integralCriterion]
@@ -260,15 +264,12 @@ theorem average_epsRangeIndicator_eq_one (x : ℕ → ℝ) {N : ℕ} (hN : 0 < N
   simp only [hone, Finset.sum_const, Finset.card_range, nsmul_eq_mul, mul_one]
   rw [div_self (by exact_mod_cast hN.ne')]
 
-/-! ### Theorem 4.3.2 — Weyl's criterion (exponential sums) -/
+/-! ### Theorem 4.3.2 — Weyl's criterion (exponential sums)
 
-/-- **Weyl's criterion** condition: the exponential sums `(1/N) Σ_{n<N} exp(2πi h xₙ)` vanish in the
-limit, for every non-zero integer `h`. -/
-@[category API, AMS 11, ref "Ber92"]
-noncomputable def WeylCriterion (x : ℕ → ℝ) : Prop :=
-  ∀ h : ℤ, h ≠ 0 →
-    Tendsto (fun N : ℕ =>
-      (∑ n ∈ Finset.range N, Complex.exp (2 * Real.pi * Complex.I * h * x n)) / N) atTop (𝓝 0)
+The condition itself, `WeylCriterion`, is **not** defined here: it lives in
+`ForMathlib.Analysis.Equidistribution.ModOne`, next to `IsEquidistributedModuloOne`, because the
+`Bugeaud` chapters state the same criterion (Bugeaud, Theorem 1.2) and formerly carried a
+character-for-character identical copy of it. Everything below refers to that shared definition. -/
 
 /-- A continuous function bounded by `1` is Riemann-integrable on `[-1/2, 1/2]` (its discontinuity
 set is empty). -/

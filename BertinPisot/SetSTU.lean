@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import ForMathlib.Combinatorics.Involution
+import ForMathlib.NumberTheory.PisotNumber
 import Mathlib.FieldTheory.Minpoly.Basic
 import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
@@ -84,6 +85,17 @@ theorem mem_S_iff (θ : ℝ) :
     θ ∈ S ↔
       1 < θ ∧ IsIntegral ℤ θ ∧ ∀ β ∈ (minpoly ℚ θ).aroots ℂ, β ≠ (θ : ℂ) → ‖β‖ < 1 :=
   Iff.rfl
+
+/-- **Bertin's `S` is `ForMathlib`'s `IsPisot`.** The estate's Definition 5.2.1 and the standalone
+predicate of `ForMathlib/NumberTheory/PisotNumber.lean` are the same statement, so results proved on
+either side transfer without translation — in particular `isPisot_goldenRatio` names an element
+of `S`. -/
+@[category API, AMS 11, ref "Ber92", formal_uses S]
+theorem mem_S_iff_isPisot (θ : ℝ) : θ ∈ S ↔ IsPisot θ := Iff.rfl
+
+/-- The golden ratio is a Pisot number, in the estate's notation. -/
+@[category test, AMS 11, ref "Ber92", formal_uses S]
+theorem goldenRatio_mem_S : Real.goldenRatio ∈ S := isPisot_goldenRatio
 
 /-- **All rational integers `> 1` are Pisot numbers** (Bertin §5.2): for `n : ℤ` with `n > 1`,
 `(n : ℝ) ∈ S`. The minimal polynomial of `n` over `ℚ` is `X - C n` (degree one), so `n` has no

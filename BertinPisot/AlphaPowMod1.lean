@@ -6,6 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 
 import ForMathlib.Data.Real.NearestInt
 import BertinPisot.SetSTU
+import BertinPisot.ModOneEquivalence
 import Mathlib.Analysis.SpecificLimits.Basic
 import Mathlib.RingTheory.Trace.Basic
 import Mathlib.RingTheory.PowerBasis
@@ -218,5 +219,52 @@ theorem theorem_5_3_1 (θ : ℝ) (hθ : θ ∈ S) :
   · obtain ⟨k, hk⟩ := happ n
     exact (distToNearestInt_le_int (θ ^ n) k).trans hk
   · simpa using (tendsto_const_nhds (x := C)).mul (tendsto_pow_atTop_nhds_zero_of_lt_one hδ0 hδ1)
+
+/-! ### Corollary: the powers of a Pisot number are not uniformly distributed mod 1
+
+Theorem 5.3.1 says the powers of `θ ∈ S` cluster at the integers, so they cannot be spread out over
+the whole interval: from some index on, `ε (θⁿ)` stays inside `(-1/4, 1/4)` and the band
+`[1/4, 1/2)` — which u.d. would have to receive a proportion `1/4` of the indices — receives only
+finitely many.  This is the counterpart of Theorem 5.3.2 for Salem numbers, and the contrast is worth
+recording: for Salem numbers the powers *are* dense mod 1 while failing u.d., a genuinely hard
+statement carried in this estate as a cited axiom (`theorem_5_3_2`); for Pisot numbers the failure is
+an immediate consequence of 5.3.1 and is proved here. -/
+
+/-- **Powers of a Pisot number are not u.d. mod 1** (corollary of Theorem 5.3.1, Bertin §5.3).  Since
+`distToNearestInt (θⁿ) → 0`, all but finitely many `ε (θⁿ)` avoid `[1/4, 1/2)`, whose density under
+u.d. would be `1/4`. -/
+@[category research solved, AMS 11, ref "Ber92", formal_uses S theorem_5_3_1 countModOne]
+theorem not_uniformlyDistributedModOne_pow (θ : ℝ) (hθ : θ ∈ S) :
+    ¬ UniformlyDistributedModOne (fun n : ℕ => θ ^ n) := by
+  intro h
+  have hd := h (1 / 4) (1 / 2) (by norm_num) (by norm_num) (by norm_num)
+  obtain ⟨n₀, hn₀⟩ := eventually_atTop.mp
+    ((theorem_5_3_1 θ hθ).eventually_lt_const (by norm_num : (0 : ℝ) < 1 / 4))
+  have hcount : ∀ N : ℕ, countModOne (fun n : ℕ => θ ^ n) (1 / 4) (1 / 2) N ≤ n₀ := by
+    intro N
+    rw [countModOne]
+    refine le_trans (Finset.card_le_card (t := Finset.range n₀) ?_) (by simp)
+    intro m hm
+    simp only [Finset.mem_filter, Finset.mem_range] at hm ⊢
+    by_contra hm'
+    push Not at hm'
+    have habs : |ε (θ ^ m)| < 1 / 4 := hn₀ m hm'
+    exact absurd hm.2.1 (by linarith [(abs_lt.mp habs).2])
+  have hzero : Tendsto
+      (fun N : ℕ => (countModOne (fun n : ℕ => θ ^ n) (1 / 4) (1 / 2) N : ℝ) / N) atTop (𝓝 0) :=
+    squeeze_zero (fun N => by positivity)
+      (fun N => div_le_div_of_nonneg_right (by exact_mod_cast hcount N) (Nat.cast_nonneg N))
+      (tendsto_const_div_atTop_nhds_zero_nat (n₀ : ℝ))
+  have := tendsto_nhds_unique hd hzero
+  norm_num at this
+
+/-- The same corollary in the `Int.fract` convention, through the H2 equivalence. -/
+@[category research solved, AMS 11, ref "Ber92",
+  formal_uses S not_uniformlyDistributedModOne_pow
+    uniformlyDistributedModOne_iff_isEquidistributedModuloOne]
+theorem not_isEquidistributedModuloOne_pow (θ : ℝ) (hθ : θ ∈ S) :
+    ¬ IsEquidistributedModuloOne (fun n : ℕ => θ ^ n) := by
+  rw [← uniformlyDistributedModOne_iff_isEquidistributedModuloOne]
+  exact not_uniformlyDistributedModOne_pow θ hθ
 
 end Bertin

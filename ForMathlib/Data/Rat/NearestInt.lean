@@ -22,7 +22,8 @@ affect the distance).  Rational companion of `distToNearestInt : ℝ → ℝ`
 
 Small API: nonnegativity, minimality over the integers
 (`distToNearestInt_le_abs_sub_intCast`), vanishing exactly on the integers,
-invariance under integer translation, the integer-multiple bound
+invariance under integer translation, subadditivity (`distToNearestInt_add_le`),
+the integer-multiple bound
 `(k·x).dist ≤ |k| · x.dist`, the dyadic repulsion floor
 `one_le_two_pow_mul_distToNearestInt`: a rational whose `2^m`-fold is an *odd*
 integer (`m ≥ 1`) keeps distance at least `2^{-m}` from `ℤ`, and the general
@@ -75,6 +76,19 @@ theorem not_exists_intCast_eq_of_distToNearestInt_pos {x : ℚ}
   congr 1
   push_cast
   ring
+
+/-- **Subadditivity**: the distance to the nearest integer is subadditive, since
+`round x + round y` is *an* integer near `x + y`. -/
+theorem distToNearestInt_add_le (x y : ℚ) :
+    (x + y).distToNearestInt ≤ x.distToNearestInt + y.distToNearestInt := by
+  calc (x + y).distToNearestInt ≤ |x + y - ((round x + round y : ℤ) : ℚ)| :=
+        distToNearestInt_le_abs_sub_intCast _ _
+    _ = |(x - round x) + (y - round y)| := by
+        congr 1
+        push_cast
+        ring
+    _ ≤ |x - round x| + |y - round y| := abs_add_le _ _
+    _ = x.distToNearestInt + y.distToNearestInt := rfl
 
 /-- Integer multiples scale the distance to the nearest integer at most linearly. -/
 theorem distToNearestInt_intCast_mul_le (k : ℤ) (x : ℚ) :

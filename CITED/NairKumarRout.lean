@@ -34,6 +34,17 @@ repaired theorem is **provable** from the `S`-arithmetic Subspace Theorem at `n 
 positivity by parity.  [NKR25] remains cited as the statement template and for
 attribution — not as authority.
 
+**The authors' own correction (private communication, 2026; preprint unrevised).**
+Shown the counterexample, the authors confirmed the defect and repair it the
+*other* way: hypotheses untouched, conclusion (i) weakened from integrality to a
+uniform denominator bound — `∃ C > 1, ∀ v non-archimedean, max ᵢ |uᵢ|ᵥ < C` along
+the infinite family.  Integrality is the borderline `C = 1` (non-strict), so this
+is strictly weaker, and the family above respects it (`|uᵢ|₂ = 2`, `|uᵢ|ₚ ≤ 1`
+otherwise).  It is *not* formalized here — the derivation from the Subspace
+Theorem yields the integrality conclusion, so that is what we keep — but it would
+serve the consumer equally well and without the positivity side condition, since
+`|(3/2)^c|₂ = 2^c` is unbounded along an infinite violator family.
+
 ## Statement conventions (the ℚ-specialization)
 
 * **Group**: `Γ = ⟨2, 3⟩ ≤ ℚ*`, exponent-encoded — `NKR.uval x y = 2^x·3^y`
