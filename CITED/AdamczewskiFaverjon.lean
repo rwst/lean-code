@@ -3,9 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import Mathlib.Analysis.SpecificLimits.Basic
-import Mathlib.RingTheory.Algebraic.Basic
-import CITED.AlloucheShallitBasic
+import RB.AutomaticValue
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -46,43 +44,61 @@ Thm 1.4 — *«En un point algébrique \(\alpha\) qui n'est pas dans \(E\), le t
 directement que \(f(\alpha)\) est transcendant»*. Cor 1.8 needs no regularity hypothesis, which
 is exactly why it costs the alternative.)
 
-## What is axiomatized here, and what that leaves on trust
+## No longer an axiom ([AF17f] WP5, milestone M2)
 
-Formalizing the general corollary needs the notion *`q`-mahlérienne* (a linear Mahler system
-`F(z) = M(z)F(z^q)`), poles, and "the coefficients of `f`" over an arbitrary number field —
-infrastructure the corpus does not have, and which would still leave the statement unusable
-without also formalizing *automatic ⇒ Mahlerian*. So the axiom below is **the specialization AF
-themselves name**: automatic coefficients, evaluated at a **rational** point, whence `k = ℚ`.
-AF are explicit that this case is the paper's raison d'être — *«C'est précisément cette
-conjecture [de Cobham, 1968] qui est à l'origine du présent travail»*.
+Until 2026-08-04 the declaration below was a **cited axiom**, with three facts folded into it on
+[AF17]'s authority. All three are now discharged, and the declaration is a `theorem` whose
+footprint is `std3` plus the two named axioms of [AF22] §2:
 
-Folded into the axiom, and thus taken on [AF17]'s authority rather than proved here:
-
-* *automatic ⇒ `q`-Mahlerian* ([AF17] §1; Becker's theorem);
 * *bounded coefficients ⇒ radius of convergence `≥ 1` ⇒ `α` with `|α| < 1` is not a pole* —
-  elementary, but it is what discharges Cor 1.8's pole hypothesis;
-* *`k = ℚ` contains `α ∈ ℚ` and the coefficients `a j ∈ ℕ ⊂ ℚ`* — whence the second branch reads
-  `f(α) ∈ ℚ`.
+  `RB.one_le_genFunSeries_radius`, `RB.analyticAt_genFun` (WP2);
+* *automatic ⇒ a `q`-Mahler system whose matrix is polynomial and has **nonzero determinant*** —
+  `RB.exists_nonsingular_mahlerSystem` (gate G4), applied to the canonical kernel model
+  `RB.isKernelModel_kKernel`. Note what this is *not*: the system itself is elementary
+  ([Ran92] Thm 3.1, here `RB.mahlerSystem_formal`), and Becker's theorem does not supply the
+  determinant condition in polynomial form, so nonsingularity is **proved** rather than cited —
+  see `RB/MahlerNonsingular.lean` and the plan's §2.3;
+* *`k = ℚ` contains `α ∈ ℚ` and the coefficients `a j ∈ ℕ ⊂ ℚ`* — `AF.corollaire_1_8_rat`.
+
+What remains cited is **two** things, and both are stated at the level [AF17]/[AF22] state them.
+Until 2026-08-06 it was one — `AF.lifting_regular`, the lifting theorem for linear relations at a
+regular point ([AF17] Thm 1.4 restricted to degree one = [AF22] Thm 2.1) — and Stage 2 of the plan
+([AF17f] WP7–WP20) replaced it by a proof from [AF22] §2, `AF.theoreme_2_1`, which rests on
+
+* **`AF.lemme_2_2`** — [AF17] Lemme 2.2: the solution field of a Mahler system is a regular
+  extension of `ℚ̄(z)` (`CITED/AdamczewskiFaverjonRegular.lean`);
+* **`AF.lemma_2_8`** — [AF22] Lemma 2.8: the relation matrix has an analytic branch at
+  `α^{q^k}` for `k ≫ 1` (`CITED/AdamczewskiFaverjonBranchFull.lean`).
+
+The derivation of Corollaire 1.8 from the lifting theorem is in
+`CITED/AdamczewskiFaverjonTheoreme17.lean`.
 
 The boundedness hypothesis `∀ j, a j ≤ B` is what makes `∑' j, a j · αʲ` the genuine value
-`f(α)` (the series converges absolutely for `|α| < 1`), so the statement is not vacuous.
+`f(α)` (the series converges absolutely for `|α| < 1`), so the statement is not vacuous. It is
+also *redundant* — automaticity implies it — but is kept so that the statement, and hence every
+consumer proof, is unchanged from the axiom it replaces.
 
 ## Contents
 
-* **`AF.transcendental_or_rat_of_automatic`** — the cited axiom: `f` automatic with bounded
-  coefficients, `α ∈ ℚ` with `0 < |α| < 1` ⇒ `f(α)` transcendental over `ℚ`, or `f(α) ∈ ℚ`.
+* **`AF.transcendental_or_rat_of_automatic`** — `f` automatic with bounded coefficients,
+  `α ∈ ℚ` with `0 < |α| < 1` ⇒ `f(α)` transcendental over `ℚ`, or `f(α) ∈ ℚ`.
 
 ## References
 
 * [AF17] B. Adamczewski, C. Faverjon. *Méthode de Mahler: relations linéaires, transcendance et
   applications aux nombres automatiques.* Proc. London Math. Soc. **115** (2017), 55–90.
-  (**Cor 1.8** = this axiom; **Thm 1.4** = the regular-point version that *does* force
+  (**Cor 1.8** = this theorem; **Thm 1.4** = the regular-point version that *does* force
   transcendence; **§8.1** = the counterexample showing the alternative is irremovable.)
   Verified verbatim 2026-07-16.
+* [AF22] B. Adamczewski, C. Faverjon. *A new proof of Nishioka's theorem in Mahler's method.*
+  arXiv:2210.14528 (2022). (Thm 2.1 = `AF.theoreme_2_1`, **proved** here from §2; its two cited
+  inputs are Lemma 2.8 and [AF17] Lemme 2.2.)
 * [Cob68] A. Cobham. *A proof of transcendence of certain power series* / the 1968 conjecture on
   automatic series at rational points, settled by [AF17].
 * [B1E2] `plans/plan-B1E2.html` (rev. 2, 2026-07): §0.1 (the misreading), §2.2 (the chain that
   consumes this), WP7, risk R2.
+* [AF17f] `plans/plan-formalize-AF17.html`: WP5 (this file's de-axiomatization), §2.3 (gate G4),
+  milestone M2.
 -/
 
 namespace AF
@@ -92,15 +108,16 @@ sequence `a` with bounded values and a rational `α` with `0 < |α| < 1`, the va
 `f(α) = ∑ⱼ aⱼαʲ` is **either transcendental over `ℚ`, or rational**.
 
 This is AF's own named case — Cobham's 1968 conjecture — with `k = ℚ` forced by `α ∈ ℚ` and
-`a j ∈ ℕ ⊂ ℚ`.  Recorded as a cited `axiom` on the authority of [AF17] (a Mahler-method result
-resting on Nishioka's theorem and Philippon's criterion, which we do not re-derive).
+`a j ∈ ℕ ⊂ ℚ`.  **No longer an axiom** ([AF17f] WP5): it is `RB.transcendental_or_rat_of_automatic`,
+whose footprint is `std3 + AF.lemme_2_2 + AF.lemma_2_8`.
 
 **Both disjuncts are real**; see the module doc before using this. -/
 @[category research solved, AMS 11 68, ref "AF17", group "af_mahler_alternative"]
-axiom transcendental_or_rat_of_automatic {a : ℕ → ℕ} {B : ℕ}
+theorem transcendental_or_rat_of_automatic {a : ℕ → ℕ} {B : ℕ}
     (hbdd : ∀ j, a j ≤ B) (hauto : AS.IsAutomatic a)
     {α : ℚ} (hα0 : α ≠ 0) (hα1 : |α| < 1) :
     Transcendental ℚ (∑' j, (a j : ℝ) * (α : ℝ) ^ j) ∨
-      ∃ r : ℚ, ∑' j, (a j : ℝ) * (α : ℝ) ^ j = (r : ℝ)
+      ∃ r : ℚ, ∑' j, (a j : ℝ) * (α : ℝ) ^ j = (r : ℝ) :=
+  RB.transcendental_or_rat_of_automatic hbdd hauto hα0 hα1
 
 end AF

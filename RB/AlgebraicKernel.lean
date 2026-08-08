@@ -3,8 +3,11 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
+-- `CITED.CorvajaZannierAlgebraic` is no longer *used* here (the slices moved to
+-- `Subspace.schmidt1D'` on 2026-08-07); the import is kept so that the cited transcription
+-- stays inside a loaded module and is still extracted by the corpus tooling.
 import CITED.CorvajaZannierAlgebraic
-import RB.RationalK
+import RB.OnePowerRational
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -28,14 +31,16 @@ reach of the *printed* literature, and reduces the rest to a single named obliga
    no `c < |δ.num|` box, no parity argument.  The referee's expected "first casualty"
    is in fact a simplification: multiplying by an algebraic *irrational* cannot cancel
    the `2`-power, only a rational can.
-2. **The bounded-gap slices survive verbatim** — on the authority of [CZ04]'s Main
-   Theorem, which is *printed* for algebraic `δ` (`CZ.pseudoPisot_approx_alg`,
-   `CITED/CorvajaZannierAlgebraic.lean`).  The one new obligation is the pseudo-Pisot
-   clause, which over `ℚ` was a parity remark and now needs actual conjugates: the
-   slice multiplier `δ((3/2)^{s₀} − 1)` is algebraic irrational, so its second
-   conjugate `z` scales along `(3/2)^a` and leaves the unit disc
-   (`CZ.not_isPseudoPisot_mul_ratCast`) — pseudo-Pisot values are confined to an
-   initial segment, discarded like the size proviso.
+2. **The bounded-gap slices survive verbatim**, and since 2026-08-07 they are *derived*
+   rather than cited: a fixed-gap slice is the homogeneous one-power problem
+   `‖δ'(3/2)^a‖ ≤ θ^a` for the algebraic irrational multiplier `δ' = δ((3/2)^{s₀} − 1)`,
+   which `RB.onePower_finite_of_irrational` (`RB/OnePowerRational.lean`) settles at every
+   scale from `Subspace.schmidt1D'`.  The route through [CZ04]'s Main Theorem for
+   algebraic multipliers (`CZ.pseudoPisot_approx_alg`, itself no longer an axiom) — with
+   its size proviso and its pseudo-Pisot conjugate discharge
+   `CZ.not_isPseudoPisot_mul_ratCast` — is **retired** here:
+   the data of a slice is rational (`q = 1`, `u = (3/2)^a`) with only the multiplier
+   algebraic, which is Schmidt's 1D′ configuration and needs none of that bookkeeping.
 3. **The unbounded-gap branch is the open half.**  The rational case used the repaired
    [NKR25] pair theorem, *derived* from the Subspace Theorem over `ℚ`.  For algebraic
    coefficients no refereed source exists ([NKR25] is an unrefereed preprint whose
@@ -81,22 +86,23 @@ As with T1b, the value is the *criterion* direction, not the classification.
 ## Axiom lanes
 
 * `algBoundedGap_slice_finite`, `algGapBounded_slice_finite`, and everything
-  `Irrational`-cased through them: std3 + **`CZ.pseudoPisot_approx_alg`** (refereed,
-  [CZ04] Acta Math. 193) — a **new lane**, disjoint from AF / Stanley / Subspace.
-* the capstones (`closeRepetitions_finite_of_K_algebraic`, …) combine the new lane
-  with `Subspace.evertseSchlickewei` (for the rational-`K` case via
-  `RB.scaledViolators_finite`).  **Nothing outside this file gains the new axiom**;
-  all M0–M5 footprints of [B1E2] are unchanged.
-* `RB.real_dist_le_of_repetition`, `RB.algViolators_ratCast`,
-  `RB.algDist_pos_of_irrational`: std3 only.
+  `Irrational`-cased through them: std3 + **`Subspace.schmidt1D'`** ([S] LNM 1467,
+  Thm 1D′), via `RB.onePower_finite_of_irrational`.  Until 2026-08-07 this was a
+  separate lane on `CZ.pseudoPisot_approx_alg`; that statement is now itself a **theorem**
+  on `std3 + Subspace.schmidt1D'` (`CITED/CorvajaZannierProof.lean`, 2026-08-07), so the
+  lane is gone in both senses — no consumer, and no axiom.
+* the capstones (`closeRepetitions_finite_of_K_algebraic`, …) combine it with
+  `Subspace.evertseSchlickewei` (for the rational-`K` case via
+  `RB.scaledViolators_finite`).  All M0–M5 footprints of [B1E2] are unchanged.
+* `RB.algViolators_ratCast`, `RB.algDist_pos_of_irrational`: std3 only.
 
 Verified by `#print axioms` (see [report2] S13).
 
 ## Contents
 
 * `RB.algViolators`, `RB.algDist_pos_of_irrational`, `RB.algViolators_ratCast`.
-* `RB.real_dist_le_of_repetition` — the repetition gate over `ℝ`, `K`-agnostic.
-* `RB.algBoundedGap_slice_finite`, `RB.algGapBounded_slice_finite` — the CZ half.
+* `RB.algBoundedGap_slice_finite`, `RB.algGapBounded_slice_finite` — the CZ half,
+  derived from `RB/OnePowerRational.lean`.
 * `RB.algViolators_finite_of_ratCast` — the rational instance, from the old kernel.
 * `RB.algViolators_finite_of_pairBranch` — dichotomy assembly, residual named.
 * `RB.superlinear_of_algKernel`, **`RB.superlinear_of_K_algebraic_of_pairBranch`**.
@@ -106,8 +112,12 @@ Verified by `#print axioms` (see [report2] S13).
 
 ## References
 
+* [S] W. M. Schmidt, LNM **1467**, Chapter V, Theorem 1D′ — the engine of the slices
+  since 2026-08-07 (`CITED/SchmidtSubspace.lean`, consumed via
+  `RB/OnePowerRational.lean`).
 * [CZ04] Corvaja, Zannier. Acta Math. **193** (2004), 175–191 (Main Theorem, p. 2 —
-  the algebraic-`δ` form, cited in `CITED/CorvajaZannierAlgebraic.lean`).
+  the algebraic-`δ` form, cited in `CITED/CorvajaZannierAlgebraic.lean`; the route this
+  file no longer takes).
 * [NKR25] Nair, Kumar, Rout. arXiv:2506.02898 (v3) — *statement template only*; see
   `CITED/NairKumarRout.lean` for the refutation of its Theorem 1.3(i).
 * [B1E2] `plans/plan-B1E2.html`; [B2A2] `plans/plan-B2A2.html` (§2.2 multiplier gate).
@@ -116,7 +126,7 @@ Verified by `#print axioms` (see [report2] S13).
 
 namespace RB
 
-open ForMathlib.SubwordComplexity
+open ForMathlib.SubwordComplexity IntermediateField
 
 /-! ## The algebraic-multiplier violator set -/
 
@@ -177,56 +187,13 @@ theorem algViolators_finite_of_ratCast (δ : ℚ) (hδ : δ ≠ 0) (θ : ℚ) (h
   rw [algViolators_ratCast]
   exact scaledViolators_finite δ hδ θ hθ0 hθ1
 
-/-! ## The repetition gate, over `ℝ` -/
+/-! ## `ℝ`-side helpers
 
-/-- **Repetition ⇒ violator, `K`-agnostic**: a length-`k` repetition at `(a, c)` gives
-`‖K(x₀)·((3/2)^c − (3/2)^a)‖ ≤ (2/3)^k` in the `ℝ`-valued distance, the nearest integer
-being `x_c − x_a`.  This is `RB.dist_le_of_repetition` with the rationality gate
-removed: the gate ([B2A2] §2.2) was only ever about where the Diophantine *engines*
-live, never about the contraction. -/
-@[category research solved, AMS 11 68, ref "B2A2" "B1E2", group "rb_rational_base"]
-theorem real_dist_le_of_repetition {x₀ : ℕ} (hx₀ : 0 < x₀) {a c k : ℕ}
-    (h : IsRepetition x₀ a c k) :
-    distToNearestInt (K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)) ≤ (2 / 3 : ℝ) ^ k := by
-  have hval : K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)
-      - (((x x₀ c : ℤ) - (x x₀ a : ℤ) : ℤ) : ℝ) = tail x₀ c - tail x₀ a := by
-    unfold tail
-    push_cast
-    ring
-  calc distToNearestInt (K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a))
-      ≤ |K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)
-          - (((x x₀ c : ℤ) - (x x₀ a : ℤ) : ℤ) : ℝ)| :=
-        distToNearestInt_le_abs_sub_intCast _ _
-    _ = |tail x₀ c - tail x₀ a| := by rw [hval]
-    _ ≤ (2 / 3 : ℝ) ^ k := abs_tail_sub_le_of_repetition hx₀ h
-
-/-! ## `ℝ`-side helpers (mirroring `RB/ScaledKernel.lean`, kept private there) -/
-
-private lemma log_three_pos : (0 : ℝ) < Real.log 3 := Real.log_pos (by norm_num)
-
-private lemma log_inv_pos {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 1) : 0 < Real.log θ⁻¹ := by
-  rw [Real.log_inv]
-  have := Real.log_neg hθ0 hθ1
-  linarith
-
-private lemma pow_lt_rpow_neg {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 1) {a : ℕ} (ha : 1 ≤ a) :
-    θ ^ a < ((3 : ℝ) ^ a) ^ (-(Real.log θ⁻¹ / (2 * Real.log 3))) := by
-  have h3 := log_three_pos
-  have hlogθ : Real.log θ < 0 := Real.log_neg hθ0 hθ1
-  have hpow3 : (0 : ℝ) < (3 : ℝ) ^ a := by positivity
-  have hθa : (0 : ℝ) < θ ^ a := by positivity
-  rw [Real.rpow_def_of_pos hpow3, ← Real.exp_log hθa, Real.log_pow, Real.log_pow,
-    Real.exp_lt_exp, Real.log_inv]
-  have hkey : (a : ℝ) * Real.log 3 * (-(-Real.log θ / (2 * Real.log 3)))
-      = (a : ℝ) * Real.log θ / 2 := by field_simp
-  rw [hkey]
-  have ha' : (1 : ℝ) ≤ (a : ℝ) := by exact_mod_cast ha
-  have hneg : (a : ℝ) * Real.log θ < 0 := mul_neg_of_pos_of_neg (by linarith) hlogθ
-  linarith
-
-private lemma two_zpow_neg_mul_three_zpow (n : ℕ) :
-    (2 : ℝ) ^ (-(n : ℤ)) * (3 : ℝ) ^ ((n : ℤ)) = (3 / 2) ^ n := by
-  rw [zpow_neg, zpow_natCast, zpow_natCast, div_pow, inv_mul_eq_div]
+The `ε = log θ⁻¹/(2 log 3)` machinery that used to live here (`log_inv_pos`,
+`pow_lt_rpow_neg`) and the `S`-unit rewriting `two_zpow_neg_mul_three_zpow` were the glue
+between the slice statement and [CZ04]'s `H(u)^{-ε}q^{-1-ε}` threshold.  Both went away with
+the route change of 2026-08-07: `RB.onePower_finite_of_irrational` is stated directly at the
+geometric scale `θ^a`, so no threshold translation is needed. -/
 
 private lemma ratCast_isAlgebraic (q : ℚ) : IsAlgebraic ℚ ((q : ℚ) : ℝ) := by
   rw [show ((q : ℚ) : ℝ) = algebraMap ℚ ℝ q from (eq_ratCast (algebraMap ℚ ℝ) q).symm]
@@ -238,15 +205,22 @@ private lemma ratCast_isAlgebraic (q : ℚ) : IsAlgebraic ℚ ((q : ℚ) : ℝ) 
 `RB.boundedGap_slice_finite`): for algebraic irrational `δ` and every fixed gap
 `s₀ ≥ 1`, only finitely many `a` satisfy `‖δ((3/2)^{a+s₀} − (3/2)^a)‖ ≤ θ^{a+s₀}`.
 
-CZ data: `δ_CZ = δ·((3/2)^{s₀} − 1)` (now algebraic irrational), `q = 1`,
-`u = (3/2)^a`, `H(u) = 3^a`.  Three initial segments are discarded: below `n₁` the
-size proviso `1 < |δ_CZ·(3/2)^a|` can fail, below `n₂` the value can be pseudo-Pisot
-(the conjugate discharge `CZ.not_isPseudoPisot_mul_ratCast` — the new obligation
-relative to the rational case), and nothing else: degeneracy is impossible for
-irrational `δ` (`RB.algDist_pos_of_irrational`).
+Data: the slice multiplier `δ' = δ·((3/2)^{s₀} − 1)` is again algebraic irrational, and the
+slice quantity factors as `δ((3/2)^{a+s₀} − (3/2)^a) = δ'(3/2)^a` — the **homogeneous**
+one-power problem.  `RB.onePower_finite_of_irrational` (`RB/OnePowerRational.lean`) kills it at
+every scale `θ < 1`, and `θ^{a+s₀} ≤ θ^a` puts the slice inside its solution set.
 
-Ineffective; footprint std3 + `CZ.pseudoPisot_approx_alg` (refereed, [CZ04]). -/
-@[category research solved, AMS 11, ref "CZ04" "B1E2", group "rb_rational_base"]
+**Route change, 2026-08-07.**  This proof used to run through what was then the cited axiom
+`CZ.pseudoPisot_approx_alg` ([CZ04]'s Main Theorem for algebraic multipliers), which forced
+three discarded initial segments — the size proviso `1 < |δ'(3/2)^a|`, the pseudo-Pisot
+conjugate discharge `CZ.not_isPseudoPisot_mul_ratCast`, and the `q`-tax bookkeeping.  None of
+that is needed: the data here is *rational* (`q = 1`, `u = (3/2)^a`) with only the multiplier
+algebraic, which is Schmidt's Theorem 1D′ configuration, not [CZ04]'s.  (The Main Theorem in
+that specialization is itself now derived from 1D′ — `CITED/CorvajaZannierProof.lean` — so
+both routes rest on the same axiom; this one is simply shorter.)
+
+Ineffective; footprint std3 + `Subspace.schmidt1D'` ([S] LNM 1467, Thm 1D′). -/
+@[category research solved, AMS 11, ref "S" "CZ04" "B1E2", group "rb_rational_base"]
 theorem algBoundedGap_slice_finite (δ : ℝ) (halg : IsAlgebraic ℚ δ)
     (hirr : Irrational δ) (s₀ : ℕ) (hs₀ : 1 ≤ s₀) (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1) :
     {a : ℕ | 2 ≤ a ∧
@@ -261,64 +235,18 @@ theorem algBoundedGap_slice_finite (δ : ℝ) (halg : IsAlgebraic ℚ δ)
   set δ' : ℝ := δ * (((3 / 2 : ℚ) ^ s₀ - 1 : ℚ) : ℝ) with hδ'def
   have hirr' : Irrational δ' := hirr.mul_ratCast hfacq.ne'
   have halg' : IsAlgebraic ℚ δ' := halg.mul (ratCast_isAlgebraic _)
-  have hδ'0 : δ' ≠ 0 := hirr'.ne_zero
-  have hεpos : 0 < Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3) :=
-    div_pos (log_inv_pos hθ0' hθ1') (by positivity)
-  have hfin := CZ.pseudoPisot_approx_alg δ' halg' hδ'0
-    (Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3)) hεpos
-  obtain ⟨A, hA0, hAdis⟩ := CZ.not_isPseudoPisot_mul_ratCast halg' hirr'
-  obtain ⟨n₁, hn₁⟩ := pow_unbounded_of_one_lt (|δ'|⁻¹) (show (1 : ℝ) < 3 / 2 by norm_num)
-  obtain ⟨n₂, hn₂⟩ := pow_unbounded_of_one_lt A (show (1 : ℚ) < 3 / 2 by norm_num)
-  have hginj : Function.Injective (fun a : ℕ => ((1, -(a : ℤ), (a : ℤ)) : ℕ × ℤ × ℤ)) := by
-    intro p q hpq
-    simpa using hpq
-  refine Set.Finite.subset
-    ((Set.finite_Iio (max n₁ n₂)).union (hfin.preimage hginj.injOn)) ?_
-  rintro a ⟨ha2, hdist⟩
-  by_cases hsmall : a < max n₁ n₂
-  · exact Or.inl hsmall
-  right
-  push Not at hsmall
-  have hn₁le : n₁ ≤ a := le_trans (le_max_left _ _) hsmall
-  have hn₂le : n₂ ≤ a := le_trans (le_max_right _ _) hsmall
-  rw [Set.mem_preimage, Set.mem_setOf_eq]
+  haveI : NumberField ℚ⟮δ'⟯ := adjoin_real_numberField halg'
+  refine Set.Finite.subset (onePower_finite_of_irrational δ' hirr' hθ0 hθ1) ?_
+  rintro a ⟨-, hdist⟩
   have hval : δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a) = δ' * (3 / 2 : ℝ) ^ a := by
     rw [hδ'def]
     push_cast
     rw [pow_add]
     ring
-  have hsval : CZ.svalR δ' 1 (-(a : ℤ)) (a : ℤ)
-      = δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a) := by
-    unfold CZ.svalR
-    rw [two_zpow_neg_mul_three_zpow, hval]
-    push_cast
-    ring
-  have hdpos : 0 < distToNearestInt (δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a)) :=
-    algDist_pos_of_irrational hirr (by omega)
-  refine ⟨le_refl 1, ?_, ?_, ?_, ?_⟩
-  · -- the size proviso `1 < |δ_CZ · (3/2)^a|`
-    rw [hsval, hval, abs_mul]
-    have habs' : (0 : ℝ) < |δ'| := abs_pos.mpr hδ'0
-    have hpa : |δ'|⁻¹ < (3 / 2 : ℝ) ^ a :=
-      lt_of_lt_of_le hn₁ (pow_le_pow_right₀ (by norm_num) hn₁le)
-    rw [abs_of_pos (show (0 : ℝ) < (3 / 2 : ℝ) ^ a by positivity)]
-    calc (1 : ℝ) = |δ'| * |δ'|⁻¹ := (mul_inv_cancel₀ habs'.ne').symm
-      _ < |δ'| * (3 / 2) ^ a := mul_lt_mul_of_pos_left hpa habs'
-  · -- not pseudo-Pisot, by the conjugate discharge
-    rw [hsval, hval, show (3 / 2 : ℝ) ^ a = (((3 / 2 : ℚ) ^ a : ℚ) : ℝ) from by
-      push_cast; ring]
-    apply hAdis
-    calc A ≤ (3 / 2 : ℚ) ^ n₂ := hn₂.le
-      _ ≤ (3 / 2 : ℚ) ^ a := pow_le_pow_right₀ (by norm_num) hn₂le
-  · rw [hsval]
-    exact hdpos
-  · rw [hsval, CZ.height23_neg_natCast, Nat.cast_one, Real.one_rpow, mul_one,
-      show ((3 ^ a : ℕ) : ℝ) = (3 : ℝ) ^ a from by push_cast; ring]
-    calc distToNearestInt (δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a))
-        ≤ (θ : ℝ) ^ (a + s₀) := hdist
-      _ ≤ (θ : ℝ) ^ a := pow_le_pow_of_le_one hθ0'.le hθ1'.le (Nat.le_add_right a s₀)
-      _ < ((3 : ℝ) ^ a) ^ (-(Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3))) :=
-          pow_lt_rpow_neg hθ0' hθ1' (by omega)
+  rw [Set.mem_setOf_eq, ← hval]
+  calc distToNearestInt (δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a))
+      ≤ (θ : ℝ) ^ (a + s₀) := hdist
+    _ ≤ (θ : ℝ) ^ a := pow_le_pow_of_le_one hθ0'.le hθ1'.le (Nat.le_add_right a s₀)
 
 /-- The **gap-bounded slice** for algebraic irrational `δ`: violators of gap `≤ S` are
 finite in number — the union of the fixed-gap slices.  Mirrors
@@ -499,9 +427,9 @@ Proof: a close repetition at `(a, c)` is a violator at the Bernoulli scale `θ(L
 `K` the CZ slices (`algGapBounded_slice_finite`) kill the set, for rational `K` the
 full kernel does (`algViolators_finite_of_ratCast`).
 
-Footprint: std3 + `CZ.pseudoPisot_approx_alg` + `Subspace.evertseSchlickewei` (the
-latter only through the rational case). -/
-@[category research solved, AMS 11 68, ref "CZ04" "B1E2", group "rb_rational_base"]
+Footprint: std3 + `Subspace.schmidt1D'` + `Subspace.evertseSchlickewei` (the latter only
+through the rational case). -/
+@[category research solved, AMS 11 68, ref "S" "CZ04" "B1E2", group "rb_rational_base"]
 theorem closeRepetitions_finite_of_K_algebraic {x₀ : ℕ} (hx₀ : 0 < x₀)
     (halg : IsAlgebraic ℚ (K x₀)) (S L : ℕ) (hL : 1 ≤ L) :
     (closeRepetitions x₀ S L).Finite := by

@@ -6,6 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 import RB.Basic
 import RB.Rigidity
 import CITED.Stanley
+import ForMathlib.RingTheory.PowerSeries.EventuallyPeriodic
 import Mathlib.Data.Fintype.Pi
 import Mathlib.Data.Fintype.Pigeonhole
 import Mathlib.Data.Set.Finite.Lattice
@@ -55,7 +56,11 @@ que `f(z)` est transcendante»* — and this file is that "facilement", spelled 
 2. **Finite state ⇒ eventually periodic** (`eventuallyPeriodic_of_constant_recurrence`, *proved*).
    With `b = max{j : qⱼ ≠ 0}`, the window `(w m, …, w (m+b))` determines its successor (solve the
    recurrence for the top term, `q_b ≠ 0`), so it evolves deterministically on a finite set;
-   pigeonhole gives a repeat, and determinism propagates it forever.
+   pigeonhole gives a repeat, and determinism propagates it forever.  **Since [AF17] WP6 the engine
+   itself is `isEventuallyPeriodic_of_recurrence` in
+   `ForMathlib.RingTheory.PowerSeries.EventuallyPeriodic`** — over an arbitrary integral domain,
+   and reusing the Morse–Hedlund determinism pigeonhole of
+   `ForMathlib.Combinatorics.InfiniteComplexity`.  What remains here is the index reversal.
 
 Contraposed (`not_isPRecursive_of_not_eventuallyPeriodic`), steps 1+2 are the whole flagship:
 a finite-valued sequence that is *not* eventually periodic is not P-recursive.  Instantiating at
@@ -63,9 +68,11 @@ a finite-valued sequence that is *not* eventually periodic is not P-recursive.  
 `not_isPRecursive_wmin` on `std3`.
 
 Step 2 alone already handles **rational** `f` ([B1E2b] WP2, review item F7a): `f·Q = P` *is* a
-constant-coefficient recurrence on the coefficients, read off the `zⁿ`-coefficient for `n > deg P`
-after reversing the index (`qⱼ = Q_{s−j}`, `s = deg Q`).  So `not_rational_wminSeries` is also
-`std3` — and is *cheaper* than the transcendence statement rather than a consequence of it.
+constant-coefficient recurrence on the coefficients.  That reading off is Bertin's Proposition 1.1
+(`IsRationalSeries.exists_recurrence`), so since [AF17] WP6 this file no longer re-derives it: the
+rational case is `IsRationalSeries.isEventuallyPeriodic_coeff`, applied through `mul_comm`.  So
+`not_rational_wminSeries` is also `std3` — and is *cheaper* than the transcendence statement
+rather than a consequence of it.
 
 3. **Stanley** (`Stanley.pRecursive_of_isAlgebraic`, the only axiom, used *only* here): algebraic
    ⇒ D-finite ⇒ the coefficients satisfy `∑ⱼ Qⱼ(n)·w(n+j) = 0` with `Qⱼ ∈ ℚ[t]` not all `0`.
@@ -82,8 +89,9 @@ after reversing the index (`qⱼ = Q_{s−j}`, `s = deg Q`).  So `not_rational_w
 ## Generality
 
 Steps 1 and 2 are stated for an arbitrary `w : ℕ → ℚ` with `(Set.range w).Finite` — nothing about
-`RB` enters until `not_isPRecursive_wmin`.  They are ForMathlib candidates (the only reason
-they live here is that `Stanley.IsPRecursive` does).  In particular
+`RB` enters until `not_isPRecursive_wmin`.  Step 2 **has** moved to ForMathlib ([AF17] WP6), in
+the stronger form `isEventuallyPeriodic_of_recurrence` (any integral domain); step 1 stays here
+because `Stanley.IsPRecursive` does.  In particular
 `not_isPRecursive_of_not_eventuallyPeriodic` is the interface for the *family* of ceiling-orbit
 words of other bases ([B1E2b] WP4/WP5): supply a finite alphabet and aperiodicity, get
 non-holonomy.
@@ -99,6 +107,7 @@ non-holonomy.
 * **`RB.not_isPRecursive_wmin`** — the flagship: the minimal word is not holonomic.  `std3`.
 * `RB.eventuallyPeriodic_of_rational_of_finite_coeffs` — the rational case, no axiom.
 * **`RB.not_rational_wminSeries`** — `Σⱼ wⱼzʲ` is not a rational function.  `std3`.
+* **`RB.not_isRationalSeries_wminSeries`** — the same, as `¬ IsRationalSeries`.  `std3`.
 * `RB.eventuallyPeriodic_of_isAlgebraic_of_finite_coeffs` — steps 1+2+3, general form.
 * **`RB.not_isAlgebraic_wminSeries`** — the corollary: `Σⱼ wⱼzʲ` is transcendental over `ℚ(z)`.
 
@@ -205,7 +214,12 @@ values, forces eventual periodicity.
 
 The window `(w m, …, w (m+b))` with `b = max{j : qⱼ ≠ 0}` determines its own successor — solve
 the recurrence for the top term, legitimate since `q_b ≠ 0` — so it evolves *deterministically*
-on a finite set.  Pigeonhole gives a repeat; determinism propagates it forever. -/
+on a finite set.  Pigeonhole gives a repeat; determinism propagates it forever.
+
+Since [AF17] WP6 that engine lives in `ForMathlib.RingTheory.PowerSeries.EventuallyPeriodic`
+(`isEventuallyPeriodic_of_recurrence`, over an arbitrary integral domain), and all that is left
+here is the index reversal: the ForMathlib form solves for the *lowest*-index coefficient `q 0`
+of `∑_{i ≤ s} qᵢ·w(n−i)`, this one for the *highest* index `q_b` of `∑_j qⱼ·w(m+j)`. -/
 @[category research solved, AMS 11 68 05, ref "B1E2", group "stanley_closure"]
 theorem eventuallyPeriodic_of_constant_recurrence {w : ℕ → ℚ} (hfin : (Set.range w).Finite)
     {s : ℕ} {q : Fin (s + 1) → ℚ} {N : ℕ} (hq : ∃ j, q j ≠ 0)
@@ -218,72 +232,45 @@ theorem eventuallyPeriodic_of_constant_recurrence {w : ℕ → ℚ} (hfin : (Set
   obtain ⟨jb, hjbF, hjbmax⟩ := F.exists_max_image (fun j => (j : ℕ)) hFne
   have hqb : q jb ≠ 0 := by simpa [hF] using hjbF
   set b : ℕ := (jb : ℕ) with hb
-  set Agree : ℕ → ℕ → Prop := fun m₁ m₂ => ∀ i ≤ b, w (m₁ + i) = w (m₂ + i) with hAg
-  -- the window determines its successor
-  have hdet : ∀ m₁ m₂, N ≤ m₁ → N ≤ m₂ → Agree m₁ m₂ → Agree (m₁ + 1) (m₂ + 1) := by
-    intro m₁ m₂ h1 h2 heq i hi
-    rcases Nat.lt_or_ge i b with hib | hib
-    · -- inside the window: the entry is inherited
-      have h := heq (1 + i) (by omega)
-      have e1 : m₁ + (1 + i) = m₁ + 1 + i := by omega
-      have e2 : m₂ + (1 + i) = m₂ + 1 + i := by omega
-      rwa [e1, e2] at h
-    · -- the new top entry: solve the recurrence at `m+1`
-      have hieq : i = b := by omega
-      subst hieq
-      have hers : ∑ j ∈ Finset.univ.erase jb, q j * w (m₁ + 1 + j)
-          = ∑ j ∈ Finset.univ.erase jb, q j * w (m₂ + 1 + j) := by
-        refine Finset.sum_congr rfl fun j hj => ?_
-        by_cases hqj : q j = 0
-        · simp [hqj]
-        · have hjne : j ≠ jb := Finset.ne_of_mem_erase hj
-          have hjle : (j : ℕ) ≤ b := hjbmax j (by simp [hF, hqj])
-          have hjlt : (j : ℕ) < b := lt_of_le_of_ne hjle fun h => hjne (Fin.ext h)
-          have h := heq (1 + (j : ℕ)) (by omega)
-          have e1 : m₁ + (1 + (j : ℕ)) = m₁ + 1 + (j : ℕ) := by omega
-          have e2 : m₂ + (1 + (j : ℕ)) = m₂ + 1 + (j : ℕ) := by omega
-          rw [e1, e2] at h
-          rw [h]
-      have r1 := hrec (m₁ + 1) (by omega)
-      have r2 := hrec (m₂ + 1) (by omega)
-      rw [← Finset.add_sum_erase _ _ (Finset.mem_univ jb)] at r1 r2
-      rw [hers] at r1
-      have hcan : q jb * w (m₁ + 1 + jb) = q jb * w (m₂ + 1 + jb) := by linarith [r1, r2]
-      exact mul_left_cancel₀ hqb hcan
-  have hiter : ∀ m₁ m₂, N ≤ m₁ → N ≤ m₂ → Agree m₁ m₂ → ∀ k, Agree (m₁ + k) (m₂ + k) := by
-    intro m₁ m₂ h1 h2 heq k
-    induction k with
-    | zero => simpa using heq
-    | succ k ih =>
-      have h := hdet (m₁ + k) (m₂ + k) (by omega) (by omega) ih
-      have e1 : m₁ + (k + 1) = m₁ + k + 1 := by omega
-      have e2 : m₂ + (k + 1) = m₂ + k + 1 := by omega
-      rw [e1, e2]; exact h
-  -- pigeonhole: the state space is finite, the positions are not
-  haveI : Finite ↥(Set.range w) := hfin
-  obtain ⟨k₁, k₂, hne, hfeq⟩ := Finite.exists_ne_map_eq_of_infinite
-    (fun k : ℕ => (fun i : Fin (b + 1) => (⟨w (N + k + i), ⟨N + k + i, rfl⟩⟩ : ↥(Set.range w))))
-  have hagree : ∀ a c : ℕ,
-      (fun i : Fin (b + 1) => (⟨w (N + a + i), ⟨N + a + i, rfl⟩⟩ : ↥(Set.range w)))
-        = (fun i : Fin (b + 1) => (⟨w (N + c + i), ⟨N + c + i, rfl⟩⟩ : ↥(Set.range w))) →
-      Agree (N + a) (N + c) := fun a c h i hi =>
-    congrArg Subtype.val (congrFun h ⟨i, by omega⟩)
-  rcases Nat.lt_or_ge k₁ k₂ with hlt | hge
-  · refine ⟨N + k₁, k₂ - k₁, by omega, fun n hn => ?_⟩
-    have hA := hiter (N + k₁) (N + k₂) (by omega) (by omega) (hagree k₁ k₂ hfeq)
-      (n - (N + k₁)) 0 (by omega)
-    have e1 : N + k₁ + (n - (N + k₁)) + 0 = n := by omega
-    have e2 : N + k₂ + (n - (N + k₁)) + 0 = n + (k₂ - k₁) := by omega
-    rw [e1, e2] at hA
-    exact hA.symm
-  · have hlt' : k₂ < k₁ := lt_of_le_of_ne hge (Ne.symm hne)
-    refine ⟨N + k₂, k₁ - k₂, by omega, fun n hn => ?_⟩
-    have hA := hiter (N + k₂) (N + k₁) (by omega) (by omega) (hagree k₂ k₁ hfeq.symm)
-      (n - (N + k₂)) 0 (by omega)
-    have e1 : N + k₂ + (n - (N + k₂)) + 0 = n := by omega
-    have e2 : N + k₁ + (n - (N + k₂)) + 0 = n + (k₁ - k₂) := by omega
-    rw [e1, e2] at hA
-    exact hA.symm
+  have hbs : b ≤ s := by have := jb.isLt; omega
+  -- `q` as a function on `ℕ`, and its reversal `i ↦ q (b − i)`
+  set qn : ℕ → ℚ := fun k => if h : k < s + 1 then q ⟨k, h⟩ else 0 with hqn
+  have hqn_zero : ∀ x, b < x → qn x = 0 := by
+    intro x hx
+    by_cases hxs : x < s + 1
+    · rw [hqn]
+      simp only [dif_pos hxs]
+      by_contra hne
+      have hle : x ≤ b := hjbmax ⟨x, hxs⟩ (by simp [hF, hne])
+      omega
+    · rw [hqn]
+      exact dif_neg hxs
+  have hqn_b : qn b ≠ 0 := by
+    rw [hqn]
+    simp only [dif_pos (show b < s + 1 by omega)]
+    simpa using hqb
+  refine isEventuallyPeriodic_of_recurrence hfin (q := fun i => qn (b - i)) (s := b)
+    (n₀ := N + 1 + b) (by simpa using hqn_b) (fun n hn => ?_)
+  set m : ℕ := n - b with hm
+  calc ∑ i ∈ Finset.range (b + 1), qn (b - i) * w (n - i)
+      = ∑ i ∈ Finset.range (b + 1), (fun k => qn k * w (m + k)) (b + 1 - 1 - i) :=
+        Finset.sum_congr rfl fun i hi => by
+          rw [Finset.mem_range] at hi
+          show qn (b - i) * w (n - i) = qn (b - i) * w (m + (b - i))
+          rw [show m + (b - i) = n - i from by omega]
+    _ = ∑ i ∈ Finset.range (b + 1), qn i * w (m + i) :=
+        Finset.sum_range_reflect (fun k => qn k * w (m + k)) (b + 1)
+    _ = ∑ i ∈ Finset.range (s + 1), qn i * w (m + i) :=
+        Finset.sum_subset (fun x hx => Finset.mem_range.mpr
+          (lt_of_lt_of_le (Finset.mem_range.mp hx) (Nat.succ_le_succ hbs))) fun x _ hx => by
+          rw [Finset.mem_range, not_lt] at hx
+          rw [hqn_zero x hx, zero_mul]
+    _ = ∑ j : Fin (s + 1), q j * w (m + j) := by
+        rw [← Fin.sum_univ_eq_sum_range (fun k => qn k * w (m + k)) (s + 1)]
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [hqn]
+        simp only [dif_pos j.isLt, Fin.eta]
+    _ = 0 := hrec m (by omega)
 
 /-! ## The engine, and the capstone -/
 
@@ -346,43 +333,18 @@ which after the index reversal `qⱼ = Q_{s−j}` (`s = deg Q`) is *literally* t
 `eventuallyPeriodic_of_constant_recurrence`.  Do **not** route this through Stanley: rationality
 implies algebraicity, but taking that route would pay an axiom for a strictly weaker input.
 
-No hypothesis on `Q(0)` is needed.  Step 2 solves its recurrence forward at the *largest* index
-with `qⱼ ≠ 0`, which under the reversal is the *lowest* nonvanishing coefficient of `Q`, so a
-factor `Xᵐ ∣ Q` is harmless (it just shortens the window). -/
+No hypothesis on `Q(0)` is needed: the recurrence `IsRationalSeries.exists_recurrence` reads off
+`Q·f = P` has its leading coefficient at `Q`'s *trailing* degree, so a factor `Xᵐ ∣ Q` is harmless
+(it just shortens the window). -/
 @[category research solved, AMS 11 68 05, ref "B1E2b", group "stanley_closure"]
 theorem eventuallyPeriodic_of_rational_of_finite_coeffs {w : ℕ → ℚ} (hfin : (Set.range w).Finite)
     {P Q : Polynomial ℚ} (hQ : Q ≠ 0)
     (h : PowerSeries.mk w * (Q : PowerSeries ℚ) = (P : PowerSeries ℚ)) :
     ∃ N p, 0 < p ∧ ∀ n, N ≤ n → w (n + p) = w n := by
-  classical
-  refine eventuallyPeriodic_of_constant_recurrence hfin
-    (q := fun j : Fin (Q.natDegree + 1) => Q.coeff (Q.natDegree - j)) (N := P.natDegree)
-    ⟨0, ?_⟩ (fun m hm => ?_)
-  · -- nontrivial: `j = 0` reads off the leading coefficient of `Q`
-    simpa using Polynomial.leadingCoeff_ne_zero.mpr hQ
-  · -- past `deg P`, the coefficient of `z^{m+s}` in `f·Q = P` vanishes
-    have hc : PowerSeries.coeff (m + Q.natDegree)
-        (PowerSeries.mk w * (Q : PowerSeries ℚ)) = 0 := by
-      rw [h, Polynomial.coeff_coe]
-      exact Polynomial.coeff_eq_zero_of_natDegree_lt (by omega)
-    simp only [PowerSeries.coeff_mul, PowerSeries.coeff_mk, Polynomial.coeff_coe,
-      Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, Nat.succ_eq_add_one] at hc
-    -- split off the first `m` terms, which vanish: their `Q`-index exceeds `deg Q`
-    rw [show m + Q.natDegree + 1 = m + (Q.natDegree + 1) by omega, Finset.sum_range_add] at hc
-    have hzero : ∑ k ∈ Finset.range m, w k * Q.coeff (m + Q.natDegree - k) = 0 :=
-      Finset.sum_eq_zero fun k hk => by
-        have hk' : k < m := Finset.mem_range.mp hk
-        rw [Polynomial.coeff_eq_zero_of_natDegree_lt (by omega), mul_zero]
-    rw [hzero, zero_add] at hc
-    rw [Fin.sum_univ_eq_sum_range
-      (fun j => Q.coeff (Q.natDegree - j) * w (m + j)) (Q.natDegree + 1)]
-    calc ∑ j ∈ Finset.range (Q.natDegree + 1), Q.coeff (Q.natDegree - j) * w (m + j)
-        = ∑ j ∈ Finset.range (Q.natDegree + 1),
-            w (m + j) * Q.coeff (m + Q.natDegree - (m + j)) :=
-          Finset.sum_congr rfl fun j _ => by
-            have hidx : m + Q.natDegree - (m + j) = Q.natDegree - j := by omega
-            rw [hidx, mul_comm]
-      _ = 0 := hc
+  have hrat : IsRationalSeries (PowerSeries.mk w) := ⟨P, Q, hQ, by rw [mul_comm]; exact h⟩
+  obtain ⟨N, p, hp, hper⟩ :=
+    hrat.isEventuallyPeriodic_coeff (by simpa using hfin)
+  exact ⟨N, p, hp, fun n hn => by simpa using hper n hn⟩
 
 /-- **[B1E2b] WP2**: the generating function `f(z) = Σⱼ wⱼzʲ` of the minimal word is **not a
 rational function**: `f·Q = P` is impossible for polynomials `P, Q` with `Q ≠ 0`.
@@ -398,6 +360,17 @@ theorem not_rational_wminSeries {x₀ : ℕ} (hx₀ : 0 < x₀) :
   obtain ⟨N, p, hp, hper⟩ :=
     eventuallyPeriodic_of_rational_of_finite_coeffs (finite_range_wmin x₀) hQ h
   exact not_eventually_periodic hx₀ ⟨N, p, hp, fun n hn => by exact_mod_cast hper n hn⟩
+
+/-- The same statement in the vocabulary of `ForMathlib.RingTheory.PowerSeries.Rationality`:
+`f(z) = Σⱼ wⱼzʲ` is **not a rational series** ([AF17] WP6).  `IsRationalSeries` orders the product
+the other way (`Q·f = P`), which over a commutative ring is the same hypothesis.
+
+Footprint: `std3`. -/
+@[category research solved, AMS 11 68, ref "AFS08" "B1E2b", group "rb_rational_base"]
+theorem not_isRationalSeries_wminSeries {x₀ : ℕ} (hx₀ : 0 < x₀) :
+    ¬ IsRationalSeries (PowerSeries.mk fun j => (wmin x₀ j : ℚ)) := by
+  rintro ⟨P, Q, hQ, h⟩
+  exact not_rational_wminSeries hx₀ ⟨P, Q, hQ, by rw [mul_comm]; exact h⟩
 
 /-! ## The algebraic case: the one place the axiom is used -/
 

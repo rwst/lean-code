@@ -49,8 +49,11 @@ costs exactly one refereed axiom. Do not oversell it. ([B1E2] §2.2's "Honest sc
 
 ## Two lanes, never mixed
 
-* **Refereed lane** (this file): `std3 + AF.transcendental_or_rat_of_automatic` only.
-  `lean_verify`-confirmed 2026-07-16.
+* **Refereed lane** (this file): `std3 + AF.lemme_2_2 + AF.lemma_2_8` only — [AF17] Lemme 2.2 and
+  [AF22] Lemma 2.8, from which [AF17] Thm 1.4 restricted to
+  degree one, the *one* input the Mahler alternative still costs since
+  `plans/plan-formalize-AF17.html` WP5 turned `AF.transcendental_or_rat_of_automatic` into a
+  theorem (2026-08-04).  Confirmed by `#print axioms` on that date.
 * **Preprint lane** (T1b, *not built* — milestone M4): removing the `K ∈ ℚ` horn needs
   plan-B2A2's T1a (`K ∈ ℚ ⇒ p_w superlinear ⇒ not automatic`, via `AS.not_automatic_of_complexity_superlinear`),
   which adds the CZ04 + NKR25 axioms. `not_automatic_of_K_algebraic_of_ratCase` below is the
@@ -93,8 +96,7 @@ private lemma isAlgebraic_natCast (n : ℕ) : IsAlgebraic ℚ ((n : ℝ)) := by
 Both branches of [AF17] Cor 1.8 are killed at once: `3(K − x₀)` cannot be transcendental
 (`K` is algebraic), and it cannot be rational (`K` is irrational).
 
-Footprint: `std3 + AF.transcendental_or_rat_of_automatic`. No `p`-adic input, no CZ04, no
-NKR25. -/
+Footprint: `std3 + AF.lemme_2_2 + AF.lemma_2_8`. No `p`-adic input, no CZ04, no NKR25. -/
 @[category research solved, AMS 11 68, ref "AF17" "AFS08" "B1E2", group "rb_rational_base"]
 theorem not_automatic_of_K_algebraic_irrational {x₀ : ℕ}
     (halg : IsAlgebraic ℚ (K x₀)) (hirr : Irrational (K x₀)) :

@@ -32,7 +32,7 @@ i.e. `F(z) = M(z)F(z^k)` with
 
   `M(z) = Σ_{r<k} zʳ·Pᵣ`,  `Pᵣ` the incidence matrix of `σ(·, r)` (exactly one `1` per row).
 
-## Scope: the matrix, not the analytic identity
+## Scope: the matrix here, the analytic identity in `RB/MahlerAnalytic.lean`
 
 `M(z)` is built here (`mahlerMatrix`), general in `(ι, σ)`, together with the row-sum identity
 `Σⱼ M i j = 1 + z + ⋯ + z^{k-1}` and the divisibility it implies, `(1+z+⋯+z^{k-1}) ∣ det M`
@@ -40,12 +40,16 @@ i.e. `F(z) = M(z)F(z^k)` with
 The roots of that factor are `k`-th roots of unity, all on `|z| = 1`, and so **never `2/3`**
 ([B1E2] §0.2(1); check against [AF17] §8.1, where `det A = (1+z-z²)(1+z+z²)` at `k = 3`).
 
-The **analytic** identity `F(z) = M(z)F(z^k)` as an equation of functions on `|z| < 1` is *not*
-built.  It is not needed: WP4's live consumer is `RB.Regularity`, which is a statement about
-`det M` alone, and the other consumer (the `p`-adic Mahler step, WP5) is **parked** on an input
-that does not exist in the literature ([B1E2] §0.1).  Building the transport would cost
-convergence machinery for no current gain; the note is here so the omission is deliberate rather
-than forgotten.
+The **analytic** identity `F(z) = M(z)F(z^k)` as an equation of functions on `|z| < 1` was
+deliberately omitted when this file was written: WP4's live consumer is `RB.Regularity`, which is
+a statement about `det M` alone, and the other consumer (the `p`-adic Mahler step, WP5) is
+**parked** on an input that does not exist in the literature ([B1E2] §0.1), so the transport
+would have cost convergence machinery for no gain.
+
+It is now built, one file over, in `RB/MahlerAnalytic.lean` (`RB.mahlerSystem`,
+`RB.IsKernelModel.mahlerSystem`) — WP1 of `plans/plan-formalize-AF17.html`, i.e. link L1 of the
+programme that turned `AF.transcendental_or_rat_of_automatic` from a cited axiom into a theorem
+(completed 2026-08-04, WP5).  Nothing here changed to accommodate it.
 
 ## Instantiating at the kernel
 

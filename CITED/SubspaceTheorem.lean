@@ -11,13 +11,14 @@ import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
 /-!
-# The Subspace Theorem (Schmidt / Evertse–Schlickewei), cited
+# The Subspace Theorem (Evertse–Schlickewei number-field form), cited
 
-The `S`-arithmetic **Subspace Theorem** — Schmidt's Theorem 1D′ in the
-Evertse–Schlickewei number-field form — recorded here as *one* canonical cited
-`axiom`, the single deepest Diophantine engine behind the `(3/2)ⁿ` complexity
-program.  It is the black box that both formerly-bespoke axioms of the
-program bottomed out at — **both derivations are now complete (2026-07-14)**:
+The `S`-arithmetic **Subspace Theorem** in the Evertse–Schlickewei *number-field*
+form ([BG06] Ch. 7): points in `Kⁿ`, forms with coefficients in `K`, threshold
+the height relative to `K`.  Recorded here as one canonical cited `axiom`, the
+deepest Diophantine engine behind the `(3/2)ⁿ` complexity program.  It is the
+black box that both formerly-bespoke axioms of the program bottomed out at —
+**both derivations are now complete (2026-07-14)**:
 
 * the [CZ04] Main Theorem is this theorem at `n = 2` with a *fixed* linear
   form — i.e. **Ridout's theorem** — applied once; derived as
@@ -59,7 +60,16 @@ following documented choices (each of which a consumer may only *weaken*):
 
 * **Field**: stated for a general `[NumberField K]`.  Every consumer specializes
   `K := ℚ` (degree 1); the ready-made `Subspace.evertseSchlickewei_rat` is that
-  instantiation.
+  instantiation.  **Caveat (2026-08-07)**: at `[K : ℚ] = D > 1` this statement is
+  *not* interchangeable with Schmidt's Theorem 1D′ on rational data.  Mathlib's
+  `Height.mulHeight` is the height relative to `K`, so a point of `ℚⁿ ⊆ Kⁿ`
+  carries `H_K(x) = H_ℚ(x)^D` (`NumberField.mulHeight_ratCast`) while the
+  approximation is small at one place only; the conclusion one gets is weaker by
+  the factor `D` in the exponent.  (Roth: over `K` one only excludes
+  `|α − p/q| < H(p/q)^{-D(2+ε)}`.)  For rational points with *algebraic*
+  coefficients use `Subspace.schmidt1D'` (`CITED/SchmidtSubspace.lean`), which is
+  Schmidt's 1D′ proper; the two statements are genuinely different, and neither
+  specializes to the other.
 * **Places**: `S : Finset (AbsoluteValue K ℝ)`.  In use `S` is a finite set of
   the admissible places (the members of `Height.AdmissibleAbsValues.archAbsVal`
   and `.nonarchAbsVal`) containing all archimedean ones — e.g. `{∞, 2, 3}` over
@@ -80,19 +90,29 @@ following documented choices (each of which a consumer may only *weaken*):
 
 * `Subspace.localNorm` — the local sup-norm `‖x‖_v = ⨆ i |x_i|_v`.
 * `Subspace.approxProduct` — the double product `∏_{v∈S} ∏_i |L_{v,i}(x)|_v/‖x‖_v`.
-* `Subspace.evertseSchlickewei` — **the Subspace Theorem** ([S] Thm 1D′), a cited
-  `axiom`; finitely many proper subspaces contain all solutions.
+* `Subspace.evertseSchlickewei` — **the Subspace Theorem**, number-field form
+  ([BG06] Ch. 7), a cited `axiom`; finitely many proper subspaces of `Kⁿ` contain
+  all solutions.
 * `Subspace.evertseSchlickewei_rat` — the `K := ℚ` specialization consumers use.
+
+## Sibling axiom
+
+`Subspace.schmidt1D'` (`CITED/SchmidtSubspace.lean`) records Schmidt's Theorem 1D′:
+**rational** points, forms with **algebraic** coefficients, naive height.  That is
+the form the anchored/RPF derivations with algebraic irrational multipliers need
+(`RB/AnchoredRational.lean`); see the `Field` bullet above for why this file's
+axiom cannot serve there.  The two are recorded separately and consumed by
+disjoint lanes.
 
 ## References
 
-* [S] W. M. Schmidt, *Diophantine Approximation and Diophantine Equations*,
-  Lecture Notes in Math. **1467**, Springer 1991 — Theorem 1D′ (`S`-arithmetic
-  Subspace) and Theorem 2A (Roth); the sole external input of [CZ04]'s Main
-  Theorem.
 * [BG06] E. Bombieri, W. Gubler, *Heights in Diophantine Geometry*, Cambridge
-  2006, Ch. 7 — the form of the Subspace Theorem quoted by [NKR25] (their
-  Theorem 2.1).
+  2006, Ch. 7 — **the form recorded here** (number-field points and heights),
+  quoted by [NKR25] as their Theorem 2.1.
+* [S] W. M. Schmidt, *Diophantine Approximation and Diophantine Equations*,
+  Lecture Notes in Math. **1467**, Springer 1991 — Theorem 2A (Roth) and Theorem
+  1D′ (`S`-arithmetic Subspace with algebraic coefficients over `ℚ`; recorded
+  separately in `CITED/SchmidtSubspace.lean`, *not* the statement below).
 * [CZ04] Corvaja–Zannier, Acta Math. **193** (2004), 175–191 (`CITED/CorvajaZannier.lean`).
 * [NKR25] Nair–Kumar–Rout, arXiv:2506.02898v3 (`CITED/NairKumarRout.lean`).
 * `report-formalize-subspace.html` (this repository, 2026-07): the dependency
@@ -119,19 +139,22 @@ noncomputable def approxProduct {n : ℕ} (S : Finset (AbsoluteValue K ℝ))
     (L : AbsoluteValue K ℝ → Fin n → ((Fin n → K) →ₗ[K] K)) (x : Fin n → K) : ℝ :=
   ∏ v ∈ S, ∏ i, v (L v i x) / localNorm v x
 
-/-- **The Subspace Theorem** ([S], Theorem 1D′; Evertse–Schlickewei
-`S`-arithmetic form, [BG06] Ch. 7): for a number field `K`, `n ≥ 2`, a finite
-place set `S`, per-place linearly independent linear forms `L`, and `ε > 0`, the
-nonzero `x ∈ Kⁿ` with `approxProduct S L x ≤ H(x)^{-n-ε}` lie in finitely many
-proper subspaces of `Kⁿ`.
+/-- **The Subspace Theorem**, Evertse–Schlickewei `S`-arithmetic *number-field*
+form ([BG06] Ch. 7): for a number field `K`, `n ≥ 2`, a finite place set `S`,
+per-place linearly independent linear forms `L` with coefficients in `K`, and
+`ε > 0`, the nonzero `x ∈ Kⁿ` with `approxProduct S L x ≤ H(x)^{-n-ε}` — the
+height being the one relative to `K` — lie in finitely many proper subspaces of
+`Kⁿ`.
 
-Recorded as a cited `axiom` on the authority of [S] — a geometry-of-numbers +
-heights-of-subspaces argument (successive minima, twisted heights, the
-generalized Roth machinery) that we do not re-derive.  The finiteness is
-ineffective.  See the module doc for the encoding conventions and the two
-derived `ℚ`-consumers (`CZ.pseudoPisot_approx_of_subspace` at `n = 2`,
-`NKR.sUnit_pair_integrality_of_subspace` at `n = 3`). -/
-@[category research solved, AMS 11, ref "Schmidt91", group "three_halves_m4"]
+Recorded as a cited `axiom` on the authority of [BG06] / [S] — a
+geometry-of-numbers + heights-of-subspaces argument (successive minima, twisted
+heights, the generalized Roth machinery) that we do not re-derive.  The
+finiteness is ineffective.  See the module doc for the encoding conventions, for
+the two derived `ℚ`-consumers (`CZ.pseudoPisot_approx_of_subspace` at `n = 2`,
+`NKR.sUnit_pair_integrality_of_subspace` at `n = 3`), and for why rational data
+with algebraic coefficients needs the sibling axiom `Subspace.schmidt1D'`
+instead. -/
+@[category research solved, AMS 11, ref "BG06" "Schmidt91", group "three_halves_m4"]
 axiom evertseSchlickewei {n : ℕ} (hn : 2 ≤ n)
     (S : Finset (AbsoluteValue K ℝ))
     (L : AbsoluteValue K ℝ → Fin n → ((Fin n → K) →ₗ[K] K))

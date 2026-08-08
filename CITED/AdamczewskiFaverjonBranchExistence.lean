@@ -1,0 +1,459 @@
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+import CITED.AdamczewskiFaverjonGerm
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
+
+/-!
+# [AF22] Lemma 2.8: a relation matrix has an analytic branch at almost every `α^{q^k}`
+
+plan-formalize-AF17's **branch-existence decision** (§2.17): the interface of the **second cited
+axiom of Stage 2**, and everything the corpus derives from it.
+
+The axiom itself is `AF.lemma_2_8`, and since rev. 28 it is declared one file higher, in
+`CITED/AdamczewskiFaverjonBranchFull.lean` — see «Where the cited axiom lives» below.  **Nothing in
+this file cites anything**: the branches are hypotheses throughout, and the file is `std3`.
+
+`CITED/AdamczewskiFaverjonGerm` (WP12(b)) reduced the whole of Step (UB) to one thing: the
+*existence* of an `AF.IsBranchRealization` — a ring homomorphism `real : R →+* Germ l ℂ` out of a
+subring of the abstract ambient field, realizing `K[z]` by polynomial functions and the relation
+matrix `Φalg` by a matrix `Ψ` of complex functions.  The *transport* of [AF22] Lemma 2.7 through
+such a homomorphism turned out to contain no analysis at all.  All the analysis of §2.3.1 is in the
+existence, and that is [AF22] Lemma 2.8 — plan risk **R14**.  This file states its *interface*.
+
+## The statement being cited
+
+*«**Lemma 2.8.** Let `φ(z) ∈ GLₘ(A)` be a relation matrix.  Then the three following properties
+hold for `k ≫ 1`: (a) the point `α^{q^k}` belongs to the disc of convergence of each of the
+functions `f₁(z), …, fₘ(z)`; (b) each coordinate of `φ(z)` defines an analytic function on some
+neighborhood of `α^{q^k}`; (c) the matrix `φ(α^{q^k})` is invertible.»*
+
+Their proof is four lines: `α^{q^k} → 0`, so (a) holds eventually; *an algebraic function has only
+finitely many singularities and finitely many zeros*, so for `k ≫ 1` the point `α^{q^k}` is neither
+a singularity of a coordinate of `φ(z)` nor a zero of `det φ(z)`, which is (b) and (c).
+
+**Only (b) and (c) are cited here.**  Item (a) is about the Mahler solutions `fᵢ`, not about the
+relation matrix; it is the analytic layer's own hypothesis (`hreal`, `hfsan`) and stays one.
+
+## Why this is an axiom
+
+Mathlib has none of the three ingredients: no vanishing criterion for the resultant
+(`Polynomial.resultant` exists with its formal API only), hence no «finitely many singularities»;
+no field of convergent power series and no Newton–Puiseux theorem, hence no way to *produce* a
+branch; and no analytic implicit function theorem for algebraic function elements — `WP8`'s
+`AF.exists_analytic_branch` gives a branch through one non-critical root of one bivariate
+polynomial, which is the local half, but not the global «all but finitely many `ξ`» statement that
+makes «for `k ≫ 1`» true.
+
+## The hypotheses, audited
+
+* **`[IsAlgClosed K]`** is used for exactly one thing: the conclusion `Φ₀.map φ = Ψ ξ` with
+  `Φ₀` a matrix over `K`.  The value at an algebraic point of a function algebraic over `K(z)` is
+  algebraic over `K`, so it lies in `φ(K)` *when `K` is algebraically closed* — [AF22]'s `K` is
+  `ℚ̄`.  Without it the values sit in some extension of `φ(K)` and Lemma 2.8(c)'s normalizing
+  matrix `a = A_{k₀}(α)φ(ξ)⁻¹` would not be defined over `K`, which is what Step (AF)'s
+  substitution `Y ↦ MY` needs (`AF.exists_auxiliary` takes `M : Matrix ι ι K`).
+
+* **The algebraicity hypothesis is on the entries of `Φalg`, not on `Ω`** — and this is not
+  laziness, it is the difference between a true statement and a false one.  If `Ω` is relatively
+  algebraically closed in a field of Puiseux series, as in `CITED/AdamczewskiFaverjonPrimitive`,
+  then for *every* `ξ` it contains `√(z-ξ)`, which has no analytic branch at `ξ`; no realization of
+  all of `Ω` exists anywhere.  Only finitely many elements may be realized at once, which is why
+  the interface is a `Subring` and why the hypothesis reads `∀ i j, IsIntegral (RatFunc K)
+  (Φalg i j)` — precisely the extra conclusion `AF.exists_relationMatrix_algebraic` carries.
+
+* **`α ≠ 0`, `‖φ α‖ < 1` and `2 ≤ q`** are what make «for `k ≫ 1`» meaningful: the points
+  `ξ_k = φ(α)^{q^k}` then have strictly decreasing moduli, so they are pairwise distinct and all
+  but finitely many of them avoid any fixed finite bad set.  With `q = 1` the sequence is constant
+  and the statement is false at a bad `ξ`.
+
+* **`Φalg.det ≠ 0`** is the `GLₘ(A)` of the quoted statement, and is half of
+  `AF.IsRelationMatrix`.  The relation ideal itself is *not* a hypothesis: Lemma 2.8 knows nothing
+  about `𝓘`.
+
+## What this file deliberately does not assert
+
+The companion specialization of [AF22] §2.4 — an evaluation homomorphism `ev : R →+* K` at `α`,
+which `AF.hspec_of_evalHom` consumes — is **not** part of this axiom.  It is a different
+specialization (at `α`, of the subring generated by the *twisted* primitive element `ϕ(z^{q^{k₀}})`
+and a common denominator `d` with `d(α)q(α) ≠ 0`), and the corpus does not yet need it: Step (UB)
+is what the branch existence unblocks.  Adding it here would widen the axiom for no consumer.
+
+## Anti-vacuity
+
+`AF.exists_isAnalyticBranch_one` exhibits a model of the interface — `Ω = K(z)`,
+`Φalg = 1`, `Ψ = 1` on `U = univ` — under hypotheses the axiom accepts, so the conclusion is
+satisfiable and the axiom is not vacuously contradictory in shape.  It is the same check
+`AF.exists_isBranchRealization_ratFunc` performed for the interface in `…Germ`, now with the
+analyticity and invertibility fields on top.  What no corpus theorem can produce is a witness whose
+relation matrix has entries genuinely *algebraic* over `K(z)`; that is the content of the axiom.
+
+## What the axiom buys
+
+* `AF.IsAnalyticBranch.exists_normalization` — Lemma 2.8(c) *as it is used*: a matrix
+  `M : Matrix ι ι K` with `M.map φ · Ψ(ξ) = N.map φ`, i.e. [AF22]'s `a = A_{k₀}(α)φ(ξ)⁻¹`.
+* `AF.IsAnalyticBranch.exists_bound` — the branch is bounded on the circle (`haΦ`, `h1B`).
+* `AF.diffContOnCl_auxFun_theta` — the auxiliary function composed with `Θ_k` is
+  `DiffContOnCl` on the disc (`hgan`), from the analyticity of the branch and of the solutions.
+  This is where `AF.analyticAt_theta` and `AF.analyticAt_auxFun` of WP11 finally get used.
+* `AF.eventually_norm_evalAt_le_exp_of_analyticBranch` — **Step (UB) with every hypothesis
+  discharged except Step (NV)'s non-vanishing on the circle and the Mahler solutions' own analytic
+  data.**  Six hypotheses of `AF.eventually_norm_evalAt_le_exp_of_branch` disappear.
+
+## References
+
+* [AF22] B. Adamczewski, C. Faverjon. *A new proof of Nishioka's theorem in Mahler's method.*
+  arXiv:2210.14528 (2022), §2.2.3 (Lemma 2.8), §2.3.2 ((2.8), (2.9), Remark 2.10).
+* [AF17f] `plans/plan-formalize-AF17.html`: §2.17, risk R14, milestone M4.
+-/
+
+open Filter Metric Topology
+
+open scoped Polynomial
+
+namespace AF
+
+/-! ## The interface: a branch realization that is analytic and non-degenerate at `ξ` -/
+
+section Interface
+
+variable {K Ω : Type*} [Field K] [Field Ω] [Algebra (RatFunc K) Ω]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- **[AF22] Lemma 2.8(b,c), as an interface.**
+
+`AF.IsBranchRealization` of `CITED/AdamczewskiFaverjonGerm` with the two analytic facts Lemma 2.8
+asserts about the point `ξ` added:
+
+* `Ψ` is analytic on the open set `U`, which contains `ξ` — Lemma 2.8(b);
+* the value `Ψ ξ` is the image under `φ` of an *invertible matrix over `K`* — Lemma 2.8(c),
+  in the form Step (AF) consumes it (`AF.exists_auxiliary` substitutes `Y ↦ MY` with
+  `M : Matrix ι ι K`).
+
+Nothing here mentions the relation ideal, the Mahler system, or the solutions: this is a statement
+about one matrix of algebraic functions and one point. -/
+@[category API, AMS 11 12 30, ref "AF22", group "af_mahler_alternative"]
+structure IsAnalyticBranch (φ : K →+* ℂ) (Φalg : Matrix ι ι Ω) (ξ : ℂ) (U : Set ℂ)
+    (R : Subring Ω) (real : R →+* Germ (𝓟 U) ℂ) (Ψ : ℂ → Matrix ι ι ℂ)
+    (Φ₀ : Matrix ι ι K) : Prop where
+  /-- The branch is defined on an open set … -/
+  isOpen_dom : IsOpen U
+  /-- … containing the point. -/
+  mem_dom : ξ ∈ U
+  /-- **Lemma 2.8(b)**: every entry of the branch is analytic there. -/
+  analytic : ∀ i j, AnalyticOnNhd ℂ (fun z => Ψ z i j) U
+  /-- The branch realizes the ambient data: `AF.IsBranchRealization`. -/
+  isBranch : IsBranchRealization φ (𝓟 U) Φalg R real Ψ
+  /-- **Lemma 2.8(c), first half**: the value at `ξ` is defined over `K`. -/
+  map_value : Φ₀.map φ = Ψ ξ
+  /-- **Lemma 2.8(c), second half**: and invertible. -/
+  det_ne_zero : Φ₀.det ≠ 0
+
+variable {φ : K →+* ℂ} {Φalg : Matrix ι ι Ω} {ξ : ℂ} {U : Set ℂ} {R : Subring Ω}
+  {real : R →+* Germ (𝓟 U) ℂ} {Ψ : ℂ → Matrix ι ι ℂ} {Φ₀ : Matrix ι ι K}
+
+/-- A closed disc about `ξ`, of any prescribed smallness, inside the domain of the branch.  [AF22]
+choose `r₂` this way in (2.9); the prescription is what lets the consumer keep the disc inside the
+region where the Mahler solutions converge. -/
+@[category API, AMS 30 54, ref "AF22", group "af_mahler_alternative"]
+theorem IsAnalyticBranch.exists_radius (hb : IsAnalyticBranch φ Φalg ξ U R real Ψ Φ₀) {ρ₀ : ℝ}
+    (hρ₀ : 0 < ρ₀) : ∃ ρ : ℝ, 0 < ρ ∧ ρ ≤ ρ₀ ∧ closedBall ξ ρ ⊆ U := by
+  obtain ⟨ε, hε, hεU⟩ := Metric.isOpen_iff.1 hb.isOpen_dom ξ hb.mem_dom
+  refine ⟨min (ε / 2) ρ₀, lt_min (by linarith) hρ₀, min_le_right _ _,
+    subset_trans (closedBall_subset_ball ?_) hεU⟩
+  calc min (ε / 2) ρ₀ ≤ ε / 2 := min_le_left _ _
+    _ < ε := by linarith
+
+/-- **[AF22] Lemma 2.8(c) in the form Step (AF) uses it.**  `a := N·φ(ξ)⁻¹` — with `N = A_{k₀}(α)`
+this is [AF22]'s normalizing matrix of (2.9), and the point of Lemma 2.8(c) is that it is defined
+over `K`, so that the substitution `Y ↦ aY` of Step (AF) stays inside `MvPolynomial (ι × ι) K[X]`.
+-/
+@[category research solved, AMS 11 15, ref "AF22", group "af_mahler_alternative"]
+theorem IsAnalyticBranch.exists_normalization (hb : IsAnalyticBranch φ Φalg ξ U R real Ψ Φ₀)
+    (N : Matrix ι ι K) : ∃ M : Matrix ι ι K, M.map φ * Ψ ξ = N.map φ := by
+  refine ⟨N * Φ₀⁻¹, ?_⟩
+  have h : N * Φ₀⁻¹ * Φ₀ = N := by
+    rw [Matrix.mul_assoc, Matrix.nonsing_inv_mul _ (isUnit_iff_ne_zero.2 hb.det_ne_zero),
+      Matrix.mul_one]
+  rw [← hb.map_value, ← Matrix.map_mul, h]
+
+/-- The entries of the branch are continuous where they are analytic. -/
+@[category API, AMS 30, ref "AF22", group "af_mahler_alternative"]
+theorem IsAnalyticBranch.continuousOn (hb : IsAnalyticBranch φ Φalg ξ U R real Ψ Φ₀) (i j : ι) :
+    ContinuousOn (fun z => Ψ z i j) U :=
+  fun z hz => ((hb.analytic i j z hz).continuousAt).continuousWithinAt
+
+/-- **The branch is bounded on every compact subset of its domain** — the hypothesis `haΦ` of Step
+(UB), which needs it on the circle `sphere ξ ρ`.  The bound is taken `≥ 1` so that the
+normalization `1 ≤ card ι · B₀` of `AF.norm_le_of_tail_on_sphere'` comes for free. -/
+@[category research solved, AMS 15 30 54, ref "AF22", group "af_mahler_alternative"]
+theorem IsAnalyticBranch.exists_bound (hb : IsAnalyticBranch φ Φalg ξ U R real Ψ Φ₀) {s : Set ℂ}
+    (hs : IsCompact s) (hsU : s ⊆ U) (M : Matrix ι ι K) :
+    ∃ B : ℝ, 1 ≤ B ∧ ∀ z ∈ s, ∀ i j, ‖(M.map φ * Ψ z) i j‖ ≤ B := by
+  classical
+  have hcont : ∀ i j : ι, ContinuousOn (fun z => (M.map φ * Ψ z) i j) s := by
+    intro i j
+    simp only [Matrix.mul_apply]
+    exact continuousOn_finsetSum _ fun l _ =>
+      continuousOn_const.mul ((hb.continuousOn l j).mono hsU)
+  obtain ⟨C, hC⟩ := hs.exists_bound_of_continuousOn
+    (f := fun z => fun p : ι × ι => (M.map φ * Ψ z) p.1 p.2)
+    (continuousOn_pi.2 fun p => hcont p.1 p.2)
+  refine ⟨max C 1, le_max_right _ _, fun z hz i j => ?_⟩
+  refine le_trans (le_trans ?_ (hC z hz)) (le_max_left _ _)
+  exact norm_le_pi_norm (fun p : ι × ι => (M.map φ * Ψ z) p.1 p.2) (i, j)
+
+end Interface
+
+/-! ## Where the cited axiom lives
+
+The statement itself — *«for `k ≫ 1` the coordinates of `φ(z)` are analytic near `α^{q^k}` and
+`φ(α^{q^k})` is invertible»* — is `AF.lemma_2_8`, declared in
+`CITED/AdamczewskiFaverjonBranchFull.lean` rather than here.  The reason is a dependency, not a
+change of mind: rev. 24 and rev. 26 of the plan found that Lemma 2.8 has to deliver four more
+clauses than `AF.IsAnalyticBranch` records — the Mahler solutions realized inside the same subring,
+every element of the subring realized by a function analytic on `U`, the realization injective, and
+a branch of the *twisted* matrix at `φ(α)` with the same value `Φ₀` — and those clauses speak about
+`AF.IsSolutionRealization`, `AF.IsAnalyticRealization` and `AF.toAmbientSeries`, all of which sit
+*above* this file in the import graph.
+
+What stays here is the interface and everything derived from it: `AF.IsAnalyticBranch`,
+`AF.IsAnalyticBranch.exists_normalization` (Lemma 2.8(c) as Step (AF) consumes it),
+`AF.IsAnalyticBranch.exists_bound`, `AF.diffContOnCl_auxFun_theta` and Step (UB) in the form
+`AF.eventually_norm_evalAt_le_exp_of_analyticBranch`.  None of them mentions the axiom; all of
+them take a branch as a hypothesis, which is why this file's own footprint is `std3`. -/
+
+/-! ## The conclusion is satisfiable -/
+
+section NonVacuous
+
+variable {K : Type*} [Field K] {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- **A model of the axiom's conclusion.**  Over the ambient field `K(z)` with the identity
+relation matrix — which satisfies the axiom's hypotheses `IsIntegral` and `det ≠ 0` — the subring
+of polynomials carries an analytic branch at *every* point: the constant matrix `Ψ = 1`, analytic
+on all of `ℂ`, with value `1` at `ξ` and `det 1 = 1 ≠ 0`.
+
+So `AF.IsAnalyticBranch` is satisfiable, and the axiom is not contradictory in shape.  It is the
+analyticity-and-invertibility refinement of `AF.exists_isBranchRealization_ratFunc`, and it fails
+to be a proof of the axiom for exactly one reason: the relation matrix of [AF22] Lemma 2.5 has
+entries algebraic over `K(z)`, not polynomial. -/
+@[category research solved, AMS 11 12 30, ref "AF22", group "af_mahler_alternative"]
+theorem exists_isAnalyticBranch_one (φ : K →+* ℂ) (ξ : ℂ) :
+    ∃ (U : Set ℂ) (R : Subring (RatFunc K)) (real : R →+* Germ (𝓟 U) ℂ)
+      (Ψ : ℂ → Matrix ι ι ℂ) (Φ₀ : Matrix ι ι K),
+      IsAnalyticBranch φ (1 : Matrix ι ι (RatFunc K)) ξ U R real Ψ Φ₀ := by
+  obtain ⟨R, real, hR⟩ := exists_isBranchRealization_ratFunc (ι := ι) φ (𝓟 (Set.univ : Set ℂ))
+  refine ⟨Set.univ, R, real, fun _ => 1, 1, ?_, Set.mem_univ ξ, ?_, hR, ?_, ?_⟩
+  · exact isOpen_univ
+  · exact fun i j _ _ => analyticAt_const
+  · exact Matrix.map_one _ (map_zero φ) (map_one φ)
+  · rw [Matrix.det_one]
+    exact one_ne_zero
+
+end NonVacuous
+
+/-! ## Analyticity of the auxiliary function along the branch -/
+
+section Analytic
+
+variable {K : Type*} [Field K] {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- **The hypothesis `hgan` of Step (UB), from the branch.**
+
+`𝓔(Θ_k(z), z^n)` is differentiable on the open disc and continuous on its closure, because it is
+analytic at every point of the closed disc: `Θ_k` is analytic wherever the branch is
+(`AF.analyticAt_theta` — the other two factors of (2.9) are a constant and a matrix of
+polynomials), `z ↦ z^n` is entire, and the solutions are analytic on `ball 0 r`, which
+`z^n` lands in because `‖z‖ ≤ t ≤ 1` on the disc and `t < r`.
+
+This is [AF22] Remark 2.10 *without* their shrinking radii `r_k`: their `A(z^{q^j})` acquires
+poles, the corpus's is a matrix of polynomials, so one disc works for every `k` (see
+`CITED/AdamczewskiFaverjonTheta`). -/
+@[category research solved, AMS 13 30, ref "AF22", group "af_mahler_alternative"]
+theorem diffContOnCl_auxFun_theta {φ : K →+* ℂ} {P : ℕ → MvPolynomial (ι × ι) K[X]} {τ : ι → ℂ}
+    {fs : ι → ℂ → ℂ} {v₀ N q k₀ k n : ℕ} {A : Matrix ι ι ℂ[X]} {a : Matrix ι ι ℂ}
+    {Ψ : ℂ → Matrix ι ι ℂ} {U : Set ℂ} {ξ : ℂ} {ρ r t : ℝ}
+    (hΨ : ∀ i j, AnalyticOnNhd ℂ (fun z => Ψ z i j) U) (hball : closedBall ξ ρ ⊆ U) (hρ : 0 < ρ)
+    (ht0 : 0 ≤ t) (ht1 : t ≤ 1) (htr : t < r) (hn : 1 ≤ n)
+    (hz : ∀ z ∈ closedBall ξ ρ, ‖z‖ ≤ t) (hfs : ∀ i, AnalyticOnNhd ℂ (fs i) (ball 0 r)) :
+    DiffContOnCl ℂ
+      (fun z => auxFun φ P τ fs v₀ N (theta q k₀ A a Ψ k z) (z ^ n)) (ball ξ ρ) := by
+  have hanal : ∀ z₀ ∈ closedBall ξ ρ,
+      AnalyticAt ℂ (fun z => auxFun φ P τ fs v₀ N (theta q k₀ A a Ψ k z) (z ^ n)) z₀ := by
+    intro z₀ hz₀
+    have hW : AnalyticAt ℂ (fun z : ℂ => z ^ n) z₀ := by
+      simpa using (analyticAt_id : AnalyticAt ℂ id z₀).aeval_polynomial
+        ((Polynomial.X : ℂ[X]) ^ n)
+    have hY : ∀ i j, AnalyticAt ℂ (fun z => theta q k₀ A a Ψ k z i j) z₀ :=
+      analyticAt_theta fun i j => hΨ i j z₀ (hball hz₀)
+    have hfsz : ∀ i, AnalyticAt ℂ (fs i) (z₀ ^ n) := by
+      intro i
+      refine hfs i _ ?_
+      have hnorm : ‖z₀ ^ n‖ ≤ t := by
+        rw [norm_pow]
+        calc ‖z₀‖ ^ n ≤ t ^ n := by gcongr; exact hz z₀ hz₀
+          _ ≤ t ^ 1 := pow_le_pow_of_le_one ht0 ht1 hn
+          _ = t := pow_one t
+      simpa [dist_zero_right] using lt_of_le_of_lt hnorm htr
+    exact analyticAt_auxFun hW hY hfsz
+  refine ⟨fun z hz' => ((hanal z (ball_subset_closedBall hz')).differentiableAt).differentiableWithinAt,
+    ?_⟩
+  rw [closure_ball ξ (ne_of_gt hρ)]
+  exact fun z hz' => ((hanal z hz').continuousAt).continuousWithinAt
+
+end Analytic
+
+/-! ## The branch, with a radius, at a point small enough for the analytic layer -/
+
+section Package
+
+variable {K Ω : Type*} [Field K] [IsAlgClosed K] [Field Ω] [Algebra (RatFunc K) Ω]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+omit [IsAlgClosed K] in
+/-- **The cited existence in the shape the analytic layer consumes.**  [AF22]'s choice of `k₀` and
+of the radii `r₁ > |ξ| + r₂`, in one statement: given branches at all large `k₀` — which is what
+`AF.lemma_2_8` supplies — there is a closed disc about `ξ = φ(α)^{q^{k₀}}` inside the domain of one
+of them, on which `‖z‖ ≤ t`.
+
+The last clause is what item (a) of Lemma 2.8 is for and is *proved* here rather than cited:
+`‖φ(α)‖ < 1` and `q ≥ 2` make `‖ξ‖ → 0`, so the disc can be pushed inside `{‖z‖ ≤ t}` for any
+prescribed `t > 0` by taking `k₀` large and the radius small.  The branches are a hypothesis, so
+this file cites nothing. -/
+@[category research solved, AMS 11 30, ref "AF22", group "af_mahler_alternative"]
+theorem eventually_exists_isAnalyticBranch (φ : K →+* ℂ) {α : K} (hα1 : ‖φ α‖ < 1)
+    {q : ℕ} (hq : 2 ≤ q) {Φalg : Matrix ι ι Ω}
+    (hax : ∀ᶠ k₀ in atTop, ∃ (U : Set ℂ) (R : Subring Ω) (real : R →+* Germ (𝓟 U) ℂ)
+      (Ψ : ℂ → Matrix ι ι ℂ) (Φ₀ : Matrix ι ι K),
+      IsAnalyticBranch φ Φalg (φ α ^ q ^ k₀) U R real Ψ Φ₀) {t : ℝ} (ht : 0 < t) :
+    ∀ᶠ k₀ in atTop, ∃ (ρ : ℝ) (U : Set ℂ) (R : Subring Ω) (real : R →+* Germ (𝓟 U) ℂ)
+      (Ψ : ℂ → Matrix ι ι ℂ) (Φ₀ : Matrix ι ι K),
+      0 < ρ ∧ closedBall (φ α ^ q ^ k₀) ρ ⊆ U ∧
+        (∀ z ∈ closedBall (φ α ^ q ^ k₀) ρ, ‖z‖ ≤ t) ∧
+        IsAnalyticBranch φ Φalg (φ α ^ q ^ k₀) U R real Ψ Φ₀ := by
+  have hpow : Tendsto (fun k : ℕ => ‖φ α‖ ^ q ^ k) atTop (𝓝 0) :=
+    (tendsto_pow_atTop_nhds_zero_of_lt_one (norm_nonneg _) hα1).comp
+      (tendsto_pow_atTop_atTop_of_one_lt (by omega))
+  have hsmall : ∀ᶠ k₀ in atTop, ‖φ α ^ q ^ k₀‖ < t / 2 := by
+    refine (hpow.eventually_lt_const (show (0 : ℝ) < t / 2 by positivity)).mono fun k hk => ?_
+    rwa [norm_pow]
+  filter_upwards [hax, hsmall] with k₀ hbr hk₀
+  obtain ⟨U, R, real, Ψ, Φ₀, hb⟩ := hbr
+  obtain ⟨ρ, hρ0, hρt, hρU⟩ := hb.exists_radius (ρ₀ := t / 2) (by positivity)
+  refine ⟨ρ, U, R, real, Ψ, Φ₀, hρ0, hρU, fun z hz => ?_, hb⟩
+  have hd : ‖z - φ α ^ q ^ k₀‖ ≤ ρ := by
+    simpa [dist_eq_norm] using (mem_closedBall.1 hz)
+  calc ‖z‖ = ‖z - φ α ^ q ^ k₀ + φ α ^ q ^ k₀‖ := by ring_nf
+    _ ≤ ‖z - φ α ^ q ^ k₀‖ + ‖φ α ^ q ^ k₀‖ := norm_add_le _ _
+    _ ≤ t / 2 + t / 2 := add_le_add (le_trans hd hρt) (le_of_lt hk₀)
+    _ = t := by ring
+
+omit [IsAlgClosed K] in
+/-- **Everything Lemma 2.8 owes Step (UB), in one statement.**  The package above together with the
+normalizing matrix of Lemma 2.8(c): for all large `k₀` there are a disc, a branch on it, and a
+matrix `M` over `K` with `M·Ψ(ξ) = A_{k₀}(α)` — which is `hb`, `hball`, `hρ`, `hsph` and `ha` of
+`AF.eventually_norm_evalAt_le_exp_of_analyticBranch`, i.e. precisely the hypotheses that are
+[AF22] Lemma 2.8's business and no others.
+
+This is the machine check that the axiom is stated in a shape the consumer consumes: `M` is
+produced by `AF.IsAnalyticBranch.exists_normalization` at `N = A_{k₀}(α)`, and the transport
+between `(A_{k₀}(α)).map φ` and `A_{k₀}` computed over `ℂ` is `AF.evalMat_mapMat` composed with
+`AF.mapMat_iterMatrix`. -/
+@[category research solved, AMS 11 15 30, ref "AF22", group "af_mahler_alternative"]
+theorem eventually_exists_isAnalyticBranch_normalized (φ : K →+* ℂ) {α : K}
+    (hα1 : ‖φ α‖ < 1) {q : ℕ} (hq : 2 ≤ q) {Φalg : Matrix ι ι Ω}
+    (hax : ∀ᶠ k₀ in atTop, ∃ (U : Set ℂ) (R : Subring Ω) (real : R →+* Germ (𝓟 U) ℂ)
+      (Ψ : ℂ → Matrix ι ι ℂ) (Φ₀ : Matrix ι ι K),
+      IsAnalyticBranch φ Φalg (φ α ^ q ^ k₀) U R real Ψ Φ₀) {t : ℝ} (ht : 0 < t)
+    (A : Matrix ι ι K[X]) :
+    ∀ᶠ k₀ in atTop, ∃ (ρ : ℝ) (U : Set ℂ) (R : Subring Ω) (real : R →+* Germ (𝓟 U) ℂ)
+      (Ψ : ℂ → Matrix ι ι ℂ) (Φ₀ : Matrix ι ι K) (M : Matrix ι ι K),
+      0 < ρ ∧ closedBall (φ α ^ q ^ k₀) ρ ⊆ U ∧
+        (∀ z ∈ closedBall (φ α ^ q ^ k₀) ρ, ‖z‖ ≤ t) ∧
+        IsAnalyticBranch φ Φalg (φ α ^ q ^ k₀) U R real Ψ Φ₀ ∧
+        M.map φ * Ψ (φ α ^ q ^ k₀) = evalMat (φ α) (iterMatrix q (mapMat φ A) k₀) := by
+  filter_upwards [eventually_exists_isAnalyticBranch φ hα1 hq hax ht] with k₀ h
+  obtain ⟨ρ, U, R, real, Ψ, Φ₀, hρ, hU, hz, hb⟩ := h
+  obtain ⟨M, hM⟩ := hb.exists_normalization (evalMat α (iterMatrix q A k₀))
+  refine ⟨ρ, U, R, real, Ψ, Φ₀, M, hρ, hU, hz, hb, ?_⟩
+  rw [hM, ← evalMat_mapMat, mapMat_iterMatrix]
+
+end Package
+
+/-! ## Step (UB), with the branch supplied -/
+
+section Consume
+
+variable {K Ω : Type*} [Field K] [Field Ω] [Algebra (RatFunc K) Ω]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
+variable {φ : K →+* ℂ} {U : Set ℂ} {Φalg : Matrix ι ι Ω} {R : Subring Ω}
+  {real : R →+* Germ (𝓟 U) ℂ} {Ψ : ℂ → Matrix ι ι ℂ} {Φ₀ : Matrix ι ι K}
+
+/-- **Step (UB) with the branch supplied.**
+
+`AF.eventually_norm_evalAt_le_exp_of_branch` (WP12(b)) is Step (UB) with the four dictionary
+hypotheses and `hEp` discharged, carrying an `AF.IsBranchRealization` and four consequences of it
+as hypotheses.  Here the branch is an `AF.IsAnalyticBranch` on a disc, and those consequences
+become theorems: the realization itself, the containment of the circle in the domain, the bound
+`haΦ` on the circle with its normalization `h1B`, and the differentiability `hgan` of the auxiliary
+function.  Six hypotheses go.
+
+What is left is *exactly two* things, and neither is Lemma 2.8's business: the Mahler solutions'
+own analytic data (`hreal`, `hfsan`, `hmah`, `hS`, `hSsph`, `hL`), and **Step (NV)** — the lower
+bound `hFf` for the linear form on the circle, which is [AF22] §2.3.4 and the one step of the four
+that the corpus reaches through `AF.norm_le_of_tail_on_sphere'` rather than through the branch.
+The normalization `ha` is supplied by `AF.IsAnalyticBranch.exists_normalization` at
+`N = A_{k₀}(α)`; it stays a hypothesis because `M` is fixed before the auxiliary polynomial that
+`hI` speaks of is built. -/
+@[category research solved, AMS 11 12 13 15 30 40, ref "AF22", group "af_mahler_alternative"]
+theorem eventually_norm_evalAt_le_exp_of_analyticBranch {q k₀ p v₀ N : ℕ} (hq : 2 ≤ q)
+    (hvN : v₀ < N) {A : Matrix ι ι K[X]} {α : K} {P : ℕ → MvPolynomial (ι × ι) K[X]}
+    (hP : ∀ j, j < v₀ → P j = 0) (τ : ι → K) {f : ι → PowerSeries K} {fs : ι → ℂ → ℂ}
+    {M : Matrix ι ι K} {ξ : ℂ} {S : Set ℂ} {ρ r s t m γ Cb : ℝ}
+    (hpt : Function.Injective fun k : ℕ => α ^ q ^ k)
+    (hrel : IsRelationMatrix
+      (relationIdeal hpt fun (n : ℕ) (w : ι × ι) => (iterMatrix q A n w.1 w.2).eval α) Φalg)
+    (hb : IsAnalyticBranch φ Φalg ξ U R real Ψ Φ₀) (hball : closedBall ξ ρ ⊆ U)
+    (hI : toRat K (ι × ι) (subMat K[X] M
+        (truncMv K (ι × ι) p (bigSeries P (linForm τ f) N))) ∈
+      relationIdeal hpt fun (n : ℕ) (w : ι × ι) => (iterMatrix q A n w.1 w.2).eval α)
+    (hreal : ∀ j, IsSumOn r ((f j).map φ) (fs j))
+    (hfsan : ∀ i, AnalyticOnNhd ℂ (fs i) (ball 0 r))
+    (hS : ∀ z ∈ S, z ^ q ∈ S) (hmah : IsMahlerSolution q (mapMat φ A) fs S) (hα : φ α ∈ S)
+    (hL : formVal (fun i => φ (τ i)) fs 1 (φ α) = 0) (hSsph : ∀ z ∈ sphere ξ ρ, z ∈ S)
+    (hξ : ξ = φ α ^ q ^ k₀)
+    (ha : M.map φ * Ψ ξ = evalMat (φ α) (iterMatrix q (mapMat φ A) k₀))
+    (hρ : 0 < ρ) (hs0 : 0 < s) (hsr : s < r) (ht0 : 0 < t) (ht1 : t ≤ 1) (htr : t < r)
+    (hsph : ∀ z ∈ closedBall ξ ρ, ‖z‖ ≤ t) (hm : 0 < m)
+    (hFf : ∀ z ∈ sphere ξ ρ, m ≤ ‖formVal (fun i => φ (τ i)) fs (M.map φ * Ψ z) z ^ v₀‖)
+    (hC1 : 1 ≤ Cb)
+    (hA : ∀ z : ℂ, ‖z‖ ≤ t → ∀ i j, ‖(mapMat φ A i j).eval z‖ ≤ Cb)
+    (h1C : 1 ≤ (Fintype.card ι : ℝ) * Cb) (hγ0 : 0 < γ)
+    (hγ : 2 * γ * (q : ℝ) ^ k₀ ≤ p * Real.log (1 / t)) :
+    ∀ᶠ k in atTop, ‖φ (evalAt (fun k => α ^ q ^ k)
+      (fun k w => (iterMatrix q A k w.1 w.2).eval α) k (P v₀))‖
+      ≤ Real.exp (-(γ * (q : ℝ) ^ k)) := by
+  have hsphU : sphere ξ ρ ⊆ U := subset_trans (sphere_subset_closedBall) hball
+  obtain ⟨B₀, hB1, hB⟩ :=
+    hb.exists_bound (isCompact_sphere ξ ρ) hsphU M
+  have hcard : (1 : ℝ) ≤ (Fintype.card ι : ℝ) := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (Fintype.card_ne_zero (α := ι))
+  have h1B : (1 : ℝ) ≤ (Fintype.card ι : ℝ) * B₀ := by
+    calc (1 : ℝ) = 1 * 1 := by ring
+      _ ≤ (Fintype.card ι : ℝ) * B₀ := by
+          exact mul_le_mul hcard hB1 zero_le_one (le_trans zero_le_one hcard)
+  refine eventually_norm_evalAt_le_exp_of_branch hq hvN hP τ hpt hrel hb.isBranch hI hsphU hreal
+    hS hmah hα hL hSsph hξ ha hρ hs0 hsr ht0 ht1 htr
+    (fun z hz => hsph z (sphere_subset_closedBall hz)) hm hFf hC1
+    (le_trans zero_le_one hB1) hA hB h1B h1C ?_ hγ0 hγ
+  intro k hk
+  exact diffContOnCl_auxFun_theta hb.analytic hball hρ (le_of_lt ht0) ht1 htr
+    (Nat.one_le_pow _ _ (by omega)) hsph hfsan
+
+end Consume
+
+end AF

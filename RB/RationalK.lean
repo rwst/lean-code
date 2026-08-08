@@ -6,6 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 import RB.OrbitKernel
 import RB.ScaledKernel
 import RB.NotAutomatic
+import ForMathlib.Data.Real.NearestInt
 import Mathlib.Data.Fintype.Pi
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
@@ -66,8 +67,11 @@ updated.
 
 The lanes are still worth keeping apart — but for **axiom independence**, not refereeing:
 
-* **AF lane** (`RB.NotAutomatic`, not imported here): T1a = std3 +
-  `AF.transcendental_or_rat_of_automatic`, **no Subspace**.
+* **AF lane** (`RB.NotAutomatic`, not imported here): T1a = std3 + `AF.lemme_2_2` +
+  `AF.lemma_2_8`,
+  **no Subspace**.  (Until 2026-08-04 the AF-lane axiom was
+  `AF.transcendental_or_rat_of_automatic`; plan-formalize-AF17's WP5 made that a theorem, and the
+  lane now stops at [AF17] Thm 1.4.)
 * **Subspace lane** (this file): `superlinear_of_K_rat`, `superlinear_of_K_notIrrational`,
   `superlinear_or_K_irrational` = std3 + `Subspace.evertseSchlickewei`, **no AF**.
 * **The composition**: only `not_automatic_of_K_algebraic` and `transcendental_of_automatic`
@@ -244,7 +248,7 @@ Honest scope ([B1E2] §2.2, [B2A2] R1): `K` is *expected transcendental*, so the
 plausibly vacuous, and this is **not** a solution to report-dubickas B.1 — the generic
 transcendental case is untouched.  Its value is `transcendental_of_automatic` below.
 
-Footprint: std3 + `AF.transcendental_or_rat_of_automatic` + `Subspace.evertseSchlickewei` —
+Footprint: std3 + `AF.lemme_2_2` + `AF.lemma_2_8` + `Subspace.evertseSchlickewei` —
 **both refereed** (see the module doc: [B1E2] T1b's "preprint lane" label predates the
 2026-07-14 one-axiom refactor and no longer applies).  This is the one theorem in the program
 that carries both axioms — it *is* the composition. -/
@@ -289,5 +293,33 @@ theorem superlinear_or_K_irrational {x₀ : ℕ} (hx₀ : 0 < x₀) :
   by_cases h : Irrational (K x₀)
   · exact Or.inr h
   · exact Or.inl (superlinear_of_K_notIrrational hx₀ h)
+
+/-! ## The repetition gate, over `ℝ`
+
+Relocated here from `RB/AlgebraicKernel.lean` (2026-08-07): the gate is `K`-agnostic and
+std3, so it belongs below every Diophantine engine rather than inside the file that carries
+a cited axiom.  The move is what lets `RB/AlgebraicKernel.lean` consume the anchored
+`1D′` machinery (`RB/OnePowerRational.lean`) without an import cycle. -/
+
+/-- **Repetition ⇒ violator, `K`-agnostic**: a length-`k` repetition at `(a, c)` gives
+`‖K(x₀)·((3/2)^c − (3/2)^a)‖ ≤ (2/3)^k` in the `ℝ`-valued distance, the nearest integer
+being `x_c − x_a`.  This is `RB.dist_le_of_repetition` with the rationality gate
+removed: the gate ([B2A2] §2.2) was only ever about where the Diophantine *engines*
+live, never about the contraction. -/
+@[category research solved, AMS 11 68, ref "B2A2" "B1E2", group "rb_rational_base"]
+theorem real_dist_le_of_repetition {x₀ : ℕ} (hx₀ : 0 < x₀) {a c k : ℕ}
+    (h : IsRepetition x₀ a c k) :
+    distToNearestInt (K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)) ≤ (2 / 3 : ℝ) ^ k := by
+  have hval : K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)
+      - (((x x₀ c : ℤ) - (x x₀ a : ℤ) : ℤ) : ℝ) = tail x₀ c - tail x₀ a := by
+    unfold tail
+    push_cast
+    ring
+  calc distToNearestInt (K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a))
+      ≤ |K x₀ * ((3 / 2 : ℝ) ^ c - (3 / 2 : ℝ) ^ a)
+          - (((x x₀ c : ℤ) - (x x₀ a : ℤ) : ℤ) : ℝ)| :=
+        distToNearestInt_le_abs_sub_intCast _ _
+    _ = |tail x₀ c - tail x₀ a| := by rw [hval]
+    _ ≤ (2 / 3 : ℝ) ^ k := abs_tail_sub_le_of_repetition hx₀ h
 
 end RB

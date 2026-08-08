@@ -28,24 +28,29 @@ multiplier `δ` **algebraic** rather than rational, which is how the source stat
 > `(q, u) ∈ ℤ × Γ`, `d := [ℚ(u) : ℚ]`, such that `|δqu| > 1`, `δqu` is **not
 > pseudo-Pisot**, and `0 < ‖δqu‖ < H(u)^{-ε} · q^{-d-ε}`.       (1.1)
 
-## Why a second transcription — and why an axiom again
+## Status: derived, not cited (2026-08-07)
 
-The `δ ∈ ℚ` instance is **derived** from the Subspace Theorem in
-`CITED/CorvajaZannierProof.lean` (`CZ.pseudoPisot_approx_of_subspace`, the 2026-07-14
-one-axiom refactor).  That derivation is genuinely rational: it runs over the places
-`{∞, 2, 3}` of `ℚ` with rational-coefficient linear forms.  For algebraic irrational
-`δ` the same argument needs the Subspace Theorem over the number field `ℚ(δ)` — places
-above `2`, `3`, `∞`, relative heights, `S`-enlargement at the places where `δ` is not
-a unit — a substantial formalization program of its own (the cited
-`Subspace.evertseSchlickewei` is already stated over a general number field, so the
-axiom side is ready; the *bookkeeping* is not).  Meanwhile the algebraic-`δ` statement
-is exactly what [CZ04] prints and proves (Acta Mathematica, **refereed**).  Per the
-corpus's layered-QA policy this file therefore records it as a **cited axiom**,
-`CZ.pseudoPisot_approx_alg`, in a *new, separate lane*: nothing that previously held
-with footprint std3 + `Subspace.evertseSchlickewei` gains this axiom — only the
-algebraic-multiplier extension in `RB/AlgebraicKernel.lean` carries it.
+**`CZ.pseudoPisot_approx_alg` is no longer an axiom.**  It is a theorem of
+`CITED/CorvajaZannierProof.lean`, resting on `std3 + Subspace.schmidt1D'` — the same
+footprint as the anchored/RPF lane.  This file keeps the *statement vocabulary*
+(`CZ.svalR`, `CZ.IsPseudoPisot`) and the pseudo-Pisot conjugate computation; the theorem
+itself lives next to its `δ ∈ ℚ` sibling `CZ.pseudoPisot_approx_of_subspace`, whose proof
+it reuses almost verbatim.
 
-Two fidelity anchors:
+The axiom existed from 2026-07-18 to 2026-08-07 on the following reasoning, recorded here
+because the reasoning was **wrong** and cost real work elsewhere: "for algebraic irrational
+`δ` the same argument needs the Subspace Theorem over the number field `ℚ(δ)` — places above
+`2`, `3`, `∞`, relative heights, `S`-enlargement — a substantial formalization program of
+its own."  The data of this specialization is *rational* — `q ∈ ℤ` and `u = 2^x3^y ∈ ℚ*`, so
+`d = [ℚ(u):ℚ] = 1` — and only the multiplier `δ` is algebraic.  That is Schmidt's Theorem 1D′
+configuration (rational points, algebraic coefficients), not the number-field one;
+instantiating `Subspace.evertseSchlickewei` at `K = ℚ(δ)` and feeding it rational points
+loses the factor `[K:ℚ]` in the exponent and is the wrong tool.  The same misdiagnosis cost
+the anchored family a scale threshold before it was caught
+(`CITED/SchmidtSubspace.lean`, module doc).
+
+Two fidelity anchors for the transcription (now of historical interest only, since the
+statement is proved rather than trusted):
 
 * the machine-*derived* rational instance is independent evidence for the
   transcription (same clause list, same threshold shape); the specializations below
@@ -76,8 +81,12 @@ The finiteness is **ineffective** (Subspace-based), as before.
 
 ## The discharge lemmas
 
-A consumer must refute `IsPseudoPisot (δqu)` along its family.  For the families this
-corpus uses — a fixed algebraic irrational `x` times a growing rational `r` — the
+A consumer that quotes the Main Theorem must refute `IsPseudoPisot (δqu)` along its family.
+The corpus no longer has such a consumer — `RB/AlgebraicKernel.lean` reaches the same
+conclusion through the homogeneous one-power wall `RB.onePower_finite_of_irrational`, which
+has no pseudo-Pisot clause at all — but the discharge is kept, both because it is the
+faithful record of the conjugate computation and because any future consumer of the derived
+`CZ.pseudoPisot_approx_alg` will need it.  For the families this corpus uses — a fixed algebraic irrational `x` times a growing rational `r` — the
 conjugate-modulus clause does the work, and the discharge is *provable*:
 `minpoly ℚ (r·x) = (minpoly ℚ x).scaleRoots r` (Mathlib's
 `IsIntegrallyClosed.minpoly_smul`), so the conjugates of `r·x` are `r` times the
@@ -91,8 +100,9 @@ beyond `minpoly` is needed.
 
 * `CZ.IsPseudoPisot` — [CZ04]'s pseudo-Pisot predicate, spelled out over `ℝ`.
 * `CZ.svalR` — the value `δ·q·2^x·3^y`, now `ℝ`-valued.
-* **`CZ.pseudoPisot_approx_alg`** — the Main Theorem, algebraic-`δ` specialization
-  (cited `axiom`, the one Diophantine input of `RB/AlgebraicKernel.lean`).
+* (`CZ.pseudoPisot_approx_alg` — the Main Theorem in this specialization — **moved**:
+  it is a theorem of `CITED/CorvajaZannierProof.lean` since 2026-08-07, not an axiom
+  of this file.)
 * `CZ.aroots_minpoly_ratCast_mul`, `CZ.exists_conjugate_ne`,
   **`CZ.not_isPseudoPisot_mul_ratCast`** — the (proved) pseudo-Pisot discharge.
 * `CZ.isPseudoPisot_ratCast_iff` — coherence with the `δ ∈ ℚ` transcription.
@@ -134,25 +144,13 @@ noncomputable def svalR (δ : ℝ) (q : ℕ) (x y : ℤ) : ℝ :=
 
 /-! ## The Main Theorem, algebraic-`δ` specialization -/
 
-/-- **The Corvaja–Zannier Main Theorem** ([CZ04] p. 2), specialized to `Γ = ⟨2, 3⟩ ≤ ℚ*`
-(exponent-encoded, `d = 1`, `q ≥ 1`) with the multiplier `δ` real **algebraic**: only
-finitely many `(q, (x, y))` satisfy `|δqu| > 1`, `δqu` not pseudo-Pisot, and
-`0 < ‖δqu‖ < H(u)^{-ε}·q^{-1-ε}`, where `u = 2^x·3^y`.
-
-Recorded as a **cited axiom** on the authority of [CZ04] (Acta Mathematica,
-**refereed**) — a new lane, separate from `Subspace.evertseSchlickewei`: see the module
-doc for why the algebraic-`δ` case is not (yet) derived, and note that the `δ ∈ ℚ`
-instance *is* derived (`CZ.pseudoPisot_approx_of_subspace`), which anchors this
-transcription.  The finiteness is ineffective. -/
-@[category research solved, AMS 11, ref "CZ04", group "rb_rational_base"]
-axiom pseudoPisot_approx_alg (δ : ℝ) (hδalg : IsAlgebraic ℚ δ) (hδ : δ ≠ 0)
-    (ε : ℝ) (hε : 0 < ε) :
-    {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      1 < |svalR δ p.1 p.2.1 p.2.2| ∧
-      ¬ IsPseudoPisot (svalR δ p.1 p.2.1 p.2.2) ∧
-      0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
-      distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
-        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite
+/-! **The Main Theorem itself is no longer stated here.**  It was a cited `axiom`
+`CZ.pseudoPisot_approx_alg` from 2026-07-18 until 2026-08-07, when it became a **theorem** of
+the same name in `CITED/CorvajaZannierProof.lean`, derived from `Subspace.schmidt1D'`.  See
+the module doc above for why the algebraic-`δ` case turned out to be a 1D′ application rather
+than a number-field one.  What remains in this file is the statement vocabulary — `CZ.svalR`,
+`CZ.IsPseudoPisot` — and the pseudo-Pisot discharge below, which the derivation does not need
+but which records the conjugate computation faithfully. -/
 
 /-! ## The pseudo-Pisot discharge -/
 
