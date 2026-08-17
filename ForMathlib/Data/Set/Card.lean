@@ -30,3 +30,16 @@ theorem Set.ncard_le_mul_ncard_image {α β : Type*} {S : Set α} (hS : S.Finite
     ext x; simp only [Finset.coe_filter, Set.mem_setOf_eq, Set.Finite.mem_toFinset]
   have := hfib b
   rwa [← hcoe, Set.ncard_coe_finset] at this
+
+/-- **Subadditivity of `Set.ncard` over a `Finset`-indexed union.**  The `Set.ncard` analogue of
+`Finset.card_biUnion_le`, with no finiteness hypothesis: if some `f i` is infinite its `ncard` is
+`0`, but then the union is infinite too and the left side is `0` as well.  Proved by induction on
+the index `Finset` from `Set.ncard_union_le`. -/
+theorem Set.ncard_biUnion_le {α β : Type*} (S : Finset α) (f : α → Set β) :
+    (⋃ i ∈ S, f i).ncard ≤ ∑ i ∈ S, (f i).ncard := by
+  classical
+  induction S using Finset.induction with
+  | empty => simp
+  | insert a S ha ih =>
+      rw [Finset.sum_insert ha, Finset.set_biUnion_insert]
+      exact le_trans (Set.ncard_union_le _ _) (Nat.add_le_add_left ih _)
