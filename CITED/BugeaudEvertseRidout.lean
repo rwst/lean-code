@@ -175,7 +175,7 @@ theorem ridout_line_cover_23 (ξ : ℚ) (ε fInf f₂ f₃ : ℝ) (hε : 0 < ε)
     rw [show ({2} : Finset ℕ) ∪ {3} = {2, 3} from rfl,
       Finset.sum_pair (by norm_num : (2 : ℕ) ≠ 3)]
     show fInf + ((if (2 : ℕ) = 2 then f₂ else f₃) + (if (3 : ℕ) = 2 then f₂ else f₃)) = 2 + ε
-    rw [if_pos rfl, if_neg (by norm_num : ¬((3 : ℕ) = 2))]
+    rw [ite_eq_left rfl, ite_eq_right (by norm_num : ¬((3 : ℕ) = 2))]
     linarith
   obtain ⟨R, hcard, hR⟩ := ridout_line_cover ξ ε fInf {2} {3}
     (fun l => if l = 2 then f₂ else f₃)
@@ -225,7 +225,7 @@ theorem rpow_pow_logRatio {P : ℕ} (hP : 1 < P) {b : ℝ} (hb : 0 < b) (e : ℝ
 @[category API, AMS 11, ref "BE08", group "bugeaud_10_13"]
 theorem padicNorm_le_of_dvd_pow {l : ℕ} (hl : l.Prime) {x : ℤ} {m : ℕ} (hdvd : (l : ℤ) ^ m ∣ x) :
     ((padicNorm l (x : ℚ) : ℚ) : ℝ) ≤ (l : ℝ) ^ (-(m : ℝ)) := by
-  haveI : Fact l.Prime := ⟨hl⟩
+  have : Fact l.Prime := ⟨hl⟩
   have h : ((l ^ m : ℕ) : ℤ) ∣ x := by push_cast; exact hdvd
   have hcast : (((l : ℚ) ^ (-(m : ℤ)) : ℚ) : ℝ) = (l : ℝ) ^ (-(m : ℝ)) := by
     rw [Real.rpow_neg (by positivity), Real.rpow_natCast]
@@ -265,7 +265,7 @@ theorem powExp_nonneg (P Q l : ℕ) : 0 ≤ powExp P Q l := by
 theorem sum_powExp_den {P Q : ℕ} (hQ : Q ≠ 0) :
     ∑ l ∈ Q.primeFactors, powExp P Q l = Real.log Q / Real.log P := by
   rw [log_eq_sum_factorization hQ, Finset.sum_div]
-  exact Finset.sum_congr rfl fun l hl => by rw [powExp, if_pos hl]
+  exact Finset.sum_congr rfl fun l hl => by rw [powExp, ite_eq_left hl]
 
 /-- The `S₂` half of the budget: `∑_{l ∣ P} v_l(P)·log l/log P = 1`. -/
 @[category API, AMS 11, ref "BE08", group "bugeaud_10_13"]
@@ -277,7 +277,7 @@ theorem sum_powExp_num {P Q : ℕ} (hP : 1 < P)
       = (∑ l ∈ P.primeFactors, (P.factorization l : ℝ) * Real.log l) / Real.log P := by
     rw [Finset.sum_div]
     exact Finset.sum_congr rfl fun l hl => by
-      rw [powExp, if_neg (Finset.disjoint_right.mp hdisj hl)]
+      rw [powExp, ite_eq_right (Finset.disjoint_right.mp hdisj hl)]
   rw [hstep, ← log_eq_sum_factorization (by omega : P ≠ 0),
     div_self (ne_of_gt (Real.log_pos hP1))]
 
@@ -325,7 +325,7 @@ theorem ridout_line_cover_pow (ξ : ℚ) (ε fInf : ℝ) (P Q : ℕ)
       refine dvd_trans ?_ hdvd
       rw [pow_mul]
       exact pow_dvd_pow_of_dvd (Int.natCast_dvd_natCast.mpr (Nat.ordProj_dvd Q l)) n
-    rw [hycast, powExp, if_pos hl]
+    rw [hycast, powExp, ite_eq_left hl]
     exact padicNorm_le_rpow_of_dvd hlp hP hdvd'
   · -- the `S₂` conditions: `l^{v_l(P)·n} ∣ Pⁿ`
     intro l hl
@@ -333,7 +333,7 @@ theorem ridout_line_cover_pow (ξ : ℚ) (ε fInf : ℝ) (P Q : ℕ)
     have hdvd' : (l : ℤ) ^ (P.factorization l * n) ∣ (P : ℤ) ^ n := by
       rw [pow_mul]
       exact pow_dvd_pow_of_dvd (Int.natCast_dvd_natCast.mpr (Nat.ordProj_dvd P l)) n
-    rw [hycast, powExp, if_neg (Finset.disjoint_right.mp hdisj hl)]
+    rw [hycast, powExp, ite_eq_right (Finset.disjoint_right.mp hdisj hl)]
     exact padicNorm_le_rpow_of_dvd hlp hP hdvd'
 
 end BugeaudEvertse

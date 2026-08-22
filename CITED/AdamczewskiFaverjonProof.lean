@@ -359,7 +359,7 @@ lemma IsSumOnBall.substPowSeries {r : ℝ} {f : PowerSeries K} {H : 𝕜 → �
       = fun j => algebraMap K 𝕜 (PowerSeries.coeff j f) * (z ^ q) ^ j := by
     funext j
     simp only [Function.comp_apply, AF.substPowSeries, PowerSeries.coeff_mk, Dvd.intro j rfl,
-      if_pos, Nat.mul_div_cancel_left j hq, ← pow_mul]
+      ite_eq_left, Nat.mul_div_cancel_left j hq, ← pow_mul]
   rw [e]
   exact h (z ^ q) (hstab z hz)
 

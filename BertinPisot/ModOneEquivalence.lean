@@ -114,14 +114,14 @@ theorem continuousAt_indicator_Icc {c d t : ℝ} (hc : t ≠ c) (hd : t ≠ d) :
   rcases lt_or_gt_of_ne hc with h | h
   · refine hc0.congr ?_
     filter_upwards [Iio_mem_nhds h] with s hs
-    rw [if_neg (fun hm => absurd hm.1 (not_le.mpr hs))]
+    rw [ite_eq_right (fun hm => absurd hm.1 (not_le.mpr hs))]
   · rcases lt_or_gt_of_ne hd with h' | h'
     · refine hc1.congr ?_
       filter_upwards [Ioo_mem_nhds h h'] with s hs
-      rw [if_pos ⟨hs.1.le, hs.2.le⟩]
+      rw [ite_eq_left ⟨hs.1.le, hs.2.le⟩]
     · refine hc0.congr ?_
       filter_upwards [Ioi_mem_nhds h'] with s hs
-      rw [if_neg (fun hm => absurd hm.2 (not_le.mpr hs))]
+      rw [ite_eq_right (fun hm => absurd hm.2 (not_le.mpr hs))]
 
 /-- The indicator of a half-open interval is continuous at every point other than the two
 endpoints. -/
@@ -133,14 +133,14 @@ theorem continuousAt_indicator_Ico {a b t : ℝ} (ha : t ≠ a) (hb : t ≠ b) :
   rcases lt_or_gt_of_ne ha with h | h
   · refine hc0.congr ?_
     filter_upwards [Iio_mem_nhds h] with s hs
-    rw [if_neg (fun hm => absurd hm.1 (not_le.mpr hs))]
+    rw [ite_eq_right (fun hm => absurd hm.1 (not_le.mpr hs))]
   · rcases lt_or_gt_of_ne hb with h' | h'
     · refine hc1.congr ?_
       filter_upwards [Ioo_mem_nhds h h'] with s hs
-      rw [if_pos ⟨hs.1.le, hs.2⟩]
+      rw [ite_eq_left ⟨hs.1.le, hs.2⟩]
     · refine hc0.congr ?_
       filter_upwards [Ioi_mem_nhds h'] with s hs
-      rw [if_neg (fun hm => absurd hm.2 (not_lt.mpr hs.le))]
+      rw [ite_eq_right (fun hm => absurd hm.2 (not_lt.mpr hs.le))]
 
 /-! ### The two test functions -/
 
@@ -172,7 +172,7 @@ private theorem fractInd_ae (c d : ℝ) :
   have hsub : {t ∈ Set.Icc (-(1/2) : ℝ) (1/2) | ¬ ContinuousAt (fractInd c d) t}
       ⊆ ({-(1/2), 1/2, 0, c, d, c - 1, d - 1} : Set ℝ) := by
     intro t ht
-    simp only [Set.mem_setOf_eq] at ht
+    simp only [Set.mem_ofPred_eq] at ht
     by_contra hmem
     simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hmem
     obtain ⟨h1, h2, h3, h4, h5, h6, h7⟩ := hmem
@@ -241,7 +241,7 @@ private theorem epsInd_ae (a b : ℝ) :
   have hsub : {t ∈ Set.Icc (0 : ℝ) 1 | ¬ ContinuousAt (epsInd a b) t}
       ⊆ ({0, 1, 1/2, a, b, a + 1, b + 1} : Set ℝ) := by
     intro t ht
-    simp only [Set.mem_setOf_eq] at ht
+    simp only [Set.mem_ofPred_eq] at ht
     by_contra hmem
     simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hmem
     obtain ⟨h1, h2, h3, h4, h5, h6, h7⟩ := hmem

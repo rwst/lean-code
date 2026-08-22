@@ -581,7 +581,7 @@ the `2^{n(k-1)}` the route would have to supply. -/
 theorem forced_prime_le_card {D : ℕ} {k : ℕ} {A : Fin k → ℤ} {n : ℕ} {q : ℕ}
     (hq : q.Prime) (hq2 : q ≠ 2) (hqD : ¬ (q ∣ D))
     (hforced : ∀ r : ℤ, Odd r → (q : ℤ) ∣ cycleProd D A n r) : q ≤ k := by
-  haveI : Fact q.Prime := ⟨hq⟩
+  have : Fact q.Prime := ⟨hq⟩
   by_contra hcon
   push Not at hcon
   -- the `k` residues that a bad numerator has to hit

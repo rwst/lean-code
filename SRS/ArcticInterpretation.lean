@@ -477,11 +477,15 @@ instance instDecidableArcticGt [LinearOrder R] (u v : Arctic R) : Decidable (arc
 
 /-- `≫` is decidable on arctic matrices (entrywise). -/
 instance instDecidableArcticMatGt [LinearOrder R] (M N : Matrix (Fin d) (Fin d) (Arctic R)) :
-    Decidable (arcticMatGt M N) := by unfold arcticMatGt; infer_instance
+    Decidable (arcticMatGt M N) := by
+  unfold arcticMatGt
+  exact @Fintype.decidableForallFintype _ _ (fun _ => Fintype.decidableForallFintype) _
 
 /-- `⪰` is decidable on arctic matrices (entrywise). -/
 instance instDecidableArcticMatGe [LinearOrder R] (M N : Matrix (Fin d) (Fin d) (Arctic R)) :
-    Decidable (arcticMatGe M N) := by unfold arcticMatGe arcticGe; infer_instance
+    Decidable (arcticMatGe M N) := by
+  unfold arcticMatGe arcticGe
+  exact @Fintype.decidableForallFintype _ _ (fun _ => Fintype.decidableForallFintype) _
 
 /-! ### Example 2.17 — `SN({◁b → ◁ax} / P)` by a 4-dimensional arctic interpretation
 
@@ -553,7 +557,7 @@ termination that has *no* known natural matrix-interpretation proof. -/
     arcticMulVec_arcticVecGt arcticMulVec_arcticVecGe arcticMatMul Pmat Psys Rrule]
 theorem terminating_Rrule_relative_Psys :
     TerminatingRelativeTo (RewriteStep Rrule) (RewriteStep Psys) := by
-  haveI : Nonempty {v : Fin 4 → Arctic ℕ // (0 : Arctic ℕ) ≤ v 0} := ⟨⟨fun _ => 0, le_refl _⟩⟩
+  have : Nonempty {v : Fin 4 → Arctic ℕ // (0 : Arctic ℕ) ≤ v 0} := ⟨⟨fun _ => 0, le_refl _⟩⟩
   have hM : ∀ σ, (0 : Arctic ℕ) ≤ Pmat σ 0 0 := fun σ => by cases σ <;> decide
   apply terminatingRelativeTo_of_extendedMonotone (arcticNatExtendedMonotoneAlgebra Pmat hM)
   · rintro ℓ r ⟨rfl, rfl⟩ z

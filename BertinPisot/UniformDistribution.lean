@@ -130,22 +130,22 @@ theorem uniformlyDistributedModOne_of_integralCriterion (x : ℕ → ℝ)
     refine ⟨⟨1, fun t _ => by rw [hg, Set.indicator_apply]; split <;> simp⟩, ?_⟩
     have hsub : {t ∈ Set.Icc (-(1/2) : ℝ) (1/2) | ¬ ContinuousAt g t} ⊆ ({a, b} : Set ℝ) := by
       intro t ht
-      simp only [Set.mem_setOf_eq] at ht
+      simp only [Set.mem_ofPred_eq] at ht
       have hc0 : ContinuousAt (fun _ : ℝ => (0 : ℝ)) t := continuousAt_const
       have hc1 : ContinuousAt (fun _ : ℝ => (1 : ℝ)) t := continuousAt_const
       rcases lt_trichotomy t a with hta | hta | hta
       · refine absurd ?_ ht.2; rw [hg]; refine hc0.congr ?_
         filter_upwards [Iio_mem_nhds hta] with s hs
-        rw [Set.indicator_apply, if_neg (fun hm => absurd hm.1 (not_le.mpr hs))]
+        rw [Set.indicator_apply, ite_eq_right (fun hm => absurd hm.1 (not_le.mpr hs))]
       · exact Set.mem_insert_iff.mpr (Or.inl hta)
       · rcases lt_trichotomy t b with htb | htb | htb
         · refine absurd ?_ ht.2; rw [hg]; refine hc1.congr ?_
           filter_upwards [Ioo_mem_nhds hta htb] with s hs
-          rw [Set.indicator_apply, if_pos ⟨hs.1.le, hs.2⟩]
+          rw [Set.indicator_apply, ite_eq_left ⟨hs.1.le, hs.2⟩]
         · exact Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton_iff.mpr htb))
         · refine absurd ?_ ht.2; rw [hg]; refine hc0.congr ?_
           filter_upwards [Ioi_mem_nhds htb] with s hs
-          rw [Set.indicator_apply, if_neg (fun hm => absurd hm.2 (not_lt.mpr hs.le))]
+          rw [Set.indicator_apply, ite_eq_right (fun hm => absurd hm.2 (not_lt.mpr hs.le))]
     exact measure_mono_null hsub (((Set.finite_singleton b).insert a).measure_zero volume)
   have hcrit := h g hRI
   -- `∫_{-1/2}^{1/2} 𝟙_{[a,b)} = b - a`.
@@ -466,8 +466,8 @@ theorem uniformlyDistributedModOne_of_weylCriterion (x : ℕ → ℝ)
     refine Finset.sum_le_sum fun n _ => ?_
     by_cases hmem : ε (x n) ∈ Set.Ico a b
     · have hd := circ_dist_le_of_mem (a := a) (b := b) hmem
-      rw [if_pos hmem, circBump_eq_one hη0 (by rw [hc]; linarith)]
-    · rw [if_neg hmem]; exact circBump_nonneg
+      rw [ite_eq_left hmem, circBump_eq_one hη0 (by rw [hc]; linarith)]
+    · rw [ite_eq_right hmem]; exact circBump_nonneg
   have hlower : ∀ N : ℕ,
       (∑ n ∈ Finset.range N, circBump c ((b - a) / 2) η ((x n : ℝ) : AddCircle (1 : ℝ)))
         ≤ (countModOne x a b N : ℝ) := by
@@ -475,8 +475,8 @@ theorem uniformlyDistributedModOne_of_weylCriterion (x : ℕ → ℝ)
     rw [hcount N]
     refine Finset.sum_le_sum fun n _ => ?_
     by_cases hmem : ε (x n) ∈ Set.Ico a b
-    · rw [if_pos hmem]; exact circBump_le_one
-    · rw [if_neg hmem]
+    · rw [ite_eq_left hmem]; exact circBump_le_one
+    · rw [ite_eq_right hmem]
       refine le_of_eq (circBump_eq_zero hη0 ?_)
       by_contra hlt
       refine hmem (mem_of_circ_dist_lt ha hb ?_)
@@ -621,7 +621,7 @@ private theorem isRiemannIntegrableOn_of_continuousOn {g : ℝ → ℝ} {C : ℝ
   refine ⟨⟨C, fun t _ => hb t⟩, measure_mono_null ?_
     (((Set.finite_singleton (1/2 : ℝ)).insert (-(1/2))).measure_zero volume)⟩
   intro t ht
-  simp only [Set.mem_setOf_eq] at ht
+  simp only [Set.mem_ofPred_eq] at ht
   obtain ⟨htIcc, htdisc⟩ := ht
   by_contra hmem
   rw [Set.mem_insert_iff, Set.mem_singleton_iff] at hmem

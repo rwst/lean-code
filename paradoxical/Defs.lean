@@ -57,9 +57,9 @@ lemma pbits_getElem? (j n m : ℕ) :
     (pbits j n)[m]? = if m < j then some (X (T_iter m n)) else none := by
   unfold pbits; rw [List.getElem?_map]
   by_cases h : m < j
-  · rw [if_pos h, List.getElem?_eq_getElem (show m < (List.range j).length by simpa using h)]
+  · rw [ite_eq_left h, List.getElem?_eq_getElem (show m < (List.range j).length by simpa using h)]
     simp [List.getElem_range]
-  · rw [if_neg h, List.getElem?_eq_none (show (List.range j).length ≤ m by simpa using Nat.le_of_not_lt h)]
+  · rw [ite_eq_right h, List.getElem?_eq_none (show (List.range j).length ≤ m by simpa using Nat.le_of_not_lt h)]
     rfl
 
 lemma odd_of_X_eq_one {n : ℕ} (h : X n = 1) : n % 2 = 1 := by

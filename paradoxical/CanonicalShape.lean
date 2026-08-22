@@ -178,7 +178,7 @@ theorem iUnion_rCircuitSlice :
     ⋃ R : ℕ, {p : ℕ × ℕ | RCircuitSlice R p.1 p.2}
       = {p : ℕ × ℕ | IsParadoxical p.1 p.2 ∧ 2 < p.2} := by
   ext ⟨j, n⟩
-  simp only [Set.mem_iUnion, Set.mem_setOf_eq]
+  simp only [Set.mem_iUnion, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨R, hs⟩
     exact ⟨hs.2.1, hs.1⟩

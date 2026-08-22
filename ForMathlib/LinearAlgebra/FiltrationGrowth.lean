@@ -78,15 +78,15 @@ theorem injective_pow (n : ℕ) : Function.Injective ((T : Module.End K V) ^ n) 
 
 theorem finiteDimensional_map (n : ℕ) :
     FiniteDimensional K (W.map ((T : Module.End K V) ^ n)) := by
-  haveI := h.finiteDimensional_gen
+  have := h.finiteDimensional_gen
   exact (Submodule.equivMapOfInjective _ (h.injective_pow n) W).finiteDimensional
 
 theorem finiteDimensional (N : ℕ) : FiniteDimensional K (S N) := by
   induction N with
   | zero => exact h.finiteDimensional_zero
   | succ n ih =>
-      haveI := ih
-      haveI := h.finiteDimensional_map (n + 1)
+      have := ih
+      have := h.finiteDimensional_map (n + 1)
       rw [h.step n]
       infer_instance
 
@@ -110,19 +110,19 @@ theorem exists_finrank_eq (hub : ∀ B : ℕ, ∃ N, B ≤ finrank K (S N)) :
   set t : ℕ → ℕ := fun N => finrank K ↥(S N ⊓ W.map ((T : Module.End K V) ^ (N + 1))) with ht
   have hkey : ∀ N, finrank K ↥(S (N + 1)) + t N = finrank K ↥(S N) + finrank K ↥W := by
     intro N
-    haveI := h.finiteDimensional N
-    haveI := h.finiteDimensional_map (N + 1)
+    have := h.finiteDimensional N
+    have := h.finiteDimensional_map (N + 1)
     simp only [ht]
     rw [h.step N, finrank_sup_add_finrank_inf_eq, h.finrank_map]
   have htle : ∀ N, t N ≤ finrank K ↥W := by
     intro N
-    haveI := h.finiteDimensional_map (N + 1)
+    have := h.finiteDimensional_map (N + 1)
     simp only [ht]
     exact (Submodule.finrank_mono inf_le_right).trans_eq (h.finrank_map _)
   have htmono : ∀ N, t N ≤ t (N + 1) := by
     intro N
-    haveI := h.finiteDimensional (N + 1)
-    haveI := h.finiteDimensional_map (N + 2)
+    have := h.finiteDimensional (N + 1)
+    have := h.finiteDimensional_map (N + 2)
     have hsub : (S N ⊓ W.map ((T : Module.End K V) ^ (N + 1))).map T ≤
         S (N + 1) ⊓ W.map ((T : Module.End K V) ^ (N + 2)) := by
       refine le_trans (Submodule.map_inf_le _) (le_inf (le_trans inf_le_left (h.map_le N)) ?_)
@@ -168,7 +168,7 @@ theorem exists_finrank_eq (hub : ∀ B : ℕ, ∃ N, B ≤ finrank K (S N)) :
     obtain ⟨N, hN⟩ := hub (finrank K (S N₀) + 1)
     rcases le_or_gt N₀ N with hle | hlt
     · rw [hstab N hle] at hN; omega
-    · haveI := h.finiteDimensional N₀
+    · have := h.finiteDimensional N₀
       have := Submodule.finrank_mono (h.monotone hlt.le)
       omega
   · intro N hN

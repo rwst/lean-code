@@ -267,13 +267,13 @@ theorem exchangeMatrix_mul_self (n : ℕ) : exchangeMatrix n * exchangeMatrix n 
   rw [Matrix.mul_apply, Matrix.one_apply]
   simp only [exchangeMatrix]
   rw [Finset.sum_eq_single (⟨n - (k:ℕ), by omega⟩ : Fin (n+1))]
-  · rw [if_pos (show (n - (k:ℕ)) + (k:ℕ) = n by omega), mul_one]
+  · rw [ite_eq_left (show (n - (k:ℕ)) + (k:ℕ) = n by omega), mul_one]
     by_cases hik : i = k
-    · subst hik; rw [if_pos (show (i:ℕ) + (n - (i:ℕ)) = n by omega), if_pos rfl]
-    · rw [if_neg (show ¬ (i:ℕ) + (n - (k:ℕ)) = n by intro h; exact hik (Fin.ext (by omega))),
-        if_neg hik]
+    · subst hik; rw [ite_eq_left (show (i:ℕ) + (n - (i:ℕ)) = n by omega), ite_eq_left rfl]
+    · rw [ite_eq_right (show ¬ (i:ℕ) + (n - (k:ℕ)) = n by intro h; exact hik (Fin.ext (by omega))),
+        ite_eq_right hik]
   · intro b _ hb
-    rw [if_neg (show ¬ (b:ℕ) + (k:ℕ) = n by
+    rw [ite_eq_right (show ¬ (b:ℕ) + (k:ℕ) = n by
       intro h; exact hb (Fin.ext (by omega : (b:ℕ) = n - (k:ℕ)))), mul_zero]
   · intro h; exact absurd (Finset.mem_univ _) h
 
@@ -282,12 +282,12 @@ power of its constant diagonal entry `F(0)` (supporting identity for Lemma 3.1.1
 @[category API, AMS 15 30, formal_uses schurToeplitz]
 theorem det_schurToeplitz (F : PowerSeries ℂ) (n : ℕ) :
     (schurToeplitz F n).det = (PowerSeries.coeff 0 F) ^ (n + 1) := by
-  rw [Matrix.det_of_lowerTriangular]
-  · simp only [schurToeplitz, le_refl, if_true, Nat.sub_self, Finset.prod_const,
+  rw [Matrix.det_of_isLowerTriangular]
+  · simp only [schurToeplitz, le_refl, ite_true, Nat.sub_self, Finset.prod_const,
       Finset.card_univ, Fintype.card_fin]
   · intro i j hij
     simp only [schurToeplitz]
-    exact if_neg (not_le.mpr (OrderDual.toDual_lt_toDual.mp hij))
+    exact ite_eq_right (not_le.mpr (OrderDual.toDual_lt_toDual.mp hij))
 
 /-- **Lemma 3.1.1 a)** (Bertin), product law: `F ↦ Fₙ` is multiplicative — `(FG)ₙ = Fₙ Gₙ`. The
 `(i,j)` entry of `Fₙ Gₙ` is the convolution `∑_{j ≤ l ≤ i} a_{i-l} b_{l-j}`, which is the `(i-j)`-th
@@ -311,8 +311,8 @@ theorem schurToeplitz_mul (F G : PowerSeries ℂ) (n : ℕ) :
       intro m _ hm
       simp only [Finset.mem_Icc, not_and, not_le] at hm
       by_cases hjm : (j:ℕ) ≤ m
-      · rw [if_neg (show ¬ m ≤ (i:ℕ) by omega), zero_mul]
-      · rw [if_neg hjm, mul_zero]
+      · rw [ite_eq_right (show ¬ m ≤ (i:ℕ) by omega), zero_mul]
+      · rw [ite_eq_right hjm, mul_zero]
     rw [← Finset.sum_subset hsub hzero]
     apply Finset.sum_nbij' (fun x => (i:ℕ) - x) (fun m => (i:ℕ) - m)
     · intro x hx; simp only [Finset.mem_range] at hx; simp only [Finset.mem_Icc]; omega
@@ -321,7 +321,7 @@ theorem schurToeplitz_mul (F G : PowerSeries ℂ) (n : ℕ) :
     · intro m hm; simp only [Finset.mem_Icc] at hm; omega
     · intro x hx; simp only [Finset.mem_range] at hx
       have hxi : x ≤ (i:ℕ) := by omega
-      rw [if_pos (Nat.sub_le _ _), if_pos (show (j:ℕ) ≤ (i:ℕ) - x by omega),
+      rw [ite_eq_left (Nat.sub_le _ _), ite_eq_left (show (j:ℕ) ≤ (i:ℕ) - x by omega),
         show (i:ℕ) - ((i:ℕ) - x) = x by omega,
         show ((i:ℕ) - x) - (j:ℕ) = (i:ℕ) - (j:ℕ) - x by omega]
   · symm
@@ -329,8 +329,8 @@ theorem schurToeplitz_mul (F G : PowerSeries ℂ) (n : ℕ) :
     intro m hm
     simp only [Finset.mem_range] at hm
     by_cases hmi : m ≤ (i:ℕ)
-    · rw [if_neg (show ¬ (j:ℕ) ≤ m by omega), mul_zero]
-    · rw [if_neg hmi, zero_mul]
+    · rw [ite_eq_right (show ¬ (j:ℕ) ≤ m by omega), mul_zero]
+    · rw [ite_eq_right hmi, zero_mul]
 
 /-- `(G⁻¹)ₙ = (Gₙ)⁻¹` for `G(0) ≠ 0`: the Toeplitz matrix of the power-series inverse is the matrix
 inverse (supporting identity, the inverse half of Lemma 3.1.1 a)). -/
@@ -366,28 +366,28 @@ theorem exchangeMatrix_schurToeplitzStar (F : PowerSeries ℂ) (n : ℕ) :
         = if n ≤ (i:ℕ)+(j:ℕ) then starRingEnd ℂ (PowerSeries.coeff ((i:ℕ)+(j:ℕ)-n) F) else 0 := by
       rw [Matrix.mul_apply, Finset.sum_eq_single (⟨n - (i:ℕ), by omega⟩ : Fin (n+1))]
       · simp only [exchangeMatrix, schurToeplitzStar, Fin.le_def]
-        rw [if_pos (show (i:ℕ) + (n - (i:ℕ)) = n by omega), one_mul]
+        rw [ite_eq_left (show (i:ℕ) + (n - (i:ℕ)) = n by omega), one_mul]
         by_cases hij : n ≤ (i:ℕ) + (j:ℕ)
-        · rw [if_pos (show n - (i:ℕ) ≤ (j:ℕ) by omega), if_pos hij,
+        · rw [ite_eq_left (show n - (i:ℕ) ≤ (j:ℕ) by omega), ite_eq_left hij,
             show (j:ℕ) - (n - (i:ℕ)) = (i:ℕ)+(j:ℕ)-n by omega]
-        · rw [if_neg (show ¬ n - (i:ℕ) ≤ (j:ℕ) by omega), if_neg hij]
+        · rw [ite_eq_right (show ¬ n - (i:ℕ) ≤ (j:ℕ) by omega), ite_eq_right hij]
       · intro b _ hb
         simp only [exchangeMatrix]
-        rw [if_neg (show ¬ (i:ℕ) + (b:ℕ) = n by
+        rw [ite_eq_right (show ¬ (i:ℕ) + (b:ℕ) = n by
           intro h; exact hb (Fin.ext (by omega : (b:ℕ) = n - (i:ℕ)))), zero_mul]
       · intro h; exact absurd (Finset.mem_univ _) h
     have hR : ((schurToeplitz F n).map (starRingEnd ℂ) * exchangeMatrix n) i j
         = if n ≤ (i:ℕ)+(j:ℕ) then starRingEnd ℂ (PowerSeries.coeff ((i:ℕ)+(j:ℕ)-n) F) else 0 := by
       rw [Matrix.mul_apply, Finset.sum_eq_single (⟨n - (j:ℕ), by omega⟩ : Fin (n+1))]
       · simp only [exchangeMatrix, schurToeplitz, Matrix.map_apply, Fin.le_def]
-        rw [if_pos (show (n - (j:ℕ)) + (j:ℕ) = n by omega), mul_one]
+        rw [ite_eq_left (show (n - (j:ℕ)) + (j:ℕ) = n by omega), mul_one]
         by_cases hij : n ≤ (i:ℕ) + (j:ℕ)
-        · rw [if_pos (show n - (j:ℕ) ≤ (i:ℕ) by omega), if_pos hij,
+        · rw [ite_eq_left (show n - (j:ℕ) ≤ (i:ℕ) by omega), ite_eq_left hij,
             show (i:ℕ) - (n - (j:ℕ)) = (i:ℕ)+(j:ℕ)-n by omega]
-        · rw [if_neg (show ¬ n - (j:ℕ) ≤ (i:ℕ) by omega), if_neg hij, map_zero]
+        · rw [ite_eq_right (show ¬ n - (j:ℕ) ≤ (i:ℕ) by omega), ite_eq_right hij, map_zero]
       · intro b _ hb
         simp only [exchangeMatrix]
-        rw [if_neg (show ¬ (b:ℕ) + (j:ℕ) = n by
+        rw [ite_eq_right (show ¬ (b:ℕ) + (j:ℕ) = n by
           intro h; exact hb (Fin.ext (by omega : (b:ℕ) = n - (j:ℕ)))), mul_zero]
       · intro h; exact absurd (Finset.mem_univ _) h
     rw [hL, hR]
@@ -574,26 +574,26 @@ theorem det_one_sub_schurToeplitz_X_mul (G : PowerSeries ℂ) (m : ℕ) :
     intro k
     simp only [schurToeplitz, Fin.le_def, Fin.val_zero]
     by_cases hk : (k : ℕ) ≤ 0
-    · rw [if_pos hk, show (0 : ℕ) - (k : ℕ) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
-    · rw [if_neg hk]
+    · rw [ite_eq_left hk, show (0 : ℕ) - (k : ℕ) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
+    · rw [ite_eq_right hk]
   have hentry : ∀ (i k : Fin (m + 1)),
       schurToeplitz (X * G) (m + 1) i.succ k.castSucc = schurToeplitz G m i k := by
     intro i k
     simp only [schurToeplitz, Fin.le_def, Fin.val_succ, Fin.val_castSucc]
     by_cases hki : (k : ℕ) ≤ (i : ℕ)
-    · rw [if_pos (by omega), if_pos hki,
+    · rw [ite_eq_left (by omega), ite_eq_left hki,
         show (i : ℕ) + 1 - (k : ℕ) = ((i : ℕ) - (k : ℕ)) + 1 by omega, coeff_succ_X_mul]
-    · rw [if_neg hki]
+    · rw [ite_eq_right hki]
       by_cases hki2 : (k : ℕ) ≤ (i : ℕ) + 1
-      · rw [if_pos hki2, show (i : ℕ) + 1 - (k : ℕ) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
-      · rw [if_neg hki2]
+      · rw [ite_eq_left hki2, show (i : ℕ) + 1 - (k : ℕ) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
+      · rw [ite_eq_right hki2]
   have hlast : ∀ (i : Fin (m + 1)),
       schurToeplitz (X * G) (m + 1) i.succ (Fin.last (m + 1)) = 0 := by
     intro i
     simp only [schurToeplitz, Fin.le_def, Fin.val_succ, Fin.val_last]
     by_cases hi : m + 1 ≤ (i : ℕ) + 1
-    · rw [if_pos hi, show (i : ℕ) + 1 - (m + 1) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
-    · rw [if_neg hi]
+    · rw [ite_eq_left hi, show (i : ℕ) + 1 - (m + 1) = 0 by omega, coeff_zero_eq_constantCoeff, hXG0]
+    · rw [ite_eq_right hi]
   rw [Matrix.det_succ_row_zero, Finset.sum_eq_single 0]
   · have h00 : (1 - schurToeplitz (X * G) (m + 1) * (schurToeplitz (X * G) (m + 1))ᴴ) 0 0 = 1 := by
       rw [Matrix.sub_apply, Matrix.one_apply_eq, Matrix.mul_apply,
@@ -612,7 +612,7 @@ theorem det_one_sub_schurToeplitz_X_mul (G : PowerSeries ℂ) (m : ℕ) :
       rw [Matrix.conjTranspose_apply, Matrix.conjTranspose_apply, hentry i k, hentry j k]
   · intro j _ hj
     have hMj : (1 - schurToeplitz (X * G) (m + 1) * (schurToeplitz (X * G) (m + 1))ᴴ) 0 j = 0 := by
-      rw [Matrix.sub_apply, Matrix.one_apply, if_neg (Ne.symm hj), Matrix.mul_apply,
+      rw [Matrix.sub_apply, Matrix.one_apply, ite_eq_right (Ne.symm hj), Matrix.mul_apply,
         Finset.sum_eq_zero (fun k _ => by rw [hrow0 k, zero_mul]), sub_zero]
     rw [hMj, mul_zero, zero_mul]
   · intro h; exact absurd (Finset.mem_univ 0) h
@@ -841,9 +841,9 @@ theorem reciprocalC_X_add_one : reciprocalC (1 + Polynomial.X) = 1 + Polynomial.
       exact Polynomial.natDegree_X_add_C _
     rw [hdeg]
     match i with
-    | 0 => simp [Polynomial.revAt, Polynomial.coeff_one, Polynomial.coeff_X]
-    | 1 => simp [Polynomial.revAt, Polynomial.coeff_one, Polynomial.coeff_X]
-    | (k + 2) => simp [Polynomial.revAt, Polynomial.coeff_one, Polynomial.coeff_X]
+    | 0 => simp [Polynomial.coeff_one, Polynomial.coeff_X]
+    | 1 => simp [Polynomial.coeff_one, Polynomial.coeff_X]
+    | (k + 2) => simp [Polynomial.coeff_one, Polynomial.coeff_X, Polynomial.revAt_eq_self_of_lt]
   rw [reciprocalC, hrev]; simp
 
 /-- **Heart of Theorem 3.1.1, necessary direction** (Bertin's `Qᵢ` device). If `G(0) ≠ 0`,
@@ -891,8 +891,8 @@ theorem exists_eq_X_pow_mul (F : PowerSeries ℂ) (hF : F ≠ 0) :
   · ext m
     rw [PowerSeries.coeff_X_pow_mul']
     by_cases h : n ≤ m
-    · rw [if_pos h, coeff_mk, Nat.add_sub_cancel' h]
-    · rw [if_neg h]; exact hlt m (by omega)
+    · rw [ite_eq_left h, coeff_mk, Nat.add_sub_cancel' h]
+    · rw [ite_eq_right h]; exact hlt m (by omega)
   · rw [← coeff_zero_eq_constantCoeff, coeff_mk]; simpa using hco
 
 /-- If the first `m + 1` coefficients of `F` vanish, both Schur–Toeplitz matrices of order `m + 1` are
@@ -1059,7 +1059,7 @@ theorem eq_X_pow_mul_reciprocalC_div_iff (F : PowerSeries ℂ) :
       · have hn0 : P.natDegree = 0 := by omega
         have hco : ∀ k ≤ P.natDegree + r - 1, PowerSeries.coeff k F = 0 := by
           intro k hk
-          rw [hFG, PowerSeries.coeff_X_pow_mul', if_neg (by omega)]
+          rw [hFG, PowerSeries.coeff_X_pow_mul', ite_eq_right (by omega)]
         rw [schurDelta_eq_one_of_coeff_eq_zero F (P.natDegree + r - 1) hco]
         exact one_ne_zero
   · rintro ⟨r, n₀, hrun, hprev⟩
@@ -1075,7 +1075,7 @@ theorem eq_X_pow_mul_reciprocalC_div_iff (F : PowerSeries ℂ) :
       have h1 : schurDelta F (n₀ + r) = 1 := by
         apply schurDelta_eq_one_of_coeff_eq_zero
         intro k hk
-        rw [hFR, PowerSeries.coeff_X_pow_mul', if_neg (by omega)]
+        rw [hFR, PowerSeries.coeff_X_pow_mul', ite_eq_right (by omega)]
       rw [hrun (n₀ + r) le_rfl] at h1
       exact zero_ne_one h1
     have hrunR : ∀ m, n₀ + r - r' ≤ m → schurDelta R m = 0 := by

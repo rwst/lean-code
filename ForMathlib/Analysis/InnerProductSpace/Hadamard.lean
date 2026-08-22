@@ -36,7 +36,7 @@ variable {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpac
 orthonormal basis `a`, is bounded in norm by the product of the norms of the `v i`. -/
 theorem norm_det_le_prod_norm (a : OrthonormalBasis (Fin n) 𝕜 E) (v : Fin n → E) :
     ‖a.toBasis.det v‖ ≤ ∏ i, ‖v i‖ := by
-  haveI : FiniteDimensional 𝕜 E := Module.Finite.of_basis a.toBasis
+  have : FiniteDimensional 𝕜 E := Module.Finite.of_basis a.toBasis
   have hcard : Module.finrank 𝕜 E = Fintype.card (Fin n) := Module.finrank_eq_card_basis a.toBasis
   let b : OrthonormalBasis (Fin n) 𝕜 E := gramSchmidtOrthonormalBasis hcard v
   have hgs : b.toBasis.det v = ∏ i, ⟪b i, v i⟫_𝕜 := gramSchmidtOrthonormalBasis_det hcard v

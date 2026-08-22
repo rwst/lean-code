@@ -240,7 +240,7 @@ theorem cycleDen_ne_zero (n : ℕ) (v : ℕ → ℕ) (hn : 0 < n) : cycleDen n v
 so its reduced denominator is odd. -/
 @[category research solved, AMS 11 37, ref "Lag90", group "lag90_rational_cycles"]
 theorem xCycle_mem_Q2 (n : ℕ) (v : ℕ → ℕ) (hn : 0 < n) : xCycle n v ∈ Q2 := by
-  rw [Q2, Set.mem_setOf_eq]
+  rw [Q2, Set.mem_ofPred_eq]
   have heq : xCycle n v = Rat.divInt (cycleSumNat n v : ℤ) (cycleDenInt n v) := by
     unfold xCycle
     rw [cycleSum_eq_cast, cycleDen_eq_cast, Rat.divInt_eq_div]

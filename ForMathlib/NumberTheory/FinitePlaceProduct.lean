@@ -78,11 +78,12 @@ namespace FinitePlace
 
 /-- A finite place is bounded by `1` on the image of `ℤ`. -/
 theorem apply_intCast_le_one (w : FinitePlace K) (n : ℤ) : w ((n : K)) ≤ 1 :=
-  IsNonarchimedean.apply_intCast_le_one (FinitePlace.add_le w)
+  IsNonarchimedean.apply_intCast_le_one (map_zero_le w 1) (map_one w) (map_neg_eq_map w)
+    (FinitePlace.add_le w)
 
 /-- A finite place is bounded by `1` on the image of `ℕ`. -/
 theorem apply_natCast_le_one (w : FinitePlace K) (n : ℕ) : w ((n : K)) ≤ 1 :=
-  IsNonarchimedean.apply_natCast_le_one (FinitePlace.add_le w)
+  IsNonarchimedean.apply_natCast_le_one (map_zero_le w 1) (map_one w) (FinitePlace.add_le w)
 
 /-- If a finite place is trivial on a product of natural numbers, it is trivial on each factor:
 both values are at most `1` and they multiply to `1`. -/

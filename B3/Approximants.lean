@@ -10,7 +10,7 @@ open BL Function Filter
 theorem Φ_isometry (x y : ℤ_[2]) : ‖Φ x - Φ y‖ = ‖x - y‖ := by
   have hsb : Solenoidal (⇑Φ) ∧ Function.Bijective (⇑Φ) :=
     ⟨Φ_solenoidal, Φ.injective, Φ.surjective⟩
-  have hiso := ((BL.corollary_A3 (⇑Φ)).out 0 2).mp hsb
+  have hiso := ((BL.corollary_A3 (⇑Φ)).out 1 3).mp hsb
   exact hiso x y
 
 @[category API, AMS 11, ref "BL96"]

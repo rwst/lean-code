@@ -122,7 +122,7 @@ theorem finite_of_pigeonhole (R : ℕ) (hR : 0 < R) (β Pw C : ℝ)
   -- finiteness: bounded length × bounded start (RT.paradoxical_start_le)
   apply Set.Finite.subset (Set.finite_Icc ((0, 0) : ℕ × ℕ) (J, 2 ^ J * 3 ^ J))
   rintro ⟨j, n⟩ hp
-  simp only [Set.mem_setOf_eq] at hp
+  simp only [Set.mem_ofPred_eq] at hp
   have hjJ : j ≤ J := hlen j n hp
   have hnB : n ≤ 2 ^ J * 3 ^ J :=
     le_trans (paradoxical_start_le j n (hpar j n hp) (hn j n hp))

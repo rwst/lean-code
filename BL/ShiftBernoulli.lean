@@ -238,7 +238,7 @@ private noncomputable def cylRealizer (N : ℕ) (d : (i : Finset.Iic N) → ZMod
 
 private theorem dig_cylRealizer (N : ℕ) (d : (i : Finset.Iic N) → ZMod 2) (i : Finset.Iic N) :
     dig (cylRealizer N d) ↑i = d i := by
-  rw [cylRealizer, dig_recd, dif_pos (Finset.mem_Iic.mp i.2)]
+  rw [cylRealizer, dig_recd, dite_eq_left (Finset.mem_Iic.mp i.2)]
 
 /-! ### Measurability (needs the Borel structure) -/
 
@@ -275,7 +275,7 @@ private theorem measurable_toZMod : Measurable (PadicInt.toZMod : ℤ_[2] → ZM
   have h0 : (PadicInt.toZMod (p := 2)) ⁻¹' {0} = {x : ℤ_[2] | ‖x‖ < 1} := by
     ext x
     rw [Set.mem_preimage, Set.mem_singleton_iff, ← RingHom.mem_ker, ker_toZMod,
-      PadicInt.maximalIdeal_eq_span_p, Ideal.mem_span_singleton, Set.mem_setOf_eq,
+      PadicInt.maximalIdeal_eq_span_p, Ideal.mem_span_singleton, Set.mem_ofPred_eq,
       ← PadicInt.norm_lt_one_iff_dvd]
   rw [hset]
   exact (measurable_const_add (-r)) (by rw [h0]; exact (isOpen_lt continuous_norm
@@ -356,7 +356,7 @@ private theorem map_proj_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsPro
 /-- The digit map carries Haar to the i.i.d. uniform product measure. -/
 private theorem map_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
     μ.map dig = Measure.infinitePi (fun _ : ℕ => uZMod2) := by
-  haveI : IsProbabilityMeasure (μ.map dig) :=
+  have : IsProbabilityMeasure (μ.map dig) :=
     Measure.isProbabilityMeasure_map measurable_dig.aemeasurable
   refine ext_of_generate_finite _ generateFrom_measurableCylinders.symm
     isPiSystem_measurableCylinders ?_ (by rw [measure_univ, measure_univ])

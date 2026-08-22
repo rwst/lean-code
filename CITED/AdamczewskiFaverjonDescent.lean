@@ -484,7 +484,7 @@ theorem numberField_adjoin_finset (S : Finset K) (hS : ∀ x ∈ S, IsIntegral �
     NumberField ↥(IntermediateField.adjoin ℚ (S : Set K)) where
   to_charZero := inferInstance
   to_finiteDimensional := by
-    haveI : Finite (S : Set K) := S.finite_toSet.to_subtype
+    have : Finite (S : Set K) := S.finite_toSet.to_subtype
     exact IntermediateField.finiteDimensional_adjoin hS
 
 end NumberFieldAdjoin

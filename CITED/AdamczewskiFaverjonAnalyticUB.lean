@@ -299,7 +299,7 @@ theorem eval_map_trunc (φ : K →+* ℂ) (p : ℕ) (g : PowerSeries K) (u : ℂ
         lt_of_le_of_lt Polynomial.natDegree_map_le (PowerSeries.natDegree_trunc_lt g m)
       rw [Polynomial.eval_eq_sum_range' hdeg]
       refine Finset.sum_congr rfl fun n hn => ?_
-      rw [Polynomial.coeff_map, PowerSeries.coeff_trunc, if_pos (Finset.mem_range.1 hn)]
+      rw [Polynomial.coeff_map, PowerSeries.coeff_trunc, ite_eq_left (Finset.mem_range.1 hn)]
 
 /-- **The truncation, read as a function**: `E_p(Y,u) = ∑_{n<p} eₙ(Y)uⁿ`. -/
 @[category research solved, AMS 13, ref "AF22", group "af_mahler_alternative"]

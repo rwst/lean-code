@@ -86,7 +86,7 @@ theorem syr_odd (u : ℕ) : syr u % 2 = 1 := by
 theorem syrWeight_odd {u : ℕ} (h : u % 2 = 1) :
     syrWeight u = stepWeight u - (syrHalvings u : ℝ) * Real.log 2 := by
   unfold syrWeight stepWeight
-  rw [if_pos h]; ring
+  rw [ite_eq_left h]; ring
 
 /-! ### The constructor -/
 

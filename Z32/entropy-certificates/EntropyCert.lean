@@ -592,7 +592,7 @@ theorem exists_state_path (h : c.ok = true) {y : ℕ → ℝ} {s : ℕ → ℤ}
         exists_edge h ih.1 (carry_eq h horb n) (hlive n ih.1 ih.2)
       have hpick : (A n, s n, A (n + 1)) ∈ c.ed := by
         rw [hAs n, hgdef]
-        simp only [dif_pos hex]
+        simp only [dite_eq_left hex]
         exact hex.choose_spec
       refine ⟨(edge_parts h hpick).2.1, step_lt h (edge_parts h hpick).2.2.2.2 ih.2
         (horb.1 (n + 1)).2 ?_⟩
@@ -601,7 +601,7 @@ theorem exists_state_path (h : c.ok = true) {y : ℕ → ℝ} {s : ℕ → ℤ}
   have hex : ∃ w, (A n, s n, w) ∈ c.ed :=
     exists_edge h (inv n).1 (carry_eq h horb n) (hlive n (inv n).1 (inv n).2)
   rw [hAs n, hgdef]
-  simp only [dif_pos hex]
+  simp only [dite_eq_left hex]
   exact hex.choose_spec
 
 /-! ## The bridge to `PathGrowth`
@@ -860,7 +860,7 @@ theorem phiModel_le_of_card_le {p q : ℕ} {U : Set ℝ} {C lam : ℝ}
   refine le_trans (Filter.limsup_le_limsup (Filter.Eventually.of_forall hle) ?_ ?_)
     (le_of_eq hg.limsup_eq)
   · refine Filter.IsBoundedUnder.isCoboundedUnder_le ⟨0, ?_⟩
-    simp only [Filter.eventually_map, ge_iff_le]
+    simp only [Filter.eventually_map]
     filter_upwards with n
     exact div_nonneg (Real.log_natCast_nonneg _) (Nat.cast_nonneg n)
   · exact hg.isBoundedUnder_le

@@ -76,7 +76,7 @@ theorem exists_principal_part (p : ℕ) [Fact p.Prime] (y : ℚ_[p]) :
   have key : ‖(p : ℚ_[p]) ^ k * y - (m : ℚ_[p])‖ < ((p : ℝ) ^ k)⁻¹ := by
     rw [dist_eq_norm, PadicInt.norm_def] at hm
     have hcoe : ((x - (m : ℤ_[p]) : ℤ_[p]) : ℚ_[p]) = (p : ℚ_[p]) ^ k * y - (m : ℚ_[p]) := by
-      rw [hx]; push_cast; ring
+      rw [hx]; rfl
     rwa [hcoe] at hm
   have hpk0 : ((p : ℚ_[p]) ^ k) ≠ 0 := by
     apply pow_ne_zero

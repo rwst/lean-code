@@ -250,7 +250,7 @@ instance decVecGe (x y : Fin d → ℕ) : Decidable (vecGe x y) := by unfold vec
 
 /-- The matrix order `matGe` is decidable — a finite entrywise check. -/
 instance decMatGe (M N : Matrix (Fin d) (Fin d) ℕ) : Decidable (matGe M N) := by
-  unfold matGe; infer_instance
+  unfold matGe; exact @Fintype.decidableForallFintype _ _ (fun _ => Fintype.decidableForallFintype) _
 
 /-- The strict vector order `vecGt` is decidable. -/
 instance decVecGt [NeZero d] (x y : Fin d → ℕ) : Decidable (vecGt x y) := by

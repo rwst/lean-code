@@ -27,7 +27,7 @@ theorem Set.ncard_le_mul_ncard_image {α β : Type*} {S : Set α} (hS : S.Finite
   apply Finset.card_le_mul_card_image hS.toFinset H
   intro b _
   have hcoe : (↑(hS.toFinset.filter (fun a => f a = b)) : Set α) = {a ∈ S | f a = b} := by
-    ext x; simp only [Finset.coe_filter, Set.mem_setOf_eq, Set.Finite.mem_toFinset]
+    ext x; simp only [Finset.coe_filter, Set.mem_ofPred_eq, Set.Finite.mem_toFinset]
   have := hfib b
   rwa [← hcoe, Set.ncard_coe_finset] at this
 

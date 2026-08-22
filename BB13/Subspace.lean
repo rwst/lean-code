@@ -90,7 +90,7 @@ by the caller (any `‖(3/2)ⁿ‖`-smallness event — a genuine `(3/4)ⁿ`-fai
 theorem mem_approxSet_of_distBound {n : ℕ} (hn1 : 1 ≤ n) {ε : ℝ}
     (hlt : distToNearestInt (((3 : ℝ) / 2) ^ n) < ((3 : ℝ) ^ n) ^ (-ε)) :
     toTriple n ∈ CZ.approxSet 1 ε := by
-  rw [CZ.approxSet, Set.mem_setOf_eq, toTriple]
+  rw [CZ.approxSet, Set.mem_ofPred_eq, toTriple]
   have hval : CZ.sval 1 1 (-(n : ℤ)) (n : ℤ) = (3 / 2 : ℚ) ^ n := by
     rw [CZ.sval, zpow_neg, zpow_natCast, zpow_natCast, div_pow]; push_cast; ring
   have hpos : 0 < ((3 / 2 : ℚ) ^ n).distToNearestInt := by

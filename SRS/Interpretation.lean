@@ -492,7 +492,7 @@ theorem theorem_2_15_relative.{u} {α : Type u} (R S : System α) :
         (∀ ℓ r, S ℓ r → ∀ x, 𝔄.ge (strInterp 𝔄.den ℓ x) (strInterp 𝔄.den r x)) := by
   refine ⟨exists_extendedMonotone_of_terminatingRelativeTo R S, ?_⟩
   rintro ⟨A, 𝔄, hne, hR, hS⟩
-  haveI := hne
+  have := hne
   exact terminatingRelativeTo_of_extendedMonotone 𝔄 hR hS
 
 /-- **Theorem 2.15** ([EWZ08, Theorem 2]), top-termination form. `SN(R_top / S)` — relative
@@ -511,7 +511,7 @@ theorem theorem_2_15_top.{u} {α : Type u} (R S : System α) :
         (∀ ℓ r, S ℓ r → ∀ x, 𝔄.ge (strInterp 𝔄.den ℓ x) (strInterp 𝔄.den r x)) := by
   refine ⟨exists_weaklyMonotone_of_topTerminatingRelativeTo R S, ?_⟩
   rintro ⟨A, 𝔄, hne, hR, hS⟩
-  haveI := hne
+  have := hne
   exact topTerminatingRelativeTo_of_weaklyMonotone 𝔄 hR hS
 
 end StringRewriting

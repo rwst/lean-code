@@ -234,7 +234,7 @@ theorem infinite_mapClusterPt_one_div_minFac :
       {x : ℝ | MapClusterPt x atTop (fun n => 1 / (Nat.minFac n : ℝ))} := by
     rintro _ ⟨q, hq, rfl⟩
     exact hcluster q hq
-  exact ((Set.infinite_image_iff hInj).2 Nat.infinite_setOf_prime).mono hsub
+  exact ((Set.infinite_image_iff hInj).2 Nat.infinite_setOfPred_prime).mono hsub
 
 /-- The sequence `(1/p(n))` is **not dense** in `[-1/2, 1/2)`: every value is `≥ 0` (a reciprocal
 of a positive integer), so its closure misses the whole subinterval `[-1/2, 0)`. -/

@@ -114,7 +114,7 @@ trace is integral over `ℤ` (`Algebra.isIntegral_trace`) and lies in `ℚ`, hen
 theorem trace_smul_pow_isInt (θ : ℝ) (hθ : IsIntegral ℤ θ) (μ : ℚ⟮θ⟯) (hμ : IsIntegral ℤ μ)
     (n : ℕ) : ∃ m : ℤ, Algebra.trace ℚ ℚ⟮θ⟯ (μ * AdjoinSimple.gen ℚ θ ^ n) = (m : ℚ) := by
   have hintℚ : IsIntegral ℚ θ := hθ.tower_top
-  haveI hfd : FiniteDimensional ℚ ℚ⟮θ⟯ := adjoin.finiteDimensional hintℚ
+  have hfd : FiniteDimensional ℚ ℚ⟮θ⟯ := adjoin.finiteDimensional hintℚ
   have hgenInt : IsIntegral ℤ (AdjoinSimple.gen ℚ θ) := by
     have hf : Function.Injective ((IntermediateField.val ℚ⟮θ⟯).restrictScalars ℤ) :=
       (IntermediateField.val ℚ⟮θ⟯).injective
@@ -148,7 +148,7 @@ theorem pisot_smul_pow_approx_int (θ : ℝ) (hθ : θ ∈ S) (μ : ℚ⟮θ⟯)
   classical
   obtain ⟨hθ1, hθint, hθconj⟩ := hθ
   have hintℚ : IsIntegral ℚ θ := hθint.tower_top
-  haveI hfd : FiniteDimensional ℚ ℚ⟮θ⟯ := adjoin.finiteDimensional hintℚ
+  have hfd : FiniteDimensional ℚ ℚ⟮θ⟯ := adjoin.finiteDimensional hintℚ
   set g : ℚ⟮θ⟯ := AdjoinSimple.gen ℚ θ with hg
   have hgenInt : IsIntegral ℤ g := by
     have hf : Function.Injective ((IntermediateField.val ℚ⟮θ⟯).restrictScalars ℤ) :=

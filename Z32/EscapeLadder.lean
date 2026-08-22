@@ -754,7 +754,7 @@ theorem exists_den_of_finite_limitSet {ξ : ℝ} (hfin : (limitSet ((3 : ℝ) / 
 theorem exists_common_den {ξ : ℝ} (hfin : (limitSet ((3 : ℝ) / 2) ξ).Finite) :
     ∃ D : ℤ, 0 < D ∧ ∀ a ∈ limitSet ((3 : ℝ) / 2) ξ, ∃ z : ℤ, (D : ℝ) * a = z := by
   classical
-  haveI : Fintype ↥(limitSet ((3 : ℝ) / 2) ξ) := hfin.fintype
+  have : Fintype ↥(limitSet ((3 : ℝ) / 2) ξ) := hfin.fintype
   choose Dn hDpos hDz using fun (x : ↥(limitSet ((3 : ℝ) / 2) ξ)) =>
     exists_den_of_finite_limitSet hfin x.2
   refine ⟨∏ x : ↥(limitSet ((3 : ℝ) / 2) ξ), Dn x, Finset.prod_pos fun x _ => hDpos x, ?_⟩
@@ -782,12 +782,12 @@ theorem eventually_near_limitSet {ξ : ℝ} {ε : ℝ}
       Set.Icc (0 : ℝ) 1 ∩ ⋂ a ∈ limitSet ((3 : ℝ) / 2) ξ, {x : ℝ | ε ≤ |x - a|} := by
     refine hcon.mono fun n hn => ?_
     refine ⟨⟨Int.fract_nonneg _, (Int.fract_lt_one _).le⟩, ?_⟩
-    simp only [Set.mem_iInter, Set.mem_setOf_eq]
+    simp only [Set.mem_iInter, Set.mem_ofPred_eq]
     push Not at hn
     exact fun a ha => hn a ha
   obtain ⟨y, hyC, hyL⟩ := mem_limitSet_of_frequently hCcompact hfreq
   have h := hyC.2
-  simp only [Set.mem_iInter, Set.mem_setOf_eq] at h
+  simp only [Set.mem_iInter, Set.mem_ofPred_eq] at h
   have := h y hyL
   simp only [sub_self, abs_zero] at this
   linarith
@@ -856,7 +856,7 @@ rung is false without the hypothesis — and the limit set is not infinite for t
 @[category test, AMS 11 37, ref "Vij40", group "z32_escape_ladder"]
 theorem limitSet_zero : limitSet ((3 : ℝ) / 2) 0 = {0} := by
   ext y
-  simp only [limitSet, Set.mem_setOf_eq, Set.mem_singleton_iff]
+  simp only [limitSet, Set.mem_ofPred_eq, Set.mem_singleton_iff]
   constructor
   · rintro ⟨φ, -, htend⟩
     exact (by simpa using htend : (0 : ℝ) = y).symm

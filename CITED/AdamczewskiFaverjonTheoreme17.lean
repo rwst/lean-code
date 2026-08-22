@@ -139,7 +139,7 @@ theorem theoreme_1_7_i {q : ℕ} (hq : 2 ≤ q) {r : ℝ} (hr0 : 0 < r) (hr1 : r
   rw [sum_dblIdx j _ hvanish] at heval
   refine ⟨fun i => (w' (dblEmb ι j i)).eval α, hw'0, fun i hi => ?_, ?_⟩
   · refine hw'I _ ?_
-    simp only [Set.mem_setOf_eq, dblExt_dblEmb]
+    simp only [Set.mem_ofPred_eq, dblExt_dblEmb]
     exact hi
   · simpa only [ha, aeval_algebraMap_eq, dblIterSol_dblEmb] using heval
 

@@ -138,7 +138,7 @@ theorem dshift_le_apply {d : ℕ → ℕ} (hd : StrictMono d) (i : ℕ) : i ≤ 
 theorem parity_bval {d : ℕ → ℕ} (hd : StrictMono d) :
     parity (bval d) = if d 0 = 0 then 1 else 0 := by
   by_cases h0 : d 0 = 0
-  · simp only [h0, if_true]
+  · simp only [h0, ite_true]
     have hpeel : bval d = 1 + ∑' i, (2 : ℤ_[2]) ^ (d (i + 1)) := by
       rw [bval, (bval_summable hd).tsum_eq_zero_add, h0, pow_zero]
     have hdvd : (2 : ℤ_[2]) ∣ (bval d - 1) := by
@@ -150,7 +150,7 @@ theorem parity_bval {d : ℕ → ℕ} (hd : StrictMono d) :
       have : (1 : ℤ_[2]) = ((1 : ℕ) : ℤ_[2]) := by norm_num
       rw [this, parity_natCast, CC.X_eq_mod]
     rw [parity_eq_of_two_dvd_sub hdvd, hp1]
-  · simp only [h0, if_false]
+  · simp only [h0, ite_false]
     have hpos : ∀ i, 1 ≤ d i := fun i => by
       rcases Nat.eq_zero_or_pos i with rfl | hi
       · omega
@@ -169,8 +169,8 @@ theorem parity_bval {d : ℕ → ℕ} (hd : StrictMono d) :
 theorem bval_shift {d : ℕ → ℕ} (hd : StrictMono d) : S (bval d) = bval (dshift d) := by
   have key : (2 : ℤ_[2]) * bval (dshift d) = bval d - (parity (bval d) : ℤ_[2]) := by
     by_cases h0 : d 0 = 0
-    · have hp : parity (bval d) = 1 := by rw [parity_bval hd, if_pos h0]
-      have hds : dshift d = fun i => d (i + 1) - 1 := by unfold dshift; rw [if_pos h0]
+    · have hp : parity (bval d) = 1 := by rw [parity_bval hd, ite_eq_left h0]
+      have hds : dshift d = fun i => d (i + 1) - 1 := by unfold dshift; rw [ite_eq_left h0]
       have hpos : ∀ i, 1 ≤ d (i + 1) := fun i => by have := hd (show 0 < i + 1 by omega); omega
       have hsum : Summable (fun i => (2 : ℤ_[2]) ^ (d (i + 1) - 1)) :=
         two_pow_summable (fun i => by have := hd.le_apply (x := i + 1); omega)
@@ -178,8 +178,8 @@ theorem bval_shift {d : ℕ → ℕ} (hd : StrictMono d) : S (bval d) = bval (ds
       simp only [bval]
       rw [← tsum_two_pow_eq_two_mul hpos hsum, (bval_summable hd).tsum_eq_zero_add, h0, pow_zero,
         add_sub_cancel_left]
-    · have hp : parity (bval d) = 0 := by rw [parity_bval hd, if_neg h0]
-      have hds : dshift d = fun i => d i - 1 := by unfold dshift; rw [if_neg h0]
+    · have hp : parity (bval d) = 0 := by rw [parity_bval hd, ite_eq_right h0]
+      have hds : dshift d = fun i => d i - 1 := by unfold dshift; rw [ite_eq_right h0]
       have hpos : ∀ i, 1 ≤ d i := fun i => by have := strictMono_add_le hd i; omega
       have hsum : Summable (fun i => (2 : ℤ_[2]) ^ (d i - 1)) :=
         two_pow_summable (fun i => by have := strictMono_add_le hd i; omega)
@@ -229,7 +229,7 @@ theorem parity_Φval {d : ℕ → ℕ} (hd : StrictMono d) :
     parity (Φval d) = if d 0 = 0 then 1 else 0 := by
   rw [Φval, parity_neg]
   by_cases h0 : d 0 = 0
-  · simp only [h0, if_true]
+  · simp only [h0, ite_true]
     have hpeel : (∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i))
         = Ring.inverse 3 + ∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 2) * 2 ^ (d (i + 1)) := by
       rw [(wval_summable hd).tsum_eq_zero_add]
@@ -242,7 +242,7 @@ theorem parity_Φval {d : ℕ → ℕ} (hd : StrictMono d) :
         (coeff_two_pow_summable (fun i => (norm_inv_three_pow _).le)
           (fun i => by have := hd.le_apply (x := i + 1); omega))
     rw [parity_eq_of_two_dvd_sub hdvd, parity_inv_three]
-  · simp only [h0, if_false]
+  · simp only [h0, ite_false]
     have hdvd : (2 : ℤ_[2]) ∣ ((∑' i, (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i)) - 0) := by
       rw [sub_zero]
       exact two_dvd_tsum_of_pos (fun i => by have := strictMono_add_le hd i; omega)
@@ -288,8 +288,8 @@ theorem Φval_step {d : ℕ → ℕ} (hd : StrictMono d) : T₂ (Φval d) = Φva
   have key : (2 : ℤ_[2]) * Φval (dshift d) = numer (Φval d) := by
     rw [numer]
     by_cases h0 : d 0 = 0
-    · have hp : parity (Φval d) = 1 := by rw [parity_Φval hd, if_pos h0]
-      have hds : dshift d = fun i => d (i + 1) - 1 := by unfold dshift; rw [if_pos h0]
+    · have hp : parity (Φval d) = 1 := by rw [parity_Φval hd, ite_eq_left h0]
+      have hds : dshift d = fun i => d (i + 1) - 1 := by unfold dshift; rw [ite_eq_left h0]
       have hpos : ∀ i, 1 ≤ d (i + 1) := fun i => by have := hd (show 0 < i + 1 by omega); omega
       have hsumL : Summable (fun i => (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d (i + 1) - 1)) :=
         coeff_two_pow_summable (fun i => (norm_inv_three_pow _).le)
@@ -301,8 +301,8 @@ theorem Φval_step {d : ℕ → ℕ} (hd : StrictMono d) : T₂ (Φval d) = Φva
       rw [mul_neg, ← tsum_coeff_eq_two_mul hpos hsumL, neg_mul, mul_comm _ (3 : ℤ_[2]),
         three_mul_wsum hd, hsumP.tsum_eq_zero_add, pow_zero, one_mul, h0, pow_zero]
       ring
-    · have hp : parity (Φval d) = 0 := by rw [parity_Φval hd, if_neg h0]
-      have hds : dshift d = fun i => d i - 1 := by unfold dshift; rw [if_neg h0]
+    · have hp : parity (Φval d) = 0 := by rw [parity_Φval hd, ite_eq_right h0]
+      have hds : dshift d = fun i => d i - 1 := by unfold dshift; rw [ite_eq_right h0]
       have hpos : ∀ i, 1 ≤ d i := fun i => by have := strictMono_add_le hd i; omega
       have hsumL : Summable (fun i => (Ring.inverse (3 : ℤ_[2])) ^ (i + 1) * 2 ^ (d i - 1)) :=
         coeff_two_pow_summable (fun i => (norm_inv_three_pow _).le)

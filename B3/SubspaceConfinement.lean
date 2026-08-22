@@ -121,7 +121,7 @@ theorem subspace_pigeonhole_infinite {m : ℕ} (hm : 2 ≤ m)
   have hsub : Subtype.val '' {k : ↥I | (⟨g k, hgW k⟩ : {U // U ∈ W}) = U₀} ⊆
       {k | x k ∈ (U₀ : Submodule ℚ (Fin m → ℚ))} := by
     rintro _ ⟨k, hk, rfl⟩
-    simp only [Set.mem_setOf_eq] at hk ⊢
+    simp only [Set.mem_ofPred_eq] at hk ⊢
     have hgk : g k = (U₀ : Submodule ℚ (Fin m → ℚ)) := congrArg Subtype.val hk
     rw [← hgk]; exact hgmem k
   exact ((Set.infinite_image_iff Subtype.val_injective.injOn).mpr hU₀).mono hsub

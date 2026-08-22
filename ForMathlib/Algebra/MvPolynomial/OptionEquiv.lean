@@ -71,14 +71,14 @@ theorem coeff_coeff_optionEquivRight (Q : MvPolynomial (Option σ) R) (ν : σ �
       rw [optionEquivRight_monomial, coeff_monomial, coeff_monomial]
       by_cases hν : μ.some = ν
       · subst hν
-        rw [if_pos rfl, Polynomial.coeff_monomial]
+        rw [ite_eq_left rfl, Polynomial.coeff_monomial]
         by_cases ha : μ none = a
         · subst ha
-          rw [if_pos rfl, if_pos (Finsupp.optionElim_some μ).symm]
-        · rw [if_neg ha, if_neg]
+          rw [ite_eq_left rfl, ite_eq_left (Finsupp.optionElim_some μ).symm]
+        · rw [ite_eq_right ha, ite_eq_right]
           intro h
           exact ha (by rw [h, Finsupp.optionElim_apply_none])
-      · rw [if_neg hν, Polynomial.coeff_zero, eq_comm, if_neg]
+      · rw [ite_eq_right hν, Polynomial.coeff_zero, eq_comm, ite_eq_right]
         intro h
         exact hν (by rw [h, Finsupp.some_optionElim])
   | add p q hp hq => simp only [map_add, Polynomial.coeff_add, coeff_add, hp, hq]

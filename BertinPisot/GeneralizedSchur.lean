@@ -142,8 +142,8 @@ theorem genSchurQ_decomp (k : ℕ) (cps : PowerSeries ℂ) :
   ext j
   rw [map_add, coeff_X_pow_mul']
   by_cases hj : k ≤ j
-  · rw [if_pos hj, genSchurR, coeff_mk, Nat.sub_add_cancel hj, map_sub]; ring
-  · rw [if_neg hj, add_zero, genSchurQ, coeff_mk, if_pos (not_le.mp hj)]
+  · rw [ite_eq_left hj, genSchurR, coeff_mk, Nat.sub_add_cancel hj, map_sub]; ring
+  · rw [ite_eq_right hj, add_zero, genSchurQ, coeff_mk, ite_eq_left (not_le.mp hj)]
 
 /-- Bertin's identity for the numerator (proof of **Lemma 3.3.1 i**):
 `F(Q − z^k) − a₀Q = z^k(a₀ − F)(1 + R)`, i.e. `genSchurNum k cps F = −(z^k((F − a₀)(1 + R)))`. A
@@ -272,7 +272,7 @@ theorem genSchur_H_eq {F cps : PowerSeries ℂ} {k : ℕ}
     intro h
     apply hak
     have hc : coeff k (F - PowerSeries.C a₀) = 0 := by rw [h]; exact map_zero _
-    rwa [map_sub, PowerSeries.coeff_C, if_neg hk0, sub_zero] at hc
+    rwa [map_sub, PowerSeries.coeff_C, ite_eq_right hk0, sub_zero] at hc
   have hne : (X : PowerSeries ℂ) ^ k * (F - PowerSeries.C a₀) ≠ 0 :=
     mul_ne_zero (pow_ne_zero k PowerSeries.X_ne_zero) hFa0
   have key : (X ^ k * (F - PowerSeries.C a₀)) * (PowerSeries.C (starRingEnd ℂ a₀) * R * H)
@@ -297,7 +297,7 @@ theorem genSchurDen_order_eq {F cps : PowerSeries ℂ} {k : ℕ}
   have hge : (↑k : ℕ∞) ≤ (F - PowerSeries.C (constantCoeff F)).order := by
     obtain ⟨G, hG⟩ := hk; rw [hG, order_mul, order_X_pow]; exact le_self_add
   have hFord : (F - PowerSeries.C (constantCoeff F)).order = ↑k :=
-    le_antisymm (order_le k (by rw [map_sub, coeff_C, if_neg hk0, sub_zero]; exact hak)) hge
+    le_antisymm (order_le k (by rw [map_sub, coeff_C, ite_eq_right hk0, sub_zero]; exact hak)) hge
   simp only [order_mul, order_X_pow, hcord, hFord]
   rw [zero_add, ← add_assoc, ← Nat.cast_add, ← two_mul]
 
@@ -339,7 +339,7 @@ theorem genSchurDen_eq_zero_iff {F cps : PowerSeries ℂ} {k : ℕ}
   set γ₀ := constantCoeff F with hγ₀def
   set Q := genSchurQ k cps with hQdef
   have hQ0 : constantCoeff Q ≠ 0 := by
-    rw [hQdef, ← coeff_zero_eq_constantCoeff, genSchurQ, coeff_mk, if_pos (Nat.pos_of_ne_zero hk0)]
+    rw [hQdef, ← coeff_zero_eq_constantCoeff, genSchurQ, coeff_mk, ite_eq_left (Nat.pos_of_ne_zero hk0)]
     exact hc0
   have hQinv : Q * Q⁻¹ = 1 := PowerSeries.mul_inv_cancel Q hQ0
   have hγ : PowerSeries.C γ₀ * PowerSeries.C (starRingEnd ℂ γ₀) = 1 := by
@@ -369,7 +369,7 @@ theorem schurDelta_C_eq (γ₀ : ℂ) (n : ℕ) :
     rw [schurToeplitz, Matrix.smul_apply, Matrix.one_apply, PowerSeries.coeff_C, smul_eq_mul]
     rcases eq_or_ne i j with h | h
     · subst h; simp
-    · rw [if_neg h, mul_zero]
+    · rw [ite_eq_right h, mul_zero]
       split_ifs with ha hb
       · exact absurd (Fin.ext (by omega : (i : ℕ) = j)) h
       · rfl
@@ -380,7 +380,7 @@ theorem schurDelta_C_eq (γ₀ : ℂ) (n : ℕ) :
     rw [schurToeplitzStar, Matrix.smul_apply, Matrix.one_apply, PowerSeries.coeff_C, smul_eq_mul]
     rcases eq_or_ne i j with h | h
     · subst h; simp
-    · rw [if_neg h, mul_zero]
+    · rw [ite_eq_right h, mul_zero]
       split_ifs with ha hb
       · exact absurd (Fin.ext (by omega : (i : ℕ) = j)) h
       · simp

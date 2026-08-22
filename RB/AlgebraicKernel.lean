@@ -168,7 +168,7 @@ theorem algDist_pos_of_irrational {δ : ℝ} (hirr : Irrational δ) {a c : ℕ} 
 theorem algViolators_ratCast (δ θ : ℚ) :
     algViolators (δ : ℝ) θ = scaledViolators δ θ := by
   ext p
-  simp only [algViolators, scaledViolators, Set.mem_setOf_eq]
+  simp only [algViolators, scaledViolators, Set.mem_ofPred_eq]
   refine and_congr_right fun _ => and_congr_right fun _ => ?_
   rw [orbit_diff_ratCast, show ((δ : ℚ) : ℝ) * (((3 / 2 : ℚ) ^ p.2 - (3 / 2 : ℚ) ^ p.1 : ℚ) : ℝ)
       = ((δ * ((3 / 2 : ℚ) ^ p.2 - (3 / 2 : ℚ) ^ p.1) : ℚ) : ℝ) from by push_cast; ring,
@@ -235,7 +235,7 @@ theorem algBoundedGap_slice_finite (δ : ℝ) (halg : IsAlgebraic ℚ δ)
   set δ' : ℝ := δ * (((3 / 2 : ℚ) ^ s₀ - 1 : ℚ) : ℝ) with hδ'def
   have hirr' : Irrational δ' := hirr.mul_ratCast hfacq.ne'
   have halg' : IsAlgebraic ℚ δ' := halg.mul (ratCast_isAlgebraic _)
-  haveI : NumberField ℚ⟮δ'⟯ := adjoin_real_numberField halg'
+  have : NumberField ℚ⟮δ'⟯ := adjoin_real_numberField halg'
   refine Set.Finite.subset (onePower_finite_of_irrational δ' hirr' hθ0 hθ1) ?_
   rintro a ⟨-, hdist⟩
   have hval : δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a) = δ' * (3 / 2 : ℝ) ^ a := by
@@ -243,7 +243,7 @@ theorem algBoundedGap_slice_finite (δ : ℝ) (halg : IsAlgebraic ℚ δ)
     push_cast
     rw [pow_add]
     ring
-  rw [Set.mem_setOf_eq, ← hval]
+  rw [Set.mem_ofPred_eq, ← hval]
   calc distToNearestInt (δ * ((3 / 2 : ℝ) ^ (a + s₀) - (3 / 2 : ℝ) ^ a))
       ≤ (θ : ℝ) ^ (a + s₀) := hdist
     _ ≤ (θ : ℝ) ^ a := pow_le_pow_of_le_one hθ0'.le hθ1'.le (Nat.le_add_right a s₀)

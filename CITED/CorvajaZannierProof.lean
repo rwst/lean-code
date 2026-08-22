@@ -121,7 +121,7 @@ theorem finite_height23_le (B : ℝ) :
   apply Set.Finite.subset
     ((Set.finite_Icc (-(M : ℤ)) M).prod (Set.finite_Icc (-(M : ℤ)) M))
   rintro ⟨x, y⟩ hxy
-  simp only [Set.mem_setOf_eq] at hxy
+  simp only [Set.mem_ofPred_eq] at hxy
   have hle : height23 x y ≤ M := Nat.le_floor hxy
   have hx2 : 2 ^ x.natAbs ≤ M := le_trans (two_pow_natAbs_le_height23 x y) hle
   have hy3 : 3 ^ y.natAbs ≤ M := le_trans (three_pow_natAbs_le_height23 x y) hle
@@ -218,13 +218,13 @@ lemma lforms_linearIndependent (δ : ℚ) (v : AbsoluteValue ℚ ℝ) :
     LinearIndependent ℚ (Lforms δ v) := by
   unfold Lforms
   by_cases h : v = Rat.AbsoluteValue.real
-  · rw [if_pos h, LinearIndependent.pair_iff]
+  · rw [ite_eq_left h, LinearIndependent.pair_iff]
     intro a b hab
     have h1 := LinearMap.congr_fun hab ![1, 0]
     have h2 := LinearMap.congr_fun hab ![0, 1]
     simp at h1 h2
     exact ⟨h1, by rw [h1] at h2; simpa using h2⟩
-  · rw [if_neg h, LinearIndependent.pair_iff]
+  · rw [ite_eq_right h, LinearIndependent.pair_iff]
     intro a b hab
     exact ⟨by have := LinearMap.congr_fun hab ![1, 0]; simpa using this,
       by have := LinearMap.congr_fun hab ![0, 1]; simpa using this⟩
@@ -314,7 +314,7 @@ lemma approxProduct_pair_eq (δ : ℚ) (A B : ℤ) (hAB : IsCoprime A B) :
     Finset.prod_insert (by simp [real_ne_padic2, real_ne_padic3]),
     Finset.prod_insert (by simp [padic2_ne_padic3]), Finset.prod_singleton]
   rw [hLNr, hLN2, hLN3]
-  simp only [Lforms, if_true, if_neg real_ne_padic2.symm, if_neg real_ne_padic3.symm,
+  simp only [Lforms, ite_true, ite_eq_right real_ne_padic2.symm, ite_eq_right real_ne_padic3.symm,
     Fin.prod_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, LinearMap.sub_apply,
     LinearMap.smul_apply, LinearMap.proj_apply, smul_eq_mul]
   ring
@@ -442,7 +442,7 @@ lemma mulHeight₁_sUnit_le (x y : ℤ) :
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 lemma mulHeight₁_qu_le (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) :
     mulHeight₁ ((q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y)) ≤ (q:ℝ) * ((height23 x y : ℕ) : ℝ) ^ 2 := by
-  haveI : NeZero q := ⟨by omega⟩
+  have : NeZero q := ⟨by omega⟩
   have hqh : mulHeight₁ ((q:ℚ)) = (q:ℝ) := Rat.mulHeight₁_natCast q
   calc mulHeight₁ ((q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y))
       ≤ mulHeight₁ ((q:ℚ)) * mulHeight₁ ((2:ℚ)^x * (3:ℚ)^y) := mulHeight₁_mul_le _ _
@@ -970,7 +970,7 @@ private lemma small_finite (δ : ℚ) :
   have hqh_h : (height23 x y : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
     le_mul_of_one_le_left (by linarith) hq1R
   exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, Nat.le_floor (by linarith)⟩,
-    by simp only [Set.mem_setOf_eq]; linarith⟩
+    by simp only [Set.mem_ofPred_eq]; linarith⟩
 
 private lemma fibre_finite (δ : ℚ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
     {p : ℕ × ℤ × ℤ | (1 ≤ p.1 ∧ 1 < |sval δ p.1 p.2.1 p.2.2| ∧
@@ -983,7 +983,7 @@ private lemma fibre_finite (δ : ℚ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
   · -- the fibre is empty: `δ·ρ = 1` forces `v = round v`, contradicting `0 < ‖v‖`
     convert Set.finite_empty
     ext ⟨q, x, y⟩
-    simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
     rintro ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
     have hp₀ : round (sval δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs hv1
     have hp₀Q : ((round (sval δ q x y) : ℤ) : ℚ) ≠ 0 := Int.cast_ne_zero.mpr hp₀
@@ -1070,7 +1070,7 @@ private lemma fibre_finite (δ : ℚ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
         _ ≤ ((c : ℝ))⁻¹ ^ (1 / ε) :=
           Real.rpow_le_rpow (Real.rpow_pos_of_pos hh0 ε).le h1 (by positivity)
     exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, hqK⟩,
-      by simp only [Set.mem_setOf_eq]; exact hhK⟩
+      by simp only [Set.mem_ofPred_eq]; exact hhK⟩
 
 
 /-- **The Corvaja–Zannier Main Theorem, ℚ-specialized, derived** — same statement
@@ -1655,7 +1655,7 @@ private lemma small_finite_alg (δ : ℝ) :
   have hqh_h : (height23 x y : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
     le_mul_of_one_le_left (by linarith) hq1R
   exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, Nat.le_floor (by linarith)⟩,
-    by simp only [Set.mem_setOf_eq]; linarith⟩
+    by simp only [Set.mem_ofPred_eq]; linarith⟩
 
 private lemma fibre_finite_alg (δ : ℝ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
     {p : ℕ × ℤ × ℤ | (1 ≤ p.1 ∧ 1 < |svalR δ p.1 p.2.1 p.2.2| ∧
@@ -1689,7 +1689,7 @@ private lemma fibre_finite_alg (δ : ℝ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
   · -- the fibre is empty: `δ·ρ = 1` forces `v = p₀`, contradicting `0 < ‖v‖`
     convert Set.finite_empty
     ext ⟨q, x, y⟩
-    simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
     rintro ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
     have hp₀ : round (svalR δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs_real hv1
     have h0 := hkey q x y hq1 hρ hp₀
@@ -1767,7 +1767,7 @@ private lemma fibre_finite_alg (δ : ℝ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
         _ ≤ c⁻¹ ^ (1 / ε) :=
           Real.rpow_le_rpow (Real.rpow_pos_of_pos hh0 ε).le h1 (by positivity)
     exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, hqK⟩,
-      by simp only [Set.mem_setOf_eq]; exact hhK⟩
+      by simp only [Set.mem_ofPred_eq]; exact hhK⟩
 
 /-! ### The Main Theorem for an algebraic multiplier, derived -/
 
@@ -1796,7 +1796,7 @@ theorem pseudoPisot_approx_alg (δ : ℝ) (hδalg : IsAlgebraic ℚ δ) (_hδ : 
       0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
       distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
         < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
-  haveI : NumberField ℚ⟮δ⟯ := numberField_adjoin_of_isAlgebraic hδalg
+  have : NumberField ℚ⟮δ⟯ := numberField_adjoin_of_isAlgebraic hδalg
   have hcore : {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
       1 < |svalR δ p.1 p.2.1 p.2.2| ∧
       0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧

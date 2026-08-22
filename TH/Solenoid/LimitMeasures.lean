@@ -145,7 +145,7 @@ theorem limitMeasures_nonempty (ξ : ℝ) : (limitMeasures ξ).Nonempty :=
 
 @[category API, AMS 11, ref "A1plus", group "th_solenoid_limitmeasures"]
 theorem isClosed_limitMeasures (ξ : ℝ) : IsClosed (limitMeasures ξ) :=
-  isClosed_setOf_clusterPt
+  isClosed_setOfPred_clusterPt
 
 @[category API, AMS 11, ref "A1plus", group "th_solenoid_limitmeasures"]
 theorem isCompact_limitMeasures (ξ : ℝ) : IsCompact (limitMeasures ξ) :=
@@ -209,7 +209,7 @@ theorem integral_compT32_of_mem_limitMeasures {ξ : ℝ} {ν : ProbabilityMeasur
     (hν : ν ∈ limitMeasures ξ) (f : S6 →ᵇ ℝ) :
     ∫ x, compT32 f x ∂(ν : Measure S6) = ∫ x, f x ∂(ν : Measure S6) := by
   have hclust : ClusterPt ν (Filter.map (empirical ξ) atTop) := hν.clusterPt
-  haveI hne : Filter.NeBot (𝓝 ν ⊓ Filter.map (empirical ξ) atTop) := hclust
+  have hne : Filter.NeBot (𝓝 ν ⊓ Filter.map (empirical ξ) atTop) := hclust
   set D : ProbabilityMeasure S6 → ℝ := fun μ =>
     ∫ x, compT32 f x ∂(μ : Measure S6) - ∫ x, f x ∂(μ : Measure S6) with hD
   have h1 : Tendsto D (𝓝 ν ⊓ Filter.map (empirical ξ) atTop) (𝓝 0) := by
@@ -322,7 +322,7 @@ single statement `δ₀ ∉ limitMeasures ξ`, which is A13's target N1 and is *
 @[category research solved, AMS 11, ref "A1plus", group "th_solenoid_limitmeasures"]
 theorem eq_zero_of_diracProba_mem_limitMeasures {ξ : ℝ} {p : S6}
     (hp : diracProba p ∈ limitMeasures ξ) : p = 0 := by
-  haveI : MeasurableSpace.SeparatesPoints S6 :=
+  have : MeasurableSpace.SeparatesPoints S6 :=
     MeasurableSpace.separatesPoints_of_measurableSingletonClass
   have hmap := map_T32_of_mem_limitMeasures hp
   rw [show ((diracProba p : ProbabilityMeasure S6) : Measure S6) = Measure.dirac p from rfl,

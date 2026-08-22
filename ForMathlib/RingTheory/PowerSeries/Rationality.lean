@@ -127,15 +127,15 @@ theorem exists_recurrence.isRationalSeries {F : K⟦X⟧}
         (fun x hx => by rw [Finset.mem_range] at hx ⊢; omega)
         (fun x _ hx => by
           rw [Finset.mem_range, not_lt] at hx
-          rw [hQcoeff, if_neg (show ¬ x < s + 1 by omega), zero_mul])).symm
+          rw [hQcoeff, ite_eq_right (show ¬ x < s + 1 by omega), zero_mul])).symm
     rw [coeff_coe_mul, hsplit,
-      Finset.sum_congr rfl fun i hi => by rw [hQcoeff, if_pos (Finset.mem_range.mp hi)]]
+      Finset.sum_congr rfl fun i hi => by rw [hQcoeff, ite_eq_left (Finset.mem_range.mp hi)]]
     exact hrec m hm
   refine ⟨PowerSeries.trunc n₀ ((Q : K⟦X⟧) * F), Q, ?_, ?_⟩
   · -- `Q ≠ 0`, since `Q.coeff 0 = q 0 ≠ 0`.
     refine fun hQ0 => hq0 ?_
     have h0 := hQcoeff 0
-    rw [hQ0, Polynomial.coeff_zero, if_pos (Nat.succ_pos s)] at h0
+    rw [hQ0, Polynomial.coeff_zero, ite_eq_left (Nat.succ_pos s)] at h0
     exact h0.symm
   · -- `Q * F` agrees with its truncation, as all higher coefficients vanish.
     ext m
@@ -225,11 +225,11 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
   have hbt : Matrix.BlockTriangular U id := by
     intro i j hij
     simp only [id_eq] at hij
-    rw [hU, Matrix.of_apply, if_neg (by rintro ⟨h1, -, -⟩; omega)]
+    rw [hU, Matrix.of_apply, ite_eq_right (by rintro ⟨h1, -, -⟩; omega)]
   have hdetU : U.det = q 0 ^ (t + 1) := by
-    rw [Matrix.det_of_upperTriangular hbt]
+    rw [Matrix.det_of_isUpperTriangular hbt]
     have hdiagU : ∀ i : Fin (t + 1), U i i = q 0 := fun i => by
-      rw [hU, Matrix.of_apply, if_pos ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self]
+      rw [hU, Matrix.of_apply, ite_eq_left ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self]
     simp only [hdiagU, Finset.prod_const, Finset.card_univ, Fintype.card_fin]
   have hdetHU : (hankelMatrix F t * U).det = q 0 ^ (t + 1) * kroneckerDet F t := by
     rw [Matrix.det_mul, hdetU, kroneckerDet]; ring
@@ -241,18 +241,18 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     rw [Matrix.mul_apply]
     simp only [hankelMatrix_apply, hU, Matrix.of_apply]
     by_cases hj : (j : ℕ) < s
-    · rw [if_pos hj,
+    · rw [ite_eq_left hj,
         Finset.sum_eq_single_of_mem j (Finset.mem_univ j)
-          (fun k _ hkj => by rw [if_neg (by rintro ⟨-, -, (h | h)⟩ <;> omega), mul_zero]),
-        if_pos ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self, mul_comm]
-    · rw [if_neg hj]
+          (fun k _ hkj => by rw [ite_eq_right (by rintro ⟨-, -, (h | h)⟩ <;> omega), mul_zero]),
+        ite_eq_left ⟨le_refl _, Nat.le_add_right _ _, Or.inr rfl⟩, Nat.sub_self, mul_comm]
+    · rw [ite_eq_right hj]
       have hsj : s ≤ (j : ℕ) := not_lt.mp hj
       simp only [eq_true hsj, true_or, and_true]
       rw [← Finset.sum_subset
           (Finset.subset_univ ((Finset.range (s + 1)).image
             (fun l => (⟨(j : ℕ) - l, by omega⟩ : Fin (t + 1)))))
           (fun x _ hx => by
-            rw [if_neg, mul_zero]
+            rw [ite_eq_right, mul_zero]
             rintro ⟨hc1, hc2⟩
             refine hx (Finset.mem_image.mpr
               ⟨(j : ℕ) - (x : ℕ), Finset.mem_range.mpr (by omega), ?_⟩)
@@ -270,7 +270,7 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
           (if (j : ℕ) - l ≤ (j : ℕ) ∧ (j : ℕ) ≤ ((j : ℕ) - l) + s
             then q ((j : ℕ) - ((j : ℕ) - l)) else 0) =
           q l * PowerSeries.coeff ((i : ℕ) + (j : ℕ) - l) F
-      rw [if_pos ⟨by omega, by omega⟩, show (j : ℕ) - ((j : ℕ) - l) = l by omega,
+      rw [ite_eq_left ⟨by omega, by omega⟩, show (j : ℕ) - ((j : ℕ) - l) = l by omega,
         show (i : ℕ) + ((j : ℕ) - l) = (i : ℕ) + (j : ℕ) - l by omega]
       ring
   rw [← hdetHU]
@@ -289,7 +289,7 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
       simp only [Matrix.submatrix_apply, Function.comp_apply, Matrix.fromBlocks_apply₁₁,
         Matrix.fromBlocks_apply₁₂, Matrix.fromBlocks_apply₂₁, Matrix.fromBlocks_apply₂₂,
         Matrix.zero_apply]
-    rw [hBentry, if_neg (by rw [heR]; omega), heL, heR]
+    rw [hBentry, ite_eq_right (by rw [heR]; omega), heL, heR]
     exact hv _ (by omega) (by omega)
   have hBdet : (hankelMatrix F t * U).det =
       ((hankelMatrix F t * U).submatrix (e ∘ Sum.inl) (e ∘ Sum.inl)).det *
@@ -304,7 +304,7 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
       ext i j
       simp only [Matrix.submatrix_apply, Function.comp_apply, Matrix.smul_apply, smul_eq_mul,
         hankelMatrix_apply, finCongr_apply_coe]
-      rw [hBentry, if_pos (by rw [heL]; omega), heL, heL]
+      rw [hBentry, ite_eq_left (by rw [heL]; omega), heL, heL]
     rw [hTLeq, Matrix.det_smul, Fintype.card_fin, Matrix.det_submatrix_equiv_self, kroneckerDet]
   -- The bottom-right block is anti-triangular with `v_{t+s}` on its anti-diagonal.
   obtain ⟨u, hu, hBR⟩ := Matrix.det_eq_unit_mul_pow_of_antidiag_const
@@ -312,11 +312,11 @@ theorem kroneckerDet_step (F : K⟦X⟧) (q : ℕ → K) (s t : ℕ)
     (∑ l ∈ Finset.range (s + 1), q l * PowerSeries.coeff (t + s - l) F)
     (fun i j hij => by
       simp only [Matrix.submatrix_apply, Function.comp_apply]
-      rw [hBentry, if_neg (by rw [heR]; omega), heR, heR]
+      rw [hBentry, ite_eq_right (by rw [heR]; omega), heR, heR]
       exact hv _ (by omega) (by omega))
     (fun i => by
       simp only [Matrix.submatrix_apply, Function.comp_apply]
-      rw [hBentry, if_neg (by rw [heR]; omega), heR, heR]
+      rw [hBentry, ite_eq_right (by rw [heR]; omega), heR, heR]
       refine Finset.sum_congr rfl (fun l _ => ?_)
       rw [show (s + (i : ℕ)) + (s + ((i.rev : Fin (t - s + 1)) : ℕ)) = t + s from by
         rw [Fin.val_rev]; omega])
@@ -507,7 +507,7 @@ theorem isRationalSeries_iff_kroneckerDet_eventually_zero (F : K⟦X⟧) :
     · -- `v ≠ 0`: its last entry is `q 0 ≠ 0`.
       intro h
       have hl := congrFun h (Fin.last n)
-      simp only [hv, Fin.val_last, Nat.sub_self, Nat.zero_le, if_true, Pi.zero_apply] at hl
+      simp only [hv, Fin.val_last, Nat.sub_self, Nat.zero_le, ite_true, Pi.zero_apply] at hl
       exact hq0 hl
     · -- Row `i` of `H *ᵥ v` is the recurrence at index `i + n ≥ n₀`.
       funext i
@@ -524,12 +524,12 @@ theorem isRationalSeries_iff_kroneckerDet_eventually_zero (F : K⟦X⟧) :
           (fun x hx hx' => by
             rw [Finset.mem_range] at hx
             rw [Finset.mem_range, not_lt] at hx'
-            rw [if_neg (by omega), mul_zero])]
+            rw [ite_eq_right (by omega), mul_zero])]
       refine Eq.trans (Finset.sum_congr rfl fun x hx => ?_) (hrec (i.val + n) (by omega))
       rw [Finset.mem_range] at hx
       have h1 : n - (n - x) = x := by omega
       have h2 : i.val + (n - x) = i.val + n - x := by omega
-      rw [h1, if_pos (by omega : x ≤ s), h2]
+      rw [h1, ite_eq_left (by omega : x ≤ s), h2]
       exact mul_comm _ _
   · exact isRationalSeries_of_eventually_kroneckerDet_zero
 

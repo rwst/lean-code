@@ -62,11 +62,11 @@ noncomputable def blockVal (c p : ℕ) (e : ℕ → ℕ) : ℤ_[2] :=
 @[category API, AMS 11 37, ref "BL96"]
 theorem blockVal_of_pos {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) :
     blockVal c p e = ∑' i, (2 : ℤ_[2]) ^ blockPos c p e i := by
-  unfold blockVal; exact if_pos hc
+  unfold blockVal; exact ite_eq_left hc
 
 @[category API, AMS 11 37, ref "BL96"]
 theorem blockVal_zero {p : ℕ} {e : ℕ → ℕ} : blockVal 0 p e = 0 := by
-  unfold blockVal; exact if_neg (lt_irrefl 0)
+  unfold blockVal; exact ite_eq_right (lt_irrefl 0)
 
 @[category research solved, AMS 11 37, ref "BL96" "AB07", group "b3_missing_lemma"]
 theorem Φ_blockValue {c p : ℕ} {e : ℕ → ℕ} (hc : 0 < c) (hp : 0 < p)

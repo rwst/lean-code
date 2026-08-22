@@ -88,7 +88,7 @@ lemma paradoxical_delayCol_ge (j n : ℕ) (hn2 : 2 < T_iter j n) :
     (↑(j + num_odd_steps j n) : ℕ∞) ≤ delayCol n := by
   by_cases h : ∃ i, T_iter i n = 1
   · unfold delayCol
-    rw [dif_pos h]
+    rw [dite_eq_left h]
     have hd_spec : T_iter (Nat.find h) n = 1 := Nat.find_spec h
     have hjd : j ≤ Nat.find h := by
       by_contra hlt
@@ -100,7 +100,7 @@ lemma paradoxical_delayCol_ge (j n : ℕ) (hn2 : 2 < T_iter j n) :
     have hmono : num_odd_steps j n ≤ num_odd_steps (Nat.find h) n := num_odd_steps_mono hjd n
     exact_mod_cast Nat.add_le_add hjd hmono
   · unfold delayCol
-    rw [dif_neg h]
+    rw [dite_eq_right h]
     exact le_top
 
 /-! ### Theorem 5.3 -/
@@ -210,11 +210,11 @@ lemma coeff_le_stopping (n : ℕ) : coeff_stopping_time n ≤ stopping_time n :=
       exact lt_of_mul_lt_mul_right h1 (le_of_lt hnpos)
     have hce : ∃ j : ℕ, j ≥ 1 ∧ C j n < 1 := ⟨t, hspec.1, hCt⟩
     rw [show coeff_stopping_time n = (Nat.find hce : ℕ∞) from by
-          unfold coeff_stopping_time; rw [dif_pos hce],
-        show stopping_time n = (t : ℕ∞) from by unfold stopping_time; rw [dif_pos ht]]
+          unfold coeff_stopping_time; rw [dite_eq_left hce],
+        show stopping_time n = (t : ℕ∞) from by unfold stopping_time; rw [dite_eq_left ht]]
     have hfind : Nat.find hce ≤ t := Nat.find_le ⟨hspec.1, hCt⟩
     exact_mod_cast hfind
-  · rw [show stopping_time n = ⊤ from by unfold stopping_time; rw [dif_neg ht]]
+  · rw [show stopping_time n = ⊤ from by unfold stopping_time; rw [dite_eq_right ht]]
     exact le_top
 
 /-- **Verified base range of the CST conjecture** (Terras [Ter76], extended by Garner [Gar81]):
@@ -238,11 +238,11 @@ theorem cst_below (n : ℕ) (hn2 : 2 ≤ n) (hle : n ≤ 28 * 10 ^ 18) :
       lt_of_le_of_ne (coeff_le_stopping n) (fun h => hne h.symm)
     have hce : ∃ j : ℕ, j ≥ 1 ∧ C j n < 1 := by
       by_contra hnce
-      rw [show coeff_stopping_time n = ⊤ from by unfold coeff_stopping_time; rw [dif_neg hnce]] at hlt
+      rw [show coeff_stopping_time n = ⊤ from by unfold coeff_stopping_time; rw [dite_eq_right hnce]] at hlt
       exact absurd hlt not_top_lt
     set τ₀ := Nat.find hce with hτ₀_def
     have hcoeff_eq : coeff_stopping_time n = (τ₀ : ℕ∞) := by
-      unfold coeff_stopping_time; rw [dif_pos hce]
+      unfold coeff_stopping_time; rw [dite_eq_left hce]
     have hτspec := Nat.find_spec hce
     have hTge : n ≤ T_iter τ₀ n := by
       by_contra hlt2
@@ -250,7 +250,7 @@ theorem cst_below (n : ℕ) (hn2 : 2 ≤ n) (hle : n ≤ 28 * 10 ^ 18) :
       have hstop_le : stopping_time n ≤ (τ₀ : ℕ∞) := by
         have hex : ∃ k, k ≥ 1 ∧ T_iter k n < n := ⟨τ₀, hτspec.1, hlt2⟩
         rw [show stopping_time n = (Nat.find hex : ℕ∞) from by
-              unfold stopping_time; rw [dif_pos hex]]
+              unfold stopping_time; rw [dite_eq_left hex]]
         have hfind : Nat.find hex ≤ τ₀ := Nat.find_le ⟨hτspec.1, hlt2⟩
         exact_mod_cast hfind
       rw [hcoeff_eq] at hlt

@@ -314,7 +314,7 @@ theorem exists_mem_limitMeasures_measure_le {ξ : ℝ} {F : Filter ℕ} [F.NeBot
   obtain ⟨ν, hclust⟩ := exists_clusterPt_of_compactSpace (Filter.map (empirical ξ) F)
   have hmap : MapClusterPt ν F (empirical ξ) := hclust
   refine ⟨ν, hmap.mono hF, ?_⟩
-  haveI hne : (𝓝 ν ⊓ Filter.map (empirical ξ) F).NeBot := hclust
+  have hne : (𝓝 ν ⊓ Filter.map (empirical ξ) F).NeBot := hclust
   have htend : Tendsto (id : ProbabilityMeasure S6 → ProbabilityMeasure S6)
       (𝓝 ν ⊓ Filter.map (empirical ξ) F) (𝓝 ν) := tendsto_id.mono_left inf_le_left
   refine (ProbabilityMeasure.le_liminf_measure_open_of_tendsto htend hU).trans ?_
@@ -474,7 +474,7 @@ theorem le_lowerDensity_of_bridge {ξ ε : ℝ} (hε : 0 < ε) (hinv : Transvers
       obtain ⟨k, hk, hkp⟩ := hfreq (n + 1)
       exact ⟨k - 1, by omega, by rwa [Nat.sub_add_cancel (by omega)]⟩
     set F : Filter ℕ := atTop ⊓ 𝓟 {N | Z32.visitRatio (3 / 2) ξ s t (N + 1) < m'} with hF
-    haveI : F.NeBot := Filter.frequently_iff_neBot.mp hfreq'
+    have : F.NeBot := Filter.frequently_iff_neBot.mp hfreq'
     have hbnd : ∀ᶠ N in F, (empirical ξ N : Measure S6) (cell a b 0 0 0 0)
         ≤ ENNReal.ofReal m' := by
       filter_upwards [Filter.eventually_inf_principal.mpr (Eventually.of_forall fun N h => h)] with

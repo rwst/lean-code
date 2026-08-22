@@ -108,7 +108,7 @@ theorem natCast_eq_of_norm_sub_le {k i j : ℕ} (hi : i < p ^ k) (hj : j < p ^ k
     exact h
   rw [← PadicInt.ker_toZModPow, RingHom.mem_ker, map_sub, sub_eq_zero] at hmem
   simp only [map_natCast] at hmem
-  haveI : NeZero (p ^ k) := ⟨pow_ne_zero k (Fact.out : p.Prime).ne_zero⟩
+  have : NeZero (p ^ k) := ⟨pow_ne_zero k (Fact.out : p.Prime).ne_zero⟩
   have := congrArg ZMod.val hmem
   rwa [ZMod.val_natCast_of_lt hi, ZMod.val_natCast_of_lt hj] at this
 
@@ -129,7 +129,7 @@ private theorem zpow_neg_le_one (k : ℕ) : (p : ℝ) ^ (-k : ℤ) ≤ 1 := by
 
 theorem haarMeasure_closedBall_zero (k : ℕ) :
     haarMeasure p (closedBall (0 : ℚ_[p]) ((p : ℝ) ^ (-k : ℤ))) = ((p : ℝ≥0∞) ^ k)⁻¹ := by
-  haveI : NeZero (p ^ k) := ⟨pow_ne_zero k (Fact.out : p.Prime).ne_zero⟩
+  have : NeZero (p ^ k) := ⟨pow_ne_zero k (Fact.out : p.Prime).ne_zero⟩
   set r : ℝ := (p : ℝ) ^ (-k : ℤ) with hr
   set f : Fin (p ^ k) → Set ℚ_[p] := fun j => closedBall ((j : ℕ) : ℚ_[p]) r with hf
   have hcover : closedBall (0 : ℚ_[p]) 1 = ⋃ j, f j := by

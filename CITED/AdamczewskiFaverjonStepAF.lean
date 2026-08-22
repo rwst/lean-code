@@ -284,6 +284,7 @@ section StepNV
 
 variable {K : Type*} [Field K] {σ : Type*} [Fintype σ] [DecidableEq σ]
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- **Step (NV), packaged.**  A non-zero member of `𝓘^⊥(δ₁,δ₂)` is not a relation, hence does not
 vanish at the iterates for infinitely many `k`.  This is `AF.toRat_notMem_of_mem_relComplP` and
 `AF.frequently_evalAt_ne_zero` composed, in the form Lemma 2.11 consumes. -/
@@ -332,13 +333,13 @@ theorem exists_auxiliary_quantitative (hI : I ≠ ⊤) (hF : F.totalDegree ≤ 1
   have hPQ : ∀ j : Fin (δ₁ + 1), P (j : ℕ) = (Q j : MvPolynomial (ι × ι) K[X]) := by
     intro j
     rw [hPdef]
-    simp only [j.2, dif_pos, Fin.eta]
+    simp only [j.2, dite_eq_left, Fin.eta]
   have hPmem : ∀ j, P j ∈ relComplP I δ₁ δ₂ := by
     intro j
     rw [hPdef]
     by_cases h : j < δ₁ + 1
-    · simpa only [h, dif_pos] using (Q ⟨j, h⟩).2
-    · simpa only [h, dif_neg, not_false_iff] using Submodule.zero_mem _
+    · simpa only [h, dite_eq_left] using (Q ⟨j, h⟩).2
+    · simpa only [h, dite_eq_right, not_false_iff] using Submodule.zero_mem _
   obtain ⟨i, hi⟩ := Function.ne_iff.1 hQ0
   have hex : ∃ j, P j ≠ 0 := by
     refine ⟨(i : ℕ), ?_⟩

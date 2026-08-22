@@ -568,7 +568,7 @@ lemma hinj (hα : 3 < α) (hαβ : α < β)
 lemma huncountable (hα : 3 < α) (hαβ : α < β)
     (ha₀ : (α + 1) * (α - 1)⁻¹ * (β - α)⁻¹ < (a₀ : ℝ)) :
     ¬ (Set.range (fun f => θ α a₀ f)).Countable := by
-  haveI : Uncountable (ℕ → Bool) := by
+  have : Uncountable (ℕ → Bool) := by
     rw [← Cardinal.aleph0_lt_mk_iff]
     have h : Cardinal.mk (ℕ → Bool) = 2 ^ Cardinal.aleph0 := by rw [Cardinal.mk_arrow]; simp
     rw [h]; exact Cardinal.cantor _

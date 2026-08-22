@@ -125,9 +125,9 @@ theorem exists_polynomialFamily {ι : Type*} [Fintype ι] (c : ι → Ω) :
       LinearIndependent (RatFunc K) e ∧
       (∀ i, c i = ∑ m, toAmbient K Ω (lam i m) * e m) := by
   classical
-  letI : Algebra K[X] Ω := (toAmbient K Ω).toAlgebra
-  haveI : IsScalarTower K[X] (RatFunc K) Ω := IsScalarTower.of_algebraMap_eq fun _ => rfl
-  haveI : NoZeroSMulDivisors K[X] Ω := by
+  let : Algebra K[X] Ω := (toAmbient K Ω).toAlgebra
+  have : IsScalarTower K[X] (RatFunc K) Ω := IsScalarTower.of_algebraMap_eq fun _ => rfl
+  have : NoZeroSMulDivisors K[X] Ω := by
     refine ⟨fun {r x} h => ?_⟩
     rw [Algebra.smul_def] at h
     rcases mul_eq_zero.1 h with h1 | h1
@@ -136,7 +136,7 @@ theorem exists_polynomialFamily {ι : Type*} [Fintype ι] (c : ι → Ω) :
       exact h1
     · exact Or.inr h1
   set M : Submodule K[X] Ω := Submodule.span K[X] (Set.range c) with hM
-  haveI : Module.Finite K[X] M :=
+  have : Module.Finite K[X] M :=
     Module.Finite.iff_fg.2 (Submodule.fg_span (Set.finite_range c))
   obtain ⟨δ, b⟩ := Module.basisOfFiniteTypeTorsionFree' (R := K[X]) (M := M)
   have hcmem : ∀ i, c i ∈ M := fun i => Submodule.subset_span ⟨i, rfl⟩

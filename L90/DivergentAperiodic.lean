@@ -110,7 +110,7 @@ theorem two_pow_dvd_num_of_eq {N : ℕ} {u w : ℚ} {c : ℤ} (hc : Odd c)
 odd denominator `a.den` intact. -/
 @[category API, AMS 11 37, ref "Lag90" "BL96"]
 theorem T_mem_Q2 {a : ℚ} (ha : a ∈ Q2) : T a ∈ Q2 := by
-  rw [Q2, Set.mem_setOf_eq] at ha ⊢
+  rw [Q2, Set.mem_ofPred_eq] at ha ⊢
   have hd0 : (a.den : ℚ) ≠ 0 := by exact_mod_cast a.den_nz
   have h2 : (2:ℤ) ∣ a.num * 3 ^ (parity a) + (parity a : ℤ) * a.den := by
     rcases Int.even_or_odd a.num with he | ho
@@ -298,7 +298,7 @@ capstone `B3.divergent_imp_not_automatic` (which inlines the periodicity ⟹ non
 theorem corollary_2_1b_nat (n : ℕ) (hdiv : Divergent (n : ℚ)) :
     ¬ EventuallyPeriodicParity (n : ℚ) := by
   refine corollary_2_1b ?_ hdiv
-  rw [Q2, Set.mem_setOf_eq, Rat.den_natCast]
+  rw [Q2, Set.mem_ofPred_eq, Rat.den_natCast]
   exact odd_one
 
 end L90

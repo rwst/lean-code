@@ -198,7 +198,7 @@ convergent at radius `s`, if `|f| ≥ m` there, and if the argument `w` stays be
 Every constant on the right is independent of everything [AF22] let vary with `k`. -/
 @[category research solved, AMS 30, ref "AF22", group "af_mahler_alternative"]
 theorem norm_le_of_tail_on_sphere {ξ : ℂ} {ρ s r : ℝ} (hρ : 0 < ρ) (hs : 0 < s)
-    (hr0 : 0 ≤ r) (hrs : r ≤ s) {g f w : ℂ → ℂ} (hg : DiffContOnCl ℂ g (ball ξ ρ))
+    (_hr0 : 0 ≤ r) (hrs : r ≤ s) {g f w : ℂ → ℂ} (hg : DiffContOnCl ℂ g (ball ξ ρ))
     {m : ℝ} (hm : 0 < m) (hf : ∀ z ∈ sphere ξ ρ, m ≤ ‖f z‖)
     {c : ℕ → ℂ} (hsum : Summable fun n => ‖c n‖ * s ^ n) {p : ℕ}
     (hw : ∀ z ∈ sphere ξ ρ, ‖w z‖ ≤ r)

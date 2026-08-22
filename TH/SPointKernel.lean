@@ -355,7 +355,7 @@ lemma firstSame_congr {k a b : ℕ} (h : factor a k = factor b k) :
   unfold firstSame
   congr 1
   ext x
-  simp only [Set.mem_setOf_eq, h]
+  simp only [Set.mem_ofPred_eq, h]
 
 /-- **The counting transfer** — A14(ii)'s "configuration counts into complexity", in its sharp
 elementary form.  Let `L` be a budget exponent for `θ` and let `V` collect the (K)-violators with

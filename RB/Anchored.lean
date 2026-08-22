@@ -289,9 +289,9 @@ lemma nkForms_linearIndependent (γ₁ γ₂ : F) (w₀ v : AbsoluteValue F ℝ)
     LinearIndependent F (nkForms γ₁ γ₂ w₀ v) := by
   unfold nkForms
   by_cases h : v = w₀
-  · rw [if_pos h]
+  · rw [ite_eq_left h]
     exact approxForms_linearIndependent γ₁ γ₂
-  · rw [if_neg h]
+  · rw [ite_eq_right h]
     exact coordForms_linearIndependent
 
 /-- **The `n = 3` Subspace conclusion over a number field**: at any finite place set `S`,

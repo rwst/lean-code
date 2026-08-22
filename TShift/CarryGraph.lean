@@ -236,7 +236,7 @@ theorem admissible_ncard (y : ℝ) :
     {s : ℤ | 3 * y - 2 < (s : ℝ) ∧ (s : ℝ) ≤ 3 * y}.ncard = 2 := by
   have hset : {s : ℤ | 3 * y - 2 < (s : ℝ) ∧ (s : ℝ) ≤ 3 * y} = {⌊3 * y⌋, ⌊3 * y⌋ - 1} := by
     ext s
-    simpa [Set.mem_setOf_eq] using admissible_iff y s
+    simpa [Set.mem_ofPred_eq] using admissible_iff y s
   rw [hset, Set.ncard_pair (by omega)]
 
 /-- **Digit-set constancy on the balls (D1).**  Within `δ = 1/32` of the cycle point `a/5` the
@@ -616,11 +616,11 @@ theorem escapeSeq_spec (k : ℕ) : 2 ≤ escapeSeq k ∧ IsEscape (escapeSeq k) 
   induction k with
   | zero =>
       have hm := Nat.sInf_mem (escapeSet_nonempty 2)
-      simpa [escapeSeq, Set.mem_setOf_eq] using hm
+      simpa [escapeSeq, Set.mem_ofPred_eq] using hm
   | succ k ih =>
       have hm := Nat.sInf_mem (escapeSet_nonempty (escapeSeq k + 1))
       have h : escapeSeq k + 1 ≤ escapeSeq (k + 1) ∧ IsEscape (escapeSeq (k + 1)) := by
-        simpa [escapeSeq, Set.mem_setOf_eq] using hm
+        simpa [escapeSeq, Set.mem_ofPred_eq] using hm
       have h1 := ih.1
       have h2 := h.1
       exact ⟨by omega, h.2⟩
@@ -629,7 +629,7 @@ theorem escapeSeq_spec (k : ℕ) : 2 ≤ escapeSeq k ∧ IsEscape (escapeSeq k) 
 theorem escapeSeq_lt (k : ℕ) : escapeSeq k < escapeSeq (k + 1) := by
   have hm := Nat.sInf_mem (escapeSet_nonempty (escapeSeq k + 1))
   have h : escapeSeq k + 1 ≤ escapeSeq (k + 1) ∧ IsEscape (escapeSeq (k + 1)) := by
-    simpa [escapeSeq, Set.mem_setOf_eq] using hm
+    simpa [escapeSeq, Set.mem_ofPred_eq] using hm
   omega
 
 @[category API, AMS 11 37, ref "TshiftS1314", group "tshift_s13iii"]

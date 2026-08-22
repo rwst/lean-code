@@ -353,13 +353,13 @@ theorem isRiemann_dct {c d : ℝ} (hcd : c < d) {f : ℝ → ℝ} {C : ℝ}
   have haeIco : ∀ᵐ x ∂(volume.restrict (Icc c d)), x ∈ Ico c d := by
     rw [ae_restrict_iff' measurableSet_Icc]
     have hne : ∀ᵐ x ∂(volume : Measure ℝ), x ≠ d := by
-      rw [ae_iff]; simp only [ne_eq, not_not, Set.setOf_eq_eq_singleton, Real.volume_singleton]
+      rw [ae_iff]; simp only [ne_eq, not_not, Set.ofPred_eq_eq_singleton, Real.volume_singleton]
     filter_upwards [hne] with x hx hxmem
     exact ⟨hxmem.1, lt_of_le_of_ne hxmem.2 hx⟩
   have hcont : ∀ᵐ x ∂(volume.restrict (Icc c d)), ContinuousAt f x := by
     rw [ae_restrict_iff' measurableSet_Icc, ae_iff]
     have hset : {x | ¬ (x ∈ Icc c d → ContinuousAt f x)} = {t ∈ Icc c d | ¬ ContinuousAt f t} := by
-      ext x; simp only [Set.mem_setOf_eq, Classical.not_imp]
+      ext x; simp only [Set.mem_ofPred_eq, Classical.not_imp]
     rw [hset]; exact hae
   have hlimg : ∀ᵐ x ∂(volume.restrict (Icc c d)),
       Tendsto (fun n => lowerStep f c d n x) atTop (𝓝 (f x)) := by

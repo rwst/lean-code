@@ -165,7 +165,7 @@ theorem card_image_three_pow (hk : 3 ≤ k) :
 @[category API, AMS 11, ref "A1plus", group "th_annealed"]
 theorem card_units_two_pow (hk : 1 ≤ k) :
     Fintype.card (ZMod (2 ^ k))ˣ = 2 ^ (k - 1) := by
-  haveI : NeZero ((2 : ℕ) ^ k) := ⟨by positivity⟩
+  have : NeZero ((2 : ℕ) ^ k) := ⟨by positivity⟩
   rw [ZMod.card_units_eq_totient, Nat.totient_prime_pow Nat.prime_two (by omega)]
   norm_num
 
@@ -218,10 +218,10 @@ theorem castHom_three_pow (hk : 3 ≤ k) (n : ℕ) :
   rw [map_pow, map_ofNat]
   rcases Nat.even_or_odd n with he | ho
   · obtain ⟨m, rfl⟩ := he
-    rw [if_pos ⟨m, rfl⟩, show m + m = 2 * m by ring, pow_mul, show (3 : ZMod 8) ^ 2 = 1 by decide,
+    rw [ite_eq_left ⟨m, rfl⟩, show m + m = 2 * m by ring, pow_mul, show (3 : ZMod 8) ^ 2 = 1 by decide,
       one_pow]
   · obtain ⟨m, rfl⟩ := ho
-    rw [if_neg (by simp), pow_succ, pow_mul,
+    rw [ite_eq_right (by simp), pow_succ, pow_mul,
       show (3 : ZMod 8) ^ 2 = 1 by decide, one_pow, one_mul]
 
 /-- `−1` is **not** a power of `3` mod `2^k`: it reduces to `7` mod 8, and the powers of `3`
@@ -234,8 +234,8 @@ theorem neg_one_ne_three_pow (hk : 3 ≤ k) (n : ℕ) : (3 : ZMod (2 ^ k)) ^ n �
   have h := castHom_three_pow hk n
   rw [hcon, map_neg, map_one] at h
   rcases Nat.even_or_odd n with he | ho
-  · rw [if_pos he] at h; exact absurd h (by decide)
-  · rw [if_neg (by simpa [Nat.not_even_iff_odd] using ho)] at h; exact absurd h (by decide)
+  · rw [ite_eq_left he] at h; exact absurd h (by decide)
+  · rw [ite_eq_right (by simpa [Nat.not_even_iff_odd] using ho)] at h; exact absurd h (by decide)
 
 end Coset
 

@@ -121,7 +121,7 @@ theorem conj_powerSum_isInt (θ : ℝ) (hθ : IsIntegral ℤ θ) (n : ℕ) :
     have hnodup : ((minpoly ℚ pb.gen).aroots ℂ).Nodup := by
       rw [Polynomial.aroots]; exact Polynomial.nodup_roots hsep.map
     have hmp : minpoly ℚ pb.gen = minpoly ℚ θ := by rw [hgenθ]; exact minpoly_gen ℚ θ
-    haveI : Fintype {y : ℂ // (aeval y) (minpoly ℚ pb.gen) = 0} := Fintype.ofEquiv _ pb.liftEquiv
+    have : Fintype {y : ℂ // (aeval y) (minpoly ℚ pb.gen) = 0} := Fintype.ofEquiv _ pb.liftEquiv
     rw [Fintype.sum_equiv pb.liftEquiv (fun σ => (σ pb.gen) ^ n) (fun y => ((y : ℂ)) ^ n)
         (fun σ => by rw [pb.liftEquiv_apply_coe])]
     rw [← Finset.sum_subtype ((minpoly ℚ pb.gen).aroots ℂ).toFinset

@@ -316,7 +316,7 @@ configuration `…t▷`. -/
 theorem nextMathState_halt_condition (a : ℕ) (ha : 2 ≤ a) :
     nextMathState { a := a, b := 0 } = none ↔ a % 2 = 1 := by
   unfold nextMathState
-  simp only [show a / 2 ≥ 1 from by omega, if_true, beq_iff_eq]
+  simp only [show a / 2 ≥ 1 from by omega, ite_true, beq_iff_eq]
   by_cases h : a % 2 = 0
   · simp [h]
   · simp [h]; omega

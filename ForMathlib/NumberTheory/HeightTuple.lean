@@ -397,7 +397,7 @@ theorem mulHeight₁_eval_le_of_degreeOf {σ : Type*} [Fintype σ] [DecidableEq 
     fun p ↦ if p.1 = 0 then p.2.elim 0 (fun ν ↦ P.coeff ν) else p.2.elim 1 fun _ ↦ 0 with hAdef
   have h0 : ∑ o : Option P.support, Amat (0, o) * x o = MvPolynomial.eval β P := by
     rw [Fintype.sum_option]
-    simp only [hAdef, hxdef, Option.elim_none, Option.elim_some, if_pos rfl, zero_mul, zero_add]
+    simp only [hAdef, hxdef, Option.elim_none, Option.elim_some, ite_eq_left rfl, zero_mul, zero_add]
     rw [MvPolynomial.eval_eq', ← Finset.sum_coe_sort P.support
       (fun ν ↦ P.coeff ν * ∏ i, β i ^ (ν : σ →₀ ℕ) i)]
   have h1 : ∑ o : Option P.support, Amat (1, o) * x o = 1 := by
@@ -419,7 +419,7 @@ theorem mulHeight₁_eval_le_of_degreeOf {σ : Type*} [Fintype σ] [DecidableEq 
     rw [Fintype.prod_prod_type]
     refine le_of_eq ?_
     rw [Fin.prod_univ_two]
-    simp only [hAdef, if_pos rfl, Fintype.prod_option, Option.elim_none, Option.elim_some,
+    simp only [hAdef, ite_eq_left rfl, Fintype.prod_option, Option.elim_none, Option.elim_some,
       mulHeight₁_zero, one_mul]
     rw [Finset.prod_coe_sort P.support fun ν ↦ mulHeight₁ (P.coeff ν)]
     simp
@@ -483,7 +483,7 @@ theorem exists_not_mulHeight_add_le :
     rintro rfl
     rw [Nat.cast_zero] at hn
     exact hpos.not_gt hn
-  haveI : NeZero n := ⟨hn0⟩
+  have : NeZero n := ⟨hn0⟩
   exact ⟨(n : ℚ), not_mulHeight_add_le_of_lt_mulHeight₁ (by rwa [Rat.mulHeight₁_natCast])⟩
 
 end Height

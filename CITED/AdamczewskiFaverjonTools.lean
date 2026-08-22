@@ -491,11 +491,11 @@ theorem exists_regular_shift {q : ℕ} {A : Matrix ι ι (Polynomial k)} (hdet :
   have hmap : A.det.map (algebraMap k 𝕜) ≠ 0 :=
     fun h => hdet (Polynomial.map_eq_zero_iff (algebraMap k 𝕜).injective |>.mp h)
   have hfin : {l : ℕ | aeval (α ^ q ^ l) A.det = 0}.Finite := by
-    refine Set.Finite.ofFinset ((Polynomial.finite_setOf_isRoot hmap).toFinset.preimage
+    refine Set.Finite.ofFinset ((Polynomial.finite_setOfPred_isRoot hmap).toFinset.preimage
       (fun l : ℕ => α ^ q ^ l) hinj.injOn) fun l => ?_
     simp [Polynomial.IsRoot, Polynomial.eval_map, ← Polynomial.aeval_def]
   obtain ⟨n₀, hn₀⟩ := hfin.bddAbove
-  exact ⟨n₀ + 1, fun l hl h => by have := hn₀ (Set.mem_setOf.mpr h); omega⟩
+  exact ⟨n₀ + 1, fun l hl h => by have := hn₀ (Set.mem_ofPred.mpr h); omega⟩
 
 /-- **[AF17] Lemme 4.2** — *le dédoublement*.  A point `α` that is not a pole of the system
 (automatic here: the matrix is polynomial, `lemme_4_1_of_polynomial`) becomes a **regular** point

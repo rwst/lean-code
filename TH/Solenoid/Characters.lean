@@ -462,7 +462,7 @@ theorem charSubalgebra_separatesPoints : charSubalgebra.SeparatesPoints := by
   dsimp only
   rw [e_apply, e_apply]
   intro hc
-  rw [Subtype.coe_inj] at hc
+  rw [Circle.coe_inj] at hc
   exact hr (AddCircle.injective_toCircle one_ne_zero hc)
 
 /-- **Stone–Weierstrass on the solenoid**: the characters generate a dense subalgebra of

@@ -236,7 +236,7 @@ theorem isStronglyMixing_infinitePi_shift :
   show Tendsto (fun n => Measure.infinitePi (fun _ : ℕ => ν) (seqShift^[n] ⁻¹' A ∩ B)) atTop
     (𝓝 (Measure.infinitePi (fun _ : ℕ => ν) A * Measure.infinitePi (fun _ : ℕ => ν) B))
   set μ := Measure.infinitePi (fun _ : ℕ => ν) with hμ
-  haveI : IsProbabilityMeasure μ := by rw [hμ]; infer_instance
+  have : IsProbabilityMeasure μ := by rw [hμ]; infer_instance
   have hfin : ∀ s : Set (ℕ → α), μ s ≠ ⊤ := fun s => measure_ne_top μ s
   have hmp : MeasurePreserving seqShift μ μ := by rw [hμ]; exact seqShift_measurePreserving ν
   have hev : ∀ A' B' : Set (ℕ → α), A' ∈ measurableCylinders (fun _ : ℕ => α) →

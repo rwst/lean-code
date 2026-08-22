@@ -191,7 +191,7 @@ theorem three_pow_emod_eight (t : ℕ) :
     have h1 : (9 : ℤ) ^ k % 8 = 1 := by
       have : (9 : ℤ) ^ k ≡ 1 ^ k [ZMOD 8] := Int.ModEq.pow k (by decide)
       simpa [Int.ModEq] using this
-    rw [if_pos (by omega), h9]
+    rw [ite_eq_left (by omega), h9]
     exact h1
   · have h9 : (3 : ℤ) ^ t = 9 ^ k * 3 := by rw [hk, pow_add, pow_mul]; norm_num
     have h1 : (9 : ℤ) ^ k ≡ 1 [ZMOD 8] := by
@@ -246,7 +246,7 @@ theorem two_pow_le_of_dvd_three_pow_sub_one {s t : ℕ} (ht : 1 ≤ t)
         exact pow_dvd_pow 2 (by omega)
       have hmod := three_pow_emod_eight t
       have ht1 : t % 2 = 1 := Nat.odd_iff.mp ho
-      rw [if_neg (by omega)] at hmod
+      rw [ite_eq_right (by omega)] at hmod
       omega
     calc 2 ^ s ≤ 2 ^ 2 := Nat.pow_le_pow_right (by norm_num) hs2
       _ = 4 := by norm_num
@@ -265,9 +265,9 @@ theorem two_pow_le_of_dvd_three_pow_add_one {s t : ℕ} (h : (2 : ℤ) ^ s ∣ 3
       exact pow_dvd_pow 2 (by omega)
     have hmod := three_pow_emod_eight t
     rcases Nat.even_or_odd t with he | ho
-    · rw [if_pos (Nat.even_iff.mp he)] at hmod
+    · rw [ite_eq_left (Nat.even_iff.mp he)] at hmod
       omega
-    · rw [if_neg (by omega : ¬ t % 2 = 0)] at hmod
+    · rw [ite_eq_right (by omega : ¬ t % 2 = 0)] at hmod
       omega
   calc 2 ^ s ≤ 2 ^ 2 := Nat.pow_le_pow_right (by norm_num) hs2
     _ = 4 := by norm_num
@@ -402,7 +402,7 @@ two preceding theorems exclude. -/
 @[category research solved, AMS 11, ref "TshiftS3", group "tshift_s3"]
 theorem mulIndep_three_defect {D n : ℕ} (hD : Odd D) (hbig : 4 * (n + D) < 2 ^ n) :
     ∀ a b : ℤ, (3 : ℚ) ^ a * ((defect D n : ℚ) / (D : ℚ)) ^ b = 1 → a = 0 ∧ b = 0 := by
-  haveI : Fact (Nat.Prime 3) := ⟨by norm_num⟩
+  have : Fact (Nat.Prime 3) := ⟨by norm_num⟩
   intro a b hab
   have hDpos : 0 < D := hD.pos
   have hn1 : 1 ≤ n := one_le_of_burnin hD hbig
@@ -575,7 +575,7 @@ the multiplier) enters. -/
 @[category research solved, AMS 11, ref "TshiftS3", group "tshift_s3"]
 theorem le_padicValRat_form {D n : ℕ} (hD : Odd D) (_hn : 1 ≤ n) :
     (n : ℤ) ≤ padicValRat 2 ((3 : ℚ) ^ n - (defect D n : ℚ) / (D : ℚ)) := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hDpos : 0 < D := hD.pos
   have hDQ : ((D : ℚ)) ≠ 0 := Nat.cast_ne_zero.mpr hDpos.ne'
   set M : ℤ := (D : ℤ) * 3 ^ n - defect D n with hM
@@ -628,7 +628,7 @@ theorem master {D n : ℕ} (hD : Odd D) (hbig : 4 * (n + D) < 2 ^ n) :
     rw [show (3 : ℚ) = ((3 : ℕ) : ℚ) by norm_num, padicValRat.of_nat]
     simp [padicValNat.eq_zero_of_not_dvd (by decide : ¬ (2 : ℕ) ∣ 3)]
   have hu2 : padicValRat 2 q = 0 := by
-    haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+    have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
     have hvN : padicValRat 2 ((defect D n : ℤ) : ℚ) = 0 := by
       rw [padicValRat.of_int]
       simp [padicValInt.eq_zero_of_not_dvd (defect_odd hD hn1)]

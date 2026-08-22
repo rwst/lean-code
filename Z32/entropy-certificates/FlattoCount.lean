@@ -432,10 +432,10 @@ when `r > 2/3`.  This single identity is what makes the count exactly geometric.
 @[category API, AMS 11 37, ref "Fla92", group "mahler_z_counting"]
 theorem sum_step_allowed (r : ℚ) : ∑ b ∈ allowed r, step r b = 3 * r / 2 := by
   by_cases h : 2 / 3 < r
-  · rw [allowed, if_pos h, Finset.sum_pair Bool.false_ne_true, step_false, step_true,
+  · rw [allowed, ite_eq_left h, Finset.sum_pair Bool.false_ne_true, step_false, step_true,
       min_eq_right (by linarith)]
     ring
-  · rw [allowed, if_neg h, Finset.sum_singleton, step_false,
+  · rw [allowed, ite_eq_right h, Finset.sum_singleton, step_false,
       min_eq_left (by have := not_lt.mp h; linarith)]
 
 theorem card_allowed (r : ℚ) : (allowed r).card = if 2 / 3 < r then 2 else 1 := by
@@ -538,7 +538,7 @@ point `2/3`; so only a `0` may follow.  This is the mechanism behind Mahler's ow
 /-- After a digit `1`, no digit `1` is allowed. -/
 @[category research solved, AMS 11 37, ref "Fla92" "Mahler68", group "mahler_z_counting"]
 theorem allowed_step_true {r : ℚ} (h : r ≤ 1) : allowed (step r true) = {false} := by
-  rw [step_true, allowed, if_neg (by intro hc; linarith)]
+  rw [step_true, allowed, ite_eq_right (by intro hc; linarith)]
 
 /-- Concretely: a stage-`k` word ending in `1` extends only by `0`. -/
 @[category research solved, AMS 11 37, ref "Fla92" "Mahler68", group "mahler_z_counting",
@@ -624,7 +624,7 @@ theorem orbWord_inj_digits {d d' : ℕ → Bool} : ∀ (k : ℕ), orbWord d k = 
 theorem greedy_of_digit_true {r d} (h : IsGreedyOrbit r d) {n : ℕ} (hd : d n = true) :
     2 / 3 ≤ r n := by
   have hs := h.2 n
-  rw [hd, if_pos rfl] at hs
+  rw [hd, ite_eq_left rfl] at hs
   have := (h.1 (n + 1)).1
   linarith
 
@@ -633,7 +633,7 @@ theorem greedy_of_digit_false {r d} (h : IsGreedyOrbit r d) {n : ℕ} (hd : d n 
     r n < 2 / 3 := by
   have hs := h.2 n
   rw [hd] at hs
-  simp only [Bool.false_eq_true, if_false] at hs
+  simp only [Bool.false_eq_true, ite_false] at hs
   have := (h.1 (n + 1)).2
   linarith
 
@@ -653,7 +653,7 @@ theorem orbWord_mem_adm {r d} (h : IsGreedyOrbit r d) :
     | false =>
       have h23 : r k < 2 / 3 := greedy_of_digit_false h hd
       rw [hd] at hs
-      simp only [Bool.false_eq_true, if_false] at hs
+      simp only [Bool.false_eq_true, ite_false] at hs
       refine ⟨?_, ?_⟩
       · rw [orbWord_succ, hd, adm_succ]
         exact Finset.mem_biUnion.mpr
@@ -663,7 +663,7 @@ theorem orbWord_mem_adm {r d} (h : IsGreedyOrbit r d) :
         exact lt_min (by linarith) (by rw [hs]; linarith)
     | true =>
       have h23 : 2 / 3 ≤ r k := greedy_of_digit_true h hd
-      rw [hd, if_pos rfl] at hs
+      rw [hd, ite_eq_left rfl] at hs
       have hR : (2 / 3 : ℚ) < endAfter (orbWord d k) := by
         have : ((2 / 3 : ℚ) : ℝ) < ((endAfter (orbWord d k) : ℚ) : ℝ) := by push_cast; linarith
         exact_mod_cast this
@@ -902,7 +902,7 @@ theorem pCount_two_sided (k : ℕ) :
 theorem zSet_eq : FLP.ZSet 3 2 0 (1 / 2) = {ξ : ℝ | Bugeaud.IsZNumber ξ} := by
   have hpq : ((3 : ℕ) : ℝ) / ((2 : ℕ) : ℝ) = 3 / 2 := by norm_num
   ext ξ
-  simp only [FLP.ZSet, Bugeaud.IsZNumber, Set.mem_setOf_eq, Set.mem_Ico, hpq, zero_add]
+  simp only [FLP.ZSet, Bugeaud.IsZNumber, Set.mem_ofPred_eq, Set.mem_Ico, hpq, zero_add]
   exact ⟨fun ⟨h0, h⟩ => ⟨h0, fun n => (h n).2⟩,
     fun ⟨h0, h⟩ => ⟨h0, fun n => ⟨Int.fract_nonneg _, h n⟩⟩⟩
 
@@ -916,8 +916,8 @@ on the model language does need one.  Given a word `w` and a target `z`, `pull` 
 /-- A digit as a rational, `0` or `1`.  Naming it avoids repeated `ite`-on-`Bool` unfolding. -/
 def dval (b : Bool) : ℚ := if b then 1 else 0
 
-@[simp] theorem dval_false : dval false = 0 := if_neg Bool.false_ne_true
-@[simp] theorem dval_true : dval true = 1 := if_pos rfl
+@[simp] theorem dval_false : dval false = 0 := ite_eq_right Bool.false_ne_true
+@[simp] theorem dval_true : dval true = 1 := ite_eq_left rfl
 
 theorem dval_nonneg (b : Bool) : 0 ≤ dval b := by cases b <;> simp
 
@@ -1073,7 +1073,7 @@ def vecWord {n : ℕ} (v : Fin n → ℤ) : List Bool :=
 theorem vecWord_eq {n : ℕ} (v : Fin n → ℤ) (s : ℕ → ℤ) (h : ∀ i : Fin n, s i = v i) :
     vecWord v = orbWord (fun i => decide (s i = 1)) n := by
   refine (orbWord_congr n fun i hi => ?_).symm
-  rw [dif_pos hi, h ⟨i, hi⟩]
+  rw [dite_eq_left hi, h ⟨i, hi⟩]
 
 /-- The vector is recovered from its word, given that the carries are `{0,1}`. -/
 theorem vecWord_injective {n : ℕ} {v v' : Fin n → ℤ}
@@ -1081,7 +1081,7 @@ theorem vecWord_injective {n : ℕ} {v v' : Fin n → ℤ}
     (h : vecWord v = vecWord v') : v = v' := by
   funext i
   have hd := orbWord_inj_digits n h i i.isLt
-  rw [dif_pos i.isLt, dif_pos i.isLt] at hd
+  rw [dite_eq_left i.isLt, dite_eq_left i.isLt] at hd
   have hi : (⟨(i : ℕ), i.isLt⟩ : Fin n) = i := rfl
   rw [hi] at hd
   rcases hv i with h0 | h1

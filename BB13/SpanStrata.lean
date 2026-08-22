@@ -22,6 +22,10 @@ where its constant is smaller.  At `γ = 1/4`:
 
 `K(ε* + θ/4) = 537 048 098 048` against `K(ε*) = 1 856 360 182 227` — a factor `3.46`.
 
+When the companion `b` is itself a failure, the archimedean place carries a surplus of exactly the
+same size and the exponent **doubles**, to `ε* + 2γθ`: see `BB13/SpanStrataSharp.lean`, where
+`K(ε* + θ/2) = 249 269 834 049` at `γ = 1/4`.
+
 The stratification is not vacuous only for `γ` below the confinement exponent: `span_ratio_lt`
 shows a relation-tower always has `γ < log(3/2)/log 2 = 0.58496…`, so the useful range is
 `0 < γ < 0.58496…` and the count degenerates to `BB13.towersAbove_card_le` at `γ = 0`.
@@ -32,8 +36,11 @@ A referee suggested stratifying by a **fixed absolute surplus** instead — coun
 `‖(3/2)ⁿ‖ < 2^{−d}(3/4)ⁿ` at the frame `ε* + δ`.  That inequality runs the wrong way: the frame
 demands `2^{−d} ≤ 3^{−nδ}`, i.e. `n ≤ d·log 2/(δ·log 3)`, an *upper* bound on `n` — a fixed
 absolute surplus is worth less and less as `n` grows, and the set it captures is finite for
-trivial reasons.  What survives is the **span-proportional** stratification above, and it must
-sharpen the `2`-adic exponent `f₂`, not the archimedean `f_∞`: the surplus is `2`-adic in origin.
+trivial reasons.  What survives is the **span-proportional** stratification above.  Its
+`2`-adic half asks nothing of the companion, the divisibility `2ᵇ⁻ᵃ ∣ mₐ` being unconditional;
+its archimedean half asks that the companion be a failure, and is `BB13/SpanStrataSharp.lean`'s
+`tall_exception_towers_line_cover`, at the doubled exponent `ε* + 2γθ`.  The two are worth the
+same `γθ`, and a fixed absolute surplus is worth neither.
 
 The other variant — a count decaying in the *absolute* height `t` of a tower, uniformly in the
 base — is equivalent to the open per-line problem and cannot come from Cor. 5.2 at all.
@@ -96,7 +103,9 @@ theorem two_pow_le_rpow_of_span {a D : ℕ} {γ : ℝ} (hspan : γ * (a : ℝ) �
 `γ·a` lie on at most `K(ε* + γθ)` lines through the origin — the same Bugeaud–Evertse count, run
 at a larger exponent because the tower's `2`-adic surplus pays for it.
 
-Only collinearity of the two frame points is used, not that `b` is itself a failure. -/
+Only collinearity of the two frame points is used, not that `b` is itself a failure — which is
+precisely what the sharp form (`BB13.tall_exception_towers_line_cover`) trades away in exchange
+for the archimedean half of the surplus. -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem tall_towers_line_cover (γ : ℝ) (hγ : 0 ≤ γ) :
     ∃ R : Finset ℚ, R.card ≤ BugeaudEvertse.lineBound (epsStar + γ * theta) ∧

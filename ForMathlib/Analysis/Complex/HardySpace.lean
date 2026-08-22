@@ -91,12 +91,12 @@ private lemma circleAverage_normSq_partialSum (a : ℕ → ℂ) (r : ℝ) (N : �
   have hsub : Q.support ⊆ Finset.range N := by
     intro i hi
     by_contra h
-    rw [Polynomial.mem_support_iff, hcoeff i, if_neg h] at hi
+    rw [Polynomial.mem_support_iff, hcoeff i, ite_eq_right h] at hi
     exact hi rfl
   rw [Finset.sum_subset hsub fun i _ hni => by
     rw [Polynomial.mem_support_iff, not_not] at hni; rw [hni]; simp]
   refine Finset.sum_congr rfl fun i hi => ?_
-  rw [hcoeff i, if_pos hi, norm_mul, mul_pow]
+  rw [hcoeff i, ite_eq_left hi, norm_mul, mul_pow]
   congr 1
   rw [← Complex.ofReal_pow, Complex.norm_real, Real.norm_eq_abs, sq_abs, ← pow_mul, mul_comm]
 

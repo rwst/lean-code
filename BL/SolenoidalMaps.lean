@@ -271,7 +271,7 @@ theorem lemma_A2 (U : ℤ_[2] → ℤ_[2]) (Fam : (n : ℕ) → ZMod (2 ^ n) →
     fun n s => by rw [map_natCast, ZMod.natCast_val, ZMod.cast_id]
   tfae_have 1 → 2 := by
     rintro hU n
-    haveI : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
+    have : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
     have hsurj : Function.Surjective (Fam n) := fun s => by
       obtain ⟨x, hx⟩ := hU.surjective (((s.val : ℕ) : ℤ_[2]))
       exact ⟨PadicInt.toZModPow n x, by rw [← hlim n x, hx]; exact hsect n s⟩
@@ -282,7 +282,7 @@ theorem lemma_A2 (U : ℤ_[2] → ℤ_[2]) (Fam : (n : ℕ) → ZMod (2 ^ n) →
     exact (hperm n).injective hxy
   tfae_have 3 → 2 := by
     rintro hrefl n
-    haveI : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
+    have : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
     have hinj : Function.Injective (Fam n) := fun a b hab => by
       have key : PadicInt.toZModPow n (U (((a.val : ℕ) : ℤ_[2])))
           = PadicInt.toZModPow n (U (((b.val : ℕ) : ℤ_[2]))) := by
@@ -366,14 +366,14 @@ theorem corollary_A3 (U : ℤ_[2] → ℤ_[2]) :
     rintro ⟨hsol, hbij⟩ x y
     refine le_antisymm ((solenoidal_iff_nonExpanding U).mp hsol x y) ?_
     obtain ⟨Fam, hcompat, hlim⟩ := (solenoidal_iff_isInverseLimit U).mp hsol
-    exact (reflects_iff_norm_le U).mp (((lemma_A2 U Fam hcompat hlim).out 0 2).mp hbij) x y
+    exact (reflects_iff_norm_le U).mp (((lemma_A2 U Fam hcompat hlim).out 1 3).mp hbij) x y
   tfae_have 3 → 2 := by
     intro hiso
     have hsol : Solenoidal U :=
       (solenoidal_iff_nonExpanding U).mpr (fun x y => le_of_eq (hiso x y))
     have hbij : Function.Bijective U := by
       obtain ⟨Fam, hcompat, hlim⟩ := (solenoidal_iff_isInverseLimit U).mp hsol
-      exact ((lemma_A2 U Fam hcompat hlim).out 0 2).mpr
+      exact ((lemma_A2 U Fam hcompat hlim).out 1 3).mpr
         ((reflects_iff_norm_le U).mpr (fun x y => ge_of_eq (hiso x y)))
     refine ⟨hsol, hbij, (solenoidal_iff_nonExpanding _).mpr (fun a b => le_of_eq ?_)⟩
     rw [← hiso (Function.invFun U a) (Function.invFun U b),

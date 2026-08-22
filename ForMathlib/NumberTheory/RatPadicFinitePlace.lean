@@ -65,7 +65,7 @@ theorem place_embedding_primeSpectrum :
         rw [show (Rat.HeightOneSpectrum.natGenerator :
               IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ) → ℕ)
               = fun w => ((Rat.HeightOneSpectrum.primesEquiv) w).1 from rfl]
-        simp
+        exact congrArg Subtype.val (Rat.HeightOneSpectrum.primesEquiv.apply_symm_apply _)
       have hspan := Rat.HeightOneSpectrum.span_natGenerator (primeSpectrum p)
       rw [hng] at hspan
       have h1 : (primeSpectrum p).asIdeal
@@ -98,7 +98,7 @@ theorem place_embedding_primeSpectrum :
         WithZeroMulInt.toNNReal_le_one_iff
           (NumberField.HeightOneSpectrum.one_lt_absNorm_nnreal (primeSpectrum p))]
     have hprimes : Rat.HeightOneSpectrum.primesEquiv (primeSpectrum p) = ⟨p, Fact.out⟩ := by
-      unfold primeSpectrum; rw [Equiv.apply_symm_apply]
+      unfold primeSpectrum; exact Rat.HeightOneSpectrum.primesEquiv.apply_symm_apply _
     rw [Valuation.isEquiv_iff_val_le_one.mp
           (hprimes ▸ Rat.HeightOneSpectrum.valuation_equiv_padicValuation (primeSpectrum p))]
     rw [Rat.padicValuation_le_one_iff_padicNorm, Rat.AbsoluteValue.padic_eq_padicNorm]

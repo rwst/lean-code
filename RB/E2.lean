@@ -117,8 +117,7 @@ open Polynomial
 theorem not_isIntegral_three_halves : ¬ IsIntegral ℤ ((3 : ℝ) / 2) := by
   intro hint
   rw [show ((3 : ℝ) / 2) = algebraMap ℚ ℝ (3 / 2) by rw [eq_ratCast]; norm_num] at hint
-  rw [isIntegral_algebraMap_iff (algebraMap ℚ ℝ).injective,
-    IsIntegrallyClosed.isIntegral_iff] at hint
+  rw [isIntegral_algebraMap_iff, IsIntegrallyClosed.isIntegral_iff] at hint
   obtain ⟨y, hy⟩ := hint
   have h1 : (y : ℚ) = 3 / 2 := by simpa using hy
   have h2 : (2 : ℤ) * y = 3 := by

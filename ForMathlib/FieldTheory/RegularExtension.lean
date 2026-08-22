@@ -148,9 +148,9 @@ theorem linearIndependent_of_eq_bot [CharZero F] (h : algebraicClosure F E = ⊥
     {ι : Type*} [Finite ι] {v : ι → Ω} (hint : ∀ i, IsIntegral F (v i))
     (hli : LinearIndependent F v) : LinearIndependent E v := by
   classical
-  haveI : Finite (Set.range v) := (Set.finite_range v).to_subtype
+  have : Finite (Set.range v) := (Set.finite_range v).to_subtype
   set A : IntermediateField F Ω := IntermediateField.adjoin F (Set.range v) with hA
-  haveI : FiniteDimensional F A :=
+  have : FiniteDimensional F A :=
     IntermediateField.finiteDimensional_adjoin (fun y hy => by
       obtain ⟨i, rfl⟩ := hy
       exact hint i)

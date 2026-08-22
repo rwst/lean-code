@@ -88,7 +88,7 @@ This is Appendix A's `corollary_A3` applied to `Φ`, which is solenoidal (`Φ_so
 (`Φ.bijective`). -/
 @[category API, AMS 37 11, ref "BL96"]
 theorem Φ_isometry : Isometry (⇑Φ) := by
-  have hiff := (corollary_A3 (⇑Φ)).out 0 2
+  have hiff := (corollary_A3 (⇑Φ)).out 1 3
   have hnorm : ∀ x y, ‖Φ x - Φ y‖ = ‖x - y‖ := hiff.mp ⟨Φ_solenoidal, Φ.bijective⟩
   exact Isometry.of_dist_eq fun x y => by rw [dist_eq_norm, dist_eq_norm]; exact hnorm x y
 

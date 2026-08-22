@@ -4,7 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import SRS.AntihydraSRSForward
-import Mathlib.Data.Nat.Lattice
+import Mathlib.Order.Lattice.Nat
 import Mathlib.Computability.DFA
 
 /-!
@@ -123,18 +123,18 @@ theorem macroIter_eq_orbit (a₀ b₀ : ℕ) :
       refine ⟨by rw [valOrbit_succ, ← hav]; exact macroStep_value h, ?_⟩
       have hcounter : (bₙ₁ : ℤ) = (bₙ : ℤ) + (if aₙ % 2 = 0 then 2 else -1) := by
         by_cases hpar : aₙ % 2 = 0
-        · rw [if_pos hpar]
+        · rw [ite_eq_left hpar]
           have hb1 : bₙ₁ = bₙ + 2 := by
             have h' := h
-            simp only [macroStep, if_pos hpar, Option.some.injEq, Prod.mk.injEq] at h'; omega
+            simp only [macroStep, ite_eq_left hpar, Option.some.injEq, Prod.mk.injEq] at h'; omega
           rw [hb1]; push_cast; ring
-        · rw [if_neg hpar]
+        · rw [ite_eq_right hpar]
           have hb : bₙ ≠ 0 := by
             rintro rfl
             rw [(macroStep_eq_none_iff aₙ 0).mpr ⟨by omega, rfl⟩] at h; exact absurd h (by simp)
           have hb1 : bₙ₁ = bₙ - 1 := by
             have h' := h
-            simp only [macroStep, if_neg hpar, if_neg hb, Option.some.injEq, Prod.mk.injEq] at h'; omega
+            simp only [macroStep, ite_eq_right hpar, ite_eq_right hb, Option.some.injEq, Prod.mk.injEq] at h'; omega
           rw [hb1, Nat.cast_sub (show 1 ≤ bₙ by omega)]; push_cast; ring
       rw [counterZ_succ, ← hav, ← hcv]; exact hcounter
 

@@ -222,8 +222,7 @@ theorem card_wordWeight_eq_choose (k j : ℕ) :
         ext i
         by_cases h : i ∈ s <;> simp [h]
       refine ⟨fun i => if i ∈ s then (1 : ZMod 2) else 0, ?_, hfil⟩
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, wordWeight, hfil]
-      exact hcard
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, by simpa only [wordWeight, hfil] using hcard⟩
   rw [hbij, Finset.card_powersetCard, Finset.card_univ, Fintype.card_fin]
 
 /-! ### Transport to Collatz residues via the Terras–Everett bijection -/
@@ -268,8 +267,7 @@ theorem card_residues_with_oddCount (k j : ℕ) :
       obtain ⟨r, hr⟩ := (CC.terras_bijection k).2 v
       refine ⟨r, ?_, hr⟩
       have hw : wordWeight v = j := (Finset.mem_filter.mp hv).2
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and, oddCount, hr]
-      exact hw
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, by simpa only [oddCount, hr] using hw⟩
   rw [hcard, card_wordWeight_eq_choose]
 
 /-- Exact count of residues whose first `k` Terras parity bits contain at most

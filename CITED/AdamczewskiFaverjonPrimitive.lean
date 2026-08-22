@@ -106,9 +106,9 @@ theorem exists_primitive_decomposition {ι : Type*} [Finite ι] (x : ι → Ω)
     ∃ (ϕ : Ω) (δ : ℕ) (c : ι → ℕ → F), IsIntegral F ϕ ∧ (minpoly F ϕ).natDegree = δ ∧
       ∀ s, x s = ∑ j ∈ Finset.range δ, algebraMap F Ω (c s j) * ϕ ^ j := by
   classical
-  haveI : Finite (Set.range x) := (Set.finite_range x).to_subtype
+  have : Finite (Set.range x) := (Set.finite_range x).to_subtype
   set L : IntermediateField F Ω := IntermediateField.adjoin F (Set.range x) with hL
-  haveI : FiniteDimensional F L :=
+  have : FiniteDimensional F L :=
     IntermediateField.finiteDimensional_adjoin (fun y hy => by
       obtain ⟨s, rfl⟩ := hy
       exact hint s)
@@ -189,7 +189,7 @@ theorem exists_polynomial_decomposition {ι : Type*} [Fintype ι] (x : ι → Ω
   rw [Finset.mem_range] at hj
   show _ = algebraMap (RatFunc K) Ω (algebraMap K[X] (RatFunc K)
     (if h : j < δ then p (s, ⟨j, h⟩) else 0)) * ϕ ^ j
-  rw [dif_pos hj, ← mul_assoc, ← map_mul, hp (s, ⟨j, hj⟩)]
+  rw [dite_eq_left hj, ← mul_assoc, ← map_mul, hp (s, ⟨j, hj⟩)]
 
 end Combined
 
@@ -226,12 +226,12 @@ theorem linearForm_split (E : IntermediateField F Ω) (hreg : algebraicClosure F
     intro j
     rw [hc, hG]
     by_cases hj : (j : ℕ) < δ
-    · simp only [if_pos hj]
+    · simp only [ite_eq_left hj]
       congr 1
       rw [map_sum]
       refine Finset.sum_congr rfl fun i _ => ?_
       rw [map_mul, ← IsScalarTower.algebraMap_apply]
-    · simp [if_neg hj]
+    · simp [ite_eq_right hj]
   have hzero : ∑ j, algebraMap E Ω (c j) * x ^ (j : ℕ) = 0 := by
     calc ∑ j, algebraMap E Ω (c j) * x ^ (j : ℕ)
         = ∑ j ∈ Finset.range (minpoly F x).natDegree, G j := by
@@ -242,11 +242,11 @@ theorem linearForm_split (E : IntermediateField F Ω) (hreg : algebraicClosure F
           · rw [Finset.mem_range] at hj ⊢
             omega
           · rw [Finset.mem_range] at hj
-            simp [hG, if_neg hj]
+            simp [hG, ite_eq_right hj]
       _ = ∑ j ∈ Finset.range δ, (∑ i, algebraMap F Ω (w i j) * algebraMap E Ω (g i)) * x ^ j := by
           refine Finset.sum_congr rfl fun j hj => ?_
           rw [Finset.mem_range] at hj
-          simp [hG, if_pos hj]
+          simp [hG, ite_eq_left hj]
       _ = ∑ i, (∑ j ∈ Finset.range δ, algebraMap F Ω (w i j) * x ^ j) * algebraMap E Ω (g i) := by
           simp_rw [Finset.sum_mul]
           rw [Finset.sum_comm]

@@ -81,13 +81,13 @@ noncomputable def shiftConj (V₀ V₁ : ℤ_[2] → ℤ_[2]) (x : ℤ_[2]) : �
 @[category API, AMS 11 37, ref "BL96"]
 theorem shiftConj_even (V₀ V₁ : ℤ_[2] → ℤ_[2]) {x : ℤ_[2]} (h : parity x = 0) :
     shiftConj V₀ V₁ x = V₀ (S x) := by
-  rw [shiftConj, if_pos h]
+  rw [shiftConj, ite_eq_left h]
 
 /-- On **odd** `x` the construction is `U(x) = V₁((x-1)/2) = V₁(S x)`. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem shiftConj_odd (V₀ V₁ : ℤ_[2] → ℤ_[2]) {x : ℤ_[2]} (h : parity x = 1) :
     shiftConj V₀ V₁ x = V₁ (S x) := by
-  rw [shiftConj, if_neg (by rw [h]; decide)]
+  rw [shiftConj, ite_eq_right (by rw [h]; decide)]
 
 /-- The parity of a 2-adic integer is `0` or `1`. -/
 @[category API, AMS 11 37, ref "BL96"]
@@ -139,7 +139,7 @@ theorem lemma_B1 {V : ℤ_[2] → ℤ_[2]} (hsol : Solenoidal V) (hbij : Functio
     (2 : ℤ_[2]) ^ (m + 1) ∣ (V z - (V w + (z - w))) := by
   have hb_m : (2 : ℤ_[2]) ^ m ∣ (V z - V w) := hsol m z w hzw
   have hiso : ∀ x y, ‖V x - V y‖ = ‖x - y‖ :=
-    ((corollary_A3 V).out 0 2).mp (⟨hsol, hbij⟩ : Solenoidal V ∧ Function.Bijective V)
+    ((corollary_A3 V).out 1 3).mp (⟨hsol, hbij⟩ : Solenoidal V ∧ Function.Bijective V)
   have hrefl : ∀ n : ℕ, ((2 : ℤ_[2]) ^ n ∣ (V z - V w) ↔ (2 : ℤ_[2]) ^ n ∣ (z - w)) := fun n => by
     rw [dvd_pow_iff_norm_le, dvd_pow_iff_norm_le, hiso z w]
   by_cases hc : (2 : ℤ_[2]) ^ (m + 1) ∣ (z - w)
@@ -560,13 +560,13 @@ theorem theorem_B2 {Q : ℤ_[2] → ℤ_[2]} (hQsol : Solenoidal Q) (hQbij : Fun
       (Solenoidal V₀ ∧ Function.Bijective V₀) ∧ (Solenoidal V₁ ∧ Function.Bijective V₁)
         ∧ Function.invFun Q ∘ S ∘ Q = shiftConj V₀ V₁ := by
   have hQiso : ∀ a a', ‖Q a - Q a'‖ = ‖a - a'‖ :=
-    ((corollary_A3 Q).out 0 2).mp (⟨hQsol, hQbij⟩ : Solenoidal Q ∧ Function.Bijective Q)
-  have hkey := ((corollary_A3 Q).out 0 1).mp (⟨hQsol, hQbij⟩ : Solenoidal Q ∧ Function.Bijective Q)
+    ((corollary_A3 Q).out 1 3).mp (⟨hQsol, hQbij⟩ : Solenoidal Q ∧ Function.Bijective Q)
+  have hkey := ((corollary_A3 Q).out 1 2).mp (⟨hQsol, hQbij⟩ : Solenoidal Q ∧ Function.Bijective Q)
   have hQinvBij : Function.Bijective (Function.invFun Q) :=
     Function.bijective_iff_has_inverse.mpr
       ⟨Q, Function.rightInverse_invFun hQbij.surjective, Function.leftInverse_invFun hQbij.injective⟩
   have hQinvIso : ∀ a a', ‖Function.invFun Q a - Function.invFun Q a'‖ = ‖a - a'‖ :=
-    ((corollary_A3 (Function.invFun Q)).out 0 2).mp
+    ((corollary_A3 (Function.invFun Q)).out 1 3).mp
       (⟨hkey.2.2, hQinvBij⟩ : Solenoidal (Function.invFun Q) ∧ Function.Bijective (Function.invFun Q))
   have hVb : ∀ b : ℤ_[2],
       Solenoidal (fun w => Function.invFun Q (S (Q (2 * w + b))))
@@ -588,7 +588,7 @@ theorem theorem_B2 {Q : ℤ_[2] → ℤ_[2]} (hQsol : Solenoidal Q) (hQbij : Fun
         rw [← norm_mul, hSrel, hQiso, ← norm_mul]
         congr 1; ring
       exact mul_left_cancel₀ (norm_ne_zero_iff.mpr (by norm_num)) e1
-    exact ((corollary_A3 _).out 2 0).mp hiso
+    exact ((corollary_A3 _).out 3 1).mp hiso
   refine ⟨fun w => Function.invFun Q (S (Q (2 * w + 0))),
     fun w => Function.invFun Q (S (Q (2 * w + 1))), hVb 0, hVb 1, ?_⟩
   funext x

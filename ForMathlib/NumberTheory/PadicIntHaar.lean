@@ -49,7 +49,7 @@ private theorem measurableSet_toZModPow_ker (n : ℕ) :
   have h : (toZModPow (p := p) n) ⁻¹' {0} = {x : ℤ_[p] | ‖x‖ ≤ (p : ℝ) ^ (-n : ℤ)} := by
     ext x
     rw [Set.mem_preimage, Set.mem_singleton_iff, ← RingHom.mem_ker, ker_toZModPow,
-      Set.mem_setOf_eq]
+      Set.mem_ofPred_eq]
     exact (norm_le_pow_iff_mem_span_pow x n).symm
   rw [h]
   exact (isClosed_le continuous_norm continuous_const).measurableSet
@@ -76,7 +76,7 @@ private theorem measure_toZModPow_fiber_eq_ker (n : ℕ) (c : ZMod (p ^ n)) :
 partition `ℤ_[p]`, so each carries mass `1/pⁿ`. -/
 theorem measure_toZModPow_fiber (n : ℕ) (c : ZMod (p ^ n)) :
     μ ((toZModPow n) ⁻¹' {c}) = ((p : ℝ≥0∞) ^ n)⁻¹ := by
-  haveI : NeZero (p ^ n) := ⟨pow_ne_zero n (Nat.Prime.ne_zero Fact.out)⟩
+  have : NeZero (p ^ n) := ⟨pow_ne_zero n (Nat.Prime.ne_zero Fact.out)⟩
   have hcover : ⋃ d : ZMod (p ^ n), (toZModPow n) ⁻¹' {d} = Set.univ := by
     rw [← Set.preimage_iUnion, show (⋃ d : ZMod (p ^ n), ({d} : Set (ZMod (p ^ n)))) = Set.univ from
       by ext y; simp, Set.preimage_univ]

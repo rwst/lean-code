@@ -242,7 +242,7 @@ theorem Φ_solenoidal : Solenoidal (⇑Φ) := by
   have hinv : Function.invFun qMap = ⇑Φ :=
     (hL.eq_rightInverse (Function.rightInverse_invFun qMap_bijective.surjective)).symm
   have hand : Solenoidal qMap ∧ Function.Bijective qMap := ⟨qMap_solenoidal, qMap_bijective⟩
-  have hiff := (corollary_A3 qMap).out 0 1
+  have hiff := (corollary_A3 qMap).out 1 2
   have hsi : Solenoidal (Function.invFun qMap) := (hiff.mp hand).2.2
   rwa [hinv] at hsi
 

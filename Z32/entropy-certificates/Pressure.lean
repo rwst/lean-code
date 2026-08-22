@@ -3,8 +3,8 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import Z32.EntropyCert
-import Z32.FlattoCount
+import Z32.«entropy-certificates».EntropyCert
+import Z32.«entropy-certificates».FlattoCount
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Topology.Algebra.Order.LiminfLimsup
 import Corpus.Util.Attributes.Basic

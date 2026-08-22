@@ -86,7 +86,7 @@ residues with equal parity vectors are congruent mod `2^k`, hence equal as `val 
 injection is a bijection (`Fintype.bijective_iff_injective_and_card`). -/
 @[category research solved, AMS 11 37, ref "Ter76" "Eve77", group "terras_everett"]
 theorem terras_bijection (k : ℕ) : Function.Bijective (parityVec k) := by
-  haveI : NeZero ((2 : ℕ) ^ k) := ⟨pow_ne_zero k (by norm_num)⟩
+  have : NeZero ((2 : ℕ) ^ k) := ⟨pow_ne_zero k (by norm_num)⟩
   rw [Fintype.bijective_iff_injective_and_card]
   refine ⟨fun r s hrs => ?_, ?_⟩
   · have hev : E_vec k r.val = E_vec k s.val := by

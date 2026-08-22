@@ -357,7 +357,7 @@ theorem oneTerm_slice_finite {n₀ : ℕ} {ρ B₀ : ℚ} (hgeo : IsUniformlyGeo
     refine dist_pos_of_odd_num (c := c) hδ' (odd_cocycle_num n₀ c) ?_ hcn
     rw [show (2 : ℚ) ^ c * (δ' * cocycle n₀ c) = δ' * ((2 : ℚ) ^ c * cocycle n₀ c) by ring,
       two_pow_mul_cocycle]
-  rw [Set.mem_preimage, Set.mem_setOf_eq]
+  rw [Set.mem_preimage, Set.mem_ofPred_eq]
   refine ⟨le_refl 1, ?_, ?_, ?_, ?_⟩
   · rw [sval_eq_cocycle]
     have hΛ := hNs c hcs
@@ -470,7 +470,7 @@ theorem fixedRatio_slice_finite {n₀ : ℕ} {ρ B₀ : ℚ} (hgeo : IsUniformly
     rw [show (2 : ℚ) ^ c * (δ * (cocycle n₀ c - cocycle n₀ a'))
       = δ * ((2 : ℚ) ^ c * (cocycle n₀ c - cocycle n₀ a')) by ring,
       two_pow_mul_cocycle_sub hac]
-  rw [Set.mem_preimage, Set.mem_setOf_eq]
+  rw [Set.mem_preimage, Set.mem_ofPred_eq]
   refine ⟨le_refl 1, ?_, ?_, ?_, ?_⟩
   · rw [sval_eq_cocycle]
     have hΛ := hNs a' has

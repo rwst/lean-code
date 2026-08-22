@@ -59,8 +59,8 @@ theorem phi_twoPlace_product_le (vinf : AbsoluteValue ℚ ℝ)
         ∏ i, v (phiForms n v i x) / (⨆ j, v (x j))) ≤ r := by
   refine twoPlace_product_le vinf (Rat.AbsoluteValue.padic 2) hne (phiForms n) ?_ x r ?_
   · show (if vinf = Rat.AbsoluteValue.padic 2 then placeForms n else coordForms) = coordForms
-    rw [if_neg hne]
-  · have : phiForms n (Rat.AbsoluteValue.padic 2) = placeForms n := if_pos rfl
+    rw [ite_eq_right hne]
+  · have : phiForms n (Rat.AbsoluteValue.padic 2) = placeForms n := ite_eq_left rfl
     rw [this]; exact h2
 
 @[category research solved, AMS 11 37, ref "Eve96" "AB07", group "b3_missing_lemma"]
@@ -105,8 +105,8 @@ theorem phi_twoPlace_product_le_invSup (vinf : AbsoluteValue ℚ ℝ)
         ∏ i, v (phiForms n v i x) / (⨆ j, v (x j))) ≤ (⨆ j, vinf (x j))⁻¹ * r := by
   refine twoPlace_product_le_invSup vinf (Rat.AbsoluteValue.padic 2) hne (phiForms n) ?_ x hx1 r ?_
   · show (if vinf = Rat.AbsoluteValue.padic 2 then placeForms n else coordForms) = coordForms
-    rw [if_neg hne]
-  · have : phiForms n (Rat.AbsoluteValue.padic 2) = placeForms n := if_pos rfl
+    rw [ite_eq_right hne]
+  · have : phiForms n (Rat.AbsoluteValue.padic 2) = placeForms n := ite_eq_left rfl
     rw [this]; exact h2
 
 @[category research solved, AMS 11 37, ref "AB07" "BL96" "Eve96", group "b3_missing_lemma"]

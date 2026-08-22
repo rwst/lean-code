@@ -203,7 +203,7 @@ theorem frequently_empirical_lt_of_mem_limitMeasures {ξ : ℝ} {ν : Probabilit
     (hc : (ν : Measure S6) C < c) :
     ∃ᶠ N in atTop, (empirical ξ N : Measure S6) C < c := by
   have hclust : ClusterPt ν (Filter.map (empirical ξ) atTop) := hν.clusterPt
-  haveI hne : (𝓝 ν ⊓ Filter.map (empirical ξ) atTop).NeBot := hclust
+  have hne : (𝓝 ν ⊓ Filter.map (empirical ξ) atTop).NeBot := hclust
   have htend : Tendsto (id : ProbabilityMeasure S6 → ProbabilityMeasure S6)
       (𝓝 ν ⊓ Filter.map (empirical ξ) atTop) (𝓝 ν) := tendsto_id.mono_left inf_le_left
   have hlim : ((𝓝 ν ⊓ Filter.map (empirical ξ) atTop).limsup

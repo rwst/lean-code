@@ -231,7 +231,7 @@ formalises the Cauchy–Schwarz step (`sq_sum_le_card_mul_sum_sq`) and the diffe
 reindexing over the zero-extension `w : ℤ → ℂ` of `(uₙ)`. -/
 @[category research solved, AMS 11, ref "Bug12" "vdC31",
   formal_uses vanDerCorput_fundamental_inequality]
-theorem vanDerCorput_lemma_1_5 (a N : ℕ) (ha : 0 < a) (hN : 0 < N) (u : ℕ → ℂ)
+theorem vanDerCorput_lemma_1_5 (a N : ℕ) (ha : 0 < a) (_hN : 0 < N) (u : ℕ → ℂ)
     (L : ℕ) (hL : 1 ≤ a * L) (hLN : a * L ≤ N) :
     (L : ℝ) ^ 2 * ‖∑ n ∈ Finset.Icc 1 N, u n‖ ^ 2 ≤
       (L : ℝ) * ((N : ℝ) + (a : ℝ) * ((L : ℝ) - 1)) * ∑ n ∈ Finset.Icc 1 N, ‖u n‖ ^ 2

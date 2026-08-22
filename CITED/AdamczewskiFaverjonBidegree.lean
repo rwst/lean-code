@@ -88,11 +88,13 @@ noncomputable def bidegPiece (K : Type*) [Field K] (σ : Type*) (δ₁ δ₂ : �
     Submodule K (MvPolynomial σ (RatFunc K)) :=
   Submodule.span K (bidegGens K σ δ₁ δ₂)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem monomial_mem_bidegPiece {δ₁ δ₂ : ℕ} {k : σ →₀ ℕ} {a : ℕ} (hk : ∀ i, k i ≤ δ₁)
     (ha : a ≤ δ₂) : monomial k ((RatFunc.X : RatFunc K) ^ a) ∈ bidegPiece K σ δ₁ δ₂ :=
   Submodule.subset_span ⟨(k, a), ⟨hk, ha⟩, rfl⟩
 
+omit [DecidableEq σ] in
 /-- The exponent vectors bounded by `δ₁` form a finite set. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem finite_boundedExponents (δ₁ : ℕ) : {k : σ →₀ ℕ | ∀ i, k i ≤ δ₁}.Finite := by
@@ -103,6 +105,7 @@ theorem finite_boundedExponents (δ₁ : ℕ) : {k : σ →₀ ℕ | ∀ i, k i 
   ext i
   simp
 
+omit [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem finite_bidegGens (δ₁ δ₂ : ℕ) : (bidegGens K σ δ₁ δ₂).Finite := by
   refine Set.Finite.image _ ?_
@@ -113,6 +116,7 @@ instance instFiniteDimensionalBidegPiece (δ₁ δ₂ : ℕ) :
     FiniteDimensional K (bidegPiece K σ δ₁ δ₂) :=
   FiniteDimensional.span_of_finite K (finite_bidegGens δ₁ δ₂)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem bidegPiece_mono {δ₁ δ₂ δ₂' : ℕ} (h : δ₂ ≤ δ₂') :
     bidegPiece K σ δ₁ δ₂ ≤ bidegPiece K σ δ₁ δ₂' :=
@@ -135,12 +139,14 @@ theorem mulLeft_pow_apply {A : Type*} [CommRing A] [Algebra K A] (a : A) (n : �
       rw [Module.End.iterate_succ', LinearMap.comp_apply, ih, LinearMap.mulLeft_apply]
       ring
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem mulZ_pow_apply (n : ℕ) (x : MvPolynomial σ (RatFunc K)) :
     ((mulZ K σ : Module.End K (MvPolynomial σ (RatFunc K))) ^ n) x =
       C ((RatFunc.X : RatFunc K) ^ n) * x := by
   rw [mulZ, mulLeft_pow_apply, map_pow]
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- The step relation: the piece of `z`-degree `≤ N+1` is the piece of `z`-degree `≤ N` together
 with `z^{N+1}` times the piece of `z`-degree `0`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -165,6 +171,7 @@ theorem bidegPiece_succ (δ₁ N : ℕ) :
     rw [mulZ_pow_apply, C_mul_monomial, pow_zero, mul_one]
     exact monomial_mem_bidegPiece hk le_rfl
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- Multiplication by `z` raises the `z`-degree by exactly one. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem map_mulZ_bidegPiece_le (δ₁ N : ℕ) :
@@ -188,6 +195,7 @@ variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 noncomputable def relQuot : MvPolynomial σ (RatFunc K) →ₗ[K] (MvPolynomial σ (RatFunc K) ⧸ I) :=
   (Ideal.Quotient.mkₐ K I).toLinearMap
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relQuot_apply (x : MvPolynomial σ (RatFunc K)) :
     relQuot I x = Ideal.Quotient.mk I x := rfl
@@ -197,18 +205,21 @@ theorem relQuot_apply (x : MvPolynomial σ (RatFunc K)) :
 noncomputable def mulZQuot : (MvPolynomial σ (RatFunc K) ⧸ I) →ₗ[K] (MvPolynomial σ (RatFunc K) ⧸ I) :=
   LinearMap.mulLeft K (Ideal.Quotient.mk I (C (RatFunc.X : RatFunc K)))
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relQuot_comp_mulZ_pow (n : ℕ) (x : MvPolynomial σ (RatFunc K)) :
     relQuot I (((mulZ K σ : Module.End K (MvPolynomial σ (RatFunc K))) ^ n) x) =
       ((mulZQuot I : Module.End K (MvPolynomial σ (RatFunc K) ⧸ I)) ^ n) (relQuot I x) := by
   simp only [mulZ_pow_apply, mulZQuot, mulLeft_pow_apply, relQuot_apply, map_mul, map_pow]
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relQuot_comp_mulZ_pow' (n : ℕ) :
     (relQuot I).comp ((mulZ K σ : Module.End K (MvPolynomial σ (RatFunc K))) ^ n) =
       ((mulZQuot I : Module.End K (MvPolynomial σ (RatFunc K) ⧸ I)) ^ n).comp (relQuot I) :=
   LinearMap.ext (relQuot_comp_mulZ_pow I n)
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- `z` is invertible in `K(z)`, hence multiplication by it is injective on any quotient — no
 properness of `I` needed: over the zero ring every map is injective. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -228,6 +239,7 @@ instance instFiniteDimensionalRelImage (δ₁ δ₂ : ℕ) : FiniteDimensional K
   rw [relImage, bidegPiece, Submodule.map_span]
   exact FiniteDimensional.span_of_finite K ((finite_bidegGens δ₁ δ₂).image _)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relImage_succ (δ₁ N : ℕ) :
     relImage I δ₁ (N + 1) = relImage I δ₁ N ⊔ (relImage I δ₁ 0).map
@@ -235,6 +247,7 @@ theorem relImage_succ (δ₁ N : ℕ) :
   rw [relImage, relImage, relImage, bidegPiece_succ, Submodule.map_sup, ← Submodule.map_comp,
     relQuot_comp_mulZ_pow', Submodule.map_comp]
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem map_mulZQuot_relImage_le (δ₁ N : ℕ) :
     (relImage I δ₁ N).map (mulZQuot I) ≤ relImage I δ₁ (N + 1) := by
@@ -246,6 +259,7 @@ theorem map_mulZQuot_relImage_le (δ₁ N : ℕ) :
   rw [h1, Submodule.map_comp]
   exact Submodule.map_mono (map_mulZ_bidegPiece_le δ₁ N)
 
+omit [DecidableEq σ] in
 /-- The images `relImage I δ₁ ·` form an iterated filtration in the sense of
 `Submodule.IsIteratedFiltration`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -273,10 +287,12 @@ noncomputable def ratFuncToQuot : RatFunc K →ₗ[K] (MvPolynomial σ (RatFunc 
   (relQuot I).comp
     (IsScalarTower.toAlgHom K (RatFunc K) (MvPolynomial σ (RatFunc K))).toLinearMap
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem ratFuncToQuot_apply (c : RatFunc K) :
     ratFuncToQuot I c = Ideal.Quotient.mk I (C c) := rfl
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem injective_ratFuncToQuot (hI : I ≠ ⊤) : Function.Injective (ratFuncToQuot I) := by
   refine (injective_iff_map_eq_zero (ratFuncToQuot I)).mpr fun c hc => ?_
@@ -302,6 +318,7 @@ theorem linearIndependent_pow_ratFuncX (N : ℕ) :
   simpa [Polynomial.finsetSum_coeff, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow,
     Fin.val_inj, Finset.sum_ite_eq, hi] using hco
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- The powers of `z` stay linearly independent in the quotient by a proper ideal. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem linearIndependent_relQuot_zpow (hI : I ≠ ⊤) (N : ℕ) :
@@ -310,6 +327,7 @@ theorem linearIndependent_relQuot_zpow (hI : I ≠ ⊤) (N : ℕ) :
   (linearIndependent_pow_ratFuncX (K := K) N).map' (ratFuncToQuot I)
     (LinearMap.ker_eq_bot.mpr (injective_ratFuncToQuot I hI))
 
+omit [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem le_finrank_relImage (hI : I ≠ ⊤) (δ₁ N : ℕ) :
     N + 1 ≤ finrank K (relImage I δ₁ N) := by
@@ -350,6 +368,7 @@ noncomputable def relPieceSub (δ₁ δ₂ : ℕ) : Submodule K ↥(bidegPiece K
 noncomputable def relComplSub (δ₁ δ₂ : ℕ) : Submodule K ↥(bidegPiece K σ δ₁ δ₂) :=
   Classical.choose (Submodule.exists_isCompl (relPieceSub I δ₁ δ₂))
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem isCompl_relComplSub (δ₁ δ₂ : ℕ) :
     IsCompl (relPieceSub I δ₁ δ₂) (relComplSub I δ₁ δ₂) :=
@@ -364,15 +383,18 @@ noncomputable def relCompl (δ₁ δ₂ : ℕ) : Submodule K (MvPolynomial σ (R
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 noncomputable def relDim (δ₁ δ₂ : ℕ) : ℕ := finrank K ↥(relCompl I δ₁ δ₂)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relCompl_le_bidegPiece (δ₁ δ₂ : ℕ) : relCompl I δ₁ δ₂ ≤ bidegPiece K σ δ₁ δ₂ :=
   Submodule.map_subtype_le _ _
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem map_relPieceSub (δ₁ δ₂ : ℕ) :
     (relPieceSub I δ₁ δ₂).map (bidegPiece K σ δ₁ δ₂).subtype = relPiece I δ₁ δ₂ := by
   rw [relPieceSub, relPiece, Submodule.map_comap_subtype, inf_comm]
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- `𝓘^⊥(δ₁,δ₂)` really is a complement of `𝓘(δ₁,δ₂)` inside `K[Y,z]_{δ₁,δ₂}`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relPiece_sup_relCompl (δ₁ δ₂ : ℕ) :
@@ -380,12 +402,14 @@ theorem relPiece_sup_relCompl (δ₁ δ₂ : ℕ) :
   rw [← map_relPieceSub, relCompl, ← Submodule.map_sup, (isCompl_relComplSub I δ₁ δ₂).sup_eq_top,
     Submodule.map_subtype_top]
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relPiece_inf_relCompl (δ₁ δ₂ : ℕ) : relPiece I δ₁ δ₂ ⊓ relCompl I δ₁ δ₂ = ⊥ := by
   rw [← map_relPieceSub, relCompl,
     ← Submodule.map_inf _ (Submodule.injective_subtype (bidegPiece K σ δ₁ δ₂)),
     (isCompl_relComplSub I δ₁ δ₂).inf_eq_bot, Submodule.map_bot]
 
+omit [DecidableEq σ] in
 /-- The dimension of the complement is the dimension of the image in the quotient — the form in
 which `d(δ₁,δ₂)` is actually computed. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -420,6 +444,7 @@ section Lemma22
 
 variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 
+omit [DecidableEq σ] in
 /-- **[AF22] Lemma 2.2, sharp form.**  For every `δ₁` there are `c ≥ 1` and `N₀` such that
 `d(δ₁,δ₂)` is *exactly* `d(δ₁,N₀) + c·(δ₂ - N₀)` for all `δ₂ ≥ N₀`.  In particular `c` does not
 depend on `δ₂`. -/
@@ -432,6 +457,7 @@ theorem exists_relDim_eq (hI : I ≠ ⊤) (δ₁ : ℕ) :
   rw [relDim_eq_finrank_relImage, relDim_eq_finrank_relImage]
   exact hlin δ₂ hδ₂
 
+omit [DecidableEq σ] in
 /-- **[AF22] Lemma 2.2.**  *«There exists a positive integer `c₁(δ₁)`, that does not depend on
 `δ₂`, such that `d(δ₁,δ₂) ∼ c₁(δ₁)δ₂` as `δ₂` tends to infinity.»* -/
 @[category research solved, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -457,6 +483,7 @@ variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 noncomputable def indicatorExp (s : Finset σ) : σ →₀ ℕ := ∑ i ∈ s, Finsupp.single i 1
 
+omit [Fintype σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem indicatorExp_apply (s : Finset σ) (i : σ) :
     indicatorExp s i = if i ∈ s then 1 else 0 := by
@@ -475,16 +502,16 @@ theorem exists_indicator_split {δ₁ : ℕ} {k : σ →₀ ℕ} (hk : ∀ i, k 
   · have hki := hk i
     rw [Finsupp.mapRange_apply]
     by_cases hle : k i ≤ δ₁
-    · rw [if_pos hle]; omega
-    · rw [if_neg hle]; omega
+    · rw [ite_eq_left hle]; omega
+    · rw [ite_eq_right hle]; omega
   · ext i
     have hki := hk i
     simp only [Finsupp.add_apply, Finsupp.smul_apply, Finsupp.mapRange_apply, indicatorExp_apply,
       smul_eq_mul, Finset.mem_filter, Finset.mem_univ, true_and]
     by_cases hle : k i ≤ δ₁
-    · rw [if_pos hle, if_neg (by omega : ¬ δ₁ < k i)]
+    · rw [ite_eq_left hle, ite_eq_right (by omega : ¬ δ₁ < k i)]
       omega
-    · rw [if_neg hle, if_pos (by omega : δ₁ < k i)]
+    · rw [ite_eq_right hle, ite_eq_left (by omega : δ₁ < k i)]
       omega
 
 open Finset in
@@ -527,7 +554,7 @@ theorem lemma_2_3 (δ₁ δ₂ : ℕ) :
     refine ⟨(Pi.single s ⟨_, hmem⟩ : Finset σ → relImage I δ₁ δ₂), ?_⟩
     rw [hFapply]
     simp only [relQuot_apply]
-    rw [← map_mul, monomial_mul, one_mul, hsplit]
+    rw [← map_mul, monomial_mul_monomial, one_mul, hsplit]
   calc finrank K (relImage I (2 * δ₁) δ₂)
       ≤ finrank K (LinearMap.range F) := Submodule.finrank_mono hle
     _ ≤ finrank K (Finset σ → relImage I δ₁ δ₂) := LinearMap.finrank_range_le F

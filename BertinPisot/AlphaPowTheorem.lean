@@ -180,11 +180,11 @@ theorem exists_a_V_zero (lam α : ℝ) (s A : ℕ)
   refine ⟨fun i => if h : i < s + 1 then ((x ⟨i, h⟩ : ℤ) - (y ⟨i, h⟩ : ℤ)) else 0, ?_, ?_, ?_⟩
   · obtain ⟨j, hj⟩ := Function.ne_iff.mp hxy
     refine ⟨j, Nat.lt_succ_iff.mp j.isLt, ?_⟩
-    simp only [j.isLt, dif_pos, Fin.eta]
+    simp only [j.isLt, dite_eq_left, Fin.eta]
     exact fun hc => hj (Fin.ext (by exact_mod_cast sub_eq_zero.mp hc))
   · intro i
     by_cases h : i < s + 1
-    · simp only [dif_pos h, ← Int.cast_abs]
+    · simp only [dite_eq_left h, ← Int.cast_abs]
       have hxA : (x ⟨i, h⟩ : ℤ) ≤ A := by exact_mod_cast Nat.lt_succ_iff.mp (x ⟨i, h⟩).isLt
       have hyA : (y ⟨i, h⟩ : ℤ) ≤ A := by exact_mod_cast Nat.lt_succ_iff.mp (y ⟨i, h⟩).isLt
       have hb : |(x ⟨i, h⟩ : ℤ) - (y ⟨i, h⟩ : ℤ)| ≤ (A : ℤ) := by
@@ -192,7 +192,7 @@ theorem exists_a_V_zero (lam α : ℝ) (s A : ℕ)
         exact ⟨by nlinarith [Int.natCast_nonneg (x ⟨i, h⟩).val],
           by nlinarith [Int.natCast_nonneg (y ⟨i, h⟩).val]⟩
       exact_mod_cast hb
-    · simp only [dif_neg h, Int.cast_zero, abs_zero]; positivity
+    · simp only [dite_eq_right h, Int.cast_zero, abs_zero]; positivity
   · rw [V, ← Fin.sum_univ_eq_sum_range
         (fun i => (if h : i < s + 1 then ((x ⟨i, h⟩ : ℤ) - (y ⟨i, h⟩ : ℤ)) else 0) *
           u lam α (0 + i)) (s + 1)]
@@ -201,7 +201,7 @@ theorem exists_a_V_zero (lam α : ℝ) (s A : ℕ)
           u lam α (0 + (i : ℕ)) = φ x - φ y := by
       rw [hφ, ← Finset.sum_sub_distrib]
       refine Finset.sum_congr rfl (fun i _ => ?_)
-      simp only [i.isLt, dif_pos, Fin.eta, Nat.zero_add]
+      simp only [i.isLt, dite_eq_left, Fin.eta, Nat.zero_add]
       ring
     rw [hsum, sub_eq_zero.mpr hφxy]
 
@@ -221,7 +221,7 @@ theorem sum_abs_u_le (lam α : ℝ) (hlam : 1 ≤ lam) (hα : 1 ≤ α) (s : ℕ
               have := mul_le_mul_of_nonneg_left hpow (show (0 : ℝ) ≤ lam by linarith)
               linarith
     _ = (s + 1) * (lam * α ^ s + 1 / 2) := by
-        rw [Finset.sum_const, Finset.card_range]; push_cast; ring
+        rw [Finset.sum_const, Finset.card_range]; ring
 
 /-- Arithmetic backbone for step c): `5(s+1) ≤ 4·2ˢ` for `s ≥ 2`. -/
 private theorem calib_nat_bb (s : ℕ) (hs : 2 ≤ s) : 5 * (s + 1) ≤ 4 * 2 ^ s := by
@@ -405,7 +405,7 @@ below the cond-(2) cap `2eα(1+log λ)/(s+1)`. Two bands: `s = 1` (`log λ < 1`,
 bound on `exp`) and `s ≥ 2` (`calib_M_le_Us`, the φ estimate). `hbound` is unused here — conditions
 (2),(3) constrain only `s, A, α, λ`. -/
 theorem exists_s_A (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam)
-    (hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
+    (_hbound : ∀ n : ℕ, distToNearestInt (lam * α ^ n) ≤
       1 / (2 * Real.exp 1 * α * (α + 1) * (1 + Real.log lam))) :
     ∃ s A : ℕ, 1 ≤ s ∧
       ((s : ℝ) + 1) * (α + 1) * (A : ℝ) *
@@ -507,11 +507,11 @@ theorem isRationalSeries_of_hasRecurrence (lam α : ℝ) (hrec : HasRecurrence l
     intro i hi; rw [hQ, finsetSum_coeff]
     refine Finset.sum_eq_zero (fun j hj => ?_)
     simp only [Finset.mem_range] at hj
-    rw [coeff_C_mul, coeff_X_pow, if_neg (by omega), mul_zero]
+    rw [coeff_C_mul, coeff_X_pow, ite_eq_right (by omega), mul_zero]
   have hQc : ∀ i, i ≤ s → Q.coeff i = a (s - i) := by
     intro i hi; rw [hQ, finsetSum_coeff, Finset.sum_eq_single i]
-    · rw [coeff_C_mul, coeff_X_pow, if_pos rfl, mul_one]
-    · intro j _ hj; rw [coeff_C_mul, coeff_X_pow, if_neg (Ne.symm hj), mul_zero]
+    · rw [coeff_C_mul, coeff_X_pow, ite_eq_left rfl, mul_one]
+    · intro j _ hj; rw [coeff_C_mul, coeff_X_pow, ite_eq_right (Ne.symm hj), mul_zero]
     · intro h; exact absurd (Finset.mem_range.mpr (by omega)) h
   -- coefficients of `Q · F` past degree `s` are exactly `V(m-s) = 0`
   have hvanish : ∀ m, s ≤ m → (PowerSeries.coeff m) ((Q : ℤ⟦X⟧) * F) = 0 := by
@@ -649,7 +649,7 @@ axiom fatou_residue (lam α : ℝ) (hα : 1 < α) (hlam : 1 ≤ lam) (P Q : ℤ[
 /-- Reciprocal-polynomial root transfer: `Q(1/α) = 0 ⟹ Q.reverse(α) = 0`. -/
 private theorem aeval_reverse_eq_zero {α : ℝ} (hα0 : α ≠ 0) {Q : ℤ[X]}
     (hpole : Polynomial.aeval (α⁻¹ : ℝ) Q = 0) : Polynomial.aeval (α : ℝ) Q.reverse = 0 := by
-  haveI : Invertible (α⁻¹ : ℝ) := invertibleOfNonzero (inv_ne_zero hα0)
+  have : Invertible (α⁻¹ : ℝ) := invertibleOfNonzero (inv_ne_zero hα0)
   have hinv : (⅟(α⁻¹ : ℝ)) = α := by rw [invOf_eq_inv, inv_inv]
   have hiff := Polynomial.eval₂_reverse_eq_zero_iff (algebraMap ℤ ℝ) (α⁻¹ : ℝ) Q
   rw [hinv] at hiff
@@ -697,7 +697,7 @@ theorem conjugates_le_one_of_hasRecurrence (lam α : ℝ) (hα : 1 < α) (hlam :
     have hlc : Q.leadingCoeff = 0 := by simpa using haevalβ
     rw [Polynomial.leadingCoeff_eq_zero] at hlc
     rw [hlc, Polynomial.coeff_zero] at hQ0; exact one_ne_zero hQ0.symm
-  haveI : Invertible (β⁻¹) := invertibleOfNonzero (inv_ne_zero hβ0)
+  have : Invertible (β⁻¹) := invertibleOfNonzero (inv_ne_zero hβ0)
   have hinvinv : (⅟(β⁻¹)) = β := by rw [invOf_eq_inv, inv_inv]
   have hiff := Polynomial.eval₂_reverse_eq_zero_iff (Int.castRingHom ℂ) (β⁻¹) Q
   rw [hinvinv] at hiff

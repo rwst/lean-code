@@ -100,7 +100,7 @@ theorem expand_injective {n : ℕ} (hn : n ≠ 0) :
   intro f g h
   ext m
   have hm := congrArg (PowerSeries.coeff (n * m)) h
-  rwa [PowerSeries.coeff_expand, PowerSeries.coeff_expand, if_pos ⟨m, rfl⟩, if_pos ⟨m, rfl⟩,
+  rwa [PowerSeries.coeff_expand, PowerSeries.coeff_expand, ite_eq_left ⟨m, rfl⟩, ite_eq_left ⟨m, rfl⟩,
     Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hn)] at hm
 
 variable {K}
@@ -278,13 +278,13 @@ theorem IsSumOnBall.expand {r : ℝ} (hr1 : r ≤ 1) {f : PowerSeries K} {H : �
       algebraMap K 𝕜 (PowerSeries.coeff m (PowerSeries.expand n hn f)) * z ^ m = 0 := by
     intro m hm
     have hnd : ¬ n ∣ m := fun ⟨c, hc⟩ => hm ⟨c, hc.symm⟩
-    rw [PowerSeries.coeff_expand, if_neg hnd, map_zero, zero_mul]
+    rw [PowerSeries.coeff_expand, ite_eq_right hnd, map_zero, zero_mul]
   rw [← hinj.hasSum_iff hzero]
   have he : ((fun m => algebraMap K 𝕜 (PowerSeries.coeff m (PowerSeries.expand n hn f)) * z ^ m) ∘
       fun k : ℕ => n * k)
       = fun k => algebraMap K 𝕜 (PowerSeries.coeff k f) * (z ^ n) ^ k := by
     funext k
-    rw [Function.comp_apply, PowerSeries.coeff_expand, if_pos ⟨k, rfl⟩,
+    rw [Function.comp_apply, PowerSeries.coeff_expand, ite_eq_left ⟨k, rfl⟩,
       Nat.mul_div_cancel_left _ hn0, ← pow_mul]
   rw [he]
   exact h (z ^ n) hzn

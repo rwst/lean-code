@@ -10,10 +10,10 @@ namespace CC
 /-- One step of the raw (uncompressed) Collatz map: halve if even, else `3n + 1`. -/
 def collatz_step (n : ℕ) : ℕ := if n % 2 = 0 then n / 2 else 3 * n + 1
 
-lemma collatz_step_even {n : ℕ} (h : n % 2 = 0) : collatz_step n = n / 2 := if_pos h
+lemma collatz_step_even {n : ℕ} (h : n % 2 = 0) : collatz_step n = n / 2 := ite_eq_left h
 
 lemma collatz_step_odd {n : ℕ} (h : n % 2 = 1) : collatz_step n = 3 * n + 1 :=
-  if_neg (by omega)
+  ite_eq_right (by omega)
 
 /-- `collatz_iter k n` applies `collatz_step` to `n` a total of `k` times. -/
 def collatz_iter : ℕ → ℕ → ℕ

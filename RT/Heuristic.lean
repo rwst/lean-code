@@ -184,7 +184,7 @@ theorem heuristic_chain (α β : ℝ) (hConj : Conjecture62 α β) (j n : ℕ)
   have h19 := heuristic_19 j (num_odd_steps j n) m (by omega) hq (by omega) hratio.1 hratio.2
   -- (18): j < α log n
   have hreach : ∃ i, T_iter i n = 1 := (hdelay n (by omega)).1
-  have hdT_eq : dT n = Nat.find hreach := by unfold dT; rw [dif_pos hreach]
+  have hdT_eq : dT n = Nat.find hreach := by unfold dT; rw [dite_eq_left hreach]
   have hjdt : j < dT n := by
     rw [hdT_eq]
     by_contra hle

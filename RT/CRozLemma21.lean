@@ -281,7 +281,7 @@ private lemma E_pv_eq_E (j n : ℕ) : E_pv (V j n) = E j n := by
     have hlast : g (Fin.last j) = b := by simp [g, b, Fin.last]
     -- Now compute
     unfold E_pv
-    rw [hV_split, hprefix, hlast, List.foldl_append, List.foldl_cons, List.foldl_nil]
+    rw [hV_split, List.foldl_append, List.foldl_cons, List.foldl_nil, hprefix, hlast]
     change E_step (E_pv (V j n)) b = E (j + 1) n
     rw [ih, E_succ, E_step]
     have hbnat : b.toNat = X (T_iter j n) :=

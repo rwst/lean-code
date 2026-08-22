@@ -81,7 +81,7 @@ def proj (m n : ℕ) : ZMod (m ^ (n + 1)) →+* ZMod (m ^ n) :=
 /-- The reduction `proj` is surjective. -/
 @[category API, AMS 11 37, ref "BL96"]
 theorem proj_surjective (m n : ℕ) (hm : 0 < m) : Function.Surjective (proj m n) := by
-  haveI : NeZero (m ^ n) := ⟨pow_ne_zero _ hm.ne'⟩
+  have : NeZero (m ^ n) := ⟨pow_ne_zero _ hm.ne'⟩
   intro y
   refine ⟨((y.val : ℕ) : ZMod (m ^ (n + 1))), ?_⟩
   rw [map_natCast]
@@ -126,7 +126,7 @@ theorem induced_semiconj {m n : ℕ} {f : ZMod (m ^ (n + 1)) → ZMod (m ^ (n + 
 @[category API, AMS 11 37, ref "BL96"]
 theorem proj_fiber_card_le (m n : ℕ) (hm : 0 < m) [NeZero (m ^ (n + 1))] (y : ZMod (m ^ n)) :
     Fintype.card {z : ZMod (m ^ (n + 1)) // proj m n z = y} ≤ m := by
-  haveI : NeZero (m ^ n) := ⟨pow_ne_zero _ hm.ne'⟩
+  have : NeZero (m ^ n) := ⟨pow_ne_zero _ hm.ne'⟩
   -- map a preimage to its top `mⁿ`-digit; injective since the low digits are pinned by `proj`
   let F : {z : ZMod (m ^ (n + 1)) // proj m n z = y} → Fin m := fun z =>
     ⟨z.1.val / m ^ n, by
@@ -162,7 +162,7 @@ theorem lemma_3_1 (m n : ℕ) (hm : 0 < m) (f : ZMod (m ^ (n + 1)) → ZMod (m ^
     0 < Function.minimalPeriod (inducedMap m n f) (proj m n x) ∧
       ∃ k : ℕ, 1 ≤ k ∧ k ≤ m ∧
         Function.minimalPeriod f x = k * Function.minimalPeriod (inducedMap m n f) (proj m n x) := by
-  haveI : NeZero (m ^ (n + 1)) := ⟨pow_ne_zero _ hm.ne'⟩
+  have : NeZero (m ^ (n + 1)) := ⟨pow_ne_zero _ hm.ne'⟩
   set g := inducedMap m n f with hgdef
   have hsj : Function.Semiconj (proj m n) f g := fun z => induced_semiconj hf z
   set P := Function.minimalPeriod f x with hPdef
@@ -239,7 +239,7 @@ equals `2ⁿ` (the unique nonzero shift between the two preimages of a residue m
 @[category API, AMS 11 37, ref "BL96"]
 theorem proj_eq_zero_two (n : ℕ) {w : ZMod (2 ^ (n + 1))} (hw : proj 2 n w = 0) (hne : w ≠ 0) :
     w = 2 ^ n := by
-  haveI : NeZero (2 ^ (n + 1)) := ⟨pow_ne_zero _ two_ne_zero⟩
+  have : NeZero (2 ^ (n + 1)) := ⟨pow_ne_zero _ two_ne_zero⟩
   have hzero : ((w.val : ℕ) : ZMod (2 ^ n)) = 0 := (proj_natCast_val w).symm.trans hw
   obtain ⟨t, ht⟩ := (ZMod.natCast_eq_zero_iff w.val (2 ^ n)).mp hzero
   have hlt : w.val < 2 ^ n * 2 := by rw [← pow_succ]; exact ZMod.val_lt w
@@ -323,7 +323,7 @@ theorem cycle_length_pow_two {F : (n : ℕ) → ZMod (2 ^ n) → ZMod (2 ^ n)}
   induction n with
   | zero =>
     intro x _
-    haveI : Subsingleton (ZMod (2 ^ 0)) := by rw [pow_zero]; infer_instance
+    have : Subsingleton (ZMod (2 ^ 0)) := by rw [pow_zero]; infer_instance
     exact ⟨0, by
       rw [Function.minimalPeriod_eq_one_iff_isFixedPt.mpr (Subsingleton.elim (F 0 x) x), pow_zero]⟩
   | succ n ih =>

@@ -135,7 +135,7 @@ theorem not_isIntegral_three_halves : ¬ IsIntegral ℤ ((3 : ℝ) / 2) := by
     rw [eq_ratCast (algebraMap ℚ ℝ) ((3 : ℚ) / 2)]; norm_num
   rw [hcast] at h
   have hQ : IsIntegral ℤ ((3 : ℚ) / 2) :=
-    (isIntegral_algebraMap_iff (algebraMap ℚ ℝ).injective).mp h
+    isIntegral_algebraMap_iff.mp h
   obtain ⟨z, hz⟩ := IsIntegrallyClosed.isIntegral_iff.mp hQ
   have hz' : (z : ℚ) = 3 / 2 := by simpa using hz
   have h2 : (2 * z : ℤ) = 3 := by

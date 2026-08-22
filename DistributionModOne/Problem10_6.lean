@@ -31,6 +31,10 @@ import Corpus.Util.Attributes.Basic
 # Bugeaud Collection of Conjectures and Open Questions: Rapidly Increasing Sequences Dense Modulo One
 
 *References:*
+  - [Bos83] Boshernitzan, Michael D. "Homogeneously distributed sequences and Poincaré sequences
+    of integers of sublacunary growth." Monatshefte für Mathematik 96 (1983): 173-181.
+    [Theorem 1.5 answers Problem 10.6 under every subexponential growth reading, in 1983 and in
+    the stronger form of uniform distribution; see `problem_10_6_variant_2` below.]
   - [Bos94] Boshernitzan, Michael D. "Density modulo 1 of dilations of sublacunary sequences."
     Advances in Mathematics 108.1 (1994): 104-117.
   - [Bug12] Bugeaud, Yann. "Distribution modulo one and Diophantine approximation."
@@ -41,8 +45,16 @@ import Corpus.Util.Attributes.Basic
     arXiv:1607.00670 (2016).
   - [Mat80] de Mathan, Bernard. "Numbers contravening a condition in density modulo 1."
     Acta Mathematica Hungarica 36.3-4 (1980): 237-241.
+  - [Khi26] Khintchine, A. "Einige Sätze über Kettenbrüche, mit Anwendungen auf die Theorie der
+    Diophantischen Approximationen." Math. Ann. 92 (1926): 115-125. [Hilfssatz III: priority for
+    the *existence* half of `pollington_de_mathan`, with an explicit constant; it proves no
+    dimension statement.]
   - [Pol79] Pollington, Andrew Douglas. "On the density of sequence $\{n_ {k}\xi\} $."
     Illinois Journal of Mathematics 23.4 (1979): 511-515.
+
+Several of the results below are studied further in the `BB6/` corpus root, which backs a short
+note on Problem 10.6 (`plans/plan-BB6-paper.html`).  Cross-references to it are given in the
+docstrings; `BB6` imports this file, so the pointers cannot be made into Lean dependencies here.
 -/
 
 namespace Bugeaud06
@@ -73,7 +85,22 @@ informal_result "katz-p-adic-positive-entropy-construction"
 
 /-- The **Pollington–de Mathan theorem** [Pol79][Mat80]. For every lacunary sequence
 $(m_n)_{n \ge 1}$ of positive integers, the set of real numbers $\xi$ for which
-$(\{\xi m_n\})_{n \ge 1}$ is *not* dense modulo one has full Hausdorff dimension. -/
+$(\{\xi m_n\})_{n \ge 1}$ is *not* dense modulo one has full Hausdorff dimension.
+
+Two points of fidelity.
+
+*Priority.* The **existence** half — that some irrational $\xi$ has $(\{\xi m_n\})$ non-dense —
+is already [Khi26, Hilfssatz III], with an explicit constant polynomial in $\varepsilon$.  What
+[Pol79] and [Mat80] add is the *dimension* statement, which is what is recorded here, so the
+`ref`/`solved_by` keys below are correct as they stand.
+
+*Hypothesis shape.* [Pol79], [Mat80] and [Khi26] all assume the ratio bound $m_{n+1}/m_n \ge c$
+for **every** $n$, whereas `ForMathlib.IsLacunary` — used here — is the eventual form.  The
+passage is free, and it is proved rather than assumed: `BB6.dimH_exceptional_eq_one_of_always`
+derives the eventual-hypothesis statement from the always-hypothesis one, by applying the latter
+to a tail and pushing the exceptional set forward along `BB6.exceptional_tail_subset` (dropping an
+initial segment removes finitely many points from the orbit, and the circle has no isolated
+points).  So this axiom records exactly what the literature proves. -/
 @[category research solved, AMS 11, group "bugeaud_10_6",
   ref "Bug12" "Pol79" "Mat80", solved_by "Pollington" 1979, solved_by "de Mathan" 1980,
   informal_uses "hausdorff-dimension-cantor-construction"]
@@ -161,20 +188,51 @@ def HasIntermediateGrowth (α : ℝ) (m : ℕ → ℕ) : Prop :=
   ∀ᶠ (n : ℕ) in atTop, Real.exp ((n : ℝ) ^ α) ≤ m n
 
 /-- `mSeq` has intermediate (subexponential but super-polynomial) growth: for every
-`0 < α < 1` its terms eventually dominate $\exp(n^\alpha)$. -/
+`0 < α < 1` its terms eventually dominate $\exp(n^\alpha)$.
+
+**The `sorry` is not a gap in the mathematics.** This is the special case at `m = mSeq` of
+`BB6.hasIntermediateGrowth_of_r3` — genuine sublacunarity implies intermediate growth at every
+`α < 1`, via the estimate `log mₙ ≥ (c/4)·n/log n` (`BB6.log_lower_of_r3`) — applied to
+`example_isGenuineSublacunary` just above.  Both are proved, sorry-free and `std3`, in
+`BB6/Readings.lean`, so the statement here is a theorem; it cannot be *discharged in this file*
+only because `BB6` imports this file and Lean forbids the resulting import cycle.  Closing it in
+place would mean either duplicating `BB6/Readings.lean` here or moving `IsGenuinelySublacunary`
+and `HasIntermediateGrowth` out of this file, and neither is worth doing for a `test`-category
+example. -/
 @[category test, AMS 11, group "bugeaud_10_6"]
 lemma example_hasIntermediateGrowth (α : ℝ) (hα₀ : 0 < α) (hα₁ : α < 1) :
     HasIntermediateGrowth α mSeq := by
   sorry
 
-/-! ## Katz's resolution of Problem 10.6
+/-! ## Katz's construction
 
 Katz [Kat16] answers Problem 10.6 in the affirmative. The heart of his construction is a
 positive-entropy $T_p$-invariant measure obtained from a smooth $p$-adic interpolation
 (Meiri, Lindenstrauss) together with Boshernitzan's non-lacunary density; the resulting
 *single* sequence can be made as sparse as one likes. We fix Katz's explicit instance
 (Corollary 4.9 with the identity polynomials $p_1 = p_2 = \mathrm{id}$) and take its
-increasing enumeration. -/
+increasing enumeration.
+
+**What [Kat16] actually adds, and what it does not.** The *growth* reading of Problem 10.6 — the
+one recorded below as `problem_10_6_variant_2` — was already answered by [Bos83, Thm 1.5] in 1983,
+and in the stronger form of uniform distribution rather than mere density; see that theorem's
+docstring. Katz's own contributions are elsewhere:
+
+* **sparsity.** [Kat16, Cor. 4.10] gives a universally densifying sequence with counting function
+  $\le r(N)\log N$ for any prescribed $r \ge 1$. This is below the $\log N$ floor that any
+  sublacunary sequence must respect, so it is unreachable by [Bos83] or by any sublacunary
+  construction.
+* **multiplicative structure.** The sequences are $\{2^n 3^e : e \in E\}$, so their gaps are
+  governed by the Diophantine behaviour of $\log_2 3$ rather than by a growth condition.
+* **the ratio-floor reading, conditionally.** Under a Diophantine hypothesis on $E - E$ the
+  increasing enumeration of Katz's set is genuinely sublacunary, which resolves
+  `problem_10_6_variant_1`; see `BB6.problem_10_6_variant_1_of_gap`.
+
+The general family, with the tower height and both polynomials as parameters, is
+`BB6.katzExponents`/`BB6.twoThreeSet`; `BB6.twoThreeSet_katzExponents` identifies `katzSet`
+below as the instance with identity polynomials. Note that the exponent tower there has height
+**two**, not three: the outermost `3` in `3 ^ (3 ^ (3 ^ m))` is the `3^e` of the multiplicative
+set, not a level of the tower. -/
 
 /-- Katz's explicit sparse generating set (Corollary 4.9, identity polynomials): the
 three-parameter multiplicative family
@@ -234,7 +292,19 @@ number $\xi$. Note: Furstenberg's $2^m3^n$ is sublacunary but requires two param
 This variant additionally demands *genuine sublacunarity*
 ($m_{n+1}/m_n \ge 1 + c/\log n$). Katz's construction (see `problem_10_6_variant_2`)
 settles the density requirement, but its multiplicative enumeration `katzSeq` is not
-known to meet this pointwise ratio lower bound, so this stronger variant is left open. -/
+known to meet this pointwise ratio lower bound, so this stronger variant is left open.
+
+**Reduced to one Diophantine statement.** `BB6.problem_10_6_variant_1_of_gap` proves exactly this
+statement from the single hypothesis that the exponent set $E$ of Katz's construction satisfies
+$\lVert (e-e')\log_2 3 \rVert \ge c/\log\max(e,e')$ for distinct $e, e' \in E$
+(`BB6.KatzGapHypothesis`), drawing no axiom beyond `katz_universal_density`. Two further facts
+frame how much room is left. The hypothesis cannot be weakened to a *constant* floor — that fails
+for every infinite $E$ by pigeonhole (`BB6.not_const_gap_katzExponents`). And it is far out of
+reach of current transcendence methods: the best unconditional bound at $(2,3)$ is
+$\lVert d\log_2 3\rVert \ge 1.43 \cdot 10^{-4} d^{-13.3}$ [Rhi87], where a decay in
+$1/\log d$ is what would be needed. Separately, `BB6.not_isGenuinelySublacunary_furstenbergSeq`
+shows the *other* known universally densifying construction, Furstenberg's $\{2^a 3^b\}$, fails
+this variant outright. -/
 @[category research open, AMS 11, group "bugeaud_10_6",
   ref "Bug12", conjectured_by "Bugeaud" 2012]
 theorem problem_10_6_variant_1 :
@@ -245,11 +315,28 @@ theorem problem_10_6_variant_1 :
       Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ))) := by
   sorry
 
-/-- Problem 10.6, intermediate-growth variant — **resolved by Katz [Kat16]**. The single
-sequence `katzSeq` is strictly increasing, has intermediate (super-polynomial,
-sub-exponential) growth, and is dense modulo one for every irrational $\xi$. -/
+/-- Problem 10.6, intermediate-growth variant — **first resolved by Boshernitzan [Bos83,
+Thm 1.5]**, and again by Katz [Kat16]. The statement asks only for a strictly increasing sequence
+of intermediate (super-polynomial, sub-exponential) growth that is dense modulo one for every
+irrational $\xi$; it imposes no sparsity and no ratio condition.
+
+**Priority.** [Bos83, Thm 1.5] answers it, 33 years before [Kat16] and in the stronger form of
+*uniform distribution* rather than density: the single sequence $\{\exp(7k/\ln\ln\ln k)\}$
+already does it, and the theorem covers every subexponential growth rate. [Kat16]'s contribution
+to Problem 10.6 lies in the sparsity and multiplicative-structure directions instead — see the
+section docstring above. The `solved_by` keys record both, Boshernitzan first.
+
+**The recorded proof is not the cheapest one.** The witness below is `katzSeq`, so this
+declaration depends on the cited axioms `katzSeq_intermediateGrowth` and
+`katz_universal_density`. It need not: `BB6.variant_2_of_runs` proves this statement *verbatim*
+(it is checked against `type_of% problem_10_6_variant_2`) and is `std3`, with no cited axiom at
+all, from an elementary construction — a sequence containing arbitrarily long runs of consecutive
+integers is universally densifying (`BB6.universallyDensifying_of_hasLongRuns`), and the runs can
+be placed as sparsely as one likes. The proof cannot be substituted here because `BB6` imports
+this file. -/
 @[category research solved, AMS 11, group "bugeaud_10_6",
-  ref "Bug12" "Kat16", conjectured_by "Bugeaud" 2012, solved_by "Katz" 2016,
+  ref "Bug12" "Bos83" "Kat16", conjectured_by "Bugeaud" 2012,
+  solved_by "Boshernitzan" 1983, solved_by "Katz" 2016,
   formal_uses katzSeq_strictMono katzSeq_intermediateGrowth katz_universal_density]
 theorem problem_10_6_variant_2 :
     ∃ m : ℕ → ℕ,

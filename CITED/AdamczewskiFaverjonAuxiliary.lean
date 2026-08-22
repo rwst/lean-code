@@ -108,10 +108,12 @@ noncomputable def coeffSpan (K : Type*) [Field K] (σ : Type*) (v : ℕ) :
     rw [MvPolynomial.coeff_smul]
     exact Submodule.smul_mem _ c (hx ν)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem mem_coeffSpan_iff {v : ℕ} {P : MvPolynomial σ (RatFunc K)} :
     P ∈ coeffSpan K σ v ↔ ∀ ν, P.coeff ν ∈ zSpan K v := Iff.rfl
 
+omit [Fintype σ] in
 /-- **Membership in `K[Y,z]_{u,v}`, spelled out**: degree at most `u` in every indeterminate, and
 every coefficient a `K`-combination of `1, z, …, z^v`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -149,7 +151,7 @@ theorem mem_bidegPiece_iff (P : MvPolynomial σ (RatFunc K)) (u v : ℕ) :
       | mem x hx =>
           obtain ⟨a, rfl⟩ := hx
           exact monomial_mem_bidegPiece hν (Nat.lt_succ_iff.1 a.2)
-      | zero => simpa using Submodule.zero_mem _
+      | zero => simp
       | add x y _ _ hx hy => rw [map_add]; exact Submodule.add_mem _ hx hy
       | smul c x _ hx =>
           rw [← MvPolynomial.smul_monomial]
@@ -157,6 +159,7 @@ theorem mem_bidegPiece_iff (P : MvPolynomial σ (RatFunc K)) (u v : ℕ) :
     rw [MvPolynomial.as_sum P]
     exact Submodule.sum_mem _ fun ν hν => key ν (h1 ν hν) _ (h2 ν)
 
+omit [Fintype σ] in
 /-- The sufficient form used below: a total-degree bound plus a coefficient bound. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem mem_bidegPiece_of_totalDegree {P : MvPolynomial σ (RatFunc K)} {u v : ℕ}
@@ -184,20 +187,24 @@ noncomputable def toRat (K : Type*) [Field K] (σ : Type*) :
     MvPolynomial σ K[X] →ₐ[K] MvPolynomial σ (RatFunc K) :=
   MvPolynomial.mapAlgHom (IsScalarTower.toAlgHom K K[X] (RatFunc K))
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem toRat_apply (P : MvPolynomial σ K[X]) :
     toRat K σ P = MvPolynomial.map (algebraMap K[X] (RatFunc K)) P := rfl
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem injective_toRat : Function.Injective (toRat K σ) :=
   MvPolynomial.map_injective _ (RatFunc.algebraMap_injective K)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem toRat_monomial (ν : σ →₀ ℕ) (a : ℕ) :
     toRat K σ (monomial ν ((Polynomial.X : K[X]) ^ a)) =
       monomial ν ((RatFunc.X : RatFunc K) ^ a) := by
   rw [toRat_apply, MvPolynomial.map_monomial, map_pow, RatFunc.algebraMap_X]
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem totalDegree_toRat_le (P : MvPolynomial σ K[X]) :
     (toRat K σ P).totalDegree ≤ P.totalDegree := by
@@ -211,6 +218,7 @@ noncomputable def bidegP (K : Type*) [Field K] (σ : Type*) (u v : ℕ) :
   Submodule.span K ((fun p : (σ →₀ ℕ) × ℕ => monomial p.1 ((Polynomial.X : K[X]) ^ p.2)) ''
     {p | (∀ i, p.1 i ≤ u) ∧ p.2 ≤ v})
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem map_bidegP (u v : ℕ) :
     (bidegP K σ u v).map (toRat K σ).toLinearMap = bidegPiece K σ u v := by
@@ -237,6 +245,7 @@ variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 noncomputable def relComplP (δ₁ δ₂ : ℕ) : Submodule K (MvPolynomial σ K[X]) :=
   (relCompl I δ₁ δ₂).comap (toRat K σ).toLinearMap ⊓ bidegP K σ δ₁ δ₂
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem map_relComplP (δ₁ δ₂ : ℕ) :
     (relComplP I δ₁ δ₂).map (toRat K σ).toLinearMap = relCompl I δ₁ δ₂ := by
@@ -256,6 +265,7 @@ instance instFiniteDimensionalRelComplP (δ₁ δ₂ : ℕ) :
 instance instFreeRelComplP (δ₁ δ₂ : ℕ) : Module.Free K ↥(relComplP I δ₁ δ₂) := by
   exact Module.Free.of_divisionRing K ↥(relComplP I δ₁ δ₂)
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- The polynomial copy has the same dimension `d(δ₁,δ₂)`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem finrank_relComplP (δ₁ δ₂ : ℕ) :
@@ -265,6 +275,7 @@ theorem finrank_relComplP (δ₁ δ₂ : ℕ) :
   rw [map_relComplP] at h
   exact h.trans rfl
 
+omit [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem totalDegree_le_of_mem_bidegP {u v : ℕ} {P : MvPolynomial σ K[X]}
     (hP : P ∈ bidegP K σ u v) : P.totalDegree ≤ Fintype.card σ * u := by
@@ -291,16 +302,19 @@ section IterLemma23
 variable {K : Type*} [Field K] {σ : Type*} [Fintype σ] [DecidableEq σ]
 variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem bidegPiece_mono_left {u u' v : ℕ} (h : u ≤ u') :
     bidegPiece K σ u v ≤ bidegPiece K σ u' v :=
   Submodule.span_mono (Set.image_mono fun _ hp => ⟨fun i => (hp.1 i).trans h, hp.2⟩)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relImage_mono_left {u u' v : ℕ} (h : u ≤ u') :
     relImage I u v ≤ relImage I u' v :=
   Submodule.map_mono (bidegPiece_mono_left h)
 
+omit [DecidableEq σ] in
 /-- `d(δ₁,δ₂)` is monotone in its first argument. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem relDim_mono_left {u u' v : ℕ} (h : u ≤ u') : relDim I u v ≤ relDim I u' v := by
@@ -344,16 +358,19 @@ noncomputable def subMat (R : Type*) [CommRing R] [Algebra K R] (M : Matrix ι �
     MvPolynomial (ι × ι) R →ₐ[R] MvPolynomial (ι × ι) R :=
   aeval fun s : ι × ι => ∑ l, C (algebraMap K R (M s.1 l)) * X (l, s.2)
 
+omit [DecidableEq ι] in
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem subMat_X (R : Type*) [CommRing R] [Algebra K R] (M : Matrix ι ι K) (s : ι × ι) :
     subMat R M (X s) = ∑ l, C (algebraMap K R (M s.1 l)) * X (l, s.2) := by
   rw [subMat, aeval_X]
 
+omit [DecidableEq ι] in
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem subMat_C (R : Type*) [CommRing R] [Algebra K R] (M : Matrix ι ι K) (c : R) :
     subMat R M (C c) = C c := by
   rw [subMat, aeval_C, algebraMap_eq]
 
+omit [DecidableEq ι] in
 /-- The substituted indeterminates have total degree at most `1`. -/
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem totalDegree_subMat_gen_le (R : Type*) [CommRing R] [Algebra K R] (M : Matrix ι ι K)
@@ -369,6 +386,7 @@ theorem totalDegree_subMat_gen_le (R : Type*) [CommRing R] [Algebra K R] (M : Ma
     simpa [MvPolynomial.X, Finsupp.sum_single_index] using this
   omega
 
+omit [DecidableEq ι] in
 /-- **The substitution does not raise the total degree.**  This is what survives of [AF22]'s
 claim that `P ↦ P(MY,z)` preserves `K[Y,z]_{δ₁,δ₂}`. -/
 @[category research solved, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
@@ -391,6 +409,7 @@ theorem totalDegree_subMat_le (R : Type*) [CommRing R] [Algebra K R] (M : Matrix
   have h2 : (ν.sum fun _ e => e) ≤ P.totalDegree := MvPolynomial.le_totalDegree hν
   omega
 
+omit [DecidableEq ι] in
 /-- **The substitution acts on coefficients through `K`.**  Every coefficient of `P(MY,z)` is a
 `K`-combination of coefficients of `P`, so any `K`-submodule of the coefficient ring containing
 the coefficients of `P` contains those of `P(MY,z)` — in particular the polynomials of degree
@@ -420,6 +439,7 @@ theorem coeff_subMat_mem {R : Type*} [CommRing R] [Algebra K R] (M : Matrix ι �
     ← Algebra.smul_def]
   exact Submodule.smul_mem _ _ (hP ν)
 
+omit [DecidableEq ι] in
 /-- **Evaluating a substituted polynomial** is evaluating the original one at `M·x`. -/
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem eval₂_subMat {R S : Type*} [CommRing R] [CommRing S] [Algebra K R] [Algebra K S]
@@ -431,12 +451,13 @@ theorem eval₂_subMat {R S : Type*} [CommRing R] [CommRing S] [Algebra K R] [Al
   have h : (eval₂Hom f fun s : ι × ι => x s.1 s.2).comp (subMat R M).toRingHom =
       eval₂Hom f fun s : ι × ι => (M.map (algebraMap K S) * x) s.1 s.2 := by
     refine MvPolynomial.ringHom_ext (fun c => ?_) (fun s => ?_)
-    · simp [subMat_C]
+    · simp
     · simp only [RingHom.comp_apply, AlgHom.toRingHom_eq_coe, RingHom.coe_coe, subMat_X, map_sum,
         map_mul, eval₂Hom_X', eval₂Hom_C, hf]
       simp [Matrix.mul_apply, Matrix.map_apply]
   exact DFunLike.congr_fun h P
 
+omit [DecidableEq ι] in
 /-- The `aeval` form of `AF.eval₂_subMat`. -/
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem aeval_subMat {R S : Type*} [CommRing R] [CommRing S] [Algebra K R] [Algebra R S]
@@ -463,10 +484,12 @@ noncomputable def truncMv (K : Type*) [Field K] (σ : Type*) (p : ℕ) :
     Finsupp.mapRange.linearMap (PowerSeries.trunc p) ∘ₗ
     (AddMonoidAlgebra.coeffLinearEquiv K).toLinearMap
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem coeff_truncMv (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) (ν : σ →₀ ℕ) :
     (truncMv K σ p E).coeff ν = PowerSeries.trunc p (E.coeff ν) := rfl
 
+omit [Fintype σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem support_truncMv_subset (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) :
     (truncMv K σ p E).support ⊆ E.support := by
@@ -476,6 +499,7 @@ theorem support_truncMv_subset (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) :
   rw [MvPolynomial.mem_support_iff, coeff_truncMv, h] at hν
   exact hν (by simp)
 
+omit [Fintype σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem totalDegree_truncMv_le (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) :
     (truncMv K σ p E).totalDegree ≤ E.totalDegree :=
@@ -496,6 +520,7 @@ theorem algebraMap_mem_zSpan {v : ℕ} {q : K[X]} (hq : ∀ a ∈ q.support, a �
   rw [hC, ← Algebra.smul_def]
   exact Submodule.smul_mem _ _ (pow_mem_zSpan (hq a ha))
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- Coefficients of degree `< p` put the image in `K[Y,z]_{·,p-1}`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem toRat_mem_coeffSpan {p : ℕ} {P : MvPolynomial σ K[X]}
@@ -509,15 +534,17 @@ theorem toRat_mem_coeffSpan {p : ℕ} {P : MvPolynomial σ K[X]}
   by_contra hcon
   exact ha (this (by exact_mod_cast Nat.le_of_lt_succ (by omega)))
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- The truncation really does have coefficients of degree `< p`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem coeff_truncMv_mem_degreeLT (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) (ν : σ →₀ ℕ) :
     (truncMv K σ p E).coeff ν ∈ Polynomial.degreeLT K p := by
   rw [coeff_truncMv, Polynomial.mem_degreeLT]
   refine (Polynomial.degree_lt_iff_coeff_zero _ _).2 fun m hm => ?_
-  rw [PowerSeries.coeff_trunc, if_neg]
+  rw [PowerSeries.coeff_trunc, ite_eq_right]
   exact_mod_cast Nat.not_lt.2 (by exact_mod_cast hm)
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- The truncation lands in `K[Y,z]_{·,p-1}`. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem toRat_truncMv_mem_coeffSpan (p : ℕ) (E : MvPolynomial σ (PowerSeries K)) :
@@ -530,6 +557,7 @@ noncomputable def toPS (K : Type*) [Field K] (σ : Type*) :
     MvPolynomial σ K[X] →ₐ[K] MvPolynomial σ (PowerSeries K) :=
   MvPolynomial.mapAlgHom (Polynomial.coeToPowerSeries.algHom K)
 
+omit [Fintype σ] [DecidableEq σ] in
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem totalDegree_toPS_le (P : MvPolynomial σ K[X]) :
     (toPS K σ P).totalDegree ≤ P.totalDegree := by
@@ -574,6 +602,7 @@ noncomputable def afTerm (j : ℕ) :
         ((LinearMap.mulRight K (F ^ j)).comp
           ((toPS K (ι × ι)).toLinearMap.comp (relComplP I δ₁ δ₂).subtype))))
 
+omit [DecidableEq ι] in
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem afTerm_apply (j : ℕ) (P : ↥(relComplP I δ₁ δ₂)) :
     afTerm I M F δ₁ δ₂ p j P =
@@ -586,6 +615,7 @@ noncomputable def afMap :
     (Fin (δ₁ + 1) → ↥(relComplP I δ₁ δ₂)) →ₗ[K] (MvPolynomial (ι × ι) (RatFunc K) ⧸ I) :=
   ∑ j : Fin (δ₁ + 1), (afTerm I M F δ₁ δ₂ p (j : ℕ)).comp (LinearMap.proj j)
 
+omit [DecidableEq ι] in
 @[category API, AMS 11 13 15, ref "AF22", group "af_mahler_alternative"]
 theorem afMap_apply (P : Fin (δ₁ + 1) → ↥(relComplP I δ₁ δ₂)) :
     afMap I M F δ₁ δ₂ p P =
@@ -646,7 +676,7 @@ theorem exists_auxiliary (hF : F.totalDegree ≤ 1) {D : ℕ}
   have hfr : Module.finrank K ↥(LinearMap.range L) ≤ relDim I D (p - 1) := by
     rw [relDim_eq_finrank_relImage]
     exact Submodule.finrank_mono (range_afMap_le I M F δ₁ δ₂ p hF hD)
-  haveI hfree : ∀ _ : Fin (δ₁ + 1), Module.Free K ↥(relComplP I δ₁ δ₂) := fun _ => inferInstance
+  have hfree : ∀ _ : Fin (δ₁ + 1), Module.Free K ↥(relComplP I δ₁ δ₂) := fun _ => inferInstance
   have hpi := Module.finrank_pi_fintype (R := K) (ι := Fin (δ₁ + 1))
     (M := fun _ : Fin (δ₁ + 1) => ↥(relComplP I δ₁ δ₂))
   have hsrc : Module.finrank K (Fin (δ₁ + 1) → ↥(relComplP I δ₁ δ₂)) =
@@ -672,6 +702,7 @@ section StepNV
 variable {K : Type*} [Field K] {σ : Type*} [Fintype σ] [DecidableEq σ]
 variable (I : Ideal (MvPolynomial σ (RatFunc K)))
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- A non-zero element of the complement `𝓘^⊥(δ₁,δ₂)` is not a relation.  This is what makes the
 first non-zero `P_{v₀}` of Lemma 2.12 usable in Step (NV). -/
 @[category research solved, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
@@ -685,6 +716,7 @@ theorem toRat_notMem_of_mem_relComplP {δ₁ δ₂ : ℕ} {P : MvPolynomial σ K
   rw [relPiece_inf_relCompl] at h3
   exact hP0 (injective_toRat (by simpa using h3))
 
+omit [Fintype σ] [DecidableEq σ] in
 /-- **[AF22] Step (NV).**  *«There exists an infinite set `𝓔` of positive integers such that
 `P_{v₀}(A_k(α), α^{q^k}) ≠ 0` for all `k ∈ 𝓔`.»*
 

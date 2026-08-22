@@ -731,7 +731,7 @@ theorem theorem_3_8 :
       ∃ ℓ r, Z ℓ r ∧ ∀ x, vecGt (strInterp (fun σ => affine (M σ) (v σ)) ℓ x)
         (strInterp (fun σ => affine (M σ) (v σ)) r x) := by
   rintro ⟨d, hd, M, v, hM, hweak, ℓ, r, hZ, hℓr⟩
-  haveI : NeZero d := hd
+  have : NeZero d := hd
   refine corollary_3_6 ⟨fun k => simMu M v (config k), simMu_config_isNRational M v, fun n hn => ?_⟩
   exact simStrict M v hM hweak hZ hℓr n hn
 

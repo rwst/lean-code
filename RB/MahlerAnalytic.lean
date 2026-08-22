@@ -325,7 +325,7 @@ theorem mahlerSystem (k : ℕ) [NeZero k] (φ : ι → ℕ → ℕ) (σ : ι →
   simp only [Matrix.mulVec, dotProduct, mahlerMatrix_aeval_apply, Finset.sum_mul]
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun r _ => ?_
-  simp only [ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, if_true]
+  simp only [ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ite_true]
   rw [genFun_congr (fun n => hσ i r n)]
 
 /-- **The system of a kernel model** ([AF17f] WP1, the plan's "instantiate at
@@ -339,7 +339,7 @@ theorem IsKernelModel.mahlerSystem {k : ℕ} {a : ℕ → ℕ} {φ : ι → ℕ 
     (h : IsKernelModel k a φ σ) (hk : 2 ≤ k) {z : 𝕜} (hz : ‖z‖ < 1) :
     (fun i => genFun (φ i) z)
       = (mahlerMatrix k σ).map (aeval z) *ᵥ fun i => genFun (φ i) (z ^ k) := by
-  haveI : NeZero k := ⟨by omega⟩
+  have : NeZero k := ⟨by omega⟩
   obtain ⟨B, hB⟩ := exists_bound_kKernel (k := k) (h.isAutomatic hk)
   exact RB.mahlerSystem k φ σ h.2.2 (fun i n => hB (φ i) (h.2.1 ▸ Set.mem_range_self i) n) hz
 

@@ -297,9 +297,9 @@ theorem exists_primitive_decomposition_adjoin {ι : Type*} [Finite ι] (x : ι �
       IsIntegral F ϕ ∧ (minpoly F ϕ).natDegree = δ ∧
       ∀ s, x s = ∑ j ∈ Finset.range δ, algebraMap F Ω (c s j) * ϕ ^ j := by
   classical
-  haveI : Finite (Set.range x) := (Set.finite_range x).to_subtype
+  have : Finite (Set.range x) := (Set.finite_range x).to_subtype
   set L : IntermediateField F Ω := IntermediateField.adjoin F (Set.range x) with hL
-  haveI : FiniteDimensional F L :=
+  have : FiniteDimensional F L :=
     IntermediateField.finiteDimensional_adjoin (fun y hy => by
       obtain ⟨s, rfl⟩ := hy
       exact hint s)
@@ -422,7 +422,7 @@ theorem exists_polynomial_decomposition_mem {ι : Type*} [Fintype ι] (x : ι �
   refine Finset.sum_congr rfl fun j hj => ?_
   rw [Finset.mem_range] at hj
   show _ = toAmbient K Ω (if h : j < δ then p (s, ⟨j, h⟩) else 0) * ϕ ^ j
-  rw [dif_pos hj, toAmbient_apply, toAmbient_apply, ← mul_assoc, ← map_mul, hp (s, ⟨j, hj⟩)]
+  rw [dite_eq_left hj, toAmbient_apply, toAmbient_apply, ← mul_assoc, ← map_mul, hp (s, ⟨j, hj⟩)]
 
 end DecompositionMem
 

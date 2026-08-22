@@ -253,7 +253,7 @@ omit [NumberField ↥ℚ⟮δ⟯] in
 theorem nkForms_self (γ₁ γ₂ : ℚ⟮δ⟯) (w₀ : AbsoluteValue ℚ⟮δ⟯ ℝ) :
     nkForms γ₁ γ₂ w₀ w₀ = approxForms γ₁ γ₂ := by
   unfold nkForms
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 omit [NumberField ↥ℚ⟮δ⟯] in
 /-- The distinguished-place numerator: `|Λ|·12^d`, exactly as in the number-field run. -/

@@ -197,7 +197,7 @@ theorem boundedGap_slice_finite (s₀ : ℕ) (hs₀ : 1 ≤ s₀) (θ : ℚ) (h�
     simpa using hab
   refine Set.Finite.subset (hfin.preimage hginj.injOn) ?_
   rintro a ⟨ha2, hdist⟩
-  rw [Set.mem_preimage, Set.mem_setOf_eq]
+  rw [Set.mem_preimage, Set.mem_ofPred_eq]
   have hsval : CZ.sval ((3 / 2 : ℚ) ^ s₀ - 1) 1 (-(a : ℤ)) (a : ℤ)
       = (3 / 2 : ℚ) ^ (a + s₀) - (3 / 2 : ℚ) ^ a := by
     unfold CZ.sval
@@ -364,7 +364,7 @@ theorem hugeGap_slice_finite (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1) :
       rintro ⟨a, c⟩ hp
       by_contra h0
       have hs0 : c - a = 0 := by omega
-      rw [Set.mem_preimage, Set.mem_setOf_eq, hs0] at hp
+      rw [Set.mem_preimage, Set.mem_ofPred_eq, hs0] at hp
       obtain ⟨-, -, -, hpos, -⟩ := hp
       have hint : CZ.sval 1 (3 ^ a) (-((0 : ℕ) : ℤ)) ((0 : ℕ) : ℤ)
           = (((3 ^ a : ℕ) : ℤ) : ℚ) := by
@@ -385,7 +385,7 @@ theorem hugeGap_slice_finite (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1) :
     exact ⟨haa, by omega⟩
   · -- membership of the huge-gap violators
     rintro ⟨a, c⟩ ⟨⟨ha2, hac, hdist⟩, hhuge⟩
-    rw [Set.mem_preimage, Set.mem_setOf_eq]
+    rw [Set.mem_preimage, Set.mem_ofPred_eq]
     have hs1 : 1 ≤ c - a := by omega
     have hcas : c = a + (c - a) := by omega
     set s := c - a with hsdef

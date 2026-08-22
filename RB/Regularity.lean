@@ -262,7 +262,7 @@ lives.  It does **not** say the roots are algebraic units; see `singular_sqrt_tw
 theorem inv_isIntegral_of_root_of_coeff_zero_pm_one {K : Type*} [Field K] {P : Polynomial ℤ}
     (hP : P.coeff 0 = 1 ∨ P.coeff 0 = -1) {α : K} (hα : α ≠ 0)
     (h : Polynomial.aeval α P = 0) : IsIntegral ℤ α⁻¹ := by
-  haveI : Invertible α := invertibleOfNonzero hα
+  have : Invertible α := invertibleOfNonzero hα
   have hc0 : P.coeff 0 ≠ 0 := by rcases hP with h | h <;> simp [h]
   have htrail : P.reverse.leadingCoeff = P.coeff 0 := by
     rw [Polynomial.reverse_leadingCoeff, Polynomial.trailingCoeff,
@@ -357,7 +357,7 @@ theorem not_isIntegral_inv_sqrt_two : ¬ IsIntegral ℤ ((Real.sqrt 2)⁻¹ : �
     rwa [show ((Real.sqrt 2)⁻¹ : ℝ) ^ 2 = (algebraMap ℚ ℝ) (1 / 2 : ℚ) by
       rw [inv_pow, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 2)]; norm_num] at h
   have hQ : IsIntegral ℤ (1 / 2 : ℚ) :=
-    (isIntegral_algebraMap_iff (algebraMap ℚ ℝ).injective).mp hsq
+    isIntegral_algebraMap_iff.mp hsq
   obtain ⟨y, hy⟩ := IsIntegrallyClosed.isIntegral_iff.mp hQ
   have hy' : (y : ℚ) = 1 / 2 := by simpa using hy
   have h2 : (2 : ℤ) * y = 1 := by

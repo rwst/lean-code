@@ -239,15 +239,15 @@ theorem eventuallyPeriodic_of_constant_recurrence {w : ℕ → ℚ} (hfin : (Set
     intro x hx
     by_cases hxs : x < s + 1
     · rw [hqn]
-      simp only [dif_pos hxs]
+      simp only [dite_eq_left hxs]
       by_contra hne
       have hle : x ≤ b := hjbmax ⟨x, hxs⟩ (by simp [hF, hne])
       omega
     · rw [hqn]
-      exact dif_neg hxs
+      exact dite_eq_right hxs
   have hqn_b : qn b ≠ 0 := by
     rw [hqn]
-    simp only [dif_pos (show b < s + 1 by omega)]
+    simp only [dite_eq_left (show b < s + 1 by omega)]
     simpa using hqb
   refine isEventuallyPeriodic_of_recurrence hfin (q := fun i => qn (b - i)) (s := b)
     (n₀ := N + 1 + b) (by simpa using hqn_b) (fun n hn => ?_)
@@ -269,7 +269,7 @@ theorem eventuallyPeriodic_of_constant_recurrence {w : ℕ → ℚ} (hfin : (Set
         rw [← Fin.sum_univ_eq_sum_range (fun k => qn k * w (m + k)) (s + 1)]
         refine Finset.sum_congr rfl fun j _ => ?_
         rw [hqn]
-        simp only [dif_pos j.isLt, Fin.eta]
+        simp only [dite_eq_left j.isLt, Fin.eta]
     _ = 0 := hrec m (by omega)
 
 /-! ## The engine, and the capstone -/

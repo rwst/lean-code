@@ -607,7 +607,7 @@ theorem not_isIntegral_rational {p q : ℕ} (hq : 0 < q) (hdvd : ¬ q ∣ p) :
   have hqQ : ((q : ℚ)) ≠ 0 := by exact_mod_cast hq.ne'
   have hrw : ((p : ℝ) / q) = algebraMap ℚ ℝ ((p : ℚ) / (q : ℚ)) := by
     rw [eq_ratCast]; push_cast; ring
-  rw [hrw, isIntegral_algebraMap_iff (algebraMap ℚ ℝ).injective,
+  rw [hrw, isIntegral_algebraMap_iff,
     IsIntegrallyClosed.isIntegral_iff] at hint
   obtain ⟨y, hy⟩ := hint
   have h1 : (y : ℚ) = (p : ℚ) / (q : ℚ) := by simpa using hy

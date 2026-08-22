@@ -137,14 +137,14 @@ theorem card_le_of_two_pow_dvd {v d' N : ℕ} (hv : 3 ≤ v) (hvd : v ≤ d') :
       (fun d => (2 : ℤ) ^ v ∣ ((3 : ℤ) ^ d - 2 ^ d) - ((3 : ℤ) ^ d' - 2 ^ d')))
     (t := Finset.Icc 1 ((N - d') / 2 ^ (v - 2))) ?_ ?_) ?_
   · intro d hd
-    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_Ioc] at hd
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq, Finset.mem_Ioc] at hd
     obtain ⟨⟨hd1, hd2⟩, hdvd⟩ := hd
     rw [two_pow_dvd_secondDifference_iff hv hvd hd1] at hdvd
     simp only [Finset.coe_Icc, Set.mem_Icc]
     exact ⟨(Nat.one_le_div_iff hq0).mpr (Nat.le_of_dvd (by omega) hdvd),
       Nat.div_le_div_right (by omega)⟩
   · intro d1 h1 d2 h2 heq
-    simp only [Finset.coe_filter, Set.mem_setOf_eq, Finset.mem_Ioc] at h1 h2
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq, Finset.mem_Ioc] at h1 h2
     obtain ⟨⟨h11, h12⟩, hv1⟩ := h1
     obtain ⟨⟨h21, h22⟩, hv2⟩ := h2
     rw [two_pow_dvd_secondDifference_iff hv hvd h11] at hv1

@@ -359,7 +359,7 @@ theorem onePower_finite_of_irrational (hδ : Irrational δ) {θ : ℚ} (hθ0 : 0
     (Set.Finite.biUnion T.finite_toSet fun W hW =>
       escape_subspace_finite_hom δ hδ hθ0 hθ1 (hT W hW))) ?_
   intro a hdist
-  simp only [Set.mem_setOf_eq] at hdist
+  simp only [Set.mem_ofPred_eq] at hdist
   rcases lt_or_ge a N with haN | haN
   · exact Or.inl haN
   refine Or.inr ?_

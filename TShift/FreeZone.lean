@@ -512,13 +512,13 @@ theorem breakSeq_spec (hbr : ∀ N, ∃ n, N ≤ n ∧ IsBreakB p q m n) (k : �
   | zero =>
       obtain ⟨n, hn, hb⟩ := hbr n₀
       have hne : {n : ℕ | n₀ ≤ n ∧ IsBreakB p q m n}.Nonempty := ⟨n, hn, hb⟩
-      simpa [breakSeq, Set.mem_setOf_eq] using Nat.sInf_mem hne
+      simpa [breakSeq, Set.mem_ofPred_eq] using Nat.sInf_mem hne
   | succ k ih =>
       obtain ⟨n, hn, hb⟩ := hbr (breakSeq p q m n₀ k + 1)
       have hne : {n : ℕ | breakSeq p q m n₀ k + 1 ≤ n ∧ IsBreakB p q m n}.Nonempty := ⟨n, hn, hb⟩
       have h : breakSeq p q m n₀ k + 1 ≤ breakSeq p q m n₀ (k + 1)
           ∧ IsBreakB p q m (breakSeq p q m n₀ (k + 1)) := by
-        simpa [breakSeq, Set.mem_setOf_eq] using Nat.sInf_mem hne
+        simpa [breakSeq, Set.mem_ofPred_eq] using Nat.sInf_mem hne
       exact ⟨by omega, h.2⟩
 
 @[category API, AMS 11 37, ref "TshiftS1314", group "tshift_s14"]
@@ -528,7 +528,7 @@ theorem breakSeq_lt (hbr : ∀ N, ∃ n, N ≤ n ∧ IsBreakB p q m n) (k : ℕ)
   have hne : {n : ℕ | breakSeq p q m n₀ k + 1 ≤ n ∧ IsBreakB p q m n}.Nonempty := ⟨n, hn, hb⟩
   have h : breakSeq p q m n₀ k + 1 ≤ breakSeq p q m n₀ (k + 1)
       ∧ IsBreakB p q m (breakSeq p q m n₀ (k + 1)) := by
-    simpa [breakSeq, Set.mem_setOf_eq] using Nat.sInf_mem hne
+    simpa [breakSeq, Set.mem_ofPred_eq] using Nat.sInf_mem hne
   omega
 
 @[category API, AMS 11 37, ref "TshiftS1314", group "tshift_s14"]

@@ -157,13 +157,13 @@ theorem fract_rat_orbit (hb : 2 ≤ b) (n : ℕ) :
   | succ n ih =>
     rw [Real.fract_mul_pow_succ, ih]
     by_cases hev : Even n
-    · rw [if_pos hev, if_neg (by simp [Nat.even_add_one, hev])]
+    · rw [ite_eq_left hev, ite_eq_right (by simp [Nat.even_add_one, hev])]
       have hb1 : (b : ℝ) * ((b : ℝ) / ((b : ℝ) ^ 2 - 1)) = 1 + 1 / ((b : ℝ) ^ 2 - 1) := by
         field_simp
         ring
       rw [hb1, Int.fract_one_add]
       exact Int.fract_eq_self.mpr ⟨div_nonneg zero_le_one hc.le, h1c⟩
-    · rw [if_neg hev, if_pos (by simp [Nat.even_add_one, hev])]
+    · rw [ite_eq_right hev, ite_eq_left (by simp [Nat.even_add_one, hev])]
       have hb1 : (b : ℝ) * (1 / ((b : ℝ) ^ 2 - 1)) = (b : ℝ) / ((b : ℝ) ^ 2 - 1) := by ring
       rw [hb1]
       exact Int.fract_eq_self.mpr ⟨hnn, hlt1⟩

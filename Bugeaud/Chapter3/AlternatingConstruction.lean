@@ -91,14 +91,14 @@ theorem altX_succ (p : ℕ) (x₀ : ℤ) (n : ℕ) :
       if Even (altX p x₀ n) then (p : ℤ) * altX p x₀ n / 2
       else ((p : ℤ) * altX p x₀ n + altSgn p x₀ n) / 2 := by
   simp only [altX, altSgn, altSeq, Function.iterate_succ_apply', altStep]
-  split <;> rfl
+  simp only [apply_ite Prod.fst]; rfl
 
 @[category API, AMS 11, ref "Bug12", group "bug_3_16"]
 theorem altSgn_succ (p : ℕ) (x₀ : ℤ) (n : ℕ) :
     altSgn p x₀ (n + 1) =
       if Even (altX p x₀ n) then altSgn p x₀ n else -altSgn p x₀ n := by
   simp only [altX, altSgn, altSeq, Function.iterate_succ_apply', altStep]
-  split <;> rfl
+  simp only [apply_ite Prod.snd]; rfl
 
 /-- The carried sign is always `±1`. -/
 @[category API, AMS 11, ref "Bug12", group "bug_3_16"]
@@ -130,16 +130,16 @@ theorem two_mul_altX_succ (hodd : Odd p) (x₀ : ℤ) (n : ℕ) :
     (2 : ℤ) * altX p x₀ (n + 1) = (p : ℤ) * altX p x₀ n + altLetter p x₀ n := by
   rw [altX_succ]
   by_cases hev : Even (altX p x₀ n)
-  · rw [if_pos hev, Int.mul_ediv_cancel' (Dvd.dvd.mul_left hev.two_dvd _), altLetter,
-      if_pos hev, add_zero]
+  · rw [ite_eq_left hev, Int.mul_ediv_cancel' (Dvd.dvd.mul_left hev.two_dvd _), altLetter,
+      ite_eq_left hev, add_zero]
   · have hoddx : Odd (altX p x₀ n) := Int.not_even_iff_odd.mp hev
     have hoddp : Odd ((p : ℤ)) := by exact_mod_cast hodd
     have hoddσ : Odd (altSgn p x₀ n) := by
       rcases altSgn_eq p x₀ n with h | h
       · exact ⟨0, by rw [h]; ring⟩
       · exact ⟨-1, by rw [h]; ring⟩
-    rw [if_neg hev, Int.mul_ediv_cancel' ((hoddp.mul hoddx).add_odd hoddσ).two_dvd, altLetter,
-      if_neg hev]
+    rw [ite_eq_right hev, Int.mul_ediv_cancel' ((hoddp.mul hoddx).add_odd hoddσ).two_dvd, altLetter,
+      ite_eq_right hev]
 
 /-! ## The bound `|Tₙ| ≤ 1` -/
 
@@ -168,16 +168,16 @@ theorem altSgn_mul_partialTail_mem_Icc (hp : 3 ≤ p) (x₀ : ℤ) :
     set P := partialTail (2 / (p : ℝ)) (fun j => (altLetter p x₀ j : ℝ)) (n + 1) N with hP
     have hsq := altSgn_mul_self p x₀ n
     by_cases hev : Even (altX p x₀ n)
-    · have hl : ((altLetter p x₀ n : ℤ) : ℝ) = 0 := by rw [altLetter, if_pos hev]; norm_num
-      have hσ : altSgn p x₀ (n + 1) = altSgn p x₀ n := by rw [altSgn_succ, if_pos hev]
+    · have hl : ((altLetter p x₀ n : ℤ) : ℝ) = 0 := by rw [altLetter, ite_eq_left hev]; norm_num
+      have hσ : altSgn p x₀ (n + 1) = altSgn p x₀ n := by rw [altSgn_succ, ite_eq_left hev]
       rw [hσ] at h1 h2
       have hgoal : (altSgn p x₀ n : ℝ) * (((altLetter p x₀ n : ℤ) : ℝ) + 2 / (p : ℝ) * P)
           = 2 / (p : ℝ) * ((altSgn p x₀ n : ℝ) * P) := by rw [hl]; ring
       simp only [hgoal]
       exact ⟨mul_nonneg hr0 h1, mul_le_one₀ hr1 h1 h2⟩
     · have hl : ((altLetter p x₀ n : ℤ) : ℝ) = (altSgn p x₀ n : ℝ) := by
-        rw [altLetter, if_neg hev]
-      have hσ : altSgn p x₀ (n + 1) = -altSgn p x₀ n := by rw [altSgn_succ, if_neg hev]
+        rw [altLetter, ite_eq_right hev]
+      have hσ : altSgn p x₀ (n + 1) = -altSgn p x₀ n := by rw [altSgn_succ, ite_eq_right hev]
       rw [hσ] at h1 h2
       push_cast at h1 h2
       have hgoal : (altSgn p x₀ n : ℝ) * (((altLetter p x₀ n : ℤ) : ℝ) + 2 / (p : ℝ) * P)
@@ -254,14 +254,14 @@ theorem altLetter_eq_zero_of_tail_eq_zero (hp : 3 ≤ p) (x₀ : ℤ) {n : ℕ}
   have hrec := tailSeries_succ (M := (1 : ℝ)) hr0.le hr1 hbdd n
   have hsq := altSgn_mul_self p x₀ n
   by_cases hev : Even (altX p x₀ n)
-  · have hl : ((altLetter p x₀ n : ℤ) : ℝ) = 0 := by rw [altLetter, if_pos hev]; norm_num
-    refine ⟨by rw [altLetter, if_pos hev], ?_⟩
+  · have hl : ((altLetter p x₀ n : ℤ) : ℝ) = 0 := by rw [altLetter, ite_eq_left hev]; norm_num
+    refine ⟨by rw [altLetter, ite_eq_left hev], ?_⟩
     rw [h, hl, zero_add] at hrec
     exact (mul_eq_zero.mp hrec.symm).resolve_left (ne_of_gt hr0)
   · exfalso
     have hl : ((altLetter p x₀ n : ℤ) : ℝ) = (altSgn p x₀ n : ℝ) := by
-      rw [altLetter, if_neg hev]
-    have hσ : altSgn p x₀ (n + 1) = -altSgn p x₀ n := by rw [altSgn_succ, if_neg hev]
+      rw [altLetter, ite_eq_right hev]
+    have hσ : altSgn p x₀ (n + 1) = -altSgn p x₀ n := by rw [altSgn_succ, ite_eq_right hev]
     obtain ⟨h1, h2⟩ := altSgn_mul_tail_mem_Icc hp x₀ (n + 1)
     rw [hσ] at h1 h2
     push_cast at h1 h2
@@ -367,8 +367,8 @@ theorem theorem_3_16_half (hp : 3 ≤ p) (hodd : Odd p) :
         rw [hσ] at h1 h2 ⊢ <;> rw [hT1] at h1 h2 ⊢ <;> push_cast at h1 h2 ⊢ <;> linarith
     by_cases hev : Even (altX p 1 n)
     · -- letter `0`: then `σₙ Tₙ = r · σ_{n+1} T_{n+1} ≤ r < 1`
-      have hl : ((altLetter p 1 n : ℤ) : ℝ) = 0 := by rw [altLetter, if_pos hev]; norm_num
-      have hσ : altSgn p 1 (n + 1) = altSgn p 1 n := by rw [altSgn_succ, if_pos hev]
+      have hl : ((altLetter p 1 n : ℤ) : ℝ) = 0 := by rw [altLetter, ite_eq_left hev]; norm_num
+      have hσ : altSgn p 1 (n + 1) = altSgn p 1 n := by rw [altSgn_succ, ite_eq_left hev]
       obtain ⟨g1, g2⟩ := altSgn_mul_tail_mem_Icc hp 1 (n + 1)
       rw [hσ] at g1 g2
       rw [hl, zero_add] at hrecT
@@ -384,7 +384,7 @@ theorem theorem_3_16_half (hp : 3 ≤ p) (hodd : Odd p) :
       linarith
     · -- letter `σₙ`: forces `T_{n+1} = 0`, hence an eventually zero word, hence `ξ = 0`
       have hl : ((altLetter p 1 n : ℤ) : ℝ) = (altSgn p 1 n : ℝ) := by
-        rw [altLetter, if_neg hev]
+        rw [altLetter, ite_eq_right hev]
       rw [hl] at hrecT
       have hmul : (altSgn p 1 n : ℝ) *
           tailSeries (2 / (p : ℝ)) (fun j => (altLetter p 1 j : ℝ)) n

@@ -102,7 +102,7 @@ theorem assignedBase_mem {N n : ℕ} (hn : n ∈ failuresUpTo N) : assignedBase 
   obtain ⟨h1, hN, hf⟩ := hn
   have hex : ∃ b, 1 ≤ b ∧ b ≤ n ∧ IsTowerBase 3 2 (3 / 4) b := exists_towerBase_le n h1 hf
   unfold assignedBase
-  rw [dif_pos hex]
+  rw [dite_eq_left hex]
   obtain ⟨hb1, hbn, hbase⟩ := hex.choose_spec
   exact ⟨hb1, le_trans hbn hN, hbase⟩
 

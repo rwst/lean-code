@@ -462,7 +462,7 @@ lemma CRoz_lemma_32 (n : ℕ) (hn : stopping_time n = ⊤) :
     apply Set.infinite_of_injective_forall_mem (f := fun k : ℕ => (k + 1, 0))
     · intro a b h; simp only [Prod.mk.injEq] at h; omega
     · intro k
-      simp only [Set.mem_setOf_eq, pow_zero, one_mul]
+      simp only [Set.mem_ofPred_eq, pow_zero, one_mul]
       refine ⟨Nat.zero_le _, ?_⟩
       show C (k + 1) 0 < 1
       unfold C; rw [hN0]; simp
@@ -493,7 +493,7 @@ lemma CRoz_lemma_32 (n : ℕ) (hn : stopping_time n = ⊤) :
       intro ⟨a, b⟩ ⟨ha_pos, hb_pos, h_lo, h_hi⟩
       dsimp only at ha_pos hb_pos h_lo h_hi
       have h_Q := real_to_rat_approx a b n h_lo h_hi
-      simp only [Set.mem_setOf_eq, f]
+      simp only [Set.mem_ofPred_eq, f]
       split
       · exact lemma32_case_2 n a b (j_of a) hn h_Q (hj_spec a) ‹_›
       · push Not at *

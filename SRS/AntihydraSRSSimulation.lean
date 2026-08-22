@@ -384,8 +384,8 @@ theorem antihydraSRS_simulates (w₀ : List ASym) (b₀ : ℕ) (hw₀ : IsDigits
       refine ⟨k + 1, w', b', rfl, hw', by rw [hval', hcval, valOrbit_succ], ?_⟩
       rw [counterZ_succ, ← hcount, ← hcval]
       rcases hpar with ⟨hev, rfl⟩ | ⟨hodd, hb⟩
-      · rw [if_pos hev]; push_cast; ring
-      · rw [if_neg (by omega), hb]; push_cast; ring
+      · rw [ite_eq_left hev]; push_cast; ring
+      · rw [ite_eq_right (by omega), hb]; push_cast; ring
     · obtain ⟨w', hw', rfl⟩ := auxStep_config_dest w b hw _ haux
       refine ⟨k, w', b, rfl, hw', ?_, hcount⟩
       have hval : compFun (config w b) 0 = compFun (config w' b) 0 :=

@@ -29,7 +29,7 @@ theorem padicValuation_le_one_iff_padicNorm (p : ℕ) [Fact p.Prime] (x : ℚ) :
   rcases eq_or_ne x 0 with rfl | hx
   · simp
   · rw [Rat.padicValuation]
-    simp only [Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk, if_neg hx]
+    simp only [Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk, ite_eq_right hx]
     rw [padicNorm.eq_zpow_of_nonzero hx,
         show (1 : WithZero (Multiplicative ℤ)) = WithZero.exp (0 : ℤ) from (WithZero.exp_zero).symm,
         WithZero.exp_le_exp]

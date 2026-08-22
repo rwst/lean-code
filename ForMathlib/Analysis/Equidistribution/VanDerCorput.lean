@@ -326,10 +326,10 @@ theorem vanDerCorput_fundamental_inequality (a N : ℕ) (ha : 0 < a) (u : ℕ �
   have hwn : ∀ n : ℕ, 1 ≤ n → n ≤ N → w (n:ℤ) = u n := by
     intro n h1 h2
     simp only [hw]
-    rw [if_pos ⟨by exact_mod_cast h1, by exact_mod_cast h2⟩, Int.toNat_natCast]
+    rw [ite_eq_left ⟨by exact_mod_cast h1, by exact_mod_cast h2⟩, Int.toNat_natCast]
   have hsupp : ∀ k, w k ≠ 0 → k ∈ Finset.Icc (1:ℤ) (N:ℤ) := by
     intro k hk; by_contra hc; rw [Finset.mem_Icc] at hc
-    simp only [hw] at hk; rw [if_neg hc] at hk; exact hk rfl
+    simp only [hw] at hk; rw [ite_eq_right hc] at hk; exact hk rfl
   have hcore := vanDerCorput_core (a:ℤ) (N:ℤ) L (by exact_mod_cast ha) hLge1
     (by exact_mod_cast hLN) w hsupp
   have e1 : ∑ k ∈ Finset.Icc (1:ℤ) (N:ℤ), w k = ∑ n ∈ Finset.Icc 1 N, u n := by

@@ -45,7 +45,7 @@ theorem shellBad_assembleDyadic (S : ℕ → Set ℕ) (M : ℕ) :
     shellBad (assembleDyadic S) M = shellBad (S M) M := by
   classical
   ext n
-  simp only [shellBad, Finset.mem_filter, assembleDyadic, Set.mem_setOf_eq]
+  simp only [shellBad, Finset.mem_filter, assembleDyadic, Set.mem_ofPred]
   by_cases hn : n ∈ dyadicShell M
   · have hlog : Nat.log 2 n = M := by
       rw [dyadicShell, Finset.mem_Ico] at hn

@@ -251,8 +251,8 @@ theorem map_solAut_univ {q : ℚ} (hq : IsZ16Unit q) :
 Haar probability measure, and there is only one. -/
 @[category research solved, AMS 11, ref "A1plus", group "th_solenoid_haar"]
 theorem map_solAut_haar {q : ℚ} (hq : IsZ16Unit q) : Measure.map (solAut hq) haar = haar := by
-  haveI : IsProbabilityMeasure (Measure.map (solAut hq) haar) := ⟨map_solAut_univ hq⟩
-  haveI : (Measure.map (solAut hq) haar).IsAddHaarMeasure :=
+  have : IsProbabilityMeasure (Measure.map (solAut hq) haar) := ⟨map_solAut_univ hq⟩
+  have : (Measure.map (solAut hq) haar).IsAddHaarMeasure :=
     ContinuousAddEquiv.isAddHaarMeasure_map haar (solAut hq)
   exact ((Measure.addHaarMeasure_eq_iff ⊤ (Measure.map (solAut hq) haar)).mpr
     (map_solAut_univ hq)).symm

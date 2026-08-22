@@ -90,7 +90,7 @@ has only finitely many roots, and each is hit at most once. -/
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem eventually_eval_ne_zero {pt : ℕ → K} (hpt : Function.Injective pt) {p : K[X]}
     (hp : p ≠ 0) : ∀ᶠ n in atTop, p.eval (pt n) ≠ 0 := by
-  have hfin : {x : K | p.IsRoot x}.Finite := Polynomial.finite_setOf_isRoot hp
+  have hfin : {x : K | p.IsRoot x}.Finite := Polynomial.finite_setOfPred_isRoot hp
   rw [Filter.eventually_iff, ← Nat.cofinite_eq_atTop, Filter.mem_cofinite]
   refine Set.Finite.subset (hfin.preimage hpt.injOn) fun n hn => ?_
   simpa [Polynomial.IsRoot, Set.mem_preimage] using not_not.mp hn
@@ -159,7 +159,7 @@ theorem lemma_2_4 {pt : ℕ → K} (hpt : Function.Injective pt) (Yval : ℕ →
     (relationIdeal hpt Yval).IsRadical := by
   intro x hx
   obtain ⟨n, hn⟩ := hx
-  haveI : IsReduced (Germ (atTop : Filter ℕ) K) := isReduced_germ
+  have : IsReduced (Germ (atTop : Filter ℕ) K) := isReduced_germ
   have hx0 : germEval hpt Yval x ^ n = 0 := by
     rw [← map_pow]
     exact hn

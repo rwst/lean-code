@@ -104,7 +104,7 @@ theorem drift_pointMass {𝒞 : Finset ι} {i₀ : ι} (h : i₀ ∈ 𝒞) (mean
     drift 𝒞 mean (pointMass h) = mean i₀ := by
   show ∑ i ∈ 𝒞, (if i = i₀ then (1 : ℝ) else 0) * mean i = mean i₀
   simp only [ite_mul, one_mul, zero_mul]
-  rw [Finset.sum_ite_eq' 𝒞 i₀ mean, if_pos h]
+  rw [Finset.sum_ite_eq' 𝒞 i₀ mean, ite_eq_left h]
 
 /-- **Every stationary drift is at most `λ`**: the drift is a convex average of cycle means, so it
 cannot exceed the maximum cycle mean (one half of the LP duality). -/

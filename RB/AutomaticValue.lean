@@ -204,7 +204,7 @@ theorem transcendental_or_rat_of_automatic {a : ℕ → ℕ} {B : ℕ}
   classical
   obtain ⟨k, hk, hfin⟩ := id hauto
   have hk0 : k ≠ 0 := by omega
-  haveI : Fintype ↥(kKernel k a) := hfin.fintype
+  have : Fintype ↥(kKernel k a) := hfin.fintype
   obtain ⟨B', hB'⟩ := exists_bound_kKernel (k := k) hauto
   have hbdd' : ∀ (i : ↥(kKernel k a)) (n : ℕ), (i : ℕ → ℕ) n ≤ B' := fun i n => hB' i.val i.2 n
   obtain ⟨A, hdet, hsys⟩ :=

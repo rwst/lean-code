@@ -268,7 +268,7 @@ lemma lforms3_linearIndependent (α₁ α₂ : ℚ) (v : AbsoluteValue ℚ ℝ) 
     LinearIndependent ℚ (Lforms3 α₁ α₂ v) := by
   unfold Lforms3
   by_cases h : v = Rat.AbsoluteValue.real
-  · rw [if_pos h]
+  · rw [ite_eq_left h]
     rw [Fintype.linearIndependent_iff]
     intro g hg
     have h0 := LinearMap.congr_fun hg ![1, 0, 0]
@@ -287,7 +287,7 @@ lemma lforms3_linearIndependent (α₁ α₂ : ℚ) (v : AbsoluteValue ℚ ℝ) 
     · exact hg0
     · exact hg1
     · exact hg2
-  · rw [if_neg h]
+  · rw [ite_eq_right h]
     rw [Fintype.linearIndependent_iff]
     intro g hg
     have h0 := LinearMap.congr_fun hg ![1, 0, 0]
@@ -392,7 +392,7 @@ lemma approxProduct_triple_eq (α₁ α₂ : ℚ) (a b c : ℤ)
     Finset.prod_insert (by simp [real_ne_padic2, real_ne_padic3]),
     Finset.prod_insert (by simp [padic2_ne_padic3]), Finset.prod_singleton]
   rw [hLNr, hLN2, hLN3]
-  simp only [Lforms3, if_true, if_neg real_ne_padic2.symm, if_neg real_ne_padic3.symm,
+  simp only [Lforms3, ite_true, ite_eq_right real_ne_padic2.symm, ite_eq_right real_ne_padic3.symm,
     Fin.prod_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
     Matrix.head_cons, Matrix.tail_cons, LinearMap.sub_apply, LinearMap.add_apply,
     LinearMap.smul_apply, LinearMap.proj_apply, smul_eq_mul]

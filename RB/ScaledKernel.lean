@@ -285,7 +285,7 @@ theorem boundedGap_slice_finite (δ : ℚ) (hδ : δ ≠ 0) (s₀ : ℕ) (hs₀ 
   push Not at hsmall
   have hn₁le : n₁ ≤ a := le_trans (le_max_left _ _) hsmall
   have hnumle : δ.num.natAbs ≤ a := le_trans (le_max_right _ _) hsmall
-  rw [Set.mem_preimage, Set.mem_setOf_eq]
+  rw [Set.mem_preimage, Set.mem_ofPred_eq]
   have hsval : CZ.sval (δ * ((3 / 2 : ℚ) ^ s₀ - 1)) 1 (-(a : ℤ)) (a : ℤ)
       = δ * ((3 / 2 : ℚ) ^ (a + s₀) - (3 / 2 : ℚ) ^ a) := by
     unfold CZ.sval

@@ -187,7 +187,7 @@ theorem isAutomatic'_iff_faithful_encoding {α : Type*} {w : ℕ → α} {f : �
   have hgf : g ∘ f = w := by
     funext n
     have h : ∃ m, f m = f n := ⟨n, rfl⟩
-    simp only [Function.comp_apply, hgdef, dif_pos h]
+    simp only [Function.comp_apply, hgdef, dite_eq_left h]
     exact (hf h.choose n).mp h.choose_spec
   have hginj : Set.InjOn g (Set.range f) := by
     rintro _ ⟨m, rfl⟩ _ ⟨n, rfl⟩ h

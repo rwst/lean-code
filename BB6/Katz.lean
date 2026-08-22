@@ -392,7 +392,7 @@ theorem exists_nearInt_lt_of_infinite {E : Set ℕ} (hE : E.Infinite) (θ : ℝ)
     rw [div_lt_iff₀ hNR]
     linarith
   -- the enumeration of `E`
-  have hE' : (setOf (· ∈ E)).Infinite := by simpa using hE
+  have hE' : (Set.ofPred (· ∈ E)).Infinite := hE
   set g : ℕ → ℕ := Nat.nth (· ∈ E) with hg
   have hginj : Function.Injective g := Nat.nth_injective hE'
   have hgmem : ∀ i, g i ∈ E := Nat.nth_mem_of_infinite hE'

@@ -132,7 +132,7 @@ theorem le_of_isSumOfPowers_pillai {n s : ℕ} (hn : 2 ≤ n)
     interval_cases (f i)
     · simp [zero_pow hn0]
     · simp
-    · rw [if_pos rfl]; omega
+    · rw [ite_eq_left rfl]; omega
   -- Summing gives `N ≤ s + (2ⁿ-1)·a`, with `a` the number of `2`-summands.
   have hsum : N ≤ s + (2 ^ n - 1) * a := by
     calc N = ∑ i, f i ^ n := hf

@@ -162,14 +162,14 @@ theorem exch_mul_toeplitz_apply (F : PowerSeries ℂ) (l : ℕ) (i j : Fin (l + 
   have hbval : (b : ℕ) = l - (i : ℕ) := rfl
   rw [Fintype.sum_eq_single b]
   · have h1 : exchangeMatrix l i b = 1 := by
-      simp only [exchangeMatrix, hbval]; rw [if_pos (by omega)]
+      simp only [exchangeMatrix, hbval]; rw [ite_eq_left (by omega)]
     rw [h1, one_mul, schurToeplitz, hbval]
     by_cases hc : (j : ℕ) ≤ l - (i : ℕ)
-    · rw [if_pos (by rw [Fin.le_def, hbval]; omega), if_pos (by omega)]
-    · rw [if_neg (by rw [Fin.le_def, hbval]; omega), if_neg (by omega)]
+    · rw [ite_eq_left (by rw [Fin.le_def, hbval]; omega), ite_eq_left (by omega)]
+    · rw [ite_eq_right (by rw [Fin.le_def, hbval]; omega), ite_eq_right (by omega)]
   · intro x hx
     have hx0 : exchangeMatrix l i x = 0 := by
-      simp only [exchangeMatrix]; rw [if_neg]
+      simp only [exchangeMatrix]; rw [ite_eq_right]
       intro hcon; apply hx; apply Fin.ext; rw [hbval]; omega
     rw [hx0, zero_mul]
 
@@ -255,6 +255,8 @@ theorem posSemidef_one_sub_sq_pm_lemma_3_5_2 {f : ℂ → ℂ} (hf : f ∈ schur
         | rfl
         | exact congrArg (fun m => ((a m : ℝ) : ℂ)) (by omega)
         | (exfalso; omega)
+        | (simp only [h, ite_true];
+           first | rfl | exact congrArg (fun m => ((a m : ℝ) : ℂ)) (by omega))
   have hBh : Bᴴ = B := by
     rw [hBdef]; ext i j; fin_cases i <;> fin_cases j <;>
       simp [Matrix.conjTranspose_apply, Complex.conj_ofReal]
@@ -263,7 +265,7 @@ theorem posSemidef_one_sub_sq_pm_lemma_3_5_2 {f : ℂ → ℂ} (hf : f ∈ schur
     rw [Matrix.submatrix_apply, Matrix.one_apply, Matrix.one_apply]
     by_cases hrc : r = c
     · rw [hrc]; simp
-    · rw [if_neg hrc, if_neg (fun h => hrc (he_inj h))]
+    · rw [ite_eq_right hrc, ite_eq_right (fun h => hrc (he_inj h))]
   have hplus' : (fromBlocks (1 + A) B B 1).PosSemidef := by
     have h := hplus.submatrix e
     rw [show (1 + exchangeMatrix l * schurToeplitz (taylorSeries f) l).submatrix e e

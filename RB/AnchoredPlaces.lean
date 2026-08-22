@@ -137,7 +137,9 @@ variable (δ : ℝ) [NumberField ℚ⟮δ⟯]
 places rather than as bare absolute values. -/
 @[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]
 noncomputable def anchoredFinitePlaces : Finset (FinitePlace ℚ⟮δ⟯) :=
-  (FinitePlace.hasFiniteMulSupport (show (6 : ℚ⟮δ⟯) ≠ 0 by norm_num)).toFinset
+  Set.Finite.toFinset
+    (show (Function.mulSupport fun w : FinitePlace ℚ⟮δ⟯ => w ((6 : ℚ⟮δ⟯))).Finite from
+      FinitePlace.hasFiniteMulSupport (show (6 : ℚ⟮δ⟯) ≠ 0 by norm_num))
 
 /-- **The place set splits**: a product over `RB.anchoredPlaces` is the product over all infinite
 places times the product over `RB.anchoredFinitePlaces`.  The two halves are disjoint because an
@@ -146,14 +148,14 @@ infinite place takes the value `2` at `2` while a finite place is contracting on
 theorem prod_anchoredPlaces (f : AbsoluteValue ℚ⟮δ⟯ ℝ → ℝ) :
     ∏ v ∈ anchoredPlaces δ, f v
       = (∏ v : InfinitePlace ℚ⟮δ⟯, f v.val) * ∏ w ∈ anchoredFinitePlaces δ, f w.val := by
-  letI := Classical.decEq (AbsoluteValue ℚ⟮δ⟯ ℝ)
+  let := Classical.decEq (AbsoluteValue ℚ⟮δ⟯ ℝ)
   have hdisj : Disjoint (Finset.univ.image (fun v : InfinitePlace ℚ⟮δ⟯ => v.val))
       (((FinitePlace.hasFiniteMulSupport (show (6 : ℚ⟮δ⟯) ≠ 0 by norm_num)).image
         Subtype.val).toFinset) := by
     rw [Finset.disjoint_left]
     rintro a ha hb
     simp only [Finset.mem_image, Finset.mem_univ, true_and] at ha
-    simp only [Set.Finite.mem_toFinset, Set.mem_image] at hb
+    simp only [Set.Finite.mem_toFinset] at hb
     obtain ⟨v, hv⟩ := ha
     obtain ⟨w, _, hw⟩ := hb
     exact FinitePlace.val_ne_infinitePlace_val w v (hw.trans hv.symm)
@@ -169,7 +171,7 @@ theorem prod_anchoredPlaces (f : AbsoluteValue ℚ⟮δ⟯ ℝ → ℝ) :
 @[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]
 theorem infinitePlace_mem_anchoredPlaces (v : InfinitePlace ℚ⟮δ⟯) :
     v.val ∈ anchoredPlaces δ := by
-  letI := Classical.decEq (AbsoluteValue ℚ⟮δ⟯ ℝ)
+  let := Classical.decEq (AbsoluteValue ℚ⟮δ⟯ ℝ)
   rw [anchoredPlaces]
   exact Finset.mem_union_left _ (Finset.mem_image_of_mem _ (Finset.mem_univ v))
 
@@ -384,7 +386,7 @@ theorem prod_nkForms_of_ne {v : AbsoluteValue ℚ⟮δ⟯ ℝ} (hv : v ≠ realP
     (x : Fin 3 → ℚ⟮δ⟯) :
     (∏ i, v (nkForms γ₁ γ₂ (realPlace δ) v i x)) = ∏ i, v (x i) := by
   unfold nkForms coordForms
-  rw [if_neg hv]
+  rw [ite_eq_right hv]
   rw [Fin.prod_univ_three, Fin.prod_univ_three]
   simp
 
@@ -399,9 +401,9 @@ theorem prod_nkForms_realPlace (b : ℕ) (m : ℤ) (d : ℕ) :
   rw [Fin.prod_univ_three]
   rw [realPlace_form_anchoredTripleInt δ b m d]
   have h1 : nkForms (genMultiplier δ b) (-(genMultiplier δ b)) (realPlace δ) (realPlace δ) 1
-      = LinearMap.proj 1 := by unfold nkForms approxForms; rw [if_pos rfl]; simp
+      = LinearMap.proj 1 := by unfold nkForms approxForms; rw [ite_eq_left rfl]; simp
   have h2 : nkForms (genMultiplier δ b) (-(genMultiplier δ b)) (realPlace δ) (realPlace δ) 2
-      = LinearMap.proj 2 := by unfold nkForms approxForms; rw [if_pos rfl]; simp
+      = LinearMap.proj 2 := by unfold nkForms approxForms; rw [ite_eq_left rfl]; simp
   rw [h1, h2]
   simp only [LinearMap.proj_apply, anchoredTripleInt, Matrix.cons_val_one, Matrix.cons_val_two,
     Matrix.tail_cons, Matrix.head_cons]

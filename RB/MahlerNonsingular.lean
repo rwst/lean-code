@@ -126,14 +126,14 @@ lemma coeff_sect (hq : 2 ≤ q) (r : ℕ) (c : Polynomial K) (n : ℕ) :
   · rw [Finset.sum_eq_single n]
     · simp
     · intro b _ hb
-      rw [Polynomial.coeff_monomial, if_neg hb]
+      rw [Polynomial.coeff_monomial, ite_eq_right hb]
     · intro h
       exact absurd (Finset.mem_range.mpr (by omega)) h
   · push Not at hn
     have hz : ∀ b ∈ Finset.range (c.natDegree + 1),
         (Polynomial.monomial b (c.coeff (q * b + r))).coeff n = 0 := by
       intro b hb
-      rw [Polynomial.coeff_monomial, if_neg]
+      rw [Polynomial.coeff_monomial, ite_eq_right]
       simp only [Finset.mem_range] at hb
       omega
     rw [Finset.sum_congr rfl hz, Finset.sum_const_zero]
@@ -153,14 +153,14 @@ lemma sum_sect (hq : 2 ≤ q) (c : Polynomial K) :
   have hdiv : (m - m % q) / q = m / q := by rw [hsub]; exact Nat.mul_div_cancel_left _ hq0
   rw [Polynomial.finsetSum_coeff]
   rw [Finset.sum_eq_single (m % q)]
-  · rw [Polynomial.coeff_X_pow_mul', if_pos (Nat.mod_le m q),
-      Polynomial.coeff_expand hq0, if_pos ⟨m / q, hsub⟩, hdiv, coeff_sect hq]
+  · rw [Polynomial.coeff_X_pow_mul', ite_eq_left (Nat.mod_le m q),
+      Polynomial.coeff_expand hq0, ite_eq_left ⟨m / q, hsub⟩, hdiv, coeff_sect hq]
     congr 1
   · intro b hb hbm
     simp only [Finset.mem_range] at hb
     rw [Polynomial.coeff_X_pow_mul']
     split_ifs with hbm'
-    · rw [Polynomial.coeff_expand hq0, if_neg]
+    · rw [Polynomial.coeff_expand hq0, ite_eq_right]
       rintro ⟨t, ht⟩
       have hmb : m = q * t + b := by omega
       have hb' : m % q = b := by rw [hmb, Nat.mul_add_mod, Nat.mod_eq_of_lt hb]
@@ -180,15 +180,15 @@ lemma eq_zero_of_sum_expand_eq_zero (hq : 2 ≤ q) (h : ℕ → Polynomial K)
   have hcoeff := congrArg (fun p => Polynomial.coeff p (q * n + r)) H
   simp only [Polynomial.finsetSum_coeff, Polynomial.coeff_zero] at hcoeff
   rw [Finset.sum_eq_single r] at hcoeff
-  · rw [Polynomial.coeff_X_pow_mul', if_pos (by omega), hsub, Polynomial.coeff_expand hq0,
-      if_pos ⟨n, rfl⟩, Nat.mul_div_cancel_left n hq0] at hcoeff
+  · rw [Polynomial.coeff_X_pow_mul', ite_eq_left (by omega), hsub, Polynomial.coeff_expand hq0,
+      ite_eq_left ⟨n, rfl⟩, Nat.mul_div_cancel_left n hq0] at hcoeff
     rw [Polynomial.coeff_zero]
     exact hcoeff
   · intro b hb hbr
     simp only [Finset.mem_range] at hb
     rw [Polynomial.coeff_X_pow_mul']
     split_ifs with hble
-    · rw [Polynomial.coeff_expand hq0, if_neg]
+    · rw [Polynomial.coeff_expand hq0, ite_eq_right]
       rintro ⟨t, ht⟩
       have h1 : q * n + r = q * t + b := by omega
       have h2 : (q * n + r) % q = r := by rw [Nat.mul_add_mod, Nat.mod_eq_of_lt hr]
@@ -600,7 +600,7 @@ theorem exists_det_ne_zero_of_mahlerSystem (hq : 2 ≤ q) (hq0 : q ≠ 0)
   obtain ⟨x, hx1, hx2⟩ :=
     ((Set.infinite_range_of_injective
       (IsFractionRing.injective (Polynomial K) (RatFunc K))).sdiff
-      (Polynomial.finite_setOf_isRoot hB0)).nonempty
+      (Polynomial.finite_setOfPred_isRoot hB0)).nonempty
   obtain ⟨s, rfl⟩ := hx1
   set A' : Matrix ι ι (Polynomial K) := Matrix.of fun i j => A i j + s * N₀ i j with hA'def
   have hA'entry : ∀ i j, A' i j = A i j + s * N₀ i j := fun i j => rfl
@@ -691,9 +691,9 @@ theorem mahlerSystem_formal {k : ℕ} (hk : 2 ≤ k) {a : ℕ → ℕ} {φ : ι 
         PowerSeries.expand k (by omega) (genSeries (φ (σ i r))) := by
     intro r
     rw [Finset.sum_eq_single (σ i r)]
-    · rw [if_pos rfl]
+    · rw [ite_eq_left rfl]
     · intro b _ hb
-      rw [if_neg (Ne.symm hb), zero_mul]
+      rw [ite_eq_right (Ne.symm hb), zero_mul]
     · intro hcon
       exact absurd (Finset.mem_univ _) hcon
   rw [Finset.sum_congr rfl fun r _ => hcol r]
@@ -703,8 +703,8 @@ theorem mahlerSystem_formal {k : ℕ} (hk : 2 ≤ k) {a : ℕ → ℕ} {φ : ι 
   have hsub : m - m % k = k * (m / k) := by omega
   rw [map_sum]
   rw [Finset.sum_eq_single (⟨m % k, hlt⟩ : Fin k)]
-  · rw [PowerSeries.coeff_X_pow_mul', if_pos (Nat.mod_le m k), PowerSeries.coeff_expand,
-      if_pos ⟨m / k, hsub⟩]
+  · rw [PowerSeries.coeff_X_pow_mul', ite_eq_left (Nat.mod_le m k), PowerSeries.coeff_expand,
+      ite_eq_left ⟨m / k, hsub⟩]
     rw [hsub, Nat.mul_div_cancel_left _ hk0]
     rw [genSeries, genSeries, PowerSeries.coeff_mk, PowerSeries.coeff_mk, h.2.2 i ⟨m % k, hlt⟩]
     congr 2
@@ -712,7 +712,7 @@ theorem mahlerSystem_formal {k : ℕ} (hk : 2 ≤ k) {a : ℕ → ℕ} {φ : ι 
   · intro b _ hb
     rw [PowerSeries.coeff_X_pow_mul']
     split_ifs with hble
-    · rw [PowerSeries.coeff_expand, if_neg]
+    · rw [PowerSeries.coeff_expand, ite_eq_right]
       rintro ⟨t, ht⟩
       have h1 : m = k * t + (b : ℕ) := by omega
       have h2 : m % k = (b : ℕ) := by rw [h1, Nat.mul_add_mod, Nat.mod_eq_of_lt b.2]

@@ -134,8 +134,8 @@ theorem evalRingHom_comp_substFun (φ : K →+* ℂ) (n : ℕ) (z : ℂ) :
     (Pi.evalRingHom (fun _ : ℂ => ℂ) z).comp (substFun φ n)
       = (Polynomial.evalRingHom (z ^ n)).comp (Polynomial.mapRingHom φ) := by
   refine Polynomial.ringHom_ext (fun a => ?_) ?_
-  · simp [substFun, Pi.constRingHom, Pi.evalRingHom]
-  · simp [substFun, Pi.evalRingHom]
+  · simp [substFun, Pi.constRingHom, Pi.evalRingHom]; rfl
+  · simp [substFun, Pi.evalRingHom]; rfl
 
 @[category API, AMS 11 13, ref "AF22", group "af_mahler_alternative"]
 theorem substFun_apply (φ : K →+* ℂ) (n : ℕ) (w : K[X]) (z : ℂ) :
@@ -158,6 +158,7 @@ section SubMatEval
 
 variable {K : Type*} [Field K] {ι : Type*} [Fintype ι] [DecidableEq ι]
 
+omit [DecidableEq ι] in
 /-- **`AF.eval₂_subMat` with the coefficient map out of `K[z]` itself.**  The version in
 `CITED/AdamczewskiFaverjonAuxiliary` needs a `K`-algebra structure on the target; the ambient field
 `Ω` of [AF22] §2.2 carries one only through `K(z)`, so here the constant matrix `M` is transported

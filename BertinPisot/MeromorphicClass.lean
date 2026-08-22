@@ -186,7 +186,7 @@ theorem norm_eval_reciprocalC (P : Polynomial ℂ) {z : ℂ} (hz : ‖z‖ = 1) 
     have hmul : (starRingEnd ℂ) z * z = 1 := by rw [mul_comm, Complex.mul_conj, hns]; norm_num
     exact eq_inv_of_mul_eq_one_left hmul
   have hcomp : (starRingEnd ℂ).comp (starRingEnd ℂ) = RingHom.id ℂ := by ext x; simp
-  haveI : Invertible z := invertibleOfNonzero hz0
+  have : Invertible z := invertibleOfNonzero hz0
   have hinvz : (⅟z : ℂ) = z⁻¹ := invOf_eq_inv z
   have key := Polynomial.eval₂_reverse_mul_pow (RingHom.id ℂ) z P
   rw [hinvz] at key
@@ -248,13 +248,14 @@ informal_result "generalized-schur-step-determinant"
 @[category API, AMS 12, ref "Ber92", formal_uses reciprocalAt]
 theorem reciprocalAt_one_one : reciprocalAt 1 (1 : Polynomial ℂ) = X := by
   rw [reciprocalAt]; ext n; rw [coeff_map, coeff_reflect]
-  rcases n with _ | _ | n <;> simp [Polynomial.revAt, Polynomial.coeff_one, Polynomial.coeff_X]
+  rcases n with _ | _ | n <;>
+    simp [Polynomial.coeff_one, Polynomial.coeff_X, Polynomial.revAt_eq_self_of_lt]
 
 /-- `reciprocalAt 1 (C γ) = γ̄ z` (`S̃₁` for `S₁ = C γ`): Bertin's tilde of a constant at rank `1`. -/
 @[category API, AMS 12, ref "Ber92", formal_uses reciprocalAt]
 theorem reciprocalAt_one_C (γ : ℂ) : reciprocalAt 1 (C γ) = C (starRingEnd ℂ γ) * X := by
   rw [reciprocalAt]; ext n; rw [coeff_map, coeff_reflect]
-  rcases n with _ | _ | n <;> simp [Polynomial.revAt, Polynomial.coeff_C]
+  rcases n with _ | _ | n <;> simp [Polynomial.coeff_C, Polynomial.revAt_eq_self_of_lt]
 
 /-- **Lemma 3.4.1 b)** (Bertin), the **determinant recursion**, as a `cited` axiom over the a)-data.
 Given a step `F ↦ G` of the generalised Schur algorithm (`l ≥ 1`) realised by polynomials `Eₗ, Sₗ` of

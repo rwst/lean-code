@@ -210,7 +210,7 @@ private lemma window_double_sum_tail_le {y : ℕ → ℝ} (hy : ∀ n, 0 ≤ y n
           Finset.sum_le_sum (fun t _ => hδanti (by gcongr))
       _ = ∑ t ∈ Finset.range (P + 1),
             (if 2 ^ t * (i + 1) ≤ 2 * s then δ (2 ^ t * (i + 1)) else 0) :=
-          Finset.sum_congr rfl (fun t ht => (if_pos (hcharge_t t ht)).symm)
+          Finset.sum_congr rfl (fun t ht => (ite_eq_left (hcharge_t t ht)).symm)
       _ ≤ ∑ t ∈ Finset.range (2 * s),
             (if 2 ^ t * (i + 1) ≤ 2 * s then δ (2 ^ t * (i + 1)) else 0) := by
           apply Finset.sum_le_sum_of_subset_of_nonneg
@@ -833,14 +833,14 @@ private lemma windowDoubleSum_le {w : ℕ → ℂ} {B : ℝ} (hB0 : 0 ≤ B) (hB
       rcases Nat.eq_zero_or_pos n with hn | hn
       · subst hn
         exact le_trans (blk_le_blockSup hB0 hB (Nat.zero_le m)) (le_max_right _ _)
-      · rw [deltaSeq, if_neg (by omega)]; exact blk_le_blockSup hB0 hB hnm)
-    (hδ0 := by rw [deltaSeq, if_pos rfl]; exact le_max_left _ _)
+      · rw [deltaSeq, ite_eq_right (by omega)]; exact blk_le_blockSup hB0 hB hnm)
+    (hδ0 := by rw [deltaSeq, ite_eq_left rfl]; exact le_max_left _ _)
     (hδanti := by
       refine antitone_nat_of_succ_le (fun i => ?_)
       rcases Nat.eq_zero_or_pos i with hi | hi
-      · subst hi; rw [deltaSeq, if_neg (by norm_num), deltaSeq, if_pos rfl]
+      · subst hi; rw [deltaSeq, ite_eq_right (by norm_num), deltaSeq, ite_eq_left rfl]
         exact le_trans (hanti (Nat.zero_le 1)) (le_max_right _ _)
-      · rw [deltaSeq, if_neg (by omega), deltaSeq, if_neg (by omega)]; exact hanti (by omega))
+      · rw [deltaSeq, ite_eq_right (by omega), deltaSeq, ite_eq_right (by omega)]; exact hanti (by omega))
     (idx := id) strictMono_id (s := r)
   simpa using key
 
@@ -849,7 +849,7 @@ private lemma sumDelta_eq (w : ℕ → ℂ) (r : ℕ) :
     ∑ i ∈ Finset.range (r + 1), deltaSeq w i
       = (∑ i ∈ Finset.range (r + 1), blockSup w i) + (deltaSeq w 0 - blockSup w 0) := by
   have hcongr : ∀ i ∈ Finset.range r, deltaSeq w (i + 1) = blockSup w (i + 1) :=
-    fun i _ => by rw [deltaSeq, if_neg (Nat.succ_ne_zero i)]
+    fun i _ => by rw [deltaSeq, ite_eq_right (Nat.succ_ne_zero i)]
   rw [Finset.sum_range_succ', Finset.sum_range_succ', Finset.sum_congr rfl hcongr]; ring
 
 /-- For `γ > 1`, `∑_{i≤r} δᵢ = O(1)` (Lemma 1.2.4 (iii), plus the constant patch term). -/
@@ -888,7 +888,7 @@ private lemma sumDelta_isLittleO_self {w : ℕ → ℂ}
   have hdelta0 : Tendsto (deltaSeq w) atTop (𝓝 0) := by
     refine hbs0.congr' ?_
     filter_upwards [eventually_ge_atTop 1] with i hi
-    rw [deltaSeq, if_neg (by omega)]
+    rw [deltaSeq, ite_eq_right (by omega)]
   refine Asymptotics.isLittleO_of_tendsto
     (fun r hr => absurd hr (by positivity : (0 : ℝ) < (r : ℝ) + 1).ne') ?_
   refine ((hdelta0.cesaro).comp (tendsto_add_atTop_nat 1)).congr (fun r => ?_)

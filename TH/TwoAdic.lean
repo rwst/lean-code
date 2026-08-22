@@ -135,11 +135,11 @@ theorem v2_three_pow_sub_one {e : ℕ} (he : e ≠ 0) :
     rw [show (4 : ℕ) = 2 ^ 2 by norm_num, padicValNat.prime_pow]
   have h2 : padicValNat 2 2 = 1 := padicValNat.self (by norm_num)
   rcases Nat.even_or_odd e with hev | hod
-  · rw [if_pos hev]
+  · rw [ite_eq_left hev]
     have := padicValNat.pow_two_sub_one (x := 3) (n := e) (by norm_num) (by norm_num) he hev
     norm_num [h4, h2] at this
     omega
-  · rw [if_neg (by simpa [Nat.not_even_iff_odd] using hod),
+  · rw [ite_eq_right (by simpa [Nat.not_even_iff_odd] using hod),
       padicValNat.pow_two_sub_one_of_odd (by norm_num) (by norm_num) hod]
     norm_num [h2]
 
@@ -150,7 +150,7 @@ of `2^(N-2)`. -/
 theorem v2_three_pow_sub_one_sharp {N : ℕ} (hN : 3 ≤ N) :
     padicValNat 2 (3 ^ (2 ^ (N - 2)) - 1) = N := by
   have hne : (2 : ℕ) ^ (N - 2) ≠ 0 := by positivity
-  rw [v2_three_pow_sub_one hne, if_pos, padicValNat.prime_pow]
+  rw [v2_three_pow_sub_one hne, ite_eq_left, padicValNat.prime_pow]
   · omega
   · exact (Nat.even_pow' (by omega)).mpr (by decide)
 
@@ -167,8 +167,8 @@ theorem two_pow_dvd_three_pow_sub_one_iff {k e : ℕ} (hk : 3 ≤ k) :
   have hne : (3 : ℕ) ^ e - 1 ≠ 0 := by omega
   rw [padicValNat_dvd_iff_le hne, v2_three_pow_sub_one he, padicValNat_dvd_iff_le he]
   rcases Nat.even_or_odd e with hev | hod
-  · rw [if_pos hev]; omega
-  · rw [if_neg (by simpa [Nat.not_even_iff_odd] using hod)]
+  · rw [ite_eq_left hev]; omega
+  · rw [ite_eq_right (by simpa [Nat.not_even_iff_odd] using hod)]
     have hmod : e % 2 = 1 := Nat.odd_iff.mp hod
     refine ⟨by omega, fun h => ?_⟩
     have h1 : 1 ≤ padicValNat 2 e := by omega

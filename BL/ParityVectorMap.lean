@@ -355,7 +355,7 @@ theorem qMap_bijective : Function.Bijective qMap := by
     exact hl.symm
   have hfam : ∀ n, Function.Bijective (Fam n) := by
     intro n
-    haveI : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
+    have : NeZero ((2 : ℕ) ^ n) := ⟨pow_ne_zero n (by norm_num)⟩
     rw [← Finite.injective_iff_bijective]
     intro a b hab
     rw [hFs n a, hFs n b, toZModPow_qMap, toZModPow_qMap] at hab
@@ -370,7 +370,7 @@ theorem qMap_bijective : Function.Bijective qMap := by
     have hmod := CC.terras_forward' n a.val b.val hev
     rw [Nat.mod_eq_of_lt (ZMod.val_lt a), Nat.mod_eq_of_lt (ZMod.val_lt b)] at hmod
     exact ZMod.val_injective _ hmod
-  exact ((lemma_A2 qMap Fam hcompat hlim).out 1 0).mp hfam
+  exact ((lemma_A2 qMap Fam hcompat hlim).out 2 1).mp hfam
 
 /-! ### The normalised conjugacy (existence) — PROVED from the `qMap` construction
 
@@ -389,7 +389,6 @@ noncomputable def qMapHomeo : ℤ_[2] ≃ₜ ℤ_[2] :=
 @[category API, AMS 37 11, ref "BL96"]
 theorem qMapHomeo_apply : ⇑qMapHomeo = qMap := by
   unfold qMapHomeo
-  rw [← Homeomorph.coe_toEquiv, Continuous.toEquiv_homeoOfEquivCompactToT2]
   rfl
 
 /-- **(PROVED; formerly a cited axiom.)** A conjugacy satisfying `(1.3)` exists with the normalisation

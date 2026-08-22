@@ -142,7 +142,7 @@ theorem finite_ratios
   refine ⟨W, Finset.mem_coe.mpr hWT, ?_⟩
   have hex : ∃ z : Fin 2 → ℚ, z ∈ W ∧ z 0 ≠ 0 := ⟨x, hxW, hx0⟩
   have hcs := Classical.choose_spec hex
-  simp only [dif_pos hex]
+  simp only [dite_eq_left hex]
   exact ratio_determined (hTproper W hWT) hcs.1 hxW hcs.2 hx0
 
 /-- **Ridout's theorem for algebraic `δ`**, projective form ([Rid57]; the `n = 2` case of
@@ -180,7 +180,7 @@ theorem finite_ratios_alg {K : Type*} [Field K] [NumberField K]
   refine ⟨W, Finset.mem_coe.mpr hWT, ?_⟩
   have hex : ∃ z : Fin 2 → ℚ, z ∈ W ∧ z 0 ≠ 0 := ⟨x, hxW, hx0⟩
   have hcs := Classical.choose_spec hex
-  simp only [dif_pos hex]
+  simp only [dite_eq_left hex]
   exact ratio_determined (hTproper W hWT) hcs.1 hxW hcs.2 hx0
 
 end Ridout

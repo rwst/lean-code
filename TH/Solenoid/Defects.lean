@@ -617,8 +617,8 @@ box is finite. -/
 @[category research solved, AMS 11 22, ref "A1plus", group "th_solenoid_defects"]
 theorem finite_of_boxNbhd_isolated (H : AddSubgroup S6) (hcl : IsClosed (H : Set S6)) (k : ℕ)
     (hiso : ∀ x ∈ H, x ∈ boxNbhd k → x = 0) : (H : Set S6).Finite := by
-  haveI : CompactSpace H := isCompact_iff_compactSpace.mp hcl.isCompact
-  haveI : DiscreteTopology H := by
+  have : CompactSpace H := isCompact_iff_compactSpace.mp hcl.isCompact
+  have : DiscreteTopology H := by
     rw [discreteTopology_iff_isOpen_singleton_zero, isOpen_induced_iff]
     refine ⟨boxNbhd k, isOpen_boxNbhd k, ?_⟩
     ext x
@@ -817,7 +817,7 @@ theorem finite_periodicPoints {π : ℕ} (hπ : 0 < π) : {p : S6 | T32^[π] p =
   have hset : {p : S6 | T32^[π] p = p} = ((torsionSub ((3 : ℤ) ^ π - 2 ^ π) : AddSubgroup S6) :
       Set S6) := by
     ext p
-    simp only [Set.mem_setOf_eq, SetLike.mem_coe, mem_torsionSub]
+    simp only [Set.mem_ofPred_eq, SetLike.mem_coe, mem_torsionSub]
     exact periodic_iff_torsion p π
   rw [hset]
   exact torsionSub_finite hne
@@ -953,7 +953,7 @@ theorem invariant_closed_subgroup_finite {H : AddSubgroup S6} (hcl : IsClosed (H
 @[category API, AMS 11 22, ref "A1plus", group "th_solenoid_defects"]
 theorem exists_nsmul_eq_zero_of_finite {H : AddSubgroup S6} (hfin : (H : Set S6).Finite)
     {x : S6} (hx : x ∈ H) : ∃ m : ℕ, 0 < m ∧ m • x = 0 := by
-  haveI : Finite H := Set.finite_coe_iff.mpr hfin
+  have : Finite H := Set.finite_coe_iff.mpr hfin
   obtain ⟨i, j, hij, heq⟩ :=
     Finite.exists_ne_map_eq_of_infinite (fun n : ℕ => (⟨n • x, AddSubgroup.nsmul_mem H hx n⟩ : H))
   have heq' : i • x = j • x := congrArg Subtype.val heq

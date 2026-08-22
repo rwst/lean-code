@@ -135,7 +135,7 @@ isolated points, so a dense orbit stays dense after they are removed. -/
 theorem exceptional_tail_subset (m : ℕ → ℕ) (N : ℕ) :
     {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * m (N + n)) : AddCircle (1 : ℝ)))} ⊆
       {ξ : ℝ | ¬ Dense (Set.range fun n => (↑(ξ * m n) : AddCircle (1 : ℝ)))} := by
-  haveI := nontrivial_unitAddCircle
+  have := nontrivial_unitAddCircle
   intro ξ hξ hdense
   refine hξ (Dense.mono ?_ (hdense.sdiff_finite
     ((Set.finite_Iio N).image fun n => (↑(ξ * m n) : AddCircle (1 : ℝ)))))

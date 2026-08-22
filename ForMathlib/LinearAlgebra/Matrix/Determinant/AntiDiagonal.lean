@@ -44,7 +44,7 @@ theorem det_eq_unit_mul_pow_of_antidiag_const {R : Type*} [CommRing R] {K : ℕ}
     have hi : (i : ℕ) < K + 1 := i.isLt
     omega
   have hdet' : (T.submatrix rev id).det = c ^ (K + 1) := by
-    rw [Matrix.det_of_upperTriangular hut]
+    rw [Matrix.det_of_isUpperTriangular hut]
     have hd : ∀ i : Fin (K + 1), (T.submatrix rev id) i i = c := fun i => by
       rw [Matrix.submatrix_apply, id_eq, hcoe]
       have hi := hdiag (Fin.rev i)

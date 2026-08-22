@@ -173,9 +173,9 @@ theorem E_upper_bound_iff (j n : ℕ) (hj : 0 < j) :
     · subst hj0
       rcases Nat.even_or_odd n with h | h
       · have hX : X n = 0 := by rw [X_eq_mod, Nat.even_iff.mp h]
-        simp [num_odd_steps, V, R, T_iter, E_zero, hX, E_succ, List.finRange]
+        simp [num_odd_steps, V, R, T_iter, E_zero, hX, E_succ, List.finRange]; rfl
       · have hX : X n = 1 := by rw [X_eq_mod, Nat.odd_iff.mp h]
-        simp [num_odd_steps, V, R, T_iter, E_zero, hX, E_succ, List.finRange]; norm_num
+        simp [num_odd_steps, V, R, T_iter, E_zero, hX, E_succ, List.finRange]; norm_num; rfl
     · have hih := ih (by omega)
       set q := num_odd_steps j n with hq_def
       set v := X (T_iter j n) with hv_def
@@ -221,7 +221,7 @@ theorem E_upper_bound_iff (j n : ℕ) (hj : 0 < j) :
           have hVj := hih.mp (by rw [hq0]; simp [R]; linarith)
           rw [hq0] at hVj; simp at hVj
           rw [hq0]; simp only [Nat.sub_zero, List.replicate_zero, List.append_nil]
-          rw [hVsucc, hVj]; simp [List.replicate_succ']
+          rw [hVsucc, hVj, List.replicate_succ']; rfl
         · -- Backward: vector condition → E (j+1) n = R q
           intro hV
           rw [hVsucc] at hV
@@ -264,9 +264,9 @@ theorem E_lower_bound_iff (j n : ℕ) (hj : 0 < j) :
     · subst hj0
       rcases Nat.even_or_odd n with h | h
       · have hX : X n = 0 := by rw [X_eq_mod, Nat.even_iff.mp h]
-        simp [num_odd_steps, V, L, T_iter, E_zero, hX, E_succ, List.finRange]
+        simp [num_odd_steps, V, L, T_iter, E_zero, hX, E_succ, List.finRange]; rfl
       · have hX : X n = 1 := by rw [X_eq_mod, Nat.odd_iff.mp h]
-        simp [num_odd_steps, V, L, T_iter, E_zero, hX, E_succ, List.finRange]; norm_num
+        simp [num_odd_steps, V, L, T_iter, E_zero, hX, E_succ, List.finRange]; norm_num; rfl
     · have hih := ih (by omega)
       set q := num_odd_steps j n with hq_def
       set v := X (T_iter j n) with hv_def
@@ -289,7 +289,7 @@ theorem E_lower_bound_iff (j n : ℕ) (hj : 0 < j) :
           have hVj := hih.mp hEq
           rw [hVsucc, hVj]
           simp [show j + 1 - q = (j - q) + 1 from by omega, List.replicate_succ',
-                List.append_assoc]
+                List.append_assoc]; rfl
         · intro hV
           rw [hVsucc] at hV
           simp only [show j + 1 - q = (j - q) + 1 from by omega,
@@ -331,7 +331,7 @@ theorem E_lower_bound_iff (j n : ℕ) (hj : 0 < j) :
               rwa [div_lt_one (by positivity)]
             linarith
           have hVj := hih.mp hEq
-          rw [hVsucc, hVj, hqeqj]; simp [List.replicate_succ']
+          rw [hVsucc, hVj, hqeqj]; simp [List.replicate_succ']; rfl
         · intro hV
           rw [hVsucc] at hV
           have hqeqj := hqj_of_V hV

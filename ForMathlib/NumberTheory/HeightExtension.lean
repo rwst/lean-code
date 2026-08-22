@@ -97,7 +97,8 @@ theorem iSup_finitePlace_intCast_eq_one_of_gcd_eq_one (v : FinitePlace K)
     (hx : Finset.univ.gcd x = 1) :
     ⨆ i, v ((x i : K)) = 1 := by
   have hv : IsNonarchimedean (v ·) := FinitePlace.add_le v
-  have H (n : ℤ) : v (n : K) ≤ 1 := IsNonarchimedean.apply_intCast_le_one hv
+  have H (n : ℤ) : v (n : K) ≤ 1 :=
+    IsNonarchimedean.apply_intCast_le_one (map_zero_le v 1) (map_one v) (map_neg_eq_map v) hv
   obtain ⟨f, hf⟩ := Finset.gcd_eq_sum_mul (univ : Finset ι) x
   have hf' : (1 : ℝ) = v (∑ i, (x i : K) * (f i : K)) := by
     have := congrArg (fun n : ℤ => v ((n : K))) hf

@@ -61,9 +61,9 @@ lemma E_shift (j m : ℕ) : E j (m + 2 ^ j) = E j m := by
     apply terras_backward
     exact Nat.add_mod_right m (2 ^ j)
   have h2 : (V j (m + 2 ^ j)).get ⟨i.val, by simp⟩ = decide (E_vec j (m + 2 ^ j) i = 1) := by
-    simp [V, E_vec]
+    simp [V, E_vec]; rfl
   have h3 : (V j m).get ⟨i.val, by simp⟩ = decide (E_vec j m i = 1) := by
-    simp [V, E_vec]
+    simp [V, E_vec]; rfl
   rw [h2, h3, h1]
 
 /-- Pairwise sum of E_{j+1} for m and m+2^j -/

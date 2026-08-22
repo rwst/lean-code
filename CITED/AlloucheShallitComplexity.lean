@@ -121,8 +121,8 @@ theorem complexity_linear_of_automatic {a : ℕ → ℕ} (h : IsAutomatic a) :
   classical
   obtain ⟨k, hk, hK⟩ := h
   have hra : (Set.range a).Finite := range_finite_of_kernel_finite hk hK
-  haveI : Finite ↥(kKernel k a) := hK
-  haveI : Finite ↥(Set.range a) := hra
+  have : Finite ↥(kKernel k a) := hK
+  have : Finite ↥(Set.range a) := hra
   refine ⟨k * Nat.card ((↥(kKernel k a) → ↥(Set.range a)) × (↥(kKernel k a) → ↥(Set.range a))),
     fun m hm => ?_⟩
   obtain ⟨i, him, hik⟩ := exists_scale hk hm

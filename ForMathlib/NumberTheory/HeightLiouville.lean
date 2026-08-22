@@ -85,7 +85,7 @@ theorem apply_le_mulHeight₁_of_mem_nonarchAbsVal {v : AbsoluteValue K ℝ}
     intro w hw
     simp only [Function.mem_mulSupport, hg] at hw
     by_contra hne
-    exact hw (if_neg hne)
+    exact hw (ite_eq_right hne)
   have hfs : Function.HasFiniteMulSupport
       fun w : nonarchAbsVal (K := K) ↦ max (w.val x) 1 := by
     refine Set.Finite.subset (AdmissibleAbsValues.hasFiniteMulSupport hx) fun w hw ↦ ?_
@@ -94,7 +94,7 @@ theorem apply_le_mulHeight₁_of_mem_nonarchAbsVal {v : AbsoluteValue K ℝ}
     exact hw (by rw [h, max_self])
   have hG : max (v x) 1 ≤ ∏ᶠ w : nonarchAbsVal (K := K), max (w.val x) 1 := by
     have hsingle : (∏ᶠ w : nonarchAbsVal (K := K), g w) = max (v x) 1 := by
-      rw [finprod_eq_single g ⟨v, hv⟩ fun w hw ↦ if_neg hw]
+      rw [finprod_eq_single g ⟨v, hv⟩ fun w hw ↦ ite_eq_right hw]
       simp [hg]
     rw [← hsingle]
     refine finprod_le_finprod hgs (fun w ↦ ?_) hfs fun w ↦ ?_

@@ -486,10 +486,10 @@ theorem setOf_quadratic_eq_zero_finite (a b c : ℝ) (ha : a ≠ 0) :
     exact absurd hd (by norm_num)
   have hset : {x : ℝ | a * x ^ 2 + b * x + c = 0} = {x | p.IsRoot x} := by
     ext x
-    simp only [Set.mem_setOf_eq, Polynomial.IsRoot.def, hp, Polynomial.eval_add,
+    simp only [Set.mem_ofPred_eq, Polynomial.IsRoot.def, hp, Polynomial.eval_add,
       Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X]
   rw [hset]
-  exact Polynomial.finite_setOf_isRoot hp0
+  exact Polynomial.finite_setOfPred_isRoot hp0
 
 /-- Helper (pigeonhole, engine ⇒ recurrence): for a quadratic irrational, two complete
 quotients coincide. The bounded integer triples from `completeQuotient_isIntegral_bounded`

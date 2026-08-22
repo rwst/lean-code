@@ -87,7 +87,7 @@ exactly `{1, 2, 3, 4, 7}`, kernel-verified against the real definition, axiom-fr
 @[category research solved, AMS 11, ref "Bug12" "DD90", group "bugeaud_10_13"]
 theorem failuresUpTo_256_eq : failuresUpTo 256 = {1, 2, 3, 4, 7} := by
   ext n
-  simp only [failuresUpTo, Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
+  simp only [failuresUpTo, Set.mem_ofPred_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
   constructor
   · rintro ⟨h1, hN, hf⟩; exact (failures_up_to_256 n h1 hN).mp hf
   · rintro (rfl | rfl | rfl | rfl | rfl) <;>

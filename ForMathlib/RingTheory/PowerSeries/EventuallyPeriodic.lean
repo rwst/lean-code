@@ -113,7 +113,7 @@ theorem isEventuallyPeriodic_of_recurrence {a : ℕ → K} (hfin : (Set.range a)
     {s n₀ : ℕ} {q : ℕ → K} (hq0 : q 0 ≠ 0)
     (hrec : ∀ n, n₀ ≤ n → ∑ i ∈ Finset.range (s + 1), q i * a (n - i) = 0) :
     IsEventuallyPeriodic a := by
-  haveI : Finite ↥(Set.range a) := hfin.to_subtype
+  have : Finite ↥(Set.range a) := hfin.to_subtype
   have hdet := rightDeterministic_of_recurrence hq0 hrec
   have hdet' : RightDeterministic
       (fun m => (⟨a (m + n₀), Set.mem_range_self _⟩ : ↥(Set.range a))) s := fun i j hij =>
@@ -169,12 +169,12 @@ theorem isRationalSeries_of_isEventuallyPeriodic_coeff {F : K⟦X⟧}
       · simp [h0, hip]
   have h1 : ∑ i ∈ Finset.range (p + 1), (if i = 0 then PowerSeries.coeff n F else 0)
       = PowerSeries.coeff n F := by
-    rw [Finset.sum_eq_single 0 (fun b _ hb => if_neg hb)
-      (fun hb => absurd (Finset.mem_range.mpr (by omega)) hb), if_pos rfl]
+    rw [Finset.sum_eq_single 0 (fun b _ hb => ite_eq_right hb)
+      (fun hb => absurd (Finset.mem_range.mpr (by omega)) hb), ite_eq_left rfl]
   have h2 : ∑ i ∈ Finset.range (p + 1), (if i = p then PowerSeries.coeff (n - p) F else 0)
       = PowerSeries.coeff (n - p) F := by
-    rw [Finset.sum_eq_single p (fun b _ hb => if_neg hb)
-      (fun hb => absurd (Finset.mem_range.mpr (by omega)) hb), if_pos rfl]
+    rw [Finset.sum_eq_single p (fun b _ hb => ite_eq_right hb)
+      (fun hb => absurd (Finset.mem_range.mpr (by omega)) hb), ite_eq_left rfl]
   rw [Finset.sum_congr rfl hsplit, Finset.sum_sub_distrib, h1, h2, sub_eq_zero]
   have := hper (n - p) (by omega)
   rwa [show n - p + p = n from by omega] at this

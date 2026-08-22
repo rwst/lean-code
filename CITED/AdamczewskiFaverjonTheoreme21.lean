@@ -149,7 +149,7 @@ theorem exists_lift_series_ambient (Ω : Type*) [Field Ω] [Algebra (LaurentSeri
       ∪ ((Finset.univ : Finset ι).image fun i => PowerSeries.coeff 0 (f i))
       ∪ {α} with hSgendef
   set L₀ : IntermediateField ℚ K := IntermediateField.adjoin ℚ (Sgen : Set K) with hL₀def
-  haveI : NumberField L₀ := numberField_adjoin_finset Sgen fun x _ => hKalg x
+  have : NumberField L₀ := numberField_adjoin_finset Sgen fun x _ => hKalg x
   have hsub : ∀ x ∈ Sgen, x ∈ L₀ := fun x hx => IntermediateField.subset_adjoin ℚ _ hx
   have hrng : ∀ x : K, x ∈ L₀ → x ∈ Set.range (algebraMap L₀ K) := fun x hx => ⟨⟨x, hx⟩, rfl⟩
   have hmemA : ∀ i j n, n ≤ (A i j).natDegree → (A i j).coeff n ∈ Sgen := fun i j n hn =>
@@ -189,7 +189,7 @@ theorem exists_lift_series_ambient (Ω : Type*) [Field Ω] [Algebra (LaurentSeri
     exact ⟨c, hc⟩
   obtain ⟨α₀, hα₀⟩ : ∃ α₀ : L₀, algebraMap L₀ K α₀ = α := hrng _ (hsub _ hmemα)
   -- the ambient field as an `L₀(z)`-algebra
-  letI : Algebra (RatFunc L₀) Ω := ((algebraMap (RatFunc K) Ω).comp (ratFuncMap L₀ K)).toAlgebra
+  let : Algebra (RatFunc L₀) Ω := ((algebraMap (RatFunc K) Ω).comp (ratFuncMap L₀ K)).toAlgebra
   have htow : IsRatFuncTower L₀ K Ω := rfl
   set φL : L₀ →+* ℂ := φ.comp (algebraMap L₀ K) with hφLdef
   set ξ : ℂ := φ α ^ q ^ k₀ with hξdef
@@ -404,15 +404,15 @@ theorem theoreme_2_1 {q : ℕ} (hq : 2 ≤ q) {r : ℝ} (hr0 : 0 < r) (hr1 : r �
     {lam : ι → L} (hrel : ∑ i, algebraMap L ℂ (lam i) * F i (algebraMap L ℂ α) = 0) :
     ∃ w : ι → L[X], (∀ z : ℂ, ‖z‖ < r → ∑ i, Polynomial.aeval z (w i) * F i z = 0) ∧
       ∀ i, (w i).eval α = lam i := by
-  haveI : IsAlgClosure ℚ ↥(algebraicClosure ℚ ℂ) := algebraicClosure.isAlgClosure ℚ ℂ
-  haveI : IsAlgClosed ↥(algebraicClosure ℚ ℂ) := IsAlgClosure.isAlgClosed ℚ
-  haveI : CharZero ↥(algebraicClosure ℚ ℂ) :=
+  have : IsAlgClosure ℚ ↥(algebraicClosure ℚ ℂ) := algebraicClosure.isAlgClosure ℚ ℂ
+  have : IsAlgClosed ↥(algebraicClosure ℚ ℂ) := IsAlgClosure.isAlgClosed ℚ
+  have : CharZero ↥(algebraicClosure ℚ ℂ) :=
     charZero_of_injective_algebraMap
       (algebraMap ℚ ↥(algebraicClosure ℚ ℂ)).injective
-  letI : Algebra L ↥(algebraicClosure ℚ ℂ) :=
+  let : Algebra L ↥(algebraicClosure ℚ ℂ) :=
     ((algebraMap L ℂ).codRestrict (algebraicClosure ℚ ℂ).toSubring
       fun x => mem_algebraicClosure_iff.2 (hLalg x)).toAlgebra
-  haveI : IsScalarTower L ↥(algebraicClosure ℚ ℂ) ℂ := IsScalarTower.of_algebraMap_eq fun _ => rfl
+  have : IsScalarTower L ↥(algebraicClosure ℚ ℂ) ℂ := IsScalarTower.of_algebraMap_eq fun _ => rfl
   refine lifting_regular_of_embedding (K := ↥(algebraicClosure ℚ ℂ)) (fun x => ?_) hq hr0 hr1
     hA hF hf hα0 hα hreg hrel
   exact ((mem_algebraicClosure_iff.1 x.2).isIntegral).tower_bot

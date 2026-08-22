@@ -188,7 +188,7 @@ theorem germEval_detX {pt : ℕ → K} (hpt : Function.Injective pt) (Yval : ℕ
   set M : Matrix ι ι (ℕ → K) := Matrix.of fun i j n => Yval n (i, j) with hM
   have hmap : (matX K ι).map (germEval hpt Yval) = M.map (Germ.coeRingHom (atTop : Filter ℕ)) := by
     ext i j
-    simp [matX, hM, germEval, Germ.coeRingHom]
+    simp [matX, hM, germEval]
   have hdet : M.det = fun n => (Matrix.of fun i j => Yval n (i, j) : Matrix ι ι K).det := by
     funext n
     have h : (M.map (Pi.evalRingHom (fun _ : ℕ => K) n)).det = M.det n :=
@@ -284,7 +284,7 @@ theorem exists_relationMatrix_algebraic (Ω : Type*) [Field Ω] [Algebra (RatFun
     ∃ φ : Matrix ι ι Ω, IsRelationMatrix (relationIdeal hpt Yval) φ ∧
       ∀ i j, IsIntegral (RatFunc K) (φ i j) := by
   classical
-  haveI : IsAlgClosed ↥(algebraicClosure (RatFunc K) Ω) := IsAlgClosure.isAlgClosed (RatFunc K)
+  have : IsAlgClosed ↥(algebraicClosure (RatFunc K) Ω) := IsAlgClosure.isAlgClosed (RatFunc K)
   obtain ⟨ψ, hψrel, hψdet⟩ := exists_relationMatrix ↥(algebraicClosure (RatFunc K) Ω) hpt Yval hdet
   refine ⟨ψ.map (algebraMap ↥(algebraicClosure (RatFunc K) Ω) Ω), ⟨fun P hP => ?_, ?_⟩,
     fun i j => ?_⟩

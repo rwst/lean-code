@@ -101,9 +101,9 @@ Collatz function (it never takes the `⊥` branch); convergence to `⊥` would b
 def standardCollatz : WithBot carrierNat → WithBot carrierNat :=
   WithBot.map fun n =>
     if (n : ℤ) % 2 = 0 then
-      ⟨(n : ℤ) / 2, by have := n.2; simp only [carrierNat, Set.mem_setOf_eq] at this ⊢; omega⟩
+      ⟨(n : ℤ) / 2, by have := n.2; simp only [carrierNat, Set.mem_ofPred_eq] at this ⊢; omega⟩
     else
-      ⟨3 * (n : ℤ) + 1, by have := n.2; simp only [carrierNat, Set.mem_setOf_eq] at this ⊢; omega⟩
+      ⟨3 * (n : ℤ) + 1, by have := n.2; simp only [carrierNat, Set.mem_ofPred_eq] at this ⊢; omega⟩
 
 /-- The standard Collatz map is a generalized Collatz function (Definition 2.18): take `d = 2`,
 `q = ![½, 3]`, `r = ![0, 1]`, with the even class `n ≡ 0` mapping by `½·n + 0 = n/2` and the odd
@@ -119,8 +119,8 @@ theorem isGeneralizedCollatzFunction_standardCollatz :
     have h2 : (n : ℤ) % 2 = 0 := by have h := hn; simp only [Int.ModEq] at h; omega
     obtain ⟨k, hk⟩ : ∃ k : ℤ, (n : ℤ) = 2 * k := ⟨(n : ℤ) / 2, by omega⟩
     refine ⟨⟨(n : ℤ) / 2, by
-      have := n.2; simp only [carrierNat, Set.mem_setOf_eq] at this ⊢; omega⟩, ?_, ?_⟩
-    · simp only [standardCollatz, WithBot.map_coe, h2, if_pos]
+      have := n.2; simp only [carrierNat, Set.mem_ofPred_eq] at this ⊢; omega⟩, ?_, ?_⟩
+    · simp only [standardCollatz, WithBot.map_coe, h2, ite_eq_left]
     · show (((n : ℤ) / 2 : ℤ) : ℚ) = 1 / 2 * ((n : ℤ) : ℚ) + 0
       have hk2 : (n : ℤ) / 2 = k := by omega
       rw [hk2, hk]; push_cast; ring
@@ -129,8 +129,8 @@ theorem isGeneralizedCollatzFunction_standardCollatz :
     have h2 : (n : ℤ) % 2 = 1 := by have h := hn; simp only [Int.ModEq] at h; omega
     have hne : ¬ ((n : ℤ) % 2 = 0) := by omega
     refine ⟨⟨3 * (n : ℤ) + 1, by
-      have := n.2; simp only [carrierNat, Set.mem_setOf_eq] at this ⊢; omega⟩, ?_, ?_⟩
-    · simp only [standardCollatz, WithBot.map_coe, if_neg hne]
+      have := n.2; simp only [carrierNat, Set.mem_ofPred_eq] at this ⊢; omega⟩, ?_, ?_⟩
+    · simp only [standardCollatz, WithBot.map_coe, ite_eq_right hne]
     · show ((3 * (n : ℤ) + 1 : ℤ) : ℚ) = 3 * ((n : ℤ) : ℚ) + 1
       push_cast; ring
 

@@ -113,7 +113,7 @@ theorem orbitSeries_mobius (x₀ : ℕ) :
   | succ n =>
     simp only [map_sub, map_add, PowerSeries.coeff_C_mul, PowerSeries.coeff_succ_X_mul,
       PowerSeries.coeff_C, orbitSeries, wordSeries, PowerSeries.coeff_mk, Nat.succ_ne_zero,
-      if_false, add_zero]
+      ite_false, add_zero]
     have := two_mul_x_succ x₀ n
     have : (2 : ℚ) * (x x₀ (n + 1) : ℚ) = 3 * (x x₀ n : ℚ) + (wmin x₀ n : ℚ) := by
       exact_mod_cast congrArg (Nat.cast : ℕ → ℚ) this
@@ -202,8 +202,8 @@ theorem not_isPRecursive_orbit {x₀ : ℕ} (hx₀ : 0 < x₀) :
               (Q j).eval (n : ℚ) * ((2 : ℚ) ^ (s - (j : ℕ) + i) * 3 ^ ((j : ℕ) - 1 - i))
                 * (wmin x₀ (n + i) : ℚ) := by
         rw [← Finset.sum_subset (Finset.range_subset_range.mpr hjs)
-          (fun i _ hi => if_neg (by simpa using hi))]
-        exact Finset.sum_congr rfl fun i hi => if_pos (Finset.mem_range.mp hi)
+          (fun i _ hi => ite_eq_right (by simpa using hi))]
+        exact Finset.sum_congr rfl fun i hi => ite_eq_left (Finset.mem_range.mp hi)
       rw [hextend]
       calc (2:ℚ) ^ s * ((Q j).eval (n : ℚ) * (x x₀ (n + (j:ℕ)) : ℚ))
           = (Q j).eval (n : ℚ) * ((2:ℚ) ^ (s - (j:ℕ))
@@ -239,8 +239,8 @@ theorem not_isPRecursive_orbit {x₀ : ℕ} (hx₀ : 0 < x₀) :
     rw [hBdef]
     refine Finset.sum_eq_zero fun j _ => ?_
     by_cases hij : i < (j : ℕ)
-    · rw [if_pos hij, hzero_above j (by omega), zero_mul]
-    · rw [if_neg hij]
+    · rw [ite_eq_left hij, hzero_above j (by omega), zero_mul]
+    · rw [ite_eq_right hij]
   have hBtop : B (sb - 1) = Q jb * Polynomial.C ((2 : ℚ) ^ (s - 1)) := by
     have hstep : B (sb - 1)
         = (if sb - 1 < sb then
@@ -252,9 +252,9 @@ theorem not_isPRecursive_orbit {x₀ : ℕ} (hx₀ : 0 < x₀) :
       · have hne : (j : ℕ) ≠ sb := by
           intro h
           exact hjne (Fin.ext (by omega))
-        rw [if_pos hij, hzero_above j (by omega), zero_mul]
-      · rw [if_neg hij]
-    rw [hstep, if_pos (by omega)]
+        rw [ite_eq_left hij, hzero_above j (by omega), zero_mul]
+      · rw [ite_eq_right hij]
+    rw [hstep, ite_eq_left (by omega)]
     congr 1
     have h1 : s - sb + (sb - 1) = s - 1 := by omega
     have h2 : sb - 1 - (sb - 1) = 0 := by omega
