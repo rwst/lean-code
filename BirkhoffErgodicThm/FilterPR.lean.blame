@@ -1,0 +1,13 @@
+09376fe6 (Lua V. R.        2024-06-14 00:26:28 -0300  1) import Mathlib.Tactic
+09376fe6 (Lua V. R.        2024-06-14 00:26:28 -0300  2) 
+e2dddfec (Pietro Monticone 2024-06-24 00:07:59 +0200  3) /-- If two functions `f₁` and `f₂` are eventually equal with respect to a filter `f`,
+e2dddfec (Pietro Monticone 2024-06-24 00:07:59 +0200  4) then adding to right the same function `f₃` to both `f₁` and `f₂` results in two functions that
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300  5) are also eventually equal with respect to the same filter `f`. -/
+09376fe6 (Lua V. R.        2024-06-14 00:26:28 -0300  6) lemma Filter.EventuallyEq.add_right {f : Filter α} {f₁ f₂ f₃ : α → ℝ} (h : f₁ =ᶠ[f] f₂) :
+8aa0b1f0 (Oliver Butterley 2025-05-21 08:48:59 +0200  7)     f₁ + f₃ =ᶠ[f] f₂ + f₃ := h.mono fun x hx ↦ by simp [hx]
+09376fe6 (Lua V. R.        2024-06-14 00:26:28 -0300  8) 
+e2dddfec (Pietro Monticone 2024-06-24 00:07:59 +0200  9) /-- If two functions `f₁` and `f₂` are eventually equal with respect to a filter `f`,
+e2dddfec (Pietro Monticone 2024-06-24 00:07:59 +0200 10) then adding to left the same function `f₃` to both `f₁` and `f₂` results in two functions that
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300 11) are also eventually equal with respect to the same filter `f`. -/
+09376fe6 (Lua V. R.        2024-06-14 00:26:28 -0300 12) lemma Filter.EventuallyEq.add_left {f : Filter α} {f₁ f₂ f₃ : α → ℝ} (h : f₁ =ᶠ[f] f₂) :
+8aa0b1f0 (Oliver Butterley 2025-05-21 08:48:59 +0200 13)     f₃ + f₁ =ᶠ[f] f₃ + f₂ := h.mono fun x hx ↦ by simp [hx]

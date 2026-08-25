@@ -1,0 +1,58 @@
+8aa0b1f0 (Oliver Butterley 2025-05-21 08:48:59 +0200  1) import Mathlib
+a62a5c5f (Lua V. R.        2024-05-27 03:54:09 -0300  2) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200  3) -- To go in `Logic/Function/Iterate`? Name as `iterate_of_invariant`?
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300  4) /-- If a function `φ` is invariant under a function `f` (i.e., `φ ∘ f = φ`),
+524bd3a7 (Pietro Monticone 2024-06-24 00:20:49 +0200  5) then `φ` remains invariant under any number of iterations of `f`. -/
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300  6) lemma invariant_iter (h : φ ∘ f = φ) : ∀ i, φ ∘ f^[i] = φ
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300  7)   | 0 => rfl
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300  8)   | n + 1 => by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300  9)     change (φ ∘ f^[n]) ∘ f = φ
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 10)     rwa [invariant_iter h n]
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 11) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 12) -- To go in `Dynamics/BirkhoffSum/Basic`
+a62a5c5f (Lua V. R.        2024-05-27 03:54:09 -0300 13) open Finset in
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300 14) /-- If a function `φ` is invariant under a function `f` (i.e., `φ ∘ f = φ`),
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300 15) then the Birkhoff sum of `φ` over `f` for `n` iterations is equal to `n • φ`. -/
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 16) theorem birkhoffSum_of_invariant [AddCommMonoid M] {φ : α → M}
+a62a5c5f (Lua V. R.        2024-05-27 03:54:09 -0300 17)     (h : φ ∘ f = φ) : birkhoffSum f φ n = n • φ := by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 18)   funext x
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 19)   unfold birkhoffSum
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 20)   conv in fun _ => _ => intro k; change (φ ∘ f^[k]) x; rw [invariant_iter h k]
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 21)   simp
+a62a5c5f (Lua V. R.        2024-05-27 03:54:09 -0300 22) 
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 23) variable {R α : Type*} [DivisionSemiring R]
+d0caa728 (Oliver Butterley 2025-06-02 22:35:02 +0200 24) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 25) -- To go in `Dynamics/BirkhoffSum/Average`
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 26) -- Note: `[CharZero R]` required for `Nat.cast_ne_zero`.
+a62a5c5f (Lua V. R.        2024-05-27 03:54:09 -0300 27) open Finset in
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300 28) /-- If a function `φ` is invariant under a function `f` (i.e., `φ ∘ f = φ`),
+524bd3a7 (Pietro Monticone 2024-06-24 00:20:49 +0200 29) then the Birkhoff average of `φ` over `f` for `n` iterations is equal to `φ`
+c6f6cb89 (Lua V. R.        2024-06-23 21:27:13 -0300 30) provided `0 < n`. -/
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 31) theorem birkhoffAverage_of_invariant {M : Type*} [AddCommMonoid M] [Module R M] [CharZero R]
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 32)     {f : α → α} {φ : α → M} (h : φ ∘ f = φ) {n : ℕ} (hn : 0 < n) : birkhoffAverage R f φ n = φ := by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 33)   funext x
+d0caa728 (Oliver Butterley 2025-06-02 22:35:02 +0200 34)   simp only [birkhoffAverage, birkhoffSum_of_invariant h, Pi.smul_apply]
+d0caa728 (Oliver Butterley 2025-06-02 22:35:02 +0200 35)   refine (inv_smul_eq_iff₀ ?_).mpr (by norm_cast)
+d0caa728 (Oliver Butterley 2025-06-02 22:35:02 +0200 36)   exact Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt hn
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 37) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 38) -- To go in `Dynamics/BirkhoffSum/Average`
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 39) -- Note: need something more than `[AddCommMonoid M]` here to have subtraction.
+4217d60d (Oliver Butterley 2025-06-02 23:27:24 +0200 40) lemma birkhoffAverage_neg {M : Type*} [AddCommGroup M] [Module R M] {f : α → α} {φ : α → M} :
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 41)     birkhoffAverage R f (-φ) = - birkhoffAverage R f φ := by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 42)   funext n x
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 43)   simp [birkhoffAverage, birkhoffSum]
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 44) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 45) -- To go in `Dynamics/BirkhoffSum/Average`
+a3123bda (Lua V. R.        2024-05-27 15:58:34 -0300 46) open Finset in
+4217d60d (Oliver Butterley 2025-06-02 23:27:24 +0200 47) lemma birkhoffAverage_add {M : Type*} [AddCommMonoid M] [Module R M] {f : α → α} {φ ψ : α → M} :
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 48)     birkhoffAverage R f (φ + ψ) = birkhoffAverage R f φ + birkhoffAverage R f ψ := by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 49)   funext n x
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 50)   simp [birkhoffAverage, birkhoffSum, sum_add_distrib]
+d7a4212f (Lua V. R.        2024-05-27 03:59:19 -0300 51) 
+ee4f4e66 (Oliver Butterley 2025-06-02 21:49:31 +0200 52) -- To go in `Dynamics/BirkhoffSum/Average`
+4217d60d (Oliver Butterley 2025-06-02 23:27:24 +0200 53) -- Note: need something more than `[AddCommMonoid M]` here to have subtraction.
+df237079 (Lua V. R.        2024-05-27 16:00:37 -0300 54) open Finset in
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 55) lemma birkhoffAverage_sub {M : Type*} [AddCommGroup M] [Module R M] {f : α → α} {φ ψ : α → M} :
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 56)     birkhoffAverage R f (φ - ψ) = birkhoffAverage R f φ - birkhoffAverage R f ψ := by
+80d55054 (Lua V. R.        2024-05-27 15:49:42 -0300 57)   funext n x
+fab98d30 (Oliver Butterley 2025-06-02 23:20:12 +0200 58)   simp [birkhoffAverage, birkhoffSum, smul_sub]

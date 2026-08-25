@@ -1,0 +1,386 @@
+d7a4212f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:59:19 -0300   1) import BirkhoffErgodicThm.BirkhoffSumPR
+426aeb70 BirkhoffErgodicThm.lean (Lua V. R.        2024-08-09 16:15:56 +0200   2) import BirkhoffErgodicThm.InvariantsPR
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200   3) import BirkhoffErgodicThm.PartialSupsPR
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300   4) import BirkhoffErgodicThm.FilterPR
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200   5) import BirkhoffErgodicThm.QuasiMeasurePreservingPR
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300   6) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300   7) section BirkhoffMax
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300   8) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300   9) variable {α : Type*}
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  10) 
+7c2696f5 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:02:02 -0300  11) /-- The maximum of `birkhoffSum f φ i` for `i` ranging from `1` to `n + 1`. -/
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  12) def birkhoffMax (f : α → α) (φ : α → ℝ) : ℕ →o (α → ℝ) :=
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  13)   partialSups (birkhoffSum f φ ∘ .succ)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  14) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  15) lemma birkhoffMax_succ : birkhoffMax f φ n.succ x = φ x + 0 ⊔ birkhoffMax f φ n (f x) := by
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  16)   have : birkhoffSum f φ ∘ .succ = fun k ↦ φ + birkhoffSum f φ k ∘ f := by
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  17)     funext k x; dsimp
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  18)     rw [add_comm k 1, birkhoffSum_add f φ 1, birkhoffSum_one];
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  19)     rfl
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  20)   nth_rw 1 [birkhoffMax, this, add_partialSups]
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  21)   simp only [Pi.add_apply, add_right_inj]
+92188d31 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-22 12:41:04 +0200  22)   rw [partialSups_add_one']
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  23)   simp only [birkhoffSum_zero', Pi.zero_comp, Pi.sup_apply, Pi.zero_apply]
+35c67d6a BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:00:58 -0300  24)   simp_rw [Pi.partialSups_apply, Function.comp_apply, ← Pi.partialSups_apply]; rfl
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  25) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  26) abbrev birkhoffMaxDiff (f : α → α) (φ : α → ℝ) (n : ℕ) (x : α) :=
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  27)   birkhoffMax f φ (n + 1) x - birkhoffMax f φ n (f x)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  28) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  29) theorem birkhoffMaxDiff_aux : birkhoffMaxDiff f φ n x = φ x - (0 ⊓ birkhoffMax f φ n (f x)) := by
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  30)   rw [sub_eq_sub_iff_add_eq_add, birkhoffMax_succ, add_assoc, add_right_inj, max_add_min, zero_add]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  31) 
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  32) lemma birkhoffMaxDiff_antitone : Antitone (birkhoffMaxDiff f φ) := by
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  33)   intro m n h x
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  34)   rw [birkhoffMaxDiff_aux, birkhoffMaxDiff_aux]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  35)   apply add_le_add_left
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  36)   simp only [neg_le_neg_iff, le_inf_iff, inf_le_left, inf_le_iff, true_and]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  37)   right
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  38)   exact (birkhoffMax f φ).monotone' h _
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300  39) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  40) @[measurability]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  41) lemma birkhoffSum_measurable [MeasurableSpace α]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  42)     {f : α → α} (hf : Measurable f)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  43)     {φ : α → ℝ} (hφ : Measurable φ) :
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  44)     Measurable (birkhoffSum f φ n) := by
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  45)   apply Finset.measurable_sum
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  46)   measurability
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  47) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  48) @[measurability]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  49) lemma birkhoffMax_measurable [MeasurableSpace α]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  50)     {f : α → α} (hf : Measurable f)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  51)     {φ : α → ℝ} (hφ : Measurable φ) :
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  52)     Measurable (birkhoffMax f φ n) := by
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  53)   induction n <;> unfold birkhoffMax <;> measurability
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  54) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  55) end BirkhoffMax
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  56) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  57) noncomputable section BirkhoffThm
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  58) 
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200  59) open MeasureTheory Measure MeasurableSpace Filter Topology
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  60) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  61) variable {α : Type*} [msα : MeasurableSpace α] (μ : Measure α := by volume_tac)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  62) 
+7c2696f5 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:02:02 -0300  63) /-- The supremum of `birkhoffSum f φ (n + 1) x` over `n : ℕ`. -/
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  64) def birkhoffSup (f : α → α) (φ : α → ℝ) (x : α) : EReal := iSup fun n ↦ ↑(birkhoffSum f φ (n + 1) x)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  65) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  66) lemma birkhoffSup_measurable
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  67)     {f : α → α} (hf : Measurable f)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  68)     {φ : α → ℝ} (hφ : Measurable φ) :
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  69)     Measurable (birkhoffSup f φ) := Measurable.iSup
+ea68d7c9 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:44:06 +0200  70)   (fun _ ↦ Measurable.coe_real_ereal (birkhoffSum_measurable hf hφ))
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  71) 
+7c2696f5 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:02:02 -0300  72) /-- The set of points `x` for which `birkhoffSup f φ x = ⊤`. -/
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  73) def divergentSet (f : α → α) (φ : α → ℝ) : Set α := (birkhoffSup f φ)⁻¹' {⊤}
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  74) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  75) lemma divergentSet_invariant : f x ∈ divergentSet f φ ↔ x ∈ divergentSet f φ := by
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  76)   constructor
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  77)   all_goals
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  78)     intro hx
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200  79)     simp only [divergentSet, Set.mem_preimage, birkhoffSup, Set.mem_singleton_iff, iSup_eq_top] at *
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  80)     intro M hM
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  81)     cases' M using EReal.rec with a
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  82)     · use 0; apply EReal.bot_lt_coe
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200  83)     case top => contradiction
+cdb8fddc BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:14:28 -0300  84)   case mp =>
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300  85)     cases' hx ↑(- φ x + a) (EReal.coe_lt_top _) with N hN
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300  86)     norm_cast at *
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200  87)     rw [neg_add_lt_iff_lt_add, ← birkhoffSum_succ'] at hN
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  88)     use N + 1
+cdb8fddc BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:14:28 -0300  89)   case mpr =>
+cdb8fddc BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:14:28 -0300  90)     cases' hx ↑(φ x + a) (EReal.coe_lt_top _) with N hN
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300  91)     norm_cast at *
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  92)     conv =>
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  93)       congr
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  94)       intro i
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200  95)       rw [← add_lt_add_iff_left (φ x), ← birkhoffSum_succ']
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  96)     cases' N with N
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  97)     · /- ugly case! :( -/
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  98)       cases' hx ↑(birkhoffSum f φ 1 x) (EReal.coe_lt_top _) with N hNN
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300  99)       cases' N with N
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 100)       · exfalso; exact (lt_self_iff_false _).mp hNN
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 101)       · use N
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300 102)         norm_cast at hNN
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 103)         exact lt_trans hN hNN
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 104)     · use N
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 105) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 106) lemma divergentSet_measurable
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 107)     {f : α → α} (hf : Measurable f)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 108)     {φ : α → ℝ} (hφ : Measurable φ) :
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 109)     MeasurableSet (divergentSet f φ) :=
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 110)       measurableSet_preimage (birkhoffSup_measurable hf hφ) (measurableSet_singleton _)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 111) 
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 112) lemma divergentSet_mem_invalg
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 113)     {f : α → α} (hf : Measurable f)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 114)     {φ : α → ℝ} (hφ : Measurable φ) :
+f8d4c7b8 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:03:11 -0300 115)     MeasurableSet[invariants f] (divergentSet f φ) :=
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 116)   /- should be `Set.ext divergentSet_invariant` but it is VERY slow -/
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 117)   ⟨divergentSet_measurable hf hφ, funext (fun _ ↦ propext divergentSet_invariant)⟩
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 118) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 119) lemma birkhoffMax_tendsto_top_mem_divergentSet (hx : x ∈ divergentSet f φ) :
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 120)     Tendsto (birkhoffMax f φ · x) atTop atTop := by
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 121)   apply tendsto_atTop_atTop.mpr
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 122)   intro b
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 123)   simp only [divergentSet, Set.mem_preimage, birkhoffSup, Set.mem_singleton_iff, iSup_eq_top] at hx
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 124)   cases' hx b (EReal.coe_lt_top _) with N hN
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300 125)   norm_cast at hN
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 126)   use N
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 127)   exact fun n hn ↦ le_trans (le_of_lt hN) (le_partialSups_of_le (birkhoffSum f φ ∘ .succ) hn x )
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 128) 
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 129) lemma birkhoffMaxDiff_tendsto_of_mem_divergentSet (hx : x ∈ divergentSet f φ) :
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 130)     Tendsto (birkhoffMaxDiff f φ · x) atTop (𝓝 (φ x)) := by
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 131)   have hx' : f x ∈ divergentSet f φ := divergentSet_invariant.mpr hx
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 132)   simp_rw [birkhoffMaxDiff_aux]
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 133)   nth_rw 2 [← sub_zero (φ x)]
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 134)   apply Tendsto.sub tendsto_const_nhds
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 135)   cases' tendsto_atTop_atTop.mp (birkhoffMax_tendsto_top_mem_divergentSet hx') 0 with N hN
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 136)   exact tendsto_atTop_of_eventually_const (i₀ := N) fun i hi ↦ inf_of_le_left (hN i hi)
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 137) 
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 138) abbrev nonneg : Filter ℝ := ⨅ ε > 0, 𝓟 (Set.Iio ε)
+92911b41 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 01:08:01 -0300 139) 
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 140) lemma birkhoffAverage_tendsto_nonpos_of_not_mem_divergentSet
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 141)     (hx : x ∉ divergentSet f φ) :
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 142)     Tendsto (birkhoffAverage ℝ f φ · x) atTop nonneg := by
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 143)   /- it suffices to show there are upper bounds ≤ ε for all ε > 0 -/
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 144)   simp only [tendsto_iInf, gt_iff_lt, tendsto_principal, Set.mem_Iio, eventually_atTop, ge_iff_le]
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 145)   intro ε hε
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 146) 
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 147)   /- from `hx` hypothesis, the birkhoff sums are bounded above -/
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 148)   simp only [divergentSet, Set.mem_preimage, birkhoffSup, Set.mem_singleton_iff, iSup_eq_top,
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 149)     not_forall, not_exists, not_lt, exists_prop] at hx
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 150)   rcases hx with ⟨M', M_lt_top, M_is_bound⟩
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 151) 
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 152)   /- the upper bound is, in fact, a real number -/
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 153)   cases' M' using EReal.rec with M
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 154)   case bot => exfalso; exact (EReal.bot_lt_coe _).not_le (M_is_bound 0)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 155)   case top => contradiction
+04ba53bd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 11:22:56 -0300 156)   norm_cast at M_is_bound
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 157) 
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 158)   /- use archimedian property of reals -/
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 159)   cases' Archimedean.arch M hε with N hN
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 160)   have upperBound (n : ℕ) (hn : N ≤ n) : birkhoffAverage ℝ f φ (n + 1) x < ε
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 161)   · have : M < (n + 1) • ε
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 162)     · exact hN.trans_lt $ smul_lt_smul_of_pos_right (Nat.lt_succ_of_le hn) hε
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 163)     · rw [nsmul_eq_mul] at this
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 164)       exact (inv_smul_lt_iff_of_pos (Nat.cast_pos.mpr (Nat.zero_lt_succ n))).mpr
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 165)         ((M_is_bound n).trans_lt this)
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 166) 
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 167)   /- conclusion -/
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 168)   use N + 1
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 169)   intro n hn
+23ae8176 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:33:10 -0300 170)   specialize upperBound n.pred (Nat.le_pred_of_lt hn)
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 171)   rwa [← Nat.succ_pred_eq_of_pos (Nat.zero_lt_of_lt hn)]
+1226235b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-25 20:08:41 -0300 172) 
+^6c89cdd BirkhoffErgodicThm.lean (Lua V. R.        2024-05-23 22:21:28 -0300 173) /- From now on, assume f is measure-preserving and φ is integrable. -/
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 174) variable {f : α → α} (hf : MeasurePreserving f μ μ)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 175)          {φ : α → ℝ} (hφ : Integrable φ μ) (hφ' : Measurable φ) /- seems necessary? -/
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 176) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 177) lemma iterates_integrable {i : ℕ} (hf : MeasurePreserving f μ μ) (hφ : Integrable φ μ) :
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 178)     Integrable (φ ∘ f^[i]) μ := by
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 179)   apply (integrable_map_measure _ _).mp
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 180)   · rwa [(hf.iterate i).map_eq]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 181)   · rw [(hf.iterate i).map_eq]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 182)     exact hφ.aestronglyMeasurable
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 183)   exact (hf.iterate i).measurable.aemeasurable
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 184) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 185) lemma birkhoffSum_integrable (hf : MeasurePreserving f μ μ) (hφ : Integrable φ μ) :
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 186)     Integrable (birkhoffSum f φ n) μ :=
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 187)   integrable_finset_sum _ fun _ _ ↦ iterates_integrable μ hf hφ
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 188) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 189) lemma birkhoffMax_integrable (hf : MeasurePreserving f μ μ) (hφ : Integrable φ μ) : Integrable (birkhoffMax f φ n) μ := by
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 190)   unfold birkhoffMax
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 191)   induction' n with n hn
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 192)   · simpa
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 193)   · simpa using Integrable.sup hn (birkhoffSum_integrable μ hf hφ)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 194) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 195) lemma birkhoffMaxDiff_integrable (hf : MeasurePreserving f μ μ) (hφ : Integrable φ μ) :
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 196)     Integrable (birkhoffMaxDiff f φ n) μ := by
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 197)   apply Integrable.sub (birkhoffMax_integrable μ hf hφ)
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 198)   apply (integrable_map_measure _ hf.measurable.aemeasurable).mp <;> rw [hf.map_eq]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 199)   · exact birkhoffMax_integrable μ hf hφ
+1c632424 BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:00:25 +0200 200)   · exact (birkhoffMax_integrable μ hf hφ).aestronglyMeasurable
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 201) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 202) lemma int_birkhoffMaxDiff_in_divergentSet_tendsto (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 203)     (hφ : Integrable φ μ) (hφ' : Measurable φ) :
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 204)     Tendsto (fun n ↦ ∫ x in divergentSet f φ, birkhoffMaxDiff f φ n x ∂μ) atTop
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 205)             (𝓝 $ ∫ x in divergentSet f φ, φ x ∂ μ) := by
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 206)   apply MeasureTheory.tendsto_integral_of_dominated_convergence (abs φ ⊔ abs (birkhoffMaxDiff f φ 0))
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 207)   · exact fun _ ↦ (birkhoffMaxDiff_integrable μ hf hφ).aestronglyMeasurable.restrict
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 208)   · apply Integrable.sup <;> apply Integrable.abs
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 209)     · exact hφ.restrict
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 210)     · exact (birkhoffMaxDiff_integrable μ hf hφ).restrict
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 211)   · intro n
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 212)     apply ae_of_all
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 213)     intro x
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 214)     rw [Real.norm_eq_abs]
+f8d4c7b8 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:03:11 -0300 215)     exact abs_le_max_abs_abs (by simp [birkhoffMaxDiff_aux]) (birkhoffMaxDiff_antitone (zero_le n) _)
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 216)   · exact (ae_restrict_iff' (divergentSet_measurable hf.measurable hφ')).mpr
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 217)       (ae_of_all _ fun _ hx ↦ birkhoffMaxDiff_tendsto_of_mem_divergentSet hx)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 218) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 219) lemma int_birkhoffMaxDiff_in_divergentSet_nonneg (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 220)     (hφ : Integrable φ μ) (hφ' : Measurable φ) :
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 221)     0 ≤ ∫ x in divergentSet f φ, birkhoffMaxDiff f φ n x ∂μ := by
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 222)   unfold birkhoffMaxDiff
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 223)   have : (μ.restrict (divergentSet f φ)).map f = μ.restrict (divergentSet f φ)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 224)   · nth_rw 1 [
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 225)       ← (divergentSet_mem_invalg hf.measurable hφ').2,
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 226)       ← μ.restrict_map hf.measurable (divergentSet_measurable hf.measurable hφ'),
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 227)       hf.map_eq
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 228)     ]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 229)   have mi {n : ℕ} := birkhoffMax_integrable μ hf hφ (n := n)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 230)   have mm {n : ℕ} := birkhoffMax_measurable hf.measurable hφ' (n := n)
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 231)   rw [integral_sub, sub_nonneg]
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 232)   · rw [← integral_map (hf.aemeasurable.restrict) mm.aestronglyMeasurable, this]
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 233)     exact integral_mono mi.restrict mi.restrict ((birkhoffMax f φ).monotone (Nat.le_succ _))
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 234)   · exact mi.restrict
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 235)   · apply (integrable_map_measure mm.aestronglyMeasurable hf.aemeasurable.restrict).mp
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 236)     rw [this]
+29fac182 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 01:44:17 -0300 237)     exact mi.restrict
+8504075f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 02:03:10 -0300 238) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 239) lemma int_in_divergentSet_nonneg (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 240)     (hφ : Integrable φ μ) (hφ' : Measurable φ) : 0 ≤ ∫ x in divergentSet f φ, φ x ∂μ :=
+8504075f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 02:03:10 -0300 241)   le_of_tendsto_of_tendsto' tendsto_const_nhds
+8504075f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-24 02:03:10 -0300 242)     (int_birkhoffMaxDiff_in_divergentSet_tendsto μ hf hφ hφ')
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 243)     (fun _ ↦ int_birkhoffMaxDiff_in_divergentSet_nonneg μ hf hφ hφ')
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 244) 
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 245) /- these seem to be missing? -/
+05c58665 BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:32:09 -0300 246) lemma nullMeasurableSpace_le {μ : Measure α} :
+05c58665 BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:32:09 -0300 247)     msα ≤ NullMeasurableSpace.instMeasurableSpace (α := α) (μ := μ) :=
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 248)   fun s hs ↦ ⟨s, hs, ae_eq_refl s⟩
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 249) 
+05c58665 BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:32:09 -0300 250) variable [hμ : IsProbabilityMeasure μ]
+05c58665 BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:32:09 -0300 251) 
+e3f4517e BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 19:43:33 -0300 252) lemma divergentSet_zero_meas_of_condexp_neg
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 253)     (h : ∀ᵐ x ∂μ, (μ[φ|invariants f]) x < 0) (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 254)     (hφ : Integrable φ μ) (hφ' : Measurable φ) :
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 255)     μ (divergentSet f φ) = 0 := by
+f8d4c7b8 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:03:11 -0300 256)   have pos : ∀ᵐ x ∂μ.restrict (divergentSet f φ), 0 < -(μ[φ|invariants f]) x
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 257)   · exact ae_restrict_of_ae (h.mono fun _ hx ↦ neg_pos.mpr hx)
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 258)   have ds_meas := divergentSet_mem_invalg hf.measurable hφ'
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 259)   by_contra hm; simp_rw [← pos_iff_ne_zero] at hm
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 260)   have : ∫ x in divergentSet f φ, φ x ∂μ < 0
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 261)   · rw [← setIntegral_condExp (invariants_le f) hφ ds_meas,
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 262)       ← Left.neg_pos_iff, ← integral_neg, integral_pos_iff_support_of_nonneg_ae]
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 263)     · unfold Function.support
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 264)       rw [(ae_iff_measure_eq _).mp]
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 265)       · rwa [Measure.restrict_apply_univ _]
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 266)       · conv in _ ≠ _ => rw [ne_comm]
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 267)         exact Eventually.ne_of_lt pos
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 268)       · apply measurableSet_support _
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 269)         apply (stronglyMeasurable_condExp).measurable.neg.le _
+f8d4c7b8 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:03:11 -0300 270)         exact (le_trans (invariants_le f) nullMeasurableSpace_le)
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 271)     · exact ae_le_of_ae_lt pos
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 272)     · exact integrable_condExp.restrict.neg
+4a0cb2d8 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 00:52:23 -0300 273)   exact this.not_le (int_in_divergentSet_nonneg μ hf hφ hφ')
+92911b41 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 01:08:01 -0300 274) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 275) lemma limsup_birkhoffAverage_nonpos_of_condexp_neg (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 276)     (hφ : Integrable φ μ) (hφ' : Measurable φ) (h : ∀ᵐ x ∂μ, (μ[φ|invariants f]) x < 0) :
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 277)     ∀ᵐ x ∂μ, Tendsto (birkhoffAverage ℝ f φ · x) atTop nonneg := by
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 278)   apply Eventually.mono _ fun _ ↦ birkhoffAverage_tendsto_nonpos_of_not_mem_divergentSet
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 279)   apply ae_iff.mpr
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 280)   simp only [not_not, Set.setOf_mem_eq]
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 281)   exact divergentSet_zero_meas_of_condexp_neg μ h hf hφ hφ'
+183c06b3 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 02:24:06 -0300 282) 
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 283) def invCondexp (μ : Measure α := by volume_tac) [IsProbabilityMeasure μ]
+f8d4c7b8 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-24 11:03:11 -0300 284)     (f : α → α) (φ : α → ℝ) : α → ℝ := μ[φ|invariants f]
+709ccc72 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 20:07:36 -0300 285) 
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 286) theorem birkhoffErgodicTheorem_aux {ε : ℝ} (hε : 0 < ε) (hf : MeasurePreserving f μ μ)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 287)     (hφ : Integrable φ μ) (hφ' : Measurable φ) :
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 288)     ∀ᵐ x ∂μ, Tendsto (birkhoffAverage ℝ f φ · x - (invCondexp μ f φ x + ε)) atTop nonneg := by
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 289)   let ψ := φ - (invCondexp μ f φ + fun _ ↦ ε)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 290)   have ψ_integrable : Integrable ψ μ := hφ.sub (integrable_condExp.add (integrable_const _))
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 291)   have ψ_measurable : Measurable ψ := by
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 292)     suffices Measurable (invCondexp μ f φ) by measurability
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 293)     exact stronglyMeasurable_condExp.measurable.le (invariants_le f)
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 294) 
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 295)   have condexpψ_const : invCondexp μ f ψ =ᵐ[μ] - fun _ ↦ ε := calc
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 296)     μ[ψ|invariants f]
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 297)     _ =ᵐ[μ] _ - _ := condExp_sub hφ (integrable_condExp.add (integrable_const _)) _
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 298)     _ =ᵐ[μ] _ - (_ + _) := (condExp_add integrable_condExp (integrable_const _) _).neg.add_left
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 299)     _ =ᵐ[μ] _ - (_ + _) := (condExp_condExp_of_le (le_of_eq rfl)
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 300)                             (invariants_le f)).add_right.neg.add_left
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 301)     _ = - μ[fun _ ↦ ε|invariants f] := by simp
+8434192e BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:24:33 -0300 302)     _ = - fun _ ↦ ε := by rw [condExp_const (invariants_le f)]
+709ccc72 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 20:07:36 -0300 303) 
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 304)   have limsup_nonpos : ∀ᵐ x ∂μ, Tendsto (birkhoffAverage ℝ f ψ · x) atTop nonneg
+db08ea74 BirkhoffErgodicThm.lean (Lua V. R.        2024-06-23 21:55:29 -0300 305)   · suffices ∀ᵐ x ∂μ, invCondexp μ f ψ x < 0 from
+709ccc72 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 20:07:36 -0300 306)       limsup_birkhoffAverage_nonpos_of_condexp_neg μ hf ψ_integrable ψ_measurable this
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 307)     exact condexpψ_const.mono fun x hx ↦ by simp [hx, hε]
+183c06b3 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-26 02:24:06 -0300 308) 
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 309)   refine limsup_nonpos.mono fun x hx => ?_
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 310) 
+ded50519 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-31 01:48:50 -0300 311)   suffices ∀ (n : ℕ), 0 < n → birkhoffAverage ℝ f ψ n x = birkhoffAverage ℝ f φ n x - (invCondexp μ f φ x + ε) by
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 312)     simp only [tendsto_iInf, gt_iff_lt, tendsto_principal, Set.mem_Iio, eventually_atTop,
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 313)       ge_iff_le] at hx ⊢
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 314)     intro r hr
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 315)     cases' hx r hr with n hn
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 316)     use n + 1
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 317)     intro k hk
+40c94f1e BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 00:38:53 +0200 318)     rw [← this k (Nat.zero_lt_of_lt hk)]
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 319)     exact hn k (Nat.le_of_succ_le hk)
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 320) 
+90ce03be BirkhoffErgodicThm.lean (Pietro Monticone 2024-06-24 01:13:39 +0200 321)   have condexpφ_invariant : invCondexp μ f φ ∘ f = invCondexp μ f φ :=
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 322)     invariant_of_measurable_invariants stronglyMeasurable_condExp.measurable
+80d55054 BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 15:49:42 -0300 323) 
+75db443b BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 16:22:10 -0300 324)   intro n hn
+ee4f4e66 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-02 21:49:31 +0200 325)   simp [ψ, birkhoffAverage_sub, birkhoffAverage_add, birkhoffAverage_of_invariant
+ee4f4e66 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-02 21:49:31 +0200 326)     (show _ = fun _ ↦ ε from rfl) hn, birkhoffAverage_of_invariant condexpφ_invariant hn]
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 327) 
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 328) /-- This is the main result but assuming `Measurable φ`. -/
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 329) theorem birkhoffErgodicTheorem (hf : MeasurePreserving f μ μ) (hφ : Integrable φ μ) (hφ' : Measurable φ) :
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 330)     ∀ᵐ x ∂μ, Tendsto (birkhoffAverage ℝ f φ · x) atTop (𝓝 (invCondexp μ f φ x)) := by
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 331)   have : ∀ᵐ x ∂μ, ∀ (k : {k : ℕ // k > 0}),
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 332)       ∀ᶠ n in atTop, |birkhoffAverage ℝ f φ n x - (invCondexp μ f φ x)| < (k : ℝ)⁻¹ := by
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 333)     apply ae_all_iff.mpr
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 334)     rintro ⟨k, hk⟩
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 335)     let δ := (k : ℝ)⁻¹/2
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 336)     have hδ : δ > 0 := by simpa [δ]
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 337)     have p₁ := birkhoffErgodicTheorem_aux μ hδ hf hφ hφ'
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 338)     have p₂ := birkhoffErgodicTheorem_aux μ hδ hf hφ.neg hφ'.neg
+57f3fc68 BirkhoffErgodicThm.lean (Lua V. R.        2025-05-21 22:26:26 -0300 339)     have : invCondexp μ f (-φ) =ᵐ[μ] -invCondexp μ f φ := condExp_neg _ _
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 340)     refine ((p₁.and p₂).and this).mono fun x ⟨⟨hx₁, hx₂⟩, hx₃⟩ => ?_
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 341)     simp only [tendsto_iInf, gt_iff_lt, tendsto_principal, Set.mem_Iio, eventually_atTop,
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 342)       ge_iff_le] at hx₁ hx₂ ⊢
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 343)     cases' hx₁ δ hδ with n₁ hn₁
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 344)     cases' hx₂ δ hδ with n₂ hn₂
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 345)     simp_rw [δ] at hn₁ hn₂ ⊢
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 346)     use (max n₁ n₂)
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 347)     intro m hm
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 348)     apply abs_lt.mpr
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 349)     constructor
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 350)     · specialize hn₂ m (le_of_max_le_right hm)
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 351)       rw [hx₃, birkhoffAverage_neg] at hn₂
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 352)       norm_num at hn₂
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 353)       linarith
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 354)     · specialize hn₁ m (le_of_max_le_left hm)
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 355)       linarith
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 356) 
+8aa0b1f0 BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 08:48:59 +0200 357)   refine this.mono fun x hx => Metric.tendsto_atTop.mpr fun ε hε => ?_
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 358)   cases' Archimedean.arch 1 hε with k hk
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 359)   have hk' : 1 < (k + 1) • ε
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 360)   · exact hk.trans_lt $ smul_lt_smul_of_pos_right (lt_add_one k) hε
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 361)   simp only [eventually_atTop, ge_iff_le, Subtype.forall, gt_iff_lt] at hx
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 362)   cases' hx k.succ (Nat.zero_lt_succ k) with N hN
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 363)   use N
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 364)   intro n hn
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 365)   apply (hN n hn).trans
+1cbef68b BirkhoffErgodicThm.lean (Oliver Butterley 2025-05-21 11:07:22 +0200 366)   rw [inv_lt_iff_one_lt_mul₀ (Nat.cast_pos.mpr k.succ_pos)]
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 367)   norm_num at hk' ⊢
+a62a5c5f BirkhoffErgodicThm.lean (Lua V. R.        2024-05-27 03:54:09 -0300 368)   linarith
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 369) 
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 370) /-- Here we drop the assumption that the observable is `Measurable`. -/
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 371) theorem birkhoffErgodicTheorem' {Φ : α → ℝ} (hf : MeasurePreserving f μ μ) (hΦ : Integrable Φ μ) :
+c981c848 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-11 16:41:27 +0200 372)     ∀ᵐ x ∂μ, Tendsto (birkhoffAverage ℝ f Φ · x) atTop (𝓝 (invCondexp μ f Φ x)) := by
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 373)   -- Take `φ` as the measurable approximation to the ae measurable `Φ`.
+150e3ad8 BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-17 16:06:23 +0200 374)   let φ := hΦ.left.mk
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 375)   have hφ' : Measurable φ := hΦ.left.measurable_mk
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 376)   have hΦ' : Φ =ᵐ[μ] φ := hΦ.left.ae_eq_mk
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 377)   have hφ : Integrable φ μ := (integrable_congr hΦ.left.ae_eq_mk).mp hΦ
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 378)   -- Obtain a full measure set such that the three relevant results hold.
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 379)   obtain ⟨s, hs, hs'⟩ : ∃ s ∈ ae μ, Set.EqOn (invCondexp μ f Φ) (invCondexp μ f φ) s :=
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 380)     eventuallyEq_iff_exists_mem.mp <| condExp_congr_ae hΦ'
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 381)   obtain ⟨t, ht, ht'⟩ := eventually_iff_exists_mem.mp <| birkhoffErgodicTheorem μ hf hφ hφ'
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 382)   have := ae_all_iff.mpr <| birkhoffAverage_ae_eq_of_ae_eq ℝ hf.quasiMeasurePreserving hΦ'
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 383)   obtain ⟨u, hu, hu'⟩ := eventually_iff_exists_mem.mp this
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 384)   -- Apply the three results on the chosen set.
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 385)   refine eventually_iff_exists_mem.mpr ⟨s ∩ t ∩ u, inter_mem (inter_mem hs ht) hu, fun y hy ↦ ?_⟩
+0d0a833a BirkhoffErgodicThm.lean (Oliver Butterley 2025-06-19 09:35:48 +0200 386)   simp [hs' hy.1.1, ht' y hy.1.2, hu' y hy.2]

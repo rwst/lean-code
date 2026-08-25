@@ -1,0 +1,38 @@
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200  1) import Mathlib
+^6c89cdd (Lua V. R.        2024-05-23 22:21:28 -0300  2) 
+4a30be9d (Oliver Butterley 2025-06-02 21:12:10 +0200  3) -- To be added to `Mathlib/Order/PartialSups`.
+4a30be9d (Oliver Butterley 2025-06-02 21:12:10 +0200  4) -- Correct name? I think it should be `comp` not `map`:
+4a30be9d (Oliver Butterley 2025-06-02 21:12:10 +0200  5) -- [https://leanprover-community.github.io/contribute/naming.html#names-of-symbols]
+23a54826 (Oliver Butterley 2025-06-02 20:59:42 +0200  6) lemma map_partialSups {α β F ι : Type*} [Preorder ι] [LocallyFiniteOrderBot ι]
+e3141911 (Oliver Butterley 2025-06-02 20:52:11 +0200  7)     [SemilatticeSup α] [SemilatticeSup β] [FunLike F α β] [SupHomClass F α β]
+e3141911 (Oliver Butterley 2025-06-02 20:52:11 +0200  8)     (f : ι → α) (g : F) : partialSups (g ∘ f) = g ∘ partialSups f := by
+322db1ba (Oliver Butterley 2025-06-02 20:59:04 +0200  9)   funext _; simp [partialSups]
+^6c89cdd (Lua V. R.        2024-05-23 22:21:28 -0300 10) 
+c56f4874 (Oliver Butterley 2025-06-02 20:43:31 +0200 11) -- To be added to `Mathlib/Order/PartialSups`. Correct name?
+c56f4874 (Oliver Butterley 2025-06-02 20:43:31 +0200 12) open OrderIso in
+322db1ba (Oliver Butterley 2025-06-02 20:59:04 +0200 13) lemma add_partialSups {ι α : Type*} [Preorder ι] [LocallyFiniteOrderBot ι] [Lattice α] [AddGroup α]
+e3141911 (Oliver Butterley 2025-06-02 20:52:11 +0200 14)     [CovariantClass α α ((· + ·)) (· ≤ ·)] (f : ι → α) (c : α) (i : ι) :
+e3141911 (Oliver Butterley 2025-06-02 20:52:11 +0200 15)     partialSups (c + f ·) i = c + partialSups f i := by
+c56f4874 (Oliver Butterley 2025-06-02 20:43:31 +0200 16)   change (partialSups (addLeft c ∘ _)) i = _
+23a54826 (Oliver Butterley 2025-06-02 20:59:42 +0200 17)   rw [map_partialSups f (addLeft c)]; rfl
+^6c89cdd (Lua V. R.        2024-05-23 22:21:28 -0300 18) 
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 19) /- Note for curiosity with `partialSups_succ'`: In `partialSups_succ` slightly weaker assumptions on
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 20) `ι` are used: `[LinearOrder ι] [LocallyFiniteOrderBot ι] [SuccOrder ι]`. However using just this
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 21) breaks the statement because it can't sythesise `[OrderBot ι]`. These assumptions permit an empty
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 22) set and perhaps it can't use the hypothesis to exclude this and guarantee the existence of `⊥`.
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 23) The assumptions used here match those of `partialSups_bot` in the same file. -/
+3d747e43 (Oliver Butterley 2025-06-02 20:03:32 +0200 24) 
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 25) -- To be added to `Mathlib/Order/PartialSups`
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 26) open Finset in
+a26f48c1 (Oliver Butterley 2025-06-02 20:28:05 +0200 27) lemma partialSups_succ' {α ι : Type*} [SemilatticeSup α] [LinearOrder ι]
+0b2f914d (Oliver Butterley 2025-06-02 19:46:28 +0200 28)     [LocallyFiniteOrder ι] [SuccOrder ι] [OrderBot ι] (f : ι → α) (i : ι) :
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 29)     (partialSups f) (Order.succ i) = f ⊥ ⊔ (partialSups (f ∘ Order.succ)) i := by
+a26f48c1 (Oliver Butterley 2025-06-02 20:28:05 +0200 30)   refine Succ.rec (by simp) (fun j _ h ↦ ?_) (bot_le (a := i))
+b0cc9661 (Oliver Butterley 2025-06-02 19:45:37 +0200 31)   have : (partialSups (f ∘ Order.succ)) (Order.succ j) =
+b0cc9661 (Oliver Butterley 2025-06-02 19:45:37 +0200 32)       ((partialSups (f ∘ Order.succ)) j ⊔ (f ∘ Order.succ) (Order.succ j)) := by simp
+b0cc9661 (Oliver Butterley 2025-06-02 19:45:37 +0200 33)   simp [this, h, sup_assoc]
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 34) 
+b0cc9661 (Oliver Butterley 2025-06-02 19:45:37 +0200 35) -- To be added to `Mathlib/Algebra/Order/PartialSups`
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 36) lemma partialSups_add_one' [SemilatticeSup α] (f : ℕ → α) (n : ℕ) :
+92188d31 (Oliver Butterley 2025-05-22 12:41:04 +0200 37)     partialSups f (n + 1) = f 0 ⊔ partialSups (f ∘ (fun k ↦ k + 1)) n := by
+b0cc9661 (Oliver Butterley 2025-06-02 19:45:37 +0200 38)   exact Order.succ_eq_add_one n ▸ partialSups_succ' f n

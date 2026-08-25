@@ -1,0 +1,43 @@
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  1) /-
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  2) Copyright (c) 2025 Oliver Butterley. All rights reserved.
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  3) Released under Apache 2.0 license as described in the file LICENSE.
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  4) Authors: Oliver Butterley
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  5) -/
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  6) import Mathlib.Dynamics.BirkhoffSum.Average
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  7) import Mathlib.MeasureTheory.Measure.QuasiMeasurePreserving
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200  8) 
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200  9) /-!
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200 10) # Birkhoff sum and average for measure preserving maps
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 11) 
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 12) This file contains some lemmas about the `birkhoffSum` and `birkhoffAverage` of a map which is
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 13) `QuasiMeasurePreserving`.
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 14) -/
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 15) 
+fd01f630 (Oliver Butterley 2025-06-19 11:34:16 +0200 16) section QuasiMeasurePreserving
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 17) 
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 18) open MeasureTheory Measure Filter
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 19) 
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 20) variable {α M : Type*} [AddCommMonoid M] [MeasurableSpace α]
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 21) variable {f : α → α} {μ : Measure α} {φ φ' : α → M}
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 22) 
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200 23) /-- If observables  `φ` and `φ'` are `=ᵐ[μ]` equal then the corresponding `birkhoffSum` are `=ᵐ[μ]`
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200 24) equal. -/
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 25) theorem birkhoffSum_ae_eq_of_ae_eq (hf : QuasiMeasurePreserving f μ μ) (hφ : φ =ᵐ[μ] φ') n :
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 26)     birkhoffSum f φ n =ᵐ[μ] birkhoffSum f φ' n := by
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 27)   obtain ⟨s, hs, hs'⟩ := eventuallyEq_iff_exists_mem.mp hφ
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 28)   let t := {x | ∀ n, f^[n] x ∈ s}
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 29)   have ht : t ∈ ae μ := by
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 30)     refine mem_ae_iff.mpr ?_
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 31)     rw [show tᶜ = ⋃ n, (f^[n])⁻¹' sᶜ by ext x; simp [t]]
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 32)     exact measure_iUnion_null_iff.mpr fun n ↦ (hf.iterate n).preimage_null hs
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 33)   filter_upwards [ht] with x hx
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 34)   exact Finset.sum_congr rfl fun x _ => hs' (hx x)
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 35) 
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200 36) /-- If observables `φ` and `φ'` are `=ᵐ[μ]` equal then the corresponding `birkhoffAverage` are
+fc06094c (Oliver Butterley 2025-06-19 11:37:48 +0200 37) `=ᵐ[μ]` equal. -/
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 38) theorem birkhoffAverage_ae_eq_of_ae_eq (R : Type*) [DivisionSemiring R] [Module R M]
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 39)     (hf : QuasiMeasurePreserving f μ μ) (hφ : φ =ᵐ[μ] φ') n :
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 40)     birkhoffAverage R f φ n =ᵐ[μ] birkhoffAverage R f φ' n :=
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 41)   EventuallyEq.const_smul (birkhoffSum_ae_eq_of_ae_eq hf hφ n) (n : R)⁻¹
+0d0a833a (Oliver Butterley 2025-06-19 09:35:48 +0200 42) 
+fd01f630 (Oliver Butterley 2025-06-19 11:34:16 +0200 43) end QuasiMeasurePreserving
