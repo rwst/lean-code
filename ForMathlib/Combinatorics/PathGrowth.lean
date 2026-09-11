@@ -8,6 +8,7 @@ import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Algebra.Order.Field.Basic
 import Mathlib.Data.Finset.Union
+import Mathlib.Data.Fintype.Prod
 import Mathlib.Data.List.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Tactic.GCongr
@@ -53,12 +54,18 @@ supplies the eigenvector-like witness by hand.
   `(a / b) ^ k * v s` with the certificate's own weight at the starting state.
 * `psum_const` — a constant edge weight factors out as `θ ^ k`, the degenerate case a
   single-slope map produces.
+* `detE`, `outEdges_detE`, `psum_detE_succ` — the **transfer operator** presentation: a
+  deterministic digraph given by its successor map `tgt : V → A → V`, one edge per state and
+  label, on which the sum over `outEdges` becomes a sum over labels.  This is the shape every
+  window or Markov machine has, and the one
+  `ForMathlib/Dynamics/PressureTransfer.lean` consumes to bound a topological pressure.
 
 ## Implementation notes
 
 The state and label types are arbitrary with `DecidableEq`; no `Fintype` is required, because the
 extreme weights `m ≤ v ≤ M` enter as hypotheses rather than as computed minima and maxima.  That is
-also the shape a machine-generated certificate has.
+also the shape a machine-generated certificate has.  The `detE` section is the one exception: a
+successor map presupposes that the labels can be enumerated, so it asks for `Fintype`.
 -/
 
 namespace PathGrowth
@@ -390,7 +397,8 @@ example : Deterministic goldenMean := by decide
 
 set_option maxRecDepth 4000 in
 example :
-    ((List.range 9).map fun k => (words goldenMean 0 k).card) = [1, 2, 3, 5, 8, 13, 21, 34, 55] := by
+    ((List.range 9).map fun k => (words goldenMean 0 k).card)
+      = [1, 2, 3, 5, 8, 13, 21, 34, 55] := by
   decide
 
 /- Weighting the letter `1` by `2` and the letter `0` by `1` charges a golden-mean word `2` per
@@ -402,5 +410,37 @@ example :
         psum goldenMean (fun e => if e.2.1 = 1 then 2 else 1) (fun _ => 1) 0 k)
       = [1, 3, 5, 11, 21, 43, 85, 171, 341] := by
   decide
+
+/-! ### Deterministic transfer operators
+
+A **transfer operator** is a deterministic labelled digraph presented by its successor map
+`tgt : V → A → V`: from each state there is exactly one edge per label.  This is the shape every
+window/Markov machine actually has, and it turns the sum over `outEdges` into a sum over labels. -/
+
+/-- The edge set of the transfer operator with successor map `tgt`: one edge `(s, c, tgt s c)` per
+state and label. -/
+def detE [Fintype V] [Fintype A] (tgt : V → A → V) : Finset (V × A × V) :=
+  Finset.univ.image fun p : V × A => (p.1, p.2, tgt p.1 p.2)
+
+theorem outEdges_detE [Fintype V] [Fintype A] (tgt : V → A → V) (s : V) :
+    outEdges (detE tgt) s = Finset.univ.image fun c : A => (s, c, tgt s c) := by
+  ext e
+  simp only [outEdges, detE, Finset.mem_filter, Finset.mem_image, Finset.mem_univ, true_and,
+    Prod.exists]
+  constructor
+  · rintro ⟨⟨u, c, rfl⟩, hs⟩
+    simp only at hs
+    subst hs
+    exact ⟨c, rfl⟩
+  · rintro ⟨c, rfl⟩
+    exact ⟨⟨s, c, rfl⟩, rfl⟩
+
+/-- On a transfer operator the path sum satisfies the label recursion: one term per label. -/
+theorem psum_detE_succ [Fintype V] [Fintype A] (tgt : V → A → V) (θ : V × A × V → ℕ)
+    (g : V → ℕ) (s : V) (k : ℕ) :
+    psum (detE tgt) θ g s (k + 1)
+      = ∑ c : A, θ (s, c, tgt s c) * psum (detE tgt) θ g (tgt s c) k := by
+  rw [psum_succ, outEdges_detE,
+    Finset.sum_image fun c _ c' _ h => by simpa using congrArg (fun e => e.2.1) h]
 
 end PathGrowth

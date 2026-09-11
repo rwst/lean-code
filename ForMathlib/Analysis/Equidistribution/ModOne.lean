@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.Real.Cardinality
 public import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+public import Mathlib.Analysis.Asymptotics.SpecificAsymptotics
 
 @[expose] public section
 
@@ -149,3 +150,98 @@ theorem isDenseModuloOne_iff_subset_closure (s : ℕ → ℝ) :
     refine ⟨n, Set.mem_Icc.mpr ?_⟩
     rw [hfy]
     exact ⟨by linarith [hdist.2], by linarith [hdist.1]⟩
+
+/-!
+## Perturbations that vanish modulo one
+
+Weyl's criterion sees a sequence only modulo one, and only in the limit. So it is unchanged by
+a perturbation that tends to zero *modulo one* — `weylCriterion_of_tendsto_sub_int`. This is
+what makes "`(xₙ)` is uniformly distributed" a tail-type property of any construction in which
+changing finitely much of the input moves `xₙ` by an amount whose distance to `ℤ` decays.
+
+The proof is three lines of harmonic analysis: the character factors as
+`e(h xₙ) = e(h yₙ) · e(h δₙ)` with `δₙ = xₙ - yₙ - Nₙ` (the integer part is invisible to `e`),
+`|e(h δₙ) - 1| → 0` by continuity, and a Cesàro average of a null sequence is null.
+-/
+
+/-- The character `t ↦ e(h t) = exp(2πi h t)` whose averages `WeylCriterion` controls. -/
+noncomputable def weylChar (h : ℤ) (t : ℝ) : ℂ :=
+  Complex.exp (2 * Real.pi * Complex.I * (h : ℂ) * (t : ℂ))
+
+theorem continuous_weylChar (h : ℤ) : Continuous (weylChar h) := by
+  unfold weylChar; fun_prop
+
+/-- `e(h t)` lies on the unit circle. -/
+theorem norm_weylChar (h : ℤ) (t : ℝ) : ‖weylChar h t‖ = 1 := by
+  unfold weylChar
+  simp only [Complex.norm_exp]
+  norm_num
+
+/-- The character does not see integers. -/
+theorem weylChar_intCast (h n : ℤ) : weylChar h ((n : ℝ)) = 1 := by
+  unfold weylChar
+  have hcast : (2 : ℂ) * (Real.pi : ℂ) * Complex.I * (h : ℂ) * (((n : ℤ) : ℝ) : ℂ)
+      = ((h * n : ℤ) : ℂ) * (2 * (Real.pi : ℂ) * Complex.I) := by push_cast; ring
+  rw [hcast]
+  exact Complex.exp_int_mul_two_pi_mul_I _
+
+theorem weylChar_add (h : ℤ) (s t : ℝ) :
+    weylChar h (s + t) = weylChar h s * weylChar h t := by
+  unfold weylChar
+  rw [← Complex.exp_add]
+  congr 1
+  push_cast
+  ring
+
+/--
+**Weyl's criterion is insensitive to a perturbation that vanishes modulo one.** If
+`xₙ - yₙ - Nₙ → 0` for some integers `Nₙ`, then `WeylCriterion y` implies `WeylCriterion x`.
+
+Chained with the equivalence `IsEquidistributedModuloOne ↔ WeylCriterion`
+(`Bugeaud.theorem_1_2_weyl`, or Bertin's Theorem 4.3.2) this says that uniform distribution
+modulo one is unchanged by such a perturbation.
+-/
+theorem weylCriterion_of_tendsto_sub_int {x y : ℕ → ℝ} {N : ℕ → ℤ}
+    (hδ : Filter.Tendsto (fun n => x n - y n - (N n : ℝ)) Filter.atTop (𝓝 0))
+    (hy : WeylCriterion y) : WeylCriterion x := by
+  intro h hh
+  show Filter.Tendsto (fun M : ℕ => (∑ n ∈ Finset.range M, weylChar h (x n)) / (M : ℂ))
+    Filter.atTop (𝓝 0)
+  have hyh : Filter.Tendsto (fun M : ℕ => (∑ n ∈ Finset.range M, weylChar h (y n)) / (M : ℂ))
+      Filter.atTop (𝓝 0) := hy h hh
+  have hfac : ∀ n, weylChar h (x n) = weylChar h (y n) * weylChar h (x n - y n - (N n : ℝ)) := by
+    intro n
+    have h1 : y n + (x n - y n - (N n : ℝ)) + ((N n : ℤ) : ℝ) = x n := by ring
+    calc weylChar h (x n)
+        = weylChar h (y n + (x n - y n - (N n : ℝ)) + ((N n : ℤ) : ℝ)) := by rw [h1]
+      _ = weylChar h (y n) * weylChar h (x n - y n - (N n : ℝ))
+            * weylChar h ((N n : ℤ) : ℝ) := by rw [weylChar_add, weylChar_add]
+      _ = weylChar h (y n) * weylChar h (x n - y n - (N n : ℝ)) := by
+          rw [weylChar_intCast, mul_one]
+  have hnull : Filter.Tendsto (fun n => ‖weylChar h (x n - y n - (N n : ℝ)) - 1‖)
+      Filter.atTop (𝓝 0) := by
+    have h1 : Filter.Tendsto (fun n => weylChar h (x n - y n - (N n : ℝ))) Filter.atTop
+        (𝓝 (weylChar h 0)) := ((continuous_weylChar h).tendsto 0).comp hδ
+    have h2 : weylChar h 0 = 1 := by unfold weylChar; simp
+    rw [h2] at h1
+    simpa using (h1.sub_const 1).norm
+  have hces := hnull.cesaro
+  have hbound : ∀ M : ℕ,
+      ‖(∑ n ∈ Finset.range M, weylChar h (x n)) / (M : ℂ)
+          - (∑ n ∈ Finset.range M, weylChar h (y n)) / (M : ℂ)‖
+        ≤ (∑ n ∈ Finset.range M, ‖weylChar h (x n - y n - (N n : ℝ)) - 1‖) / (M : ℝ) := by
+    intro M
+    rw [div_sub_div_same, ← Finset.sum_sub_distrib, norm_div, Complex.norm_natCast]
+    rcases Nat.eq_zero_or_pos M with hM | hM
+    · subst hM; simp
+    have hMpos : (0 : ℝ) < M := by exact_mod_cast hM
+    rw [div_le_div_iff_of_pos_right hMpos]
+    refine le_trans (norm_sum_le _ _) (Finset.sum_le_sum fun n _ => ?_)
+    rw [hfac n, ← mul_one (weylChar h (y n)), mul_assoc, ← mul_sub, norm_mul, norm_weylChar,
+      one_mul, one_mul]
+  have hdiff : Filter.Tendsto (fun M : ℕ =>
+      (∑ n ∈ Finset.range M, weylChar h (x n)) / (M : ℂ)
+        - (∑ n ∈ Finset.range M, weylChar h (y n)) / (M : ℂ)) Filter.atTop (𝓝 0) := by
+    refine squeeze_zero_norm hbound ?_
+    simpa only [div_eq_inv_mul] using hces
+  simpa using hdiff.add hyh
