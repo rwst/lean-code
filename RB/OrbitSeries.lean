@@ -343,7 +343,7 @@ theorem not_isPRecursive_orbit {x₀ : ℕ} (hx₀ : 0 < x₀) :
 
 /-- The orbit series `F(z) = ∑ₙ xₙzⁿ` is not algebraic over `ℚ(z)`.
 
-Footprint: `std3 + Stanley.pRecursive_of_isAlgebraic`. -/
+Footprint: `std3` (Stanley is a theorem since 2026-09-06). -/
 @[category research solved, AMS 11 68 05, ref "Sta80" "B1E2b", group "rb_orbit_series"]
 theorem not_isAlgebraic_orbitSeries {x₀ : ℕ} (hx₀ : 0 < x₀) :
     ¬ IsAlgebraic (Polynomial ℚ) (orbitSeries x₀) := fun halg =>

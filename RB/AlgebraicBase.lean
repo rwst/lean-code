@@ -43,9 +43,10 @@ algebraic integer).
 `word_eq_tau_combination`, `word_bounded`, `finite_range_word`, `isMinimalIntPoly_three_halves`
 and the `d = 2` bridge are `std3`.  `not_isPRecursive_word_of_not_mem_U` and its `3/2` instance
 consume `Dubickas.periodic_imp_mem_U` ([Dub09] Thm 2) and nothing else;
-`not_isAlgebraic_wordSeries_of_not_mem_U` additionally consumes
-`Stanley.pRecursive_of_isAlgebraic`.  See `CITED.Dubickas` for why that axiom is now carried,
-reversing an earlier decision recorded in `RB.E2`.
+`not_isAlgebraic_wordSeries_of_not_mem_U` additionally goes through
+`Stanley.pRecursive_of_isAlgebraic`, which since 2026-09-06 is a *theorem* (`CITED.StanleyProof`)
+and so costs nothing.  See `CITED.Dubickas` for why the Dubickas axiom is now carried, reversing
+an earlier decision recorded in `RB.E2`.
 
 ## Relation to the rest of the corpus
 
@@ -210,7 +211,7 @@ theorem not_isPRecursive_word_of_not_mem_U {β : ℝ} (hβ : 1 < β) {x₀ : ℤ
 /-- The generating function of the word is not algebraic over `ℚ(z)`, for every algebraic `β > 1`
 outside `Bertin.U`.
 
-Footprint: `std3 + Dubickas.periodic_imp_mem_U + Stanley.pRecursive_of_isAlgebraic`. -/
+Footprint: `std3 + Dubickas.periodic_imp_mem_U`. -/
 @[category research solved, AMS 11 68 05, ref "Dub09" "Sta80" "B1E2b", group "rb_algebraic_base"]
 theorem not_isAlgebraic_wordSeries_of_not_mem_U {β : ℝ} (hβ : 1 < β) {x₀ : ℤ} (hx₀ : 0 < x₀)
     {P : Polynomial ℤ} (hP : Dubickas.IsMinimalIntPoly P β) (hU : β ∉ Bertin.U) :

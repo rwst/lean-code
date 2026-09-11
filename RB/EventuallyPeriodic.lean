@@ -74,7 +74,8 @@ rational case is `IsRationalSeries.isEventuallyPeriodic_coeff`, applied through 
 `not_rational_wminSeries` is also `std3` — and is *cheaper* than the transcendence statement
 rather than a consequence of it.
 
-3. **Stanley** (`Stanley.pRecursive_of_isAlgebraic`, the only axiom, used *only* here): algebraic
+3. **Stanley** (`Stanley.pRecursive_of_isAlgebraic`, used *only* here — a cited axiom until
+   2026-09-06, since then **proved** in `CITED.StanleyProof`): algebraic
    ⇒ D-finite ⇒ the coefficients satisfy `∑ⱼ Qⱼ(n)·w(n+j) = 0` with `Qⱼ ∈ ℚ[t]` not all `0`.
    Composed with step 1+2 it turns the flagship into non-algebraicity of `f`.
 
@@ -83,8 +84,9 @@ rather than a consequence of it.
 * **Rationality is never an intermediate.** Step 2 yields eventual periodicity *directly*, so
   Fatou's lemma, pole structure and Skolem–Mahler–Lech are all bypassed — and rev. 1's separate
   "rational + `{0,1}` coefficients ⇒ eventually periodic" glue disappears.
-* **The axiom footprint says nothing about finite coefficient sets.** All of that lives in the
-  *proved* half. See `CITED.Stanley`'s module doc for why Carlson was deleted.
+* **The Stanley step says nothing about finite coefficient sets.** All of that lives in the
+  elementary half. See `CITED.Stanley`'s module doc for why Carlson was deleted — and why the
+  Carlson route would still be unformalizable today, while this one is now discharged.
 
 ## Generality
 
@@ -372,13 +374,13 @@ theorem not_isRationalSeries_wminSeries {x₀ : ℕ} (hx₀ : 0 < x₀) :
   rintro ⟨P, Q, hQ, h⟩
   exact not_rational_wminSeries hx₀ ⟨P, Q, hQ, by rw [mul_comm]; exact h⟩
 
-/-! ## The algebraic case: the one place the axiom is used -/
+/-! ## The algebraic case: the one place Stanley is used -/
 
 /-- **WP6's deliverable** ([B1E2]): an *algebraic* power series with finitely many coefficient
 values has an eventually periodic coefficient sequence.
 
-Footprint: `std3 + Stanley.pRecursive_of_isAlgebraic`.  Zero Carlson, zero Fatou, zero analytic
-infrastructure, and **no rationality intermediate**. -/
+Footprint: `std3` (Stanley is a theorem since 2026-09-06).  Zero Carlson, zero Fatou, zero
+analytic infrastructure, and **no rationality intermediate**. -/
 @[category research solved, AMS 11 68 05, ref "Sta80" "B1E2", group "stanley_closure"]
 theorem eventuallyPeriodic_of_isAlgebraic_of_finite_coeffs {w : ℕ → ℚ}
     (hfin : (Set.range w).Finite) (halg : IsAlgebraic (Polynomial ℚ) (PowerSeries.mk w)) :
@@ -390,11 +392,11 @@ theorem eventuallyPeriodic_of_isAlgebraic_of_finite_coeffs {w : ℕ → ℚ}
 is **not algebraic** over `ℚ(z)`.
 
 This is "on obtient facilement que `f(z)` est transcendante", spelled out — but note the route:
-the work is entirely in the flagship `not_isPRecursive_wmin`, and the Stanley axiom is consumed
-*here and only here*, to weaken non-holonomy to non-algebraicity ([B1E2b] WP1).
+the work is entirely in the flagship `not_isPRecursive_wmin`, and Stanley is consumed *here and
+only here*, to weaken non-holonomy to non-algebraicity ([B1E2b] WP1).
 
-Footprint: `std3 + Stanley.pRecursive_of_isAlgebraic`.  In particular this is **independent of
-the AF axiom** — a second, unrelated transcendence statement about the same word. -/
+Footprint: `std3`.  In particular this is **independent of the AF axiom** — a second, unrelated
+transcendence statement about the same word. -/
 @[category research solved, AMS 11 68 05, ref "Sta80" "AFS08" "AF17", group "rb_rational_base"]
 theorem not_isAlgebraic_wminSeries {x₀ : ℕ} (hx₀ : 0 < x₀) :
     ¬ IsAlgebraic (Polynomial ℚ) (PowerSeries.mk fun j => (wmin x₀ j : ℚ)) := fun halg =>

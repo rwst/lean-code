@@ -488,7 +488,7 @@ theorem not_isPRecursive_word {p q x₀ : ℕ} (hq : 2 ≤ q) (hqp : q < p) (hco
       ⟨N, P, hP, fun n hn => by exact_mod_cast hper n hn⟩)
 
 /-- The generating function of the word of any admissible rational base is not algebraic over
-`ℚ(z)`.  Footprint: `std3 + Stanley.pRecursive_of_isAlgebraic`. -/
+`ℚ(z)`.  Footprint: `std3` (Stanley is a theorem since 2026-09-06). -/
 @[category research solved, AMS 11 68 05, ref "Sta80" "AFS08" "B1E2b",
   group "rb_general_rational_base"]
 theorem not_isAlgebraic_wordSeries {p q x₀ : ℕ} (hq : 2 ≤ q) (hqp : q < p)
