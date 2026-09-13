@@ -3,8 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import CC.Terras
-import CET.VaryingShellDensity
+import CC.Density.ShellExceptional
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -18,17 +17,15 @@ of positive integers whose stopping time `CC.stopping_time` is finite has
 Equivalently (via `CC.stopping_time_ne_top_iff`, cf. `CC.exists_descent_iff`),
 almost every `n` eventually drops strictly below itself under `T`.
 
-The literature-cited statement is packaged below as an `@[ref "Ter76"]` axiom,
-following the corpus convention for cited-but-not-yet-formalised theorems
-(see the top-level `README.md`). A native formalisation is being developed on
-the `terras-density` branch of this repo; when complete, the axiom becomes a
-`theorem` of the same signature without touching any downstream file.
+The literature-cited statement is proved below as a `theorem` — the proof
+factors through `CC/Density/ShellExceptional.lean` and the roadmap files
+under `CC/Density/`.
 
 ## Reference
 * [Ter76] Terras, R. *A stopping time problem on the positive integers.*
   Acta Arithmetica 30 (1976), no. 3, 241–252.
 
-## Proof roadmap (WIP)
+## Proof roadmap
 
 The classical proof factors cleanly through infrastructure already in the
 corpus:
@@ -65,15 +62,16 @@ corpus:
    with explicit `C, D > 0`; the standard `IsCDDense → HasNaturalDensityOne`
    step (to be added) concludes.
 
-## Companion files (planned)
+## Companion files
 
-* `CC/Density/ParityBadSet.lean` — residue-class characterisation of
-  "no descent within `k` steps" restricted to a dyadic shell.
+* `CC/Density/ParityBadSet.lean` — residue-class characterisation of the
+  "high odd count" filter and its Hoeffding cardinality bound.
 * `CC/Density/ParityBadCount.lean` — shell-level counting bound
-  `≤ 2^M · exp(-c' · M)` via the Hoeffding tail.
-* `CC/Density/ShellExceptional.lean` — shell-density → prefix-density transport
-  specialising `isCDDense_of_shell_bound`, and its `HasNaturalDensityOne`
-  corollary.
+  `≤ 2 ^ M · exp (−c' · M)` via the fiber decomposition of the shell.
+* `CC/Density/DescentFromResidue.lean` — the descent bridge: a "good"
+  residue class forces `T ^ [k] n < n` on shell `M` for `k = ⌊M / 2⌋`.
+* `CC/Density/ShellExceptional.lean` — shell inclusion, ratio decay to zero,
+  and the assembled density-one conclusion.
 -/
 
 namespace CC
@@ -81,15 +79,15 @@ namespace CC
 namespace Density
 
 /-- **Terras density-1** [Ter76]. The set of positive integers with finite
-Collatz stopping time under the compact map `CC.T` has natural density one.
+Collatz stopping time has natural density one under the compact map `CC.T`.
 
-Currently packaged as a cited axiom per the corpus convention for
-literature-proved-but-not-yet-formalised results; being replaced by a native
-proof on the `terras-density` branch. -/
+Proved via the four-step roadmap above; the closing step is
+`hasNaturalDensityOne_stopping_time_ne_top'` in `CC/Density/ShellExceptional.lean`. -/
 @[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
-axiom hasNaturalDensityOne_stopping_time_ne_top :
+theorem hasNaturalDensityOne_stopping_time_ne_top :
     CET.QuantitativeDensity.HasNaturalDensityOne
-      {n | CC.stopping_time n ≠ ⊤}
+      {n | CC.stopping_time n ≠ ⊤} :=
+  hasNaturalDensityOne_stopping_time_ne_top'
 
 end Density
 

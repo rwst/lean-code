@@ -48,6 +48,7 @@ namespace CC
 namespace Density
 
 open CET.QuantitativeDensity
+open Filter Topology
 
 /-! ### Positive-step descent -/
 
@@ -217,6 +218,112 @@ theorem shellBad_descendsWithin_subset {M : ℕ} (hM : 2 ≤ M) :
     Set.mem_ofPred_eq] at hn
   obtain ⟨⟨h1, h2⟩, hnot⟩ := hn
   exact mem_shellBadResidues_of_not_descendsWithin hM ⟨h1, h2⟩ hnot
+
+/-! ### Shell-ratio decay -/
+
+/-- **Shell-ratio decay.** On shell `M ≥ 2`, the exceptional fraction of the
+descent set is at most `exp (- k(M) / 50)`.
+
+Uses the shell inclusion `shellBad_descendsWithin_subset` combined with
+`card_shellBadResidues_le_hoeffding` at Hoeffding slack `t = 1 / 10`, and the
+algebraic identity `−2 · (1/10)² = −1/50`. -/
+@[category research solved, AMS 11 37 60, ref "Ter76", group "terras_density"]
+theorem shellExceptionalRatio_descendsWithin_le
+    {M : ℕ} (hM : 2 ≤ M) :
+    shellExceptionalRatio {n | descendsWithin n} M ≤
+      Real.exp (-(kOfShell M : ℝ) / 50) := by
+  set k := kOfShell M with hk_def
+  set K := KOfShell M with hK_def
+  have hkM : k ≤ M := kOfShell_le M
+  -- `5·K ≤ 2·k` (Nat) ⇒ `(K : ℝ) ≤ (2/5)·k = (1/2 − 1/10)·k`.
+  have hK_le : 5 * K ≤ 2 * k := by
+    show 5 * (2 * kOfShell M / 5) ≤ 2 * kOfShell M
+    have := Nat.div_mul_le_self (2 * kOfShell M) 5
+    omega
+  have hK_le_real : (5 : ℝ) * (K : ℝ) ≤ 2 * (k : ℝ) := by exact_mod_cast hK_le
+  have hcut : (K : ℝ) ≤ ((1 : ℝ) / 2 - 1 / 10) * (k : ℝ) := by linarith
+  -- Hoeffding shell bound.
+  have hoeff := card_shellBadResidues_le_hoeffding
+    (k := k) (M := M) (K := K) (t := (1 / 10 : ℝ))
+    hkM (by norm_num) hcut
+  -- Shell inclusion transports the card.
+  have hcard_le : (shellBad {n | descendsWithin n} M).card
+      ≤ (shellBadResidues k M K).card :=
+    Finset.card_le_card (shellBad_descendsWithin_subset hM)
+  have hcard_le_real :
+      ((shellBad {n | descendsWithin n} M).card : ℝ)
+        ≤ ((shellBadResidues k M K).card : ℝ) := by exact_mod_cast hcard_le
+  have hchain :
+      ((shellBad {n | descendsWithin n} M).card : ℝ)
+        ≤ (2 : ℝ) ^ M * Real.exp (-2 * (1 / 10 : ℝ) ^ 2 * (k : ℝ)) :=
+    hcard_le_real.trans hoeff
+  have h2pow_pos : (0 : ℝ) < (2 : ℝ) ^ M := by positivity
+  unfold shellExceptionalRatio
+  rw [div_le_iff₀ h2pow_pos]
+  have hexp : (-2 : ℝ) * (1 / 10 : ℝ) ^ 2 * (k : ℝ) = -(k : ℝ) / 50 := by ring
+  rw [← hexp, mul_comm]
+  exact hchain
+
+/-! ### Tendsto: shell ratio → 0 -/
+
+private lemma kOfShell_cast_tendsto_atTop :
+    Tendsto (fun M : ℕ => (kOfShell M : ℝ)) atTop atTop := by
+  -- Use the coarser bound `k(M) ≥ M / 4` valid for `M ≥ 2`.
+  have hlb : ∀ᶠ M : ℕ in atTop, (M : ℝ) / 4 ≤ (kOfShell M : ℝ) := by
+    filter_upwards [eventually_ge_atTop 2] with M hM
+    show (M : ℝ) / 4 ≤ ((M / 2 : ℕ) : ℝ)
+    have hnat : 4 * (M / 2) ≥ M := by omega
+    have hreal : (4 : ℝ) * ((M / 2 : ℕ) : ℝ) ≥ (M : ℝ) := by exact_mod_cast hnat
+    linarith
+  have hlim : Tendsto (fun M : ℕ => (M : ℝ) / 4) atTop atTop :=
+    tendsto_natCast_atTop_atTop.atTop_div_const (by norm_num : (0 : ℝ) < 4)
+  exact tendsto_atTop_mono' _ hlb hlim
+
+private lemma exp_neg_kOfShell_tendsto_zero :
+    Tendsto (fun M => Real.exp (-(kOfShell M : ℝ) / 50)) atTop (𝓝 0) := by
+  refine Real.tendsto_exp_atBot.comp ?_
+  have h1 : Tendsto (fun M : ℕ => (kOfShell M : ℝ) / 50) atTop atTop :=
+    kOfShell_cast_tendsto_atTop.atTop_div_const (by norm_num : (0 : ℝ) < 50)
+  have h2 : Tendsto (fun M : ℕ => -((kOfShell M : ℝ) / 50)) atTop atBot :=
+    tendsto_neg_atTop_atBot.comp h1
+  simpa [neg_div] using h2
+
+/-- **Shell ratio → 0.** The shell exceptional fraction of the descent set
+tends to `0` as `M → ∞`, by squeeze between `0` and `exp (− k(M) / 50)`. -/
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem shellExceptionalRatio_descendsWithin_tendsto_zero :
+    Tendsto (fun M => shellExceptionalRatio {n | descendsWithin n} M)
+      atTop (𝓝 0) := by
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
+    (g := fun _ => (0 : ℝ))
+    (h := fun M => Real.exp (-(kOfShell M : ℝ) / 50))
+    tendsto_const_nhds exp_neg_kOfShell_tendsto_zero ?_ ?_
+  · exact Eventually.of_forall (fun M => shellExceptionalRatio_nonneg _ M)
+  · filter_upwards [eventually_ge_atTop 2] with M hM
+    exact shellExceptionalRatio_descendsWithin_le hM
+
+/-! ### Density-one conclusion -/
+
+/-- **Terras density-1.** The set of positive integers with finite Collatz
+stopping time under `CC.T` has natural density one.
+
+Proof: the shell exceptional ratio of the equivalent `descendsWithin`
+predicate tends to zero (`shellExceptionalRatio_descendsWithin_tendsto_zero`),
+so `CET.QuantitativeDensity.hasNaturalDensityOne_assembleDyadic` applied to
+the constant family `fun _ => {n | descendsWithin n}` — whose assembly equals
+the set itself — delivers `HasNaturalDensityOne`. The final rewrite uses
+`descendsWithin_iff_stopping_time_ne_top`. -/
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem hasNaturalDensityOne_stopping_time_ne_top' :
+    HasNaturalDensityOne {n | CC.stopping_time n ≠ ⊤} := by
+  have hset₁ : ({n | CC.stopping_time n ≠ ⊤} : Set ℕ) = {n | descendsWithin n} := by
+    ext n; exact (descendsWithin_iff_stopping_time_ne_top n).symm
+  have hset₂ : ({n | descendsWithin n} : Set ℕ)
+      = assembleDyadic (fun _ => {n | descendsWithin n}) := by
+    ext n; simp [assembleDyadic]
+  rw [hset₁, hset₂]
+  exact hasNaturalDensityOne_assembleDyadic _
+    shellExceptionalRatio_descendsWithin_tendsto_zero
 
 end Density
 
