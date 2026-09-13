@@ -161,7 +161,7 @@ theorem pow_three_sub_two_fifths_add_one_le_pow_two (k : ℕ) (hk : 1 ≤ k) :
 /-! ### Shell inclusion: non-descending integers have bad residues -/
 
 /-- The numerical gap `3 ^ (k(M) − K(M) − 1) + 1 ≤ 2 ^ k(M)` on shell `M ≥ 2`,
-instantiated from `numerical_gap`. -/
+instantiated from `pow_three_sub_two_fifths_add_one_le_pow_two`. -/
 @[category API, AMS 11 37, ref "Ter76", group "terras_density"]
 theorem pow_three_gap_kOfShell_le_pow_two (M : ℕ) (hM : 2 ≤ M) :
     3 ^ (kOfShell M - KOfShell M - 1) + 1 ≤ 2 ^ kOfShell M := by
