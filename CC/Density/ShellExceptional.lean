@@ -92,6 +92,132 @@ theorem kOfShell_le (M : ℕ) : kOfShell M ≤ M := by
 theorem KOfShell_le (M : ℕ) : KOfShell M ≤ kOfShell M := by
   unfold KOfShell; omega
 
+/-! ### The shell condition `3 ^ k(M) ≤ 2 ^ M`
+
+Elementary: `(log 3) / 2 < log 2`, i.e., `3 < 4 = 2 ^ 2`. Nat-level proof by
+strong induction on `M` with step `2`, using `3 · 2 ^ M ≤ 4 · 2 ^ M = 2 ^ (M+2)`. -/
+
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem pow_three_kOfShell_le_pow_two (M : ℕ) :
+    3 ^ kOfShell M ≤ 2 ^ M := by
+  unfold kOfShell
+  induction M using Nat.strong_induction_on with
+  | _ M ih =>
+    match M with
+    | 0 => decide
+    | 1 => decide
+    | M + 2 =>
+      have hM_div : (M + 2) / 2 = M / 2 + 1 := by omega
+      have hih : 3 ^ (M / 2) ≤ 2 ^ M := ih M (by omega)
+      have hpow2 : (2 : ℕ) ^ (M + 2) = 4 * 2 ^ M := by
+        rw [show M + 2 = 2 + M from by ring, pow_add]; ring
+      calc 3 ^ ((M + 2) / 2)
+          = 3 ^ (M / 2 + 1) := by rw [hM_div]
+        _ = 3 * 3 ^ (M / 2) := by rw [pow_succ]; ring
+        _ ≤ 3 * 2 ^ M := by omega
+        _ ≤ 4 * 2 ^ M := by omega
+        _ = 2 ^ (M + 2) := hpow2.symm
+
+/-! ### The numerical gap `3 ^ (k − 2k/5 − 1) + 1 ≤ 2 ^ k`
+
+Elementary: `(3 / 5) · log 3 < log 2` (numerically `27 = 3^3 < 32 = 2^5`).
+Nat-level proof by strong induction with step `5`: five base cases
+`k ∈ {1, …, 5}` closed by `decide`; the step uses
+`3 ^ (k+5 term) = 27 · 3 ^ (k term)` and `2 ^ (k+5) = 32 · 2 ^ k`. -/
+
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem numerical_gap (k : ℕ) (hk : 1 ≤ k) :
+    3 ^ (k - 2 * k / 5 - 1) + 1 ≤ 2 ^ k := by
+  induction k using Nat.strong_induction_on with
+  | _ k ih =>
+    match k, hk with
+    | 1, _ => decide
+    | 2, _ => decide
+    | 3, _ => decide
+    | 4, _ => decide
+    | 5, _ => decide
+    | k' + 6, _ =>
+      have hih := ih (k' + 1) (by omega) (by omega)
+      -- `2 (k'+6) = 2 (k'+1) + 2·5`, so `2 (k'+6) / 5 = 2 (k'+1) / 5 + 2`.
+      have hdiv : 2 * (k' + 6) / 5 = 2 * (k' + 1) / 5 + 2 := by
+        have h : 2 * (k' + 6) = 2 * (k' + 1) + 2 * 5 := by ring
+        rw [h]; exact Nat.add_mul_div_right (2 * (k' + 1)) 2 (by norm_num)
+      have h_shift :
+          (k' + 6) - 2 * (k' + 6) / 5 - 1
+            = ((k' + 1) - 2 * (k' + 1) / 5 - 1) + 3 := by
+        rw [hdiv]; omega
+      have h_pow3 : (3 : ℕ) ^ ((k' + 6) - 2 * (k' + 6) / 5 - 1)
+            = 27 * 3 ^ ((k' + 1) - 2 * (k' + 1) / 5 - 1) := by
+        rw [h_shift, show ((k' + 1) - 2 * (k' + 1) / 5 - 1) + 3
+              = 3 + ((k' + 1) - 2 * (k' + 1) / 5 - 1) from by omega, pow_add]
+        ring
+      have h_pow2 : (2 : ℕ) ^ (k' + 6) = 32 * 2 ^ (k' + 1) := by
+        rw [show k' + 6 = 5 + (k' + 1) from by omega, pow_add]; ring
+      have h2pos : 1 ≤ 2 ^ (k' + 1) := Nat.two_pow_pos _
+      calc 3 ^ ((k' + 6) - 2 * (k' + 6) / 5 - 1) + 1
+          = 27 * 3 ^ ((k' + 1) - 2 * (k' + 1) / 5 - 1) + 1 := by rw [h_pow3]
+        _ ≤ 27 * (2 ^ (k' + 1) - 1) + 1 := by
+              have hbound : 3 ^ ((k' + 1) - 2 * (k' + 1) / 5 - 1)
+                  ≤ 2 ^ (k' + 1) - 1 := by omega
+              nlinarith
+        _ ≤ 32 * 2 ^ (k' + 1) := by omega
+        _ = 2 ^ (k' + 6) := h_pow2.symm
+
+/-! ### Shell inclusion: non-descending integers have bad residues -/
+
+/-- `k(M) − K(M) ≥ 1` on shell `M ≥ 2`. -/
+@[category API, AMS 11 37, group "terras_density"]
+theorem one_le_k_sub_K (M : ℕ) (hM : 2 ≤ M) :
+    1 ≤ kOfShell M - KOfShell M := by
+  show 1 ≤ M / 2 - 2 * (M / 2) / 5
+  have h1 : 2 * (M / 2) / 5 * 5 ≤ 2 * (M / 2) := Nat.div_mul_le_self _ 5
+  omega
+
+/-- The numerical gap `3 ^ (k(M) − K(M) − 1) + 1 ≤ 2 ^ k(M)` on shell `M ≥ 2`,
+instantiated from `numerical_gap`. -/
+@[category API, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem numerical_gap_kOfShell (M : ℕ) (hM : 2 ≤ M) :
+    3 ^ (kOfShell M - KOfShell M - 1) + 1 ≤ 2 ^ kOfShell M := by
+  have hk : 1 ≤ kOfShell M := by unfold kOfShell; omega
+  simpa [KOfShell] using numerical_gap (kOfShell M) hk
+
+/-- **Shell inclusion.** If `n` sits on the dyadic shell `[2 ^ M, 2 ^ (M+1))`
+with `M ≥ 2` and does not descend within any positive number of Terras steps,
+then its residue mod `2 ^ k(M)` lies in `badResidues (kOfShell M) (KOfShell M)`.
+
+Direct contrapositive of `descent_of_not_mem_badResidues`, using the
+numerical gap and shell condition proved above. -/
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem mem_shellBadResidues_of_not_descendsWithin
+    {M n : ℕ} (hM : 2 ≤ M)
+    (hn : 2 ^ M ≤ n ∧ n < 2 ^ (M + 1))
+    (h_no_descent : ¬ descendsWithin n) :
+    n ∈ shellBadResidues (kOfShell M) M (KOfShell M) := by
+  rw [mem_shellBadResidues]
+  refine ⟨hn, ?_⟩
+  by_contra h_not_bad
+  apply h_no_descent
+  refine ⟨kOfShell M, ?_, ?_⟩
+  · unfold kOfShell; omega
+  · exact descent_of_not_mem_badResidues
+      (one_le_k_sub_K M hM)
+      h_not_bad
+      (numerical_gap_kOfShell M hM)
+      (le_trans (pow_three_kOfShell_le_pow_two M) hn.1)
+
+/-- Set-level restatement: the shell-exceptional set for `descendsWithin` on
+shell `M ≥ 2` is contained in `shellBadResidues`. This is the input the
+final natural-density-one argument consumes. -/
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem shellBad_descendsWithin_subset {M : ℕ} (hM : 2 ≤ M) :
+    shellBad {n | descendsWithin n} M
+      ⊆ shellBadResidues (kOfShell M) M (KOfShell M) := by
+  intro n hn
+  simp only [shellBad, dyadicShell, Finset.mem_filter, Finset.mem_Ico,
+    Set.mem_ofPred_eq] at hn
+  obtain ⟨⟨h1, h2⟩, hnot⟩ := hn
+  exact mem_shellBadResidues_of_not_descendsWithin hM ⟨h1, h2⟩ hnot
+
 end Density
 
 end CC
