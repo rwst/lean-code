@@ -31,8 +31,7 @@ Hoeffding bound `card_residues_with_oddCount_ge_sub_le_hoeffding` gives an
 explicit exponential-in-`k` bound on the number of residue classes whose
 odd-step count is unusually high — the "bad residue set" of the title.
 
-The next file (`ParityBadCount.lean`, planned) will lift these residue counts
-to counts on a dyadic shell.
+`ParityBadCount.lean` lifts these residue counts to counts on a dyadic shell.
 -/
 
 namespace CC
@@ -126,17 +125,6 @@ theorem card_badResidues_le_hoeffding
       ≤ (2 : ℝ) ^ k * Real.exp (-2 * t ^ 2 * k) := by
   simpa [badResidues] using
     (card_residues_with_oddCount_ge_sub_le_hoeffding (k := k) (K := K) (t := t) ht hcut)
-
-/-- Normalised form: the bad residues occupy at most an `exp (-2 t² k)`
-fraction of all `2 ^ k` residues. -/
-@[category research solved, AMS 11 37 60, ref "Ter76", group "terras_density"]
-theorem card_badResidues_div_pow_le_exp
-    {k K : ℕ} {t : ℝ} (ht : 0 ≤ t) (hcut : (K : ℝ) ≤ (1 / 2 - t) * k) :
-    ((badResidues k K).card : ℝ) / (2 : ℝ) ^ k
-      ≤ Real.exp (-2 * t ^ 2 * k) := by
-  simpa [badResidues] using
-    (card_residues_with_oddCount_ge_sub_div_pow_le_exp
-      (k := k) (K := K) (t := t) ht hcut)
 
 /-! ### Bad-residue membership in `num_odd_steps` language
 

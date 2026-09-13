@@ -82,15 +82,13 @@ theorem decomposition_correction_add_pow_two_le_pow_three (k n : ℕ) :
 the linear decomposition of `CC/Decomposition.lean` immediately delivers
 `T ^ [k] n < n`. -/
 @[category API, AMS 11 37, ref "Ter76", group "terras_density"]
-theorem descent_of_gap {k n : ℕ}
+theorem descent_of_correction_gap {k n : ℕ}
     (h : CC.decomposition_correction k n
           + 3 ^ CC.num_odd_steps k n * n + 1 ≤ 2 ^ k * n) :
     T_iter k n < n := by
   have hlin := CC.linear_decomposition k n
   -- 2^k · T^[k] n = 3^J · n + Q, so h gives 2^k · T^[k] n < 2^k · n.
-  have hprod : 2 ^ k * T_iter k n < 2 ^ k * n := by
-    have : 2 ^ k * T_iter k n + 1 ≤ 2 ^ k * n := by omega
-    omega
+  have hprod : 2 ^ k * T_iter k n < 2 ^ k * n := by omega
   exact Nat.lt_of_mul_lt_mul_left hprod
 
 /-! ### Descent from few odd steps -/
@@ -103,11 +101,11 @@ The shell-side hypothesis `3 ^ k ≤ n` is what forces the argument to be
 applied on shells `[2 ^ M, 2 ^ (M+1))` with `M` large in relation to `k`
 (specifically, `M · log 2 ≥ k · log 3`, i.e., `k / M < log 2 / log 3`). -/
 @[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
-theorem descent_of_low_num_odd_steps {k n : ℕ}
+theorem descent_of_pow_three_num_odd_steps_lt {k n : ℕ}
     (hcont : 3 ^ CC.num_odd_steps k n + 1 ≤ 2 ^ k)
     (hn : 3 ^ k ≤ n) :
     T_iter k n < n := by
-  apply descent_of_gap
+  apply descent_of_correction_gap
   have hcorr := decomposition_correction_add_pow_two_le_pow_three k n
   have h2k_pos : (1 : ℕ) ≤ 2 ^ k := Nat.two_pow_pos k
   -- `(3^J + 1) · n ≤ 2^k · n`, expanded: `3^J · n + n ≤ 2^k · n`.
@@ -123,7 +121,7 @@ theorem descent_of_low_num_odd_steps {k n : ℕ}
 
 /-! ### Monotonicity in the ones-count -/
 
-/-- A monotone form of `descent_of_low_num_odd_steps`: it suffices to know
+/-- A monotone form of `descent_of_pow_three_num_odd_steps_lt`: it suffices to know
 `num_odd_steps k n` is bounded above by some `J₀` with `3 ^ J₀ + 1 ≤ 2 ^ k`. -/
 @[category API, AMS 11 37, ref "Ter76", group "terras_density"]
 theorem descent_of_num_odd_steps_le {k J₀ n : ℕ}
@@ -131,7 +129,7 @@ theorem descent_of_num_odd_steps_le {k J₀ n : ℕ}
     (hgap : 3 ^ J₀ + 1 ≤ 2 ^ k)
     (hn : 3 ^ k ≤ n) :
     T_iter k n < n := by
-  apply descent_of_low_num_odd_steps _ hn
+  apply descent_of_pow_three_num_odd_steps_lt _ hn
   have h3pow : 3 ^ CC.num_odd_steps k n ≤ 3 ^ J₀ :=
     Nat.pow_le_pow_right (by norm_num) hJ
   omega
@@ -161,7 +159,6 @@ This is the residue-side descent lemma that the density transport consumes:
 membership of a good residue class forces descent within `k` Terras steps. -/
 @[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
 theorem descent_of_not_mem_badResidues {k K n : ℕ}
-    (hK : 1 ≤ k - K)
     (h_not_bad : (n : ZMod (2 ^ k)) ∉ badResidues k K)
     (hgap : 3 ^ (k - K - 1) + 1 ≤ 2 ^ k)
     (hn : 3 ^ k ≤ n) :

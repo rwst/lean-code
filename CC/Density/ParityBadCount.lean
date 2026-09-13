@@ -4,7 +4,8 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import CC.Density.ParityBadSet
-import Mathlib.Data.Finset.Prod
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 /-!
 # Shell-level count of Terras bad residues
@@ -30,8 +31,6 @@ shell fraction that the density transport in the next file consumes.
 namespace CC
 
 namespace Density
-
-open CC.ParityTail
 
 /-! ### The shell-restricted bad set -/
 
@@ -122,10 +121,7 @@ theorem card_shellBadResidues_le_hoeffding
   have hshellReal :
       ((shellBadResidues k M K).card : ℝ)
         ≤ ((badResidues k K).card : ℝ) * (2 : ℝ) ^ (M - k) := by
-    have : ((shellBadResidues k M K).card : ℝ)
-        ≤ (((badResidues k K).card * 2 ^ (M - k) : ℕ) : ℝ) := by
-      exact_mod_cast hnat
-    simpa [Nat.cast_mul, Nat.cast_pow] using this
+    exact_mod_cast hnat
   have hpowMk : (0 : ℝ) ≤ (2 : ℝ) ^ (M - k) := by positivity
   have hres' :
       ((badResidues k K).card : ℝ) * (2 : ℝ) ^ (M - k)

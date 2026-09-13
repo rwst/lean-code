@@ -17,9 +17,8 @@ of positive integers whose stopping time `CC.stopping_time` is finite has
 Equivalently (via `CC.stopping_time_ne_top_iff`, cf. `CC.exists_descent_iff`),
 almost every `n` eventually drops strictly below itself under `T`.
 
-The literature-cited statement is proved below as a `theorem` — the proof
-factors through `CC/Density/ShellExceptional.lean` and the roadmap files
-under `CC/Density/`.
+The proof is complete — no `sorry`, and no literature axiom. It factors
+through the companion files under `CC/Density/` listed below.
 
 ## Reference
 * [Ter76] Terras, R. *A stopping time problem on the positive integers.*
@@ -55,39 +54,47 @@ corpus:
    (each residue mod `2^k` contributes `2^{M-k}` shell members when `k ≤ M`)
    gives an exceptional shell count `≤ 2^M · exp(-2 t² k)`.
 
-4. **Shell → global.** With `k = ⌊c · M⌋`, the shell rate is
-   `exp(-(2 t² c) · M) = exp(-c' · M)` with `c' = 2 t² c`. Choosing `c` small
-   keeps `c' < log 2`, so
-   `CET.QuantitativeDensity.isCDDense_of_shell_bound` yields `IsCDDense S C D`
-   with explicit `C, D > 0`; the standard `IsCDDense → HasNaturalDensityOne`
-   step (to be added) concludes.
+4. **Shell → global.** With `k = ⌊c · M⌋` the shell rate is
+   `exp(-(2 t² c) · M) = exp(-c' · M)` with `c' = 2 t² c`, so the shell
+   exceptional fraction tends to `0`. The concrete choice made here is
+   `c = 1/2` and `t = 1/10`, giving `exp (−k(M) / 50) ≤ exp ((1 − M) / 100)`.
+   `CET.QuantitativeDensity.hasNaturalDensityOne_assembleDyadic`, applied to
+   the constant family `fun _ => {n | descendsWithin n}`, turns that vanishing
+   shell fraction into `HasNaturalDensityOne`.
 
 ## Companion files
 
 * `CC/Density/ParityBadSet.lean` — residue-class characterisation of the
   "high odd count" filter and its Hoeffding cardinality bound.
 * `CC/Density/ParityBadCount.lean` — shell-level counting bound
-  `≤ 2 ^ M · exp (−c' · M)` via the fiber decomposition of the shell.
-* `CC/Density/DescentFromResidue.lean` — the descent bridge: a "good"
-  residue class forces `T ^ [k] n < n` on shell `M` for `k = ⌊M / 2⌋`.
-* `CC/Density/ShellExceptional.lean` — shell inclusion, ratio decay to zero,
-  and the assembled density-one conclusion.
+  `≤ 2 ^ M · exp (−2 t² k)` via the fiber decomposition of the shell.
+* `CC/Density/DescentFromResidue.lean` — the descent bridge, for a general
+  level `k`: a "good" residue class mod `2 ^ k` forces `T ^ [k] n < n` on any
+  `n ≥ 3 ^ k`.
+* `CC/Density/ShellExceptional.lean` — the concrete choice `k(M) = ⌊M / 2⌋`,
+  `K(M) = ⌊(2/5) · k(M)⌋`, the shell inclusion, and the ratio decay to zero.
 -/
 
 namespace CC
 
 namespace Density
 
+open CET.QuantitativeDensity in
 /-- **Terras density-1** [Ter76]. The set of positive integers with finite
 Collatz stopping time has natural density one under the compact map `CC.T`.
 
-Proved via the four-step roadmap above; the closing step is
-`hasNaturalDensityOne_stopping_time_ne_top'` in `CC/Density/ShellExceptional.lean`. -/
+Proved via the four-step roadmap above. The set is the dyadic assembly of the
+constant family `fun _ => {n | descendsWithin n}`, whose shell exceptional
+fraction vanishes by `shellExceptionalRatio_descendsWithin_tendsto_zero`. -/
 @[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
 theorem hasNaturalDensityOne_stopping_time_ne_top :
-    CET.QuantitativeDensity.HasNaturalDensityOne
-      {n | CC.stopping_time n ≠ ⊤} :=
-  hasNaturalDensityOne_stopping_time_ne_top'
+    HasNaturalDensityOne {n | CC.stopping_time n ≠ ⊤} := by
+  have hassemble : ({n | descendsWithin n} : Set ℕ)
+      = assembleDyadic (fun _ => {n | descendsWithin n}) := by
+    ext n; simp [assembleDyadic]
+  rw [← setOf_descendsWithin_eq, hassemble]
+  exact hasNaturalDensityOne_assembleDyadic _
+    shellExceptionalRatio_descendsWithin_tendsto_zero
 
 end Density
 
