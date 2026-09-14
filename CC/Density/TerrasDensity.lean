@@ -41,38 +41,50 @@ corpus:
        is `O(3^k)` and independent of the dyadic scale.
 
 2. **Bad parity words.** Sufficient for descent within `k` steps is that the
-   odd-step ratio `num_odd_steps k n / k` sits strictly below
-   `CC.SRSBridge.criticalRatio = log 2 / log 3` by a margin that swallows the
-   correction on shell `M` (`k ≤ c · M` suffices for a small `c > 0`).
-   The "no descent within `k`" residues then lie in the filter
-     `{r : ZMod (2^k) | (1/2 + t) · k ≤ CC.ParityTail.oddCount k r}`
-   for a fixed `t > 0` depending only on `log 2 / log 3` and `c`.
+   odd-step count `num_odd_steps k n` stay within a budget `J₀` with
+   `3 ^ J₀ < 2 ^ k`, i.e. an odd-step *ratio* `J₀ / k` strictly below
+   `CC.SRSBridge.criticalRatio = log 2 / log 3`, by a margin that swallows the
+   correction on shell `M`. The "no descent within `k`" residues then lie in
+     `CC.Density.badResidues k J₀ = {r : ZMod (2^k) | J₀ < CC.ParityTail.oddCount k r}`.
 
 3. **Hoeffding count.** By
-   `CC.ParityTail.card_residues_with_oddCount_ge_sub_le_hoeffding`, that filter
-   has size at most `2^k · exp(-2 t² k)`. Distributing residues over the shell
+   `CC.ParityTail.card_residues_with_oddCount_gt_le_hoeffding`, that filter has
+   size at most `2^k · exp(-2 t² k)` whenever the budget sits a slack `t` above
+   the mean, `(1/2 + t) · k ≤ J₀ + 1`. Distributing residues over the shell
    (each residue mod `2^k` contributes `2^{M-k}` shell members when `k ≤ M`)
    gives an exceptional shell count `≤ 2^M · exp(-2 t² k)`.
 
-4. **Shell → global.** With `k = ⌊c · M⌋` the shell rate is
-   `exp(-(2 t² c) · M) = exp(-c' · M)` with `c' = 2 t² c`, so the shell
-   exceptional fraction tends to `0`. The concrete choice made here is
-   `c = 1/2` and `t = 1/10`, giving `exp (−k(M) / 50) ≤ exp ((1 − M) / 100)`.
+4. **Shell → global.** With `k` proportional to `M` the shell rate is
+   `exp(-c' · M)`, so the shell exceptional fraction tends to `0`.
    `CET.QuantitativeDensity.hasNaturalDensityOne_assembleDyadic`, applied to
-   the constant family `fun _ => {n | descendsWithin n}`, turns that vanishing
-   shell fraction into `HasNaturalDensityOne`.
+   the constant family `fun _ => {n | Descends n}`, turns that vanishing shell
+   fraction into `HasNaturalDensityOne`.
+
+## The constants
+
+All of them come from the single numerical fact `3 ^ 5 = 243 ≤ 256 = 2 ^ 8`,
+i.e. `5/8 ≤ log 2 / log 3`, used at both scales:
+
+  `shellLevel M = ⌊5M/8⌋`  (shell condition `3 ^ k ≤ 2 ^ M`)
+  `shellBudget M = ⌊5k/8⌋`  (gap condition `3 ^ J₀ < 2 ^ k`)
+
+The Hoeffding slack is then *forced*, not chosen: `hoeffdingSlack = 5/8 − 1/2
+= 1/8`, the distance from the budget ratio down to the mean ones-ratio. The
+decay rate `2 · hoeffdingSlack² = 1/32` follows, giving
+`exp(−shellLevel M / 32) ≈ exp(−5M/256)` per shell. See the "One ratio, used
+twice" section of `CC/Density/ShellExceptional.lean`.
 
 ## Companion files
 
-* `CC/Density/ParityBadSet.lean` — residue-class characterisation of the
-  "high odd count" filter and its Hoeffding cardinality bound.
-* `CC/Density/ParityBadCount.lean` — shell-level counting bound
+* `CC/Density/BadResidues.lean` — residue-class characterisation of the
+  "over budget" filter and its Hoeffding cardinality bound.
+* `CC/Density/ShellCount.lean` — shell-level counting bound
   `≤ 2 ^ M · exp (−2 t² k)` via the fiber decomposition of the shell.
 * `CC/Density/DescentFromResidue.lean` — the descent bridge, for a general
   level `k`: a "good" residue class mod `2 ^ k` forces `T ^ [k] n < n` on any
   `n ≥ 3 ^ k`.
-* `CC/Density/ShellExceptional.lean` — the concrete choice `k(M) = ⌊M / 2⌋`,
-  `K(M) = ⌊(2/5) · k(M)⌋`, the shell inclusion, and the ratio decay to zero.
+* `CC/Density/ShellExceptional.lean` — the concrete choice `shellLevel`,
+  `shellBudget`, the shell inclusion, and the ratio decay to zero.
 -/
 
 namespace CC
@@ -84,17 +96,17 @@ open CET.QuantitativeDensity in
 Collatz stopping time has natural density one under the compact map `CC.T`.
 
 Proved via the four-step roadmap above. The set is the dyadic assembly of the
-constant family `fun _ => {n | descendsWithin n}`, whose shell exceptional
-fraction vanishes by `shellExceptionalRatio_descendsWithin_tendsto_zero`. -/
+constant family `fun _ => {n | Descends n}`, whose shell exceptional
+fraction vanishes by `shellExceptionalRatio_Descends_tendsto_zero`. -/
 @[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
 theorem hasNaturalDensityOne_stopping_time_ne_top :
     HasNaturalDensityOne {n | CC.stopping_time n ≠ ⊤} := by
-  have hassemble : ({n | descendsWithin n} : Set ℕ)
-      = assembleDyadic (fun _ => {n | descendsWithin n}) := by
+  have hassemble : ({n | Descends n} : Set ℕ)
+      = assembleDyadic (fun _ => {n | Descends n}) := by
     ext n; simp [assembleDyadic]
-  rw [← setOf_descendsWithin_eq, hassemble]
+  rw [← setOf_Descends_eq, hassemble]
   exact hasNaturalDensityOne_assembleDyadic _
-    shellExceptionalRatio_descendsWithin_tendsto_zero
+    shellExceptionalRatio_Descends_tendsto_zero
 
 end Density
 

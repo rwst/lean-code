@@ -189,8 +189,11 @@ starting value is large (`n ≥ 3 ^ k`), then `T ^ [k] n < n`.
 
 The hypothesis `3 ^ k ≤ n` is what confines the argument to `n` large in
 relation to `k`; `CC/Density/` supplies it on the dyadic shell
-`[2 ^ M, 2 ^ (M+1))` whenever `M · log 2 ≥ k · log 3`. -/
-@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+`[2 ^ M, 2 ^ (M+1))` whenever `M · log 2 ≥ k · log 3`.
+
+Elementary consequence of `linear_decomposition` and the correction bound; the
+threshold `3 ^ J < 2 ^ k` is `J / k < CC.SRSBridge.criticalRatio` in disguise. -/
+@[category API, AMS 11 37, group "terras_density"]
 theorem descent_of_pow_three_num_odd_steps_lt {k n : ℕ}
     (hcont : 3 ^ num_odd_steps k n + 1 ≤ 2 ^ k)
     (hn : 3 ^ k ≤ n) :

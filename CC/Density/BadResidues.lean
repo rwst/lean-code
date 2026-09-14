@@ -31,7 +31,15 @@ Hoeffding bound `card_residues_with_oddCount_ge_sub_le_hoeffding` gives an
 explicit exponential-in-`k` bound on the number of residue classes whose
 odd-step count is unusually high — the "bad residue set" of the title.
 
-`ParityBadCount.lean` lifts these residue counts to counts on a dyadic shell.
+`ShellCount.lean` lifts these residue counts to counts on a dyadic shell.
+
+## Parametrization
+
+`badResidues k J₀` is indexed by the odd-step **budget** `J₀` — the largest
+odd-step count a residue may have and still be "good" — rather than by a
+deficit `k - K`. That is deliberate: `J₀` is exactly what the descent criterion
+`CC.descent_of_num_odd_steps_le` consumes, so no truncated `Nat` subtraction
+appears anywhere between here and the descent bridge.
 -/
 
 namespace CC
@@ -96,46 +104,50 @@ theorem oddCount_natCast (k n : ℕ) :
 
 /-! ### The bad-residue set and its Hoeffding cardinality bound -/
 
-/-- The **bad residue set** at level `k` with threshold parameter `K`: residues
-`r : ZMod (2 ^ k)` whose first `k` Terras parity bits contain at least `k - K`
-odd steps. Equivalently, `oddCount k r ≥ k - K`.
+/-- The **bad residue set** at level `k` with odd-step budget `J₀`: residues
+`r : ZMod (2 ^ k)` whose first `k` Terras parity bits contain strictly more
+than `J₀` odd steps.
+
+The complement is the useful side: `r ∉ badResidues k J₀` says
+`oddCount k r ≤ J₀`, which is verbatim the hypothesis of
+`CC.descent_of_num_odd_steps_le`. In the Terras density argument `J₀` is
+chosen just below `(log 2 / log 3) · k` — see
+`CC.SRSBridge.criticalRatio` — so that a good residue has too few triplings
+to escape a `k`-step descent.
 
 The Hoeffding tail from `CC.ParityTail` bounds this set exponentially in `k`
-whenever `K ≤ (1/2 - t) · k` for some `t > 0`. In the Terras density argument,
-`k - K` is chosen just above `(log 2 / log 3) · k` so that the residues with
-`oddCount ≥ k - K` are exactly those without enough evens to force a descent
-within `k` steps. -/
+whenever the budget sits a positive slack `t` above the mean `k / 2`. -/
 @[category API, AMS 11 37, ref "Ter76", group "terras_density"]
-def badResidues (k K : ℕ) : Finset (ZMod (2 ^ k)) :=
-  Finset.univ.filter fun r => k - K ≤ oddCount k r
+def badResidues (k J₀ : ℕ) : Finset (ZMod (2 ^ k)) :=
+  Finset.univ.filter fun r => J₀ < oddCount k r
 
 @[category API, AMS 11 37, group "terras_density"]
-theorem mem_badResidues {k K : ℕ} {r : ZMod (2 ^ k)} :
-    r ∈ badResidues k K ↔ k - K ≤ oddCount k r := by
+theorem mem_badResidues {k J₀ : ℕ} {r : ZMod (2 ^ k)} :
+    r ∈ badResidues k J₀ ↔ J₀ < oddCount k r := by
   classical
   simp [badResidues]
 
-/-- **Hoeffding bound for the bad residue set.** Whenever `K` sits below
-`(1/2 - t) · k` for a positive slack `t`, the bad residue set has fractional
-size at most `exp (-2 t² k)`. -/
+/-- **Hoeffding bound for the bad residue set.** Whenever the budget `J₀` sits
+a positive slack `t` above the mean — `(1/2 + t) · k ≤ J₀ + 1` — the bad
+residue set has fractional size at most `exp (-2 t² k)`. -/
 @[category research solved, AMS 11 37 60, ref "Ter76", group "terras_density"]
 theorem card_badResidues_le_hoeffding
-    {k K : ℕ} {t : ℝ} (ht : 0 ≤ t) (hcut : (K : ℝ) ≤ (1 / 2 - t) * k) :
-    ((badResidues k K).card : ℝ)
+    {k J₀ : ℕ} {t : ℝ} (ht : 0 ≤ t) (hcut : (1 / 2 + t) * k ≤ (J₀ : ℝ) + 1) :
+    ((badResidues k J₀).card : ℝ)
       ≤ (2 : ℝ) ^ k * Real.exp (-2 * t ^ 2 * k) := by
   simpa [badResidues] using
-    (card_residues_with_oddCount_ge_sub_le_hoeffding (k := k) (K := K) (t := t) ht hcut)
+    (card_residues_with_oddCount_gt_le_hoeffding (k := k) (J₀ := J₀) (t := t) ht hcut)
 
 /-! ### Bad-residue membership in `num_odd_steps` language
 
 Restated in terms of the integer-side count, ready for the shell-count step. -/
 
-/-- **Integer-side membership.** A positive integer `n`'s residue class mod
-`2 ^ k` lies in `badResidues k K` iff its first `k` Terras iterates contain
-at least `k - K` odd steps. -/
+/-- **Integer-side membership.** A natural number `n`'s residue class mod
+`2 ^ k` lies in `badResidues k J₀` iff its first `k` Terras iterates contain
+strictly more than `J₀` odd steps. -/
 @[category API, AMS 11 37, ref "Ter76", group "terras_density"]
-theorem natCast_mem_badResidues {k K n : ℕ} :
-    (n : ZMod (2 ^ k)) ∈ badResidues k K ↔ k - K ≤ CC.num_odd_steps k n := by
+theorem natCast_mem_badResidues {k J₀ n : ℕ} :
+    (n : ZMod (2 ^ k)) ∈ badResidues k J₀ ↔ J₀ < CC.num_odd_steps k n := by
   rw [mem_badResidues, oddCount_natCast]
 
 end Density
