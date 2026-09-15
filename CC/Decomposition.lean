@@ -1,4 +1,6 @@
 import CC.Parity
+import Corpus.Util.Attributes.Basic
+import Corpus.Util.Attributes.Database
 
 namespace CC
 
@@ -121,5 +123,108 @@ lemma linear_decomposition' (j n : ℕ) : T_iter j n = C j n * n + E j n := by
   norm_cast
   rw [mul_comm]
   exact linear_decomposition j n
+
+/-! ## Descent from the linear decomposition
+
+Consequences of `linear_decomposition` alone: a size bound on the additive
+correction, and the resulting sufficient conditions for a `k`-step descent
+`T ^ [k] n < n`. Nothing here is specific to the density argument that
+consumes them in `CC/Density/`. -/
+
+/-! ### Bound on the additive correction -/
+
+/-- **Correction bound.** The Terras additive correction after `k` steps
+satisfies `Q(k,n) ≤ 3 ^ k − 2 ^ k`, written Nat-safely as
+`Q(k,n) + 2 ^ k ≤ 3 ^ k`.
+
+Proof by induction: at `k + 1`, the recursion
+`Q(k+1) = 3 ^ x · Q(k) + 2 ^ k · x` with `x = X (T ^ [k] n) ∈ {0, 1}` splits
+into two arithmetic cases, both closed via the inductive bound `Q(k) + 2^k ≤ 3^k`
+and the elementary `3^k ≥ 2^k`. -/
+@[category research solved, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem decomposition_correction_add_pow_two_le_pow_three (k n : ℕ) :
+    decomposition_correction k n + 2 ^ k ≤ 3 ^ k := by
+  induction k with
+  | zero => simp [decomposition_correction]
+  | succ k ih =>
+    have hx : X (T_iter k n) ≤ 1 := by rw [X_eq_mod]; omega
+    have h2le3 : 2 ^ k ≤ 3 ^ k := Nat.pow_le_pow_left (by norm_num) k
+    -- Unfold Q(k+1) and split on the parity bit x = X (T^[k] n).
+    simp only [decomposition_correction]
+    rcases (show X (T_iter k n) = 0 ∨ X (T_iter k n) = 1 by omega) with h | h
+    · -- x = 0: Q(k+1) = Q(k). Goal reduces to Q(k) + 2^(k+1) ≤ 3^(k+1).
+      rw [h]; simp only [pow_zero, one_mul, mul_zero, add_zero]
+      -- Q(k) + 2·2^k ≤ (Q(k) + 2^k) + 2^k ≤ 3^k + 3^k ≤ 3·3^k = 3^(k+1).
+      have h_pow_succ_2 : 2 ^ (k + 1) = 2 ^ k * 2 := pow_succ 2 k
+      have h_pow_succ_3 : 3 ^ (k + 1) = 3 ^ k * 3 := pow_succ 3 k
+      omega
+    · -- x = 1: Q(k+1) = 3·Q(k) + 2^k.
+      rw [h]; simp only [pow_one, mul_one]
+      -- 3·Q(k) + 2^k + 2·2^k = 3·(Q(k) + 2^k) ≤ 3·3^k = 3^(k+1).
+      have h_pow_succ_2 : 2 ^ (k + 1) = 2 ^ k * 2 := pow_succ 2 k
+      have h_pow_succ_3 : 3 ^ (k + 1) = 3 ^ k * 3 := pow_succ 3 k
+      omega
+
+/-! ### Algebraic descent from a gap -/
+
+/-- **Algebraic descent.** Given the additive gap
+`Q(k,n) + 3 ^ J · n + 1 ≤ 2 ^ k · n` (with `J = num_odd_steps k n`),
+`linear_decomposition` immediately delivers
+`T ^ [k] n < n`. -/
+@[category API, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem descent_of_correction_gap {k n : ℕ}
+    (h : decomposition_correction k n
+          + 3 ^ num_odd_steps k n * n + 1 ≤ 2 ^ k * n) :
+    T_iter k n < n := by
+  have hlin := linear_decomposition k n
+  -- 2^k · T^[k] n = 3^J · n + Q, so h gives 2^k · T^[k] n < 2^k · n.
+  have hprod : 2 ^ k * T_iter k n < 2 ^ k * n := by omega
+  exact Nat.lt_of_mul_lt_mul_left hprod
+
+/-! ### Descent from few odd steps -/
+
+/-- **Descent from few odd steps.** If the ones-count is strictly below the
+gap threshold (`3 ^ J + 1 ≤ 2 ^ k`, equivalently `3 ^ J < 2 ^ k`) and the
+starting value is large (`n ≥ 3 ^ k`), then `T ^ [k] n < n`.
+
+The hypothesis `3 ^ k ≤ n` is what confines the argument to `n` large in
+relation to `k`; `CC/Density/` supplies it on the dyadic shell
+`[2 ^ M, 2 ^ (M+1))` whenever `M · log 2 ≥ k · log 3`.
+
+Elementary consequence of `linear_decomposition` and the correction bound; the
+threshold `3 ^ J < 2 ^ k` is `J / k < CC.SRSBridge.criticalRatio` in disguise. -/
+@[category API, AMS 11 37, group "terras_density"]
+theorem descent_of_pow_three_num_odd_steps_lt {k n : ℕ}
+    (hcont : 3 ^ num_odd_steps k n + 1 ≤ 2 ^ k)
+    (hn : 3 ^ k ≤ n) :
+    T_iter k n < n := by
+  apply descent_of_correction_gap
+  have hcorr := decomposition_correction_add_pow_two_le_pow_three k n
+  have h2k_pos : (1 : ℕ) ≤ 2 ^ k := Nat.two_pow_pos k
+  -- `(3^J + 1) · n ≤ 2^k · n`, expanded: `3^J · n + n ≤ 2^k · n`.
+  have hmul : (3 ^ num_odd_steps k n + 1) * n ≤ 2 ^ k * n :=
+    Nat.mul_le_mul_right n hcont
+  have hmul_dist :
+      3 ^ num_odd_steps k n * n + n ≤ 2 ^ k * n := by
+    have hexpand : (3 ^ num_odd_steps k n + 1) * n
+        = 3 ^ num_odd_steps k n * n + n := by ring
+    omega
+  -- `n ≥ 3^k ≥ Q + 2^k ≥ Q + 1`, so `Q + 1 ≤ n`, then chain with hmul_dist.
+  omega
+
+/-! ### Monotonicity in the ones-count -/
+
+/-- A monotone form of `descent_of_pow_three_num_odd_steps_lt`: it suffices to know
+`num_odd_steps k n` is bounded above by some `J₀` with `3 ^ J₀ + 1 ≤ 2 ^ k`. -/
+@[category API, AMS 11 37, ref "Ter76", group "terras_density"]
+theorem descent_of_num_odd_steps_le {k J₀ n : ℕ}
+    (hJ : num_odd_steps k n ≤ J₀)
+    (hgap : 3 ^ J₀ + 1 ≤ 2 ^ k)
+    (hn : 3 ^ k ≤ n) :
+    T_iter k n < n := by
+  apply descent_of_pow_three_num_odd_steps_lt _ hn
+  have h3pow : 3 ^ num_odd_steps k n ≤ 3 ^ J₀ :=
+    Nat.pow_le_pow_right (by norm_num) hJ
+  omega
 
 end CC

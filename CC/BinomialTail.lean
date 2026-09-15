@@ -375,6 +375,59 @@ theorem card_residues_with_oddCount_ge_sub_le_hoeffding
   rw [card_residues_with_oddCount_ge_sub k K hKk]
   exact lowerBinomialSum_le_hoeffding ht hcut
 
+/-- **Budget form of the upper tail.** The same tail, parametrized by the
+odd-step *budget* `J₀` rather than by the deficit `k - K`: residues whose first
+`k` parity bits contain strictly more than `J₀` odd steps. The hypothesis
+`(1 / 2 + t) * k ≤ J₀ + 1` says the budget sits a slack `t` above the mean, and
+is free of truncated `Nat` subtraction — which is the point, since downstream
+`J₀` is what the descent criterion `CC.descent_of_num_odd_steps_le` consumes.
+
+Reduces to `card_residues_with_oddCount_ge_sub_le_hoeffding` at `K = k - J₀ - 1`
+when `J₀ < k`; when `k ≤ J₀` the filter is empty, since `oddCount k r ≤ k`. -/
+@[category research solved, AMS 11 37 60, ref "Ter76", group "parity_tail"]
+theorem card_residues_with_oddCount_gt_le_hoeffding
+    {k J₀ : ℕ} {t : ℝ} (ht : 0 ≤ t) (hcut : (1 / 2 + t) * k ≤ (J₀ : ℝ) + 1) :
+    ((Finset.univ.filter fun r : ZMod (2 ^ k) => J₀ < oddCount k r).card : ℝ)
+      ≤ (2 : ℝ) ^ k * Real.exp (-2 * t ^ 2 * k) := by
+  classical
+  have hRHS : (0 : ℝ) ≤ (2 : ℝ) ^ k * Real.exp (-2 * t ^ 2 * k) := by positivity
+  rcases lt_or_ge J₀ k with hJk | hkJ
+  · -- `J₀ < k`: the budget filter *is* the deficit filter at `K = k - J₀ - 1`.
+    set K : ℕ := k - J₀ - 1 with hK_def
+    have hsub : k - K = J₀ + 1 := by omega
+    have hfilter :
+        (Finset.univ.filter fun r : ZMod (2 ^ k) => J₀ < oddCount k r)
+          = Finset.univ.filter fun r : ZMod (2 ^ k) => k - K ≤ oddCount k r := by
+      refine Finset.filter_congr (fun r _ => ?_)
+      rw [hsub]
+      exact ⟨fun h => h, fun h => h⟩
+    have hKreal : (K : ℝ) = (k : ℝ) - ((J₀ : ℝ) + 1) := by
+      have : (K : ℝ) + ((J₀ : ℝ) + 1) = (k : ℝ) := by
+        have hnat : K + (J₀ + 1) = k := by omega
+        exact_mod_cast congrArg (Nat.cast : ℕ → ℝ) hnat
+      linarith
+    have hcut' : (K : ℝ) ≤ (1 / 2 - t) * (k : ℝ) := by
+      rw [hKreal]; nlinarith [hcut]
+    rw [hfilter]
+    exact card_residues_with_oddCount_ge_sub_le_hoeffding ht hcut'
+  · -- `k ≤ J₀`: nothing has more than `J₀` odd steps.
+    have hempty :
+        (Finset.univ.filter fun r : ZMod (2 ^ k) => J₀ < oddCount k r) = ∅ := by
+      refine Finset.filter_eq_empty_iff.mpr (fun r _ => ?_)
+      have := oddCount_le_length k r
+      omega
+    rw [hempty]
+    simpa using hRHS
+
+/-- Normalized budget-form upper-tail proportion among all `2 ^ k` residues. -/
+@[category research solved, AMS 11 37 60, ref "Ter76", group "parity_tail"]
+theorem card_residues_with_oddCount_gt_div_pow_le_exp
+    {k J₀ : ℕ} {t : ℝ} (ht : 0 ≤ t) (hcut : (1 / 2 + t) * k ≤ (J₀ : ℝ) + 1) :
+    ((Finset.univ.filter fun r : ZMod (2 ^ k) => J₀ < oddCount k r).card : ℝ)
+        / (2 : ℝ) ^ k ≤ Real.exp (-2 * t ^ 2 * k) := by
+  apply (div_le_iff₀ (pow_pos (by norm_num) k)).2
+  simpa [mul_comm] using card_residues_with_oddCount_gt_le_hoeffding ht hcut
+
 /-- Normalized symmetric upper-tail proportion among all `2 ^ k` residues. -/
 @[category research solved, AMS 11 37 60, ref "Ter76", group "parity_tail"]
 theorem card_residues_with_oddCount_ge_sub_div_pow_le_exp
