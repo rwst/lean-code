@@ -1,0 +1,31 @@
+# W4 G-2  2026-08-25 17:38  reproducing m4_frontier.json
+(3+sqrt5)/2  reproducing m4_frontier.json: search (8,8) eps=6.26e-04, deep [20, 22, 24]
+   H=4   P~=0.671970245 (M4 0.671970245, +0.0e+00)  sum h|a|=1.4559 (-2.2e-16)
+   H=8   P~=0.649073823 (M4 0.649073823, +1.1e-16)  sum h|a|=4.8961 (+4.6e-14)
+   H=16  P~=0.640804157 (M4 0.640804143, +1.3e-08)  sum h|a|=8.5499 (-2.3e-05)
+   H=24  P~=0.607170386 (M4 0.607170181, +2.0e-07)  sum h|a|=22.2614 (-3.5e-04)
+   H=32  P~=0.598556436 (M4 0.598562753, -6.3e-06)  sum h|a|=30.3473 (+1.1e-02)
+   H=48  P~=0.598167717 (M4 0.598138262, +2.9e-05)  sum h|a|=30.9823 (-5.1e-02)
+   H=64  P~=0.563435027 (M4 0.563735892, -3.0e-04)  sum h|a|=52.9560 (+4.3e-01)
+   CERT L=20  H=64  Lambda_ub=0.570785838 (M4 0.570995027, -2.1e-04)  enclose_blk bitwise  cw_ub bitwise  20s
+   CERT L=22  H=64  Lambda_ub=0.566348540 (M4 0.566610826, -2.6e-04)  enclose_blk bitwise  cw_ub bitwise  86s
+   CERT L=24  H=64  Lambda_ub=0.564703672 (M4 0.564985794, -2.8e-04)  enclose_blk bitwise  cw_ub bitwise  359s
+(3+sqrt13)/2  reproducing m4_frontier.json: search (8,8) eps=1.11e-04, deep [20, 22, 24]
+   H=4   P~=0.681614751 (M4 0.681614751, +1.1e-16)  sum h|a|=0.9322 (+0.0e+00)
+   H=8   P~=0.679792732 (M4 0.679792732, +2.5e-11)  sum h|a|=1.7586 (-3.8e-07)
+   H=16  P~=0.672743340 (M4 0.672743340, -2.0e-13)  sum h|a|=5.8042 (+3.2e-09)
+   H=24  P~=0.669186447 (M4 0.669186447, +6.2e-10)  sum h|a|=11.9969 (-9.8e-06)
+   H=32  P~=0.668605208 (M4 0.668605212, -4.2e-09)  sum h|a|=15.0611 (+6.6e-05)
+   H=48  P~=0.660086376 (M4 0.660086377, -1.8e-09)  sum h|a|=31.2227 (+2.8e-05)
+   H=64  P~=0.655216656 (M4 0.655216346, +3.1e-07)  sum h|a|=52.3681 (-4.9e-03)
+   CERT L=20  H=64  Lambda_ub=0.655591497 (M4 0.655591213, +2.8e-07)  enclose_blk bitwise  cw_ub bitwise  17s
+   CERT L=20  H=48  Lambda_ub=0.660326034 (M4 0.660326036, -1.8e-09)  enclose_blk bitwise  cw_ub bitwise  13s
+   CERT L=20  H=32  Lambda_ub=0.668737589 (M4 0.668737593, -3.8e-09)  enclose_blk bitwise  cw_ub bitwise  9s
+   CERT L=22  H=64  Lambda_ub=0.655315475 (M4 0.655315172, +3.0e-07)  enclose_blk bitwise  cw_ub bitwise  74s
+   CERT L=22  H=48  Lambda_ub=0.660153047 (M4 0.660153049, -1.8e-09)  enclose_blk bitwise  cw_ub bitwise  58s
+   CERT L=22  H=32  Lambda_ub=0.668645689 (M4 0.668645693, -4.1e-09)  enclose_blk bitwise  cw_ub bitwise  41s
+   CERT L=24  H=64  Lambda_ub=0.655232379 (M4 0.655232070, +3.1e-07)  enclose_blk bitwise  cw_ub bitwise  294s
+   CERT L=24  H=48  Lambda_ub=0.660100941 (M4 0.660100943, -1.8e-09)  enclose_blk bitwise  cw_ub bitwise  243s
+   CERT L=24  H=32  Lambda_ub=0.668617995 (M4 0.668617999, -4.1e-09)  enclose_blk bitwise  cw_ub bitwise  164s
+total 2406 s
+wrote m8_w4_g2.json

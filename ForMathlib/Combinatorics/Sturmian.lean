@@ -81,13 +81,6 @@ def HasBispecialPair (W : ℕ → Bool) : Prop :=
 
 /-! ## The complexity floor -/
 
-/-- There is exactly one factor of length `0`, the empty word. -/
-@[simp]
-lemma pComplexity_zero [Finite α] (u : ℕ → α) : pComplexity u 0 = 1 := by
-  rw [pComplexity, Set.ncard_eq_one]
-  exact ⟨factor u 0 0, Set.eq_singleton_iff_unique_mem.mpr
-    ⟨⟨0, rfl⟩, fun x _ => funext fun s => s.elim0⟩⟩
-
 /-- **Morse–Hedlund's floor.**  A word that is not eventually periodic has at least `m + 1`
 factors of each length `m`. -/
 lemma succ_le_pComplexity [Finite α] {u : ℕ → α} (hu : ¬ IsEventuallyPeriodic u) (m : ℕ) :

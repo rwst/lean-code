@@ -1,0 +1,44 @@
+# W4  2026-08-25 17:38  search L=18  deep [22, 24]  H [4, 8, 16, 32, 64, 128, 256, 512]  cap 20  maxiter 400
+(3+sqrt5)/2  alpha=2.618033989  h_min=0.481212  budget=0.2119
+  search (8,10) L=18 eps=2.39e-04   deep (11,11):3.49e-05 (12,12):1.33e-05   surrogate charged at eps=1.33e-05
+  H=4    P~=0.671954  sum h|a|=    1.51  surrogate=0.672081  max|x|=0.288  box=.  2s
+  H=8    P~=0.648992  sum h|a|=    5.18  surrogate=0.649426  max|x|=0.340  box=.  4s
+  H=16   P~=0.640356  sum h|a|=    9.99  surrogate=0.641193  max|x|=0.445  box=.  6s
+  H=32   P~=0.593725  sum h|a|=   45.58  surrogate=0.597542  max|x|=0.775  box=.  14s
+  H=64   P~=0.540694  sum h|a|=  137.06  surrogate=0.552173  max|x|=1.126  box=.  222s
+  H=128  P~=0.514108  sum h|a|=  291.55  surrogate=0.538525  max|x|=1.388  box=.  238s
+  stop rule: E_128 = 0.514108;  E_64 = 0.540694 here (L=18) and 0.544161 in M7 sec 4 (L=12);  gain +0.0266 / +0.0301 against threshold 0.02  ->  CONTINUE
+  H=256  P~=0.434249  sum h|a|=  539.48  surrogate=0.479430  max|x|=1.794  box=.  325s
+  H=512  P~=0.366184  sum h|a|=  699.57  surrogate=0.424771  max|x|=1.853  box=.  387s
+  deep window (11,11) L=22 eps=3.490e-05  built in 0s
+    L=22  H=64   Lambda_enc=0.544970  Lambda_cw=0.571559 (=0.540687+3.09e-02)  P_deep=0.540687  margin -0.06376  .  45s
+    L=22  H=128  Lambda_enc=0.520755  Lambda_cw=0.579021 (=0.514224+6.48e-02)  P_deep=0.514224  margin -0.03954  .  59s
+    L=22  H=256  Lambda_enc=0.450645  Lambda_cw=0.555000 (=0.435907+1.19e-01)  P_deep=0.435907  margin +0.03057  CERT  118s
+    L=22  H=512  Lambda_enc=0.408749  Lambda_cw=0.531191 (=0.377284+1.54e-01)  P_deep=0.376821  margin +0.07246  CERT  206s
+  deep window (12,12) L=24 eps=1.333e-05  built in 0s
+    L=24  H=64   Lambda_enc=0.542308  Lambda_cw=0.553003 (=0.540703+1.23e-02)  P_deep=0.540703  margin -0.06110  .  216s
+    L=24  H=128  Lambda_enc=0.516669  Lambda_cw=0.539564 (=0.514274+2.53e-02)  P_deep=0.514274  margin -0.03546  .  288s
+    L=24  H=256  Lambda_enc=0.441841  Lambda_cw=0.482520 (=0.436531+4.60e-02)  P_deep=0.436531  margin +0.03937  CERT  466s
+    L=24  H=512  Lambda_enc=0.391467  Lambda_cw=0.440063 (=0.380952+5.91e-02)  P_deep=0.379970  margin +0.08975  CERT  650s
+(3+sqrt13)/2  alpha=3.302775638  h_min=0.597382  budget=0.0958
+  search (9,9) L=18 eps=3.35e-05   deep (11,11):3.07e-06 (12,12):9.29e-07   surrogate charged at eps=9.29e-07
+  H=4    P~=0.681614  sum h|a|=    0.94  surrogate=0.681620  max|x|=0.126  box=.  2s
+  H=8    P~=0.679792  sum h|a|=    1.78  surrogate=0.679802  max|x|=0.137  box=.  4s
+  H=16   P~=0.672736  sum h|a|=    6.01  surrogate=0.672771  max|x|=0.152  box=.  3s
+  H=32   P~=0.668546  sum h|a|=   16.74  surrogate=0.668644  max|x|=0.176  box=.  9s
+  H=64   P~=0.654683  sum h|a|=   67.72  surrogate=0.655078  max|x|=0.214  box=.  7s
+  H=128  P~=0.641326  sum h|a|=  182.70  surrogate=0.642392  max|x|=0.266  box=.  61s
+  H=256  P~=0.625090  sum h|a|=  625.36  surrogate=0.628741  max|x|=0.347  box=.  149s
+  H=512  P~=0.606017  sum h|a|= 1368.50  surrogate=0.614008  max|x|=0.418  box=.  218s
+  deep window (11,11) L=22 eps=3.069e-06  built in 0s
+    L=22  H=64   Lambda_enc=0.654819  Lambda_cw=0.656088 (=0.654681+1.41e-03)  P_deep=0.654681  margin -0.05744  .  24s
+    L=22  H=128  Lambda_enc=0.641624  Lambda_cw=0.645120 (=0.641323+3.80e-03)  P_deep=0.641323  margin -0.04424  .  42s
+    L=22  H=256  Lambda_enc=0.625752  Lambda_cw=0.638044 (=0.625047+1.30e-02)  P_deep=0.625047  margin -0.02837  .  71s
+    L=22  H=512  Lambda_enc=0.607380  Lambda_cw=0.633427 (=0.606009+2.74e-02)  P_deep=0.606009  margin -0.01000  .  133s
+  deep window (12,12) L=24 eps=9.293e-07  built in 0s
+    L=24  H=64   Lambda_enc=0.654723  Lambda_cw=0.655102 (=0.654681+4.21e-04)  P_deep=0.654681  margin -0.05734  .  96s
+    L=24  H=128  Lambda_enc=0.641414  Lambda_cw=0.642458 (=0.641323+1.14e-03)  P_deep=0.641323  margin -0.04403  .  164s
+    L=24  H=256  Lambda_enc=0.625262  Lambda_cw=0.628938 (=0.625052+3.89e-03)  P_deep=0.625052  margin -0.02788  .  278s
+    L=24  H=512  Lambda_enc=0.606414  Lambda_cw=0.614517 (=0.606013+8.50e-03)  P_deep=0.606013  margin -0.00903  .  496s
+total 5003 s
+wrote m8_w4.json

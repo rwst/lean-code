@@ -1,0 +1,150 @@
+R1a of `plan-BB16-counterexample.html`: rigorous enclosures of `Phi_h(nu)`.
+
+R1b wants to certify `0 in interior conv{Phi(nu_1),...,Phi(nu_J)}` in `R^{2H}`, which is a
+stable statement: it survives any perturbation of the vertices below the margin.  For that
+to be a *proof* the `Phi(nu_j)` must be **enclosed**, not estimated.  This module supplies
+the enclosures at `alpha = 1+sqrt2`.
+
+    Phi_h(mu) = int e(h F) dmu,   F(omega) = (a-1) sum_{k>=1} omega_k a^-k - sum_{m>=0} c_m omega_-m
+
+Three ingredients, and the whole point is that each is exactly accountable.
+
+(1) TRUNCATION (M4 Prop. 3, in Fourier form).  With the window `F~` keeping `omega_-M..omega_J`,
+
+        |F - F~| <= eps(J,M) := a^-J + |abar-1| rho^(M+1)/(1-rho)     pointwise, every omega,
+
+    so |Phi_h(mu) - int e(h F~) dmu| <= 2 pi |h| eps(J,M) for EVERY invariant mu at once.
+    `eps` falls geometrically in both arguments: at 1+sqrt2, (J,M) = (100,100) already gives
+    2 pi h eps < 1e-35 at h <= 64.  Truncation is not the binding constraint here and never
+    will be; M4 Prop. 3 was written for a transfer operator whose size forced (N,M) ~ 12.
+
+(2) THE MEASURE.  A memory-L Markov measure is parametrised here by an exact rational
+    **circulation** `p` on the order-L de Bruijn graph -- a probability vector on
+    (L+1)-blocks with the flow conservation
+
+        sum_x p(b x) = sum_y p(y b)   for every L-block b
+
+    -- rather than by conditional probabilities `q`.  This is the finding of R1a and it is
+    what makes the enclosure cheap:
+
+        * conservation IS shift-invariance, so a circulation is a shift-invariant measure by
+          construction, with **stationary block distribution `pi(b) = p(b0) + p(b1)` given
+          exactly, as a rational number**, and `q(b) = p(b1)/pi(b)`;
+        * parametrised by `q` instead, `pi` is the Perron eigenvector of a 2^L x 2^L matrix,
+          and a rigorous enclosure of `Phi` would need a *verified eigenvector* -- the one
+          expensive step in the whole lane, and the one place where `m7_price.BlockChain`'s
+          "Phi_h computed exactly" is optimistic (`stationary()` is a numerical solve).
+
+    Circulations are closed under rational convex combination and are produced here from
+    (i) Bernoulli weights, (ii) the empirical (L+1)-block counts of a cyclic word -- which
+    are a circulation for *any* word, no conditions -- and (iii) mixtures of those.
+
+(3) THE FINITE SUM.  `int e(h F~) dmu` is one forward pass over `K = J+M+1` emissions,
+
+        W_k[b] = (1-q[b]) W_{k+1}[(b<<1) & mask] + q[b] e(h gamma_k) W_{k+1}[((b<<1)|1) & mask],
+        gamma_k = sqrt2 rho^k (k >= 1),   gamma_k = sqrt2 (-rho)^|k| (k <= 0),
+        Phi~_h = sum_b pi[b] W_-M[b],
+
+    started at `W_{J+1} = 1`.  Every `W_k` is a convex combination of unit-modulus numbers,
+    so `|W_k| <= 1` at every stage: the recursion is unconditionally stable and there is no
+    fixed point to verify.  Two engines evaluate it -- `mpmath.iv` (reference, exact
+    outward rounding) and float64 with an a-priori rounding bound -- and the checks below
+    confirm the interval engine's box contains the float value at every mode.
+
+Gate for R1a: the enclosure radius must sit below the `1e-5` at which M7 sec 4's upper and
+lower bounds cross, so that it is not the binding error in the LP of M7 Thm 5.
+
+======================================================================================
+BLOCK 1 -- the ladder at alpha = 1+sqrt2, and the truncation radius (M4 Prop. 3)
+======================================================================================
+    [ok ] alpha = 1+sqrt2 encloses to 1e-38  alpha = 2.414213562373095
+    [ok ] rho = sqrt2-1 = 1/alpha  rho = 0.414213562373095
+    [ok ] sum_k gamma_k = 2 exactly -- so Phi_h(Bern(1/2)) is REAL at this alpha  sum = 2.00000000000000000000
+
+         (J,M)        eps(J,M)      2 pi h eps, h=64
+       (20,20)       4.421e-08             1.778e-05
+       (40,40)       9.772e-16             3.930e-13
+       (60,60)       2.160e-23             8.687e-21
+     (100,100)       1.056e-38             4.244e-36
+    [ok ] at (J,M) = (60,60) the truncation radius at h = 64 is below 1e-19  8.687e-21
+
+======================================================================================
+BLOCK 2 -- circulations: conservation is exact, so pi is exact
+======================================================================================
+    [ok ] conservation defect exactly 0: Bern(1/3)  sum p = 1, h(mu) = 0.636514
+    [ok ] conservation defect exactly 0: word(T=20000)  sum p = 1, h(mu) = 0.669235
+    [ok ] conservation defect exactly 0: mix(word(T=20000),Bern(1/2))  sum p = 1, h(mu) = 0.673740
+    [ok ] mixing with uniform makes every block positive  0 empty blocks before
+    [ok ] pi and q are exact rationals  denominator of pi[0] has 6 digits
+
+======================================================================================
+BLOCK 3 -- two independent formulas for Bernoulli: the chain and Erdos' product
+======================================================================================
+    [ok ] chain recursion == Erdos product (M5 Thm 2) at 4 values of p, 5 modes  max |difference of enclosures| = 0.000e+00
+
+======================================================================================
+BLOCK 4 -- the float engine, and its a-priori rounding bound
+======================================================================================
+    [ok ] the float disc contains the interval box at every mode
+    interval radius 3.071e-21 | float radius 1.481e-13 | observed float error 3.206e-17 (4620x inside the bound)
+
+======================================================================================
+BLOCK 5 -- cross-validation against the M7 engine (m7_price.BlockChain)
+======================================================================================
+    [ok ] M7's two-ladder engine agrees with the enclosure at every mode  max difference 1.313e-16 over h = 1..8
+    [ok ] M7's numerical stationary vector is accurate here -- but it is not certified  ||pi_exact - pi_numeric||_1 = 6.106e-16
+
+======================================================================================
+BLOCK 6 -- why circulations: the alternative needs pi, and pi resists certification
+======================================================================================
+    Parametrised by q, the stationary vector is a Perron eigenvector and a rigorous
+    Phi needs ||pi - pi~||_1, which enters Phi linearly (|Phi~ - sum pi~ W| <= ||pi-pi~||_1
+    since |W| <= 1).  The cheap route to that is the residual bound
+    ||pi - pi~||_1 <= ||pi~ P^k - pi~||_1 / (1 - tau(P^k)) with the Dobrushin coefficient
+    tau(P^k) <= 1 - sum_u min_b P^k(b,u).  Measured at L = 8:
+
+    chain                                h(mu)     tau(P^8)    tau(P^16)    tau(P^32)    tau(P^64)
+    random word, uniform 1/20           0.6688    6.521e-01    1.080e-02    1.111e-06    1.965e-14
+    random word, uniform 1e-5           0.6660    7.071e-01    1.309e-02    1.891e-06    5.462e-14
+    periodic 110100, uniform 1/20       0.0388    9.988e-01    9.940e-01    9.842e-01    9.650e-01
+    periodic 110100, uniform 1/1000     0.0008    1.000e+00    9.999e-01    9.997e-01    9.993e-01
+    [ok ] the residual route works for a high-entropy chain  tau(P^32) = 1.11e-06, so the amplification is 1.000001
+    [ok ] and COLLAPSES for a low-entropy one -- exactly the witnesses Route 4 may need  tau(P^64) = 0.9993, amplification 1476x
+    A circulation needs none of this: conservation IS stationarity, so pi is read off
+    the parameters as an exact rational.  Cost of certifying pi: zero, at every entropy.
+
+======================================================================================
+BLOCK 7 -- cost at the sizes R1b needs
+======================================================================================
+      L  states    H   build (s)  phi_fl (s)      radius
+      8     256    8        0.02        0.01    1.48e-13
+      8     256   32        0.02        0.04    1.48e-13
+     10    1024    8        0.05        0.02    1.48e-13
+     10    1024   32        0.05        0.05    1.48e-13
+     12    4096    8        0.16        0.04    1.48e-13
+     12    4096   32        0.16        0.15    1.48e-13
+
+======================================================================================
+VERDICT
+======================================================================================
+    R1a's gate is met, and by a very large margin.
+
+    The enclosure radius for Phi_h(nu) at alpha = 1+sqrt2 is
+
+        1.5e-13  from the float64 engine with its a-priori rounding bound, and
+        ~1e-21   from the mpmath interval engine at (J,M) = (60,60),
+
+    against the 1e-5 at which M7 sec 4's upper and lower brackets cross.  Truncation --
+    the term M4 Prop. 3 accounts for, and the only one that was ever in doubt -- is not
+    the binding error and cannot become one: eps(J,M) falls by a factor 2.41 per unit of J
+    and 2.41 per unit of M, so (100,100) already gives 1e-38 at a cost of 200 sparse steps.
+
+    What the enclosure needed instead was an exact stationary vector, and that is a
+    question about how the pool is PARAMETRISED, not about arithmetic.  Circulations give
+    it for free at every entropy; conditional probabilities do not, and the cheap
+    substitute (a Dobrushin residual bound) degrades to nothing exactly on the
+    low-entropy measures the lane is most likely to want.
+
+    Remaining for R1a: convert M7's own pool -- the memory-12 Gibbs columns -- into
+    circulations without losing the geometry that makes it work, and record the enclosed
+    Phi-vectors for R1b.

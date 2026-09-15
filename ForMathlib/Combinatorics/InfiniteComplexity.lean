@@ -22,6 +22,8 @@ the alphabet is finite, and the conclusion is the left-special factor rather tha
 
 * `IsEventuallyPeriodic` — `∃ N p, 0 < p ∧ ∀ k ≥ N, u (k + p) = u k`.
 * `pComplexity u k` — the number of distinct length-`k` factors of `u` occurring anywhere.
+* `pComplexity_add_le`, `pComplexity_mul_le` — **submultiplicativity** `p(a+b) ≤ p(a)·p(b)` and
+  its `k`-fold form `p(m·k) ≤ p(m)^k`, the engine of every growth-rate statement about `p`.
 * `isEventuallyPeriodic_of_rightDeterministic` — if the length-`k` factor always determines the
   next letter, the word is eventually periodic (pigeonhole + forward propagation).
 * `pComplexity_lt_succ_of_not_isEventuallyPeriodic` — hence `p_u(k) < p_u(k+1)` for every `k`
@@ -70,15 +72,6 @@ lemma mem_factorSet {u : ℕ → α} {k : ℕ} {v : Fin k → α} :
 it. -/
 def RightDeterministic (u : ℕ → α) (k : ℕ) : Prop :=
   ∀ i j : ℕ, (∀ t, t < k → u (i + t) = u (j + t)) → u (i + k) = u (j + k)
-
-/-- Dropping the **first** letter of a length-`(k+1)` factor at `i` yields the length-`k` factor
-at `i + 1`. -/
-lemma factor_comp_succ (u : ℕ → α) (k i : ℕ) :
-    (factor u (k + 1) i) ∘ Fin.succ = factor u k (i + 1) := by
-  funext s
-  simp only [Function.comp_apply, factor, Fin.val_succ]
-  congr 1
-  omega
 
 /-- Determinism at level `k` propagates a repetition of length-`k` factors forward forever. -/
 lemma isEventuallyPeriodic_of_factor_eq (u : ℕ → α) {k x y : ℕ} (h : RightDeterministic u k)
@@ -131,6 +124,47 @@ lemma image_factorSet_castSucc (u : ℕ → α) (k : ℕ) :
 lemma pComplexity_mono (u : ℕ → α) (k : ℕ) : pComplexity u k ≤ pComplexity u (k + 1) := by
   rw [pComplexity, pComplexity, ← image_factorSet_castSucc u k]
   exact Set.ncard_image_le (finite_factorSet u (k + 1))
+
+omit [Finite α] in
+/-- There is exactly one factor of length `0`, the empty word. -/
+@[simp]
+lemma pComplexity_zero (u : ℕ → α) : pComplexity u 0 = 1 := by
+  rw [pComplexity, Set.ncard_eq_one]
+  exact ⟨factor u 0 0, Set.eq_singleton_iff_unique_mem.mpr
+    ⟨⟨0, rfl⟩, fun x _ => funext fun s => s.elim0⟩⟩
+
+/-- Subword complexity is non-decreasing, as a `Monotone` statement. -/
+lemma monotone_pComplexity (u : ℕ → α) : Monotone (pComplexity u) :=
+  monotone_nat_of_le_succ (pComplexity_mono u)
+
+/-- **Submultiplicativity of the factor complexity.**  A length-`(a + b)` factor is determined by
+its length-`a` prefix and its length-`b` suffix, and both of those are again factors of `u`, so
+`p(a + b) ≤ p(a) · p(b)`.
+
+This is the one-sided companion of the submultiplicativity of the complexity of a subshift, and
+it is what makes `log p(n) / n` converge (Fekete). -/
+lemma pComplexity_add_le (u : ℕ → α) (a b : ℕ) :
+    pComplexity u (a + b) ≤ pComplexity u a * pComplexity u b := by
+  rw [pComplexity, pComplexity, pComplexity, ← Set.ncard_prod]
+  refine Set.ncard_le_ncard_of_injOn
+    (fun v : Fin (a + b) → α => (v ∘ Fin.castAdd b, v ∘ Fin.natAdd a)) ?_ ?_ (Set.toFinite _)
+  · rintro _ ⟨i, rfl⟩
+    exact ⟨⟨i, (factor_comp_castAdd u a b i).symm⟩, ⟨i + a, (factor_comp_natAdd u a b i).symm⟩⟩
+  · intro v _ w _ h
+    obtain ⟨h1, h2⟩ := Prod.mk.injEq .. ▸ h
+    funext s
+    induction s using Fin.addCases with
+    | left s => exact congrFun h1 s
+    | right s => exact congrFun h2 s
+
+/-- The `k`-fold form of submultiplicativity: `p(m · k) ≤ p(m) ^ k`. -/
+lemma pComplexity_mul_le (u : ℕ → α) (m k : ℕ) :
+    pComplexity u (m * k) ≤ pComplexity u m ^ k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Nat.mul_succ, pow_succ]
+    exact le_trans (pComplexity_add_le u (m * k) m) (Nat.mul_le_mul_right _ ih)
 
 /-- **A complexity plateau forces determinism.**  If there are as many length-`(k+1)` factors as
 length-`k` factors, then the length-`k` factor determines the next letter. -/

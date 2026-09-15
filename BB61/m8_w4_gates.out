@@ -1,0 +1,15 @@
+# W4 gates  2026-08-25 20:24
+G5 recomputing the firing certificates ...
+   (3+sqrt5)/2: L=22 H=256 recomputed by m4_fourier.certify from the stored multiplier gives 0.450644576 (file 0.450644576, +0.0e+00), floor 0.481212, margin +0.030567
+   (3+sqrt5)/2: over 120 random bi-infinite completions at (11,11), |F - F~| <= 3.49e-05 = eps always (worst 3.38e-05, 0 violations)  (77s)
+   (3+sqrt13)/2: L=22 H=1024 recomputed by m4_fourier.certify from the stored multiplier gives 0.591004815 (file 0.591004815, +0.0e+00), floor 0.597382, margin +0.006377
+   (3+sqrt13)/2: over 120 random bi-infinite completions at (11,11), |F - F~| <= 3.07e-06 = eps always (worst 2.81e-06, 0 violations)  (226s)
+G2  PASS M4 sec 7's published rows are reproduced
+       the deterministic half is bitwise: on the multiplier M4's own search hands them, enclose_blk == m4_fourier.enclose and cw_ub == m4_fourier.spec_ub, 12 times, and every deep eps is M4's to the last bit ; the search reproduces to 1.3e-08 at H <= 16 (exactly, to the ulp, at H <= 8) once BLAS threading is pinned -- see the module docstring ; beyond H = 16 the minimum is flat and the L-BFGS trajectory drifts: sum_h h|a_h| moves by up to 4.3e-01 while the value moves by at most 3.0e-04 ; 9 of 12 published certificates agree to the printed six decimals and none is worse by more than +3.1e-07; the ones that move, move down -- a better multiplier on a flatter minimum, not a different bound
+G3  PASS every approximation is inside the enclosure
+       20 deep certificates: Lambda_enc - P_deep >= 4.18e-05 and Lambda_cw - P_deep >= 4.21e-04, so both bounds enclose the value they bound ; Lambda_cw - Lambda_enc >= 3.79e-04: the uniform slack never beats the word-wise enclosure, which is what M4 Prop. 3 asserts ; and every eps is err + 1/(2G) to the last bit (WP5)
+G4  PASS the multiplier box is inactive, so the value is E_H
+       (3+sqrt5)/2: max|x_j| = 1.8531 over 8 rungs (H up to 512), cap 20, box inactive ; (3+sqrt13)/2: max|x_j| = 0.5339 over 10 rungs (H up to 2048), cap 20, box inactive
+G5  PASS the firing certificates survive an independent recomputation
+       (3+sqrt5)/2: L=22 H=256 recomputed by m4_fourier.certify from the stored multiplier gives 0.450644576 (file 0.450644576, +0.0e+00), floor 0.481212, margin +0.030567 ; (3+sqrt5)/2: over 120 random bi-infinite completions at (11,11), |F - F~| <= 3.49e-05 = eps always (worst 3.38e-05, 0 violations) ; (3+sqrt13)/2: L=22 H=1024 recomputed by m4_fourier.certify from the stored multiplier gives 0.591004815 (file 0.591004815, +0.0e+00), floor 0.597382, margin +0.006377 ; (3+sqrt13)/2: over 120 random bi-infinite completions at (11,11), |F - F~| <= 3.07e-06 = eps always (worst 2.81e-06, 0 violations)
+wrote m8_w4_gates.json

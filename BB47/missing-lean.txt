@@ -1,0 +1,122 @@
+Not missing any more (2026-09-14): the two-sided omega-limit subshift and the two results that
+waited on it -- and, since WP7 the same day, minimal subshifts and uniformly recurrent languages.  Mathlib's subshift file, `Mathlib/Dynamics/SymbolicDynamics/Basic.lean` (633 lines:
+shift action, cylinders, patterns, forbidden sets, the `Subshift` structure, `LanguageOn`), is a
+skeleton -- it declares no instances at all, so a `Subshift` has no membership, no lattice and no
+induced Z-action, and there is no language duality, hence no complexity and no minimality.  It was
+scoped and priced in `plans/plan-subshift.html`, and ALL of that plan (WP1-WP8) is now done:
+`ForMathlib/Dynamics/SymbolicDynamics/{Instances,Blocks,Duality,OmegaLimit,Periodic,Complexity,
+Rauzy,Minimal}.lean`, 3046 lines, 238 declarations, std3, plus the corpus-facing
+`BB47/OmegaLimit.lean`.
+Consequently: (i) M1M2 Prop. 2.4 is `BB47.pInf_eq_complexity`, `p_inf(n,u) = p(n, Omega(u))`, with
+`Omega(u)` also identified as the topological omega-limit set of ANY two-sided extension of `u`
+(`BB47.coe_omegaLimitSubshift_eq_omegaLimit`); and (ii) M3 Lem. 3.3 is `BB47.orbit_eq_of_pInf_eq`,
+under `p_inf(n,u) = n+1` any two periodic points of Omega(u) lie on the same orbit -- with
+`BB47.orbit_eq_of_pInf_succ_le` sharper than the note, since it needs the growth hypothesis only at
+the single level p+q and does not need the periods to be least.  The shape lemma [M3, Lem. 3.2] is
+NOT needed for this, only its degree half.  The word half of Lem. 3.3 remains `BB47/
+PeriodicOrbits.lean`.  The duplication that WP6 flagged is retired rather than kept: `BB47/
+Rauzy.lean` and `BB47/Degrees.lean` keep their interfaces but prove nothing that `ForMathlib`
+proves -- `BB47.exists_walk` is deleted in favour of `reach_recFactorSet`, `edgeSrc`/`edgeTgt` are
+`export`ed (one constant, two names), and the degree-sum proof of the unique special block is
+replaced by `exists_isRightSpecial`/`eq_of_isRightSpecial`.
+
+Still missing here, and each for a reason that is not infrastructure: two specific words (M1M2
+Ex. 3.5, the word prod_m 0^m 1^m whose Rauzy graphs are strongly connected while Omega is not
+transitive; M3 Ex. 5.3, ...000.0101...); the Theorem-B chain, which enters Lean as explicit
+hypotheses (BalancedAt, NoTripleBreakAbove, sparseValue) exactly where M4's certificates consume
+them, so the layering is visible rather than hidden; Christoffel words (M4 Prop. 3.2); and the
+Coven-Hedlund classification itself -- minimal aperiodic two-sided subshifts with p(n) = n+1 are
+exactly the Sturmian ones -- which is a named 1973 theorem and a project in its own right, out of
+scope of `plans/plan-subshift.html` by design.
+
+Minimal subshifts and uniformly recurrent languages are no longer missing either: WP7 (2026-09-14)
+wrote `ForMathlib/Dynamics/SymbolicDynamics/Minimal.lean`, 442 lines, 25 declarations, std3.
+Mathlib had NEITHER -- `Dynamics/Minimal.lean` defines a minimal ACTION but has no minimal-subsystem
+theorem, and `UniformlyRecurrent` appears nowhere in it.  `Subshift.exists_isMinimal_le`: every
+non-empty subshift over a finite alphabet contains a minimal one (Zorn on the bundled lattice in the
+order dual, non-emptiness of the chain's `sInf` by Cantor's intersection theorem, which is the only
+place finiteness of the alphabet is used).  `isMinimal_iff_isUniformlyRecurrent`: minimal iff every
+orbit is dense iff every legal word occurs in every point iff the language is uniformly recurrent,
+in both the word form and the bounded-gap form, which are proved equal so that the definition is not
+a judgement call.  `isMinimal_iff_addAction`: this IS Mathlib's `AddAction.IsMinimal Z Y`.
+BUT NOT what the plan expected it to be for.  Writing it showed that [M3, Lem. 3.4]'s own proof uses
+no minimality -- it builds the left-infinite right-special spine, takes limit points and runs a gcd
+argument -- and that under (H) Omega(u) need NOT be minimal, since the skew branch of [M3, Thm. 4.1]
+has Omega = Orb(x) union P with P a periodic orbit.  What the file serves is the step AFTER
+Lem. 3.4 (Thm. 4.1(a) closes with "every point has dense orbit, thus Omega is minimal", which is
+`isMinimal_iff_forall_orbitClosure_eq` verbatim) and the vocabulary in which the Coven-Hedlund
+classification is stated.  Lem. 3.4's second statement, incidentally, never needed WP7: for
+aperiodic x in Omega, `orbitClosure x` is infinite, so p(n, orbitClosure x) >= n+1 = p(n, Omega) >=
+p(n, orbitClosure x), and `Subshift.ext_language` finishes -- WP2 + WP4 only.  It stays unwritten
+because it is a BB47-side statement under (H).
+
+Fine-Wilf is no longer missing from Mathlib: `ForMathlib/Combinatorics/FineWilf.lean` (2026-09-13)
+proves it, with the sharpness of its length bound, a list version, and the two-periodic-words
+corollary the applications want.  One upstream gap is left -- the characterisation of rationals by
+eventually periodic base-b expansions.  That is why the primary Theorems A/A' take
+`Irrational (value b w)` while the `_via_repLen` twins take `¬ IsEventuallyPeriodic w`: the two are
+equivalent for digit words, but the equivalence is not available.  The easy half (eventually
+periodic => rational, geometric series) would let `exists_pInf_ge_of_algebraic` drop the
+`¬ IsEventuallyPeriodic` it still carries alongside `Irrational`; the hard half (rational =>
+eventually periodic, long division) would let the twins merge back into the primaries.
+
+Separately, not missing but not proved here: the seven cited axioms, each a named literature
+theorem quoted with `@[ref]` -- `AB.tendsto_pComplexity_div_atTop` [AB07, Thm. 1] and
+`BugeaudEvertse.exists_pComplexity_gt` [BE08, Thm. 2.1] carry Theorems A and A' respectively, one
+each; `BB47.transcendental_of_repLen_liminf` / `_limsup` [BK19, Thm. 10.4] carry the `_via_repLen`
+twins; `BB47.ridout` [Rid57], `BB47.bbcp_base_b` [BBCP04] and `BB47.nesterenko_theta` [Nes96] carry
+the sliver.
+
+Theorem Z is no longer missing (2026-09-14): `BB47/TheoremZ.lean`, 372 lines, 23 declarations,
+std3, no cited axiom.  `BB47.theoremZ` says lim (log p(n,u))/n = lim (log p_inf(n,u))/n for every
+word over a finite alphabet, and both limits exist.  What Mathlib supplied is
+`ExpGrowth.expGrowthSup/expGrowthInf` and `Monotone.expGrowthSup_comp_mul`; what was missing and is
+now in `ForMathlib/Combinatorics/InfiniteComplexity.lean` is submultiplicativity of the factor
+complexity of a ONE-SIDED word, `p(a+b) <= p(a)*p(b)` (`pComplexity_add_le`) and its k-fold form --
+the two-sided subshift version `Subshift.complexity_add_le` was already there from plan-subshift
+WP5, but nothing connected it to `ℕ → α`.  Note the proof formalized is neither of the two in
+`BB47/af.md`: the one-line counting bound p(m*k) <= s_m + p_inf(m)^k is enough, so neither the
+variational principle nor the Rauzy-walk growth rate lambda_m is needed, and no Fekete argument
+either.
+
+Still missing from `plans/plan2-1047.html` section 3, and each for a reason:
+Proposition C (eventual confinement to a proper SFT; the nested rational IFS attractors E_n) needs
+M3 Cor. 4.2 (balance), which needs the Theorem-B chain that enters Lean as hypotheses; Proposition
+G (unique ergodicity of Omega in both branches, hence existence of every block frequency, hence the
+Weyl-sum reformulation) needs unique ergodicity of Sturmian subshifts, which Mathlib does not have
+and `ForMathlib/Dynamics/SymbolicDynamics/` did not scope; and the renormalization ladder of
+section 3.4 needs the Ostrowski/S-adic hierarchy, which nothing in the corpus touches.  Theorem Z
+was the one of the four that needed no new analysis at all.
+
+Correction (2026-09-15, out of writing `BB47/M5.tex`): the paragraph above says Proposition C
+needs M3 Cor. 4.2 (balance) and through it the Theorem-B chain.  IT DOES NOT.  The base-2 case
+follows from p_inf(2)=3 and aperiodicity alone: exactly one 2-block is non-recurrent, and it
+cannot be 01 or 10, because after the last occurrence of 01 no 0 may be followed by a 1, which
+makes the tail 1^a 0^omega or 1^omega -- eventually periodic, excluded.  The base-b>=3 case is
+p_inf(1)=2.  So Proposition C(1)-(2) is formalizable today, and it is the natural next BB47
+target after `TheoremZ.lean`: it needs only `pInf`, the horizon and `IsEventuallyPeriodic`, all
+of which exist.  Proposition C(3) (the nested self-similar sets) needs M3 Lem. 3.2 (the shape of
+G_n under (H)) plus first-return decomposition of walks -- the graph side of that is in
+`ForMathlib/Dynamics/SymbolicDynamics/Rauzy.lean`, the IFS side is not in the corpus at all.
+
+Also out of M5.tex: the two-base rigidity theorem (M5 Thm. 5.4) rests on one elementary lemma,
+dim_H closure(O_b xi) <= upper box dim <= h(xi,b)/log b, proved by covering the orbit closure with
+the p(n,xi,b) closed b-adic intervals of rank n.  ForMathlib HAS box dimension
+(`ForMathlib/Topology/MetricSpace/BoxDimension.lean`, with `Metric.dimH_le_upperBoxDim`), so that lemma is
+formalizable; what would have to be a cited axiom is the Shmerkin-Wu/Chang-Li-Wu statement that
+the exceptional set is a countable union of sets of upper box dimension zero.  Furstenberg's
+dimension formula is NOT needed -- only the inequality half, which is the lemma itself.
+
+Done (2026-09-15): `BB47/Confinement.lean`, 368 lines, 21 declarations, std3, no cited axiom.
+Proposition C(1) is `BB47.eventually_two_letters` (two letters carry the word past s_1 and every
+other letter is eventually omitted), with the count `BB47.ncard_omitted` (#alphabet - 2 letters
+omitted) and `BB47.exists_omitted_letter` for base b >= 3.  Proposition C(2) is
+`BB47.exists_forbidden_square` (one of the two recurrent letters c has cc non-recurrent) and
+`BB47.exists_pair_forbidden_square` (the two statements packaged: u i is a or b past s_1, and no
+aa past s_2 -- the golden-mean SFT in base 2).  The engine is
+`BB47.isEventuallyPeriodic_of_no_transition`.  Hypotheses used: `pInf u 2 = 3` and
+`¬ IsEventuallyPeriodic u` -- and `pInf u 1 = 2` follows from the first by
+`BB47.pInf_eq_succ_of_le`, so C(2) needs no separate hypothesis.  NOT balance, NOT the
+Theorem-B chain.  Still missing from Proposition C: item (3), the nested self-similar sets,
+which needs [M3, Lem. 3.2] (the shape of G_n under (H)) together with a first-return
+decomposition of walks, and an IFS-attractor notion that the corpus does not have.

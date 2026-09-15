@@ -1,0 +1,48 @@
+(1) side conditions over 741 quadratic Pisot alpha>2, rho<1/2:
+    min (diam K - gap_max C) = 0.051316   [M0's no-go 2, verbatim]
+    min (diam C - gap_max K) = 0.001348
+    both > 0 => whenever tau_C*tau_K >= 1, C-K IS an interval of length >= 2 => X = T
+
+(2) thickness product vs. gap  (M0 column = note-1061-M0.html section 6.2)
+    min poly        alpha     rho   tau_C   tau_K  product        gap   M0
+    X^2-2X-1       2.4142  0.4142   2.414   2.414    5.828    0.00000   none <= DEAD
+    X^2-3X+1       2.6180  0.3820   1.618   1.618    2.618    0.00000   none <= DEAD
+    X^2-3X-1       3.3028  0.3028   0.768   0.768    0.589    0.00000   none
+    X^2-4X+1       3.7321  0.2679   0.577   0.577    0.333    0.05255   0.05256
+    X^2-4X-1       4.2361  0.2361   0.447   0.447    0.200    0.03443   0.03444
+    X^2-4X-2       4.4495  0.4495   0.408   4.449    1.816    0.00000   none <= DEAD
+    X^2-5X-2       5.3723  0.3723   0.297   1.457    0.432    0.00027   0.00028
+    X^2-6X+2       5.6458  0.3542   0.274   1.215    0.333    0.00520   0.00521
+    every product>=1 row has gap 0; every gapped row has product<1.
+    X^2-3X-1: product 0.589 and still no gap -- the converse is FALSE, do not assert it.
+
+(3) Corollary T1 -- units: tau_C = tau_K <=> rho = 1/alpha <=> |b| = 1; product = (alpha-2)^-2
+    alpha=  2.4142  X^2-2X-1   product=  5.8284   FULL SUPPORT (proved)
+    alpha=  2.6180  X^2-3X+1   product=  2.6180   FULL SUPPORT (proved)
+    alpha=  3.3028  X^2-3X-1   product=  0.5892
+    alpha=  3.7321  X^2-4X+1   product=  0.3333
+    alpha=  4.2361  X^2-4X-1   product=  0.2000
+    alpha=  4.7913  X^2-5X+1   product=  0.1283
+    alpha=  5.1926  X^2-5X-1   product=  0.0981
+    alpha=  5.8284  X^2-6X+1   product=  0.0682
+    => exactly two quadratic Pisot units in (2,3]: 1+sqrt2 and (3+sqrt5)/2.
+
+(3) Corollary T2 -- two infinite full-support families, product decreasing to 1+
+        k  min poly                 alpha       rho   product   gap(FFT)
+        2  X^2-4X-2                 4.449  0.449490  1.816497   0.0000000
+        2  X^2-5X+2                 4.562  0.438447  1.390388   0.0000000
+        3  X^2-6X-3                 6.464  0.464102  1.448018   0.0000000
+        3  X^2-7X+3                 6.541  0.458619  1.220197   0.0000000
+        4  X^2-8X-4                 8.472  0.472136  1.309017   0.0000000
+        4  X^2-9X+4                 8.531  0.468871  1.153113   0.0000000
+        5  X^2-10X-5               10.477  0.477226  1.235926   0.0000000
+        5  X^2-11X+5               10.525  0.475062  1.117303   0.0000000
+       20  X^2-40X-20              40.494  0.493902  1.051956     (not run)
+       20  X^2-41X+20              40.506  0.493751  1.025970     (not run)
+      100  X^2-200X-100           200.499  0.498756  1.010076     (not run)
+      100  X^2-201X+100           200.501  0.498750  1.005038     (not run)
+     1000  X^2-2000X-1000        2000.500  0.499875  1.001001     (not run)
+     1000  X^2-2001X+1000        2000.500  0.499875  1.000500     (not run)
+
+CEILING: thickness is a property of C(alpha) as a compact subset of R, so L0-6 (xvi)
+([Rau70]) bars it from ever PROVING 10.61. This prunes Route D / X8; it is not an engine.

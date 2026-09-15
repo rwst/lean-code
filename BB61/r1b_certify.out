@@ -1,0 +1,338 @@
+# R1b self-checks
+  ok   Iv encloses exact +,-,* (20000 triples)   sqrt(2) in [1.4142135623730949, 1.4142135623730954]
+  ok   interval Cholesky <-> eigvalsh agree   60/60
+  ok   Cholesky never certifies a non-PD shift   0 false positives
+  ok   ball lemma: lam + W^+(y,0) stays in the simplex   min coord 0.00e+00, |V lam' - (r+y)| 2.22e-16
+  ok   radius t*sigma is not vacuous   263/300 escape at 8 t*sigma
+  ok   exact residual matches float   exact 6.095962e-01 vs float 6.095962e-01
+  ok   sqrt_upper is an upper bound   0/2000 failures
+  ok   Gram float error inside the gamma_m bound   observed 2.27e-13 <= bound 3.07e-10
+  ok   sigma_min_lower brackets sigma_min   7.644286 <= 7.648021, ratio 0.9995
+  ok   Circulation.entropy in float64 vs interval logs   float 0.682908104700472  interval [0.682908104700472, 0.682908104700472]  Bernoulli(3/7) 0.682908104700472  slack used 1e-11
+  ok   negative control: one-sided pool is infeasible   maximin LP infeasible
+  ok   delta scales with t   t 1.996e-02 -> 1.996e-03, delta 8.666e-02 -> 8.666e-03
+  ok   phi_fl radius covers the interval enclosure   radius 1.481e-13, worst gap 1.319e-16
+  ok   refutation: one-sided pool is certifiably separated from 0   d = 3.5641, gap = 3.5641
+  ok   refutation: a surrounding pool is not separable   no direction
+  ok   entropy slack covers an order-12 repaired circulation   float 0.520773966196531, mpmath30 0.520773966196531, gap 0.00e+00 < slack 1e-11
+  ok   rank control: m < 2H+1 gives sigma = 0 and no certificate   sigma 0.0e+00, delta -1.2e+00
+  ok   generalised ladder vs BlockChain.phis at 3 units   1+sqrt2 2.9e-11; golden2 2.7e-11; root13 2.9e-11
+# self-checks: 18 ok, 0 failed
+
+# R1b   interior-of-hull certificates
+#   condition (C):  delta = t*sigma - |r|_2 - eps*sqrt(H) > 0
+
+### alpha = 1+sqrt2   (2.414213562),  h_min = 0.440687,  pool from r1b_pool64.json
+H=4   pool   65   eps 1.481e-13   e2 2.962e-13
+      maximin weights: t 1.384402e-02   sigma_min(W) >= 2.654214e-01   |r|_2 <= 8.153e-15
+      DELTA = 3.674499e-03   =  1.24e+10 x e2      => K_4 != empty
+      (Gram enclosure radius 7.2e-15, lam_min(G) float 7.051741e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             1.384e-02  +3.674e-03  0.667091007
+        5e-01             6.922e-03  +1.837e-03  0.682374330
+        1e-02             1.384e-04  +3.674e-05  0.690903009
+        1e-03             1.384e-05  +3.674e-06  0.691056478
+        1e-04             1.384e-06  +3.674e-07  0.691071801
+        1e-05             1.384e-07  +3.674e-08  0.691073328
+        1e-06             1.384e-08  +3.674e-09  0.691073481
+        1e-07             1.384e-09  +3.672e-10  0.691073496
+        1e-08             1.384e-10  +3.645e-11  0.691073498
+      CERTIFIED: E_4(1+sqrt2) >= 0.691073498   [this run's optimiser upper 0.691067821, M7 sec 4: 0.691068/0.691073  <- LOWER EXCEEDS UPPER by 5.7e-06]
+      => H_flat(1+sqrt2) > 4   and, since 0.691073 > h_min = 0.440687,  H_ent(1+sqrt2) > 4
+
+H=8   pool  129   eps 1.481e-13   e2 4.189e-13
+      maximin weights: t 6.427289e-03   sigma_min(W) >= 2.605040e-01   |r|_2 <= 1.490e-14
+      DELTA = 1.674334e-03   =  4.00e+09 x e2      => K_8 != empty
+      (Gram enclosure radius 1.4e-14, lam_min(G) float 6.792865e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             6.427e-03  +1.674e-03  0.661001891
+        5e-01             3.214e-03  +8.372e-04  0.681302536
+        1e-02             6.427e-05  +1.674e-05  0.689938279
+        1e-03             6.427e-06  +1.674e-06  0.690085650
+        1e-04             6.427e-07  +1.674e-07  0.690100251
+        1e-05             6.427e-08  +1.674e-08  0.690101711
+        1e-06             6.427e-09  +1.674e-09  0.690101857
+        1e-07             6.427e-10  +1.670e-10  0.690101872
+        1e-08             6.425e-11  +1.631e-11  0.690101873
+      CERTIFIED: E_8(1+sqrt2) >= 0.690101873   [this run's optimiser upper 0.690096066, M7 sec 4: 0.690096/0.690102  <- LOWER EXCEEDS UPPER by 5.8e-06]
+      => H_flat(1+sqrt2) > 8   and, since 0.690102 > h_min = 0.440687,  H_ent(1+sqrt2) > 8
+
+H=16  pool  257   eps 1.481e-13   e2 5.924e-13
+      maximin weights: t 3.264761e-03   sigma_min(W) >= 2.132952e-01   |r|_2 <= 1.722e-14
+      DELTA = 6.963578e-04   =  1.18e+09 x e2      => K_16 != empty
+      (Gram enclosure radius 2.9e-14, lam_min(G) float 4.553930e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             3.265e-03  +6.964e-04  0.662720606
+        5e-01             1.632e-03  +3.482e-04  0.680833200
+        1e-02             3.265e-05  +6.964e-06  0.688900679
+        1e-03             3.265e-06  +6.964e-07  0.689038713
+        1e-04             3.265e-07  +6.964e-08  0.689052508
+        1e-05             3.265e-08  +6.963e-09  0.689053886
+        1e-06             3.265e-09  +6.958e-10  0.689054023
+        1e-07             3.265e-10  +6.903e-11  0.689054037
+        1e-08             3.263e-11  +6.358e-12  0.689054039
+      CERTIFIED: E_16(1+sqrt2) >= 0.689054039   [this run's optimiser upper 0.689063230, M7 sec 4: 0.689063/0.689054]
+      => H_flat(1+sqrt2) > 16   and, since 0.689054 > h_min = 0.440687,  H_ent(1+sqrt2) > 16
+
+H=32  pool  513   eps 1.481e-13   e2 8.378e-13
+      maximin weights: t 1.532014e-03   sigma_min(W) >= 1.983261e-01   |r|_2 <= 2.295e-14
+      DELTA = 3.038385e-04   =  3.63e+08 x e2      => K_32 != empty
+      (Gram enclosure radius 5.7e-14, lam_min(G) float 3.937171e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             1.532e-03  +3.038e-04  0.660034961
+        5e-01             7.660e-04  +1.519e-04  0.679060580
+        1e-02             1.532e-05  +3.038e-06  0.686883048
+        1e-03             1.532e-06  +3.038e-07  0.687010376
+        1e-04             1.532e-07  +3.038e-08  0.687023027
+        1e-05             1.532e-08  +3.038e-09  0.687024291
+        1e-06             1.532e-09  +3.030e-10  0.687024417
+        1e-07             1.532e-10  +2.954e-11  0.687024430
+        1e-08             1.000e-14  -9.883e-12  0.687024430   (not certified)
+      CERTIFIED: E_32(1+sqrt2) >= 0.687024430   [this run's optimiser upper 0.687345588, M7 sec 4: 0.687346/0.687024]
+      => H_flat(1+sqrt2) > 32   and, since 0.687024 > h_min = 0.440687,  H_ent(1+sqrt2) > 32
+
+H=64  pool 1025   eps 1.481e-13   e2 1.185e-12
+      maximin weights: t 5.215976e-04   sigma_min(W) >= 1.432083e-01   |r|_2 <= 2.586e-14
+      DELTA = 7.469712e-05   =  6.30e+07 x e2      => K_64 != empty
+      (Gram enclosure radius 1.1e-13, lam_min(G) float 2.052867e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             5.216e-04  +7.470e-05  0.651138402
+        5e-01             2.608e-04  +3.735e-05  0.668614586
+        1e-02             5.216e-06  +7.470e-07  0.677385900
+        1e-03             5.216e-07  +7.470e-08  0.677485933
+        1e-04             5.216e-08  +7.469e-09  0.677495925
+        1e-05             5.216e-09  +7.458e-10  0.677496924
+        1e-06             5.216e-10  +7.349e-11  0.677497024
+        1e-07             5.212e-11  +6.266e-12  0.677497034
+        1e-08             1.000e-14  -2.190e-11  0.677497032   (not certified)
+      CERTIFIED: E_64(1+sqrt2) >= 0.677497034   [this run's optimiser upper 0.683270885, M7 sec 4: 0.683271/0.677497]
+      => H_flat(1+sqrt2) > 64   and, since 0.677497 > h_min = 0.440687,  H_ent(1+sqrt2) > 64
+
+### alpha = golden2   (2.618033989),  h_min = 0.481212,  pool from r1b_pool_golden2.json
+H=1   pool   17   eps 1.481e-13   e2 1.481e-13
+      maximin weights: t 5.641430e-02   sigma_min(W) >= 3.812624e-01   |r|_2 <= 5.383e-15
+      DELTA = 2.150865e-02   =  1.45e+11 x e2      => K_1 != empty
+      (Gram enclosure radius 1.9e-15, lam_min(G) float 1.455031e-01, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             5.641e-02  +2.151e-02  0.671106995
+        5e-01             2.821e-02  +1.075e-02  0.681070071
+        1e-02             5.641e-04  +2.151e-04  0.689078612
+        1e-03             5.641e-05  +2.151e-05  0.689225161
+        1e-04             5.641e-06  +2.151e-06  0.689239816
+        1e-05             5.641e-07  +2.151e-07  0.689241281
+        1e-06             5.641e-08  +2.151e-08  0.689241428
+        1e-07             5.641e-09  +2.151e-09  0.689241442
+        1e-08             5.641e-10  +2.149e-10  0.689241444
+      CERTIFIED: E_1(golden2) >= 0.689241444   [this run's optimiser upper 0.689241479, M7 sec 4: 0.689241/-- (pool too small)]
+      => H_flat(golden2) > 1   and, since 0.689241 > h_min = 0.481212,  H_ent(golden2) > 1
+
+H=2   pool   33   eps 1.481e-13   e2 2.095e-13
+      maximin weights: t 2.936143e-02   sigma_min(W) >= 3.505915e-01   |r|_2 <= 2.977e-15
+      DELTA = 1.029387e-02   =  4.91e+10 x e2      => K_2 != empty
+      (Gram enclosure radius 3.7e-15, lam_min(G) float 1.230345e-01, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             2.936e-02  +1.029e-02  0.668019000
+        5e-01             1.468e-02  +5.147e-03  0.679396054
+        1e-02             2.936e-04  +1.029e-04  0.688811681
+        1e-03             2.936e-05  +1.029e-05  0.688984399
+        1e-04             2.936e-06  +1.029e-06  0.689001638
+        1e-05             2.936e-07  +1.029e-07  0.689003360
+        1e-06             2.936e-08  +1.029e-08  0.689003532
+        1e-07             2.936e-09  +1.029e-09  0.689003550
+        1e-08             2.936e-10  +1.027e-10  0.689003551
+      CERTIFIED: E_2(golden2) >= 0.689003551   [this run's optimiser upper 0.689003964, M7 sec 4: 0.689004/0.689004]
+      => H_flat(golden2) > 2   and, since 0.689004 > h_min = 0.481212,  H_ent(golden2) > 2
+
+H=4   pool   65   eps 1.481e-13   e2 2.962e-13
+      maximin weights: t 1.453756e-02   sigma_min(W) >= 1.201354e-01   |r|_2 <= 1.063e-14
+      DELTA = 1.746476e-03   =  5.90e+09 x e2      => K_4 != empty
+      (Gram enclosure radius 7.2e-15, lam_min(G) float 1.444663e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             1.454e-02  +1.746e-03  0.649973760
+        5e-01             7.269e-03  +8.732e-04  0.662532368
+        1e-02             1.454e-04  +1.746e-05  0.671750653
+        1e-03             1.454e-05  +1.746e-06  0.671917968
+        1e-04             1.454e-06  +1.746e-07  0.671934700
+        1e-05             1.454e-07  +1.746e-08  0.671936373
+        1e-06             1.454e-08  +1.746e-09  0.671936540
+        1e-07             1.454e-09  +1.743e-10  0.671936557
+        1e-08             1.454e-10  +1.716e-11  0.671936559
+      CERTIFIED: E_4(golden2) >= 0.671936559   [this run's optimiser upper 0.672111146, M7 sec 4: 0.672111/0.671937]
+      => H_flat(golden2) > 4   and, since 0.671937 > h_min = 0.481212,  H_ent(golden2) > 4
+
+H=8   pool  129   eps 1.481e-13   e2 4.189e-13
+      maximin weights: t 6.038479e-03   sigma_min(W) >= 9.257502e-02   |r|_2 <= 1.629e-14
+      DELTA = 5.590124e-04   =  1.33e+09 x e2      => K_8 != empty
+      (Gram enclosure radius 1.4e-14, lam_min(G) float 8.578513e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             6.038e-03  +5.590e-04  0.622307215
+        5e-01             3.019e-03  +2.795e-04  0.640466141
+        1e-02             6.038e-05  +5.590e-06  0.648711954
+        1e-03             6.038e-06  +5.590e-07  0.648854557
+        1e-04             6.038e-07  +5.590e-08  0.648868818
+        1e-05             6.038e-08  +5.590e-09  0.648870244
+        1e-06             6.038e-09  +5.586e-10  0.648870386
+        1e-07             6.038e-10  +5.548e-11  0.648870401
+        1e-08             6.037e-11  +5.160e-12  0.648870402
+      CERTIFIED: E_8(golden2) >= 0.648870402   [this run's optimiser upper 0.649254011, M7 sec 4: 0.649254/0.648870]
+      => H_flat(golden2) > 8   and, since 0.648870 > h_min = 0.481212,  H_ent(golden2) > 8
+
+H=16  pool  257   eps 1.481e-13   e2 5.924e-13
+      maximin weights: t 2.656537e-03   sigma_min(W) >= 5.697277e-02   |r|_2 <= 4.116e-14
+      DELTA = 1.513503e-04   =  2.55e+08 x e2      => K_16 != empty
+      (Gram enclosure radius 2.9e-14, lam_min(G) float 3.249070e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             2.657e-03  +1.514e-04  0.606137151
+        5e-01             1.328e-03  +7.568e-05  0.631694433
+        1e-02             2.657e-05  +1.514e-06  0.639835644
+        1e-03             2.657e-06  +1.513e-07  0.639964758
+        1e-04             2.657e-07  +1.513e-08  0.639977669
+        1e-05             2.657e-08  +1.513e-09  0.639978960
+        1e-06             2.657e-09  +1.507e-10  0.639979089
+        1e-07             2.656e-10  +1.452e-11  0.639979102
+        1e-08             2.654e-11  +9.021e-13  0.639979104
+      CERTIFIED: E_16(golden2) >= 0.639979104   [this run's optimiser upper 0.640665021, M7 sec 4: 0.640665/0.639979]
+      => H_flat(golden2) > 16   and, since 0.639979 > h_min = 0.481212,  H_ent(golden2) > 16
+
+H=32  pool  513   eps 1.481e-13   e2 8.378e-13
+      maximin weights: t 7.526329e-04   sigma_min(W) >= 4.026091e-02   |r|_2 <= 1.673e-14
+      DELTA = 3.030168e-05   =  3.62e+07 x e2      => K_32 != empty
+      (Gram enclosure radius 5.7e-14, lam_min(G) float 1.622525e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             7.526e-04  +3.030e-05  0.549001674
+        5e-01             3.763e-04  +1.515e-05  0.567819430
+        1e-02             7.526e-06  +3.030e-07  0.576837121
+        1e-03             7.526e-07  +3.030e-08  0.576974930
+        1e-04             7.526e-08  +3.029e-09  0.576988710
+        1e-05             7.526e-09  +3.022e-10  0.576990089
+        1e-06             7.526e-10  +2.944e-11  0.576990226
+        1e-07             7.526e-11  +2.166e-12  0.576990240
+        1e-08             1.000e-14  -3.155e-11  0.576990230   (not certified)
+      CERTIFIED: E_32(golden2) >= 0.576990240   [this run's optimiser upper 0.596575543, M7 sec 4: 0.596576/0.576992]
+      => H_flat(golden2) > 32   and, since 0.576990 > h_min = 0.481212,  H_ent(golden2) > 32
+
+H=64  pool 1025   eps 1.481e-13   maximin LP infeasible
+      REFUTED: 0 is NOT in conv, certified.  separation d = 5.471426e-02, |u|_2 = 7.523, e2 = 1.18e-12, gap = 5.471426e-02 = 4.6e+10 x e2
+      => the pool really is too small at H=64; `u` is the Farkas direction R2a's augmentation loop consumes
+
+### alpha = root13   (3.302775638),  h_min = 0.597382,  pool from r1b_pool_root13.json
+H=1   pool   17   eps 1.481e-13   e2 1.481e-13
+      maximin weights: t 5.766342e-02   sigma_min(W) >= 1.556740e-01   |r|_2 <= 2.839e-15
+      DELTA = 8.976694e-03   =  6.06e+10 x e2      => K_1 != empty
+      (Gram enclosure radius 1.9e-15, lam_min(G) float 2.425808e-02, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             5.766e-02  +8.977e-03  0.673195187
+        5e-01             2.883e-02  +4.488e-03  0.682259611
+        1e-02             5.766e-04  +8.977e-05  0.689703133
+        1e-03             5.766e-05  +8.977e-06  0.689839850
+        1e-04             5.766e-06  +8.977e-07  0.689853522
+        1e-05             5.766e-07  +8.977e-08  0.689854889
+        1e-06             5.766e-08  +8.977e-09  0.689855026
+        1e-07             5.766e-09  +8.975e-10  0.689855040
+        1e-08             5.766e-10  +8.962e-11  0.689855041
+      CERTIFIED: E_1(root13) >= 0.689855041   [this run's optimiser upper 0.689855040, M7 sec 4: 0.689855/0.689855  <- LOWER EXCEEDS UPPER by 1.2e-09]
+      => H_flat(root13) > 1   and, since 0.689855 > h_min = 0.597382,  H_ent(root13) > 1
+
+H=2   pool   33   eps 1.481e-13   e2 2.095e-13
+      maximin weights: t 2.869494e-02   sigma_min(W) >= 9.982338e-02   |r|_2 <= 1.058e-14
+      DELTA = 2.864426e-03   =  1.37e+10 x e2      => K_2 != empty
+      (Gram enclosure radius 3.7e-15, lam_min(G) float 9.974448e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             2.869e-02  +2.864e-03  0.667361807
+        5e-01             1.435e-02  +1.432e-03  0.679289201
+        1e-02             2.869e-04  +2.864e-05  0.687668535
+        1e-03             2.869e-05  +2.864e-06  0.687821457
+        1e-04             2.869e-06  +2.864e-07  0.687836741
+        1e-05             2.869e-07  +2.864e-08  0.687838263
+        1e-06             2.869e-08  +2.864e-09  0.687838415
+        1e-07             2.869e-09  +2.862e-10  0.687838430
+        1e-08             2.869e-10  +2.843e-11  0.687838431
+      CERTIFIED: E_2(root13) >= 0.687838431   [this run's optimiser upper 0.687838273, M7 sec 4: 0.687838/-- (pool too small)  <- LOWER EXCEEDS UPPER by 1.6e-07]
+      => H_flat(root13) > 2   and, since 0.687838 > h_min = 0.597382,  H_ent(root13) > 2
+
+H=4   pool   65   eps 1.481e-13   e2 2.962e-13
+      maximin weights: t 1.427506e-02   sigma_min(W) >= 9.346176e-02   |r|_2 <= 8.873e-15
+      DELTA = 1.334172e-03   =  4.50e+09 x e2      => K_4 != empty
+      (Gram enclosure radius 7.2e-15, lam_min(G) float 8.743639e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             1.428e-02  +1.334e-03  0.661778364
+        5e-01             7.138e-03  +6.671e-04  0.673835872
+        1e-02             1.428e-04  +1.334e-05  0.681459392
+        1e-03             1.428e-05  +1.334e-06  0.681597826
+        1e-04             1.428e-06  +1.334e-07  0.681611650
+        1e-05             1.428e-07  +1.334e-08  0.681613031
+        1e-06             1.428e-08  +1.334e-09  0.681613169
+        1e-07             1.427e-09  +1.331e-10  0.681613183
+        1e-08             1.427e-10  +1.304e-11  0.681613185
+      CERTIFIED: E_4(root13) >= 0.681613185   [this run's optimiser upper 0.681630921, M7 sec 4: 0.681631/0.681613]
+      => H_flat(root13) > 4   and, since 0.681613 > h_min = 0.597382,  H_ent(root13) > 4
+
+H=8   pool  129   eps 1.481e-13   e2 4.189e-13
+      maximin weights: t 6.742554e-03   sigma_min(W) >= 7.089299e-02   |r|_2 <= 8.678e-15
+      DELTA = 4.779998e-04   =  1.14e+09 x e2      => K_8 != empty
+      (Gram enclosure radius 1.4e-14, lam_min(G) float 5.030729e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             6.743e-03  +4.780e-04  0.657871409
+        5e-01             3.371e-03  +2.390e-04  0.672324868
+        1e-02             6.743e-05  +4.780e-06  0.679643302
+        1e-03             6.743e-06  +4.780e-07  0.679774293
+        1e-04             6.743e-07  +4.780e-08  0.679787375
+        1e-05             6.743e-08  +4.780e-09  0.679788683
+        1e-06             6.743e-09  +4.776e-10  0.679788814
+        1e-07             6.742e-10  +4.738e-11  0.679788827
+        1e-08             6.741e-11  +4.354e-12  0.679788828
+      CERTIFIED: E_8(root13) >= 0.679788828   [this run's optimiser upper 0.679808718, M7 sec 4: 0.679809/-- (pool too small)]
+      => H_flat(root13) > 8   and, since 0.679789 > h_min = 0.597382,  H_ent(root13) > 8
+
+H=16  pool  257   eps 1.481e-13   e2 5.924e-13
+      maximin weights: t 3.160302e-03   sigma_min(W) >= 5.839464e-02   |r|_2 <= 1.577e-14
+      DELTA = 1.845447e-04   =  3.12e+08 x e2      => K_16 != empty
+      (Gram enclosure radius 2.9e-14, lam_min(G) float 3.413267e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             3.160e-03  +1.845e-04  0.649488226
+        5e-01             1.580e-03  +9.227e-05  0.665530788
+        1e-02             3.160e-05  +1.845e-06  0.672591102
+        1e-03             3.160e-06  +1.845e-07  0.672715134
+        1e-04             3.160e-07  +1.845e-08  0.672727496
+        1e-05             3.160e-08  +1.845e-09  0.672728732
+        1e-06             3.160e-09  +1.839e-10  0.672728855
+        1e-07             3.160e-10  +1.786e-11  0.672728868
+        1e-08             3.156e-11  +1.233e-12  0.672728869
+      CERTIFIED: E_16(root13) >= 0.672728869   [this run's optimiser upper 0.672736398, M7 sec 4: 0.672736/0.672729]
+      => H_flat(root13) > 16   and, since 0.672729 > h_min = 0.597382,  H_ent(root13) > 16
+
+H=32  pool  513   eps 1.481e-13   e2 8.378e-13
+      maximin weights: t 1.257857e-03   sigma_min(W) >= 3.921398e-02   |r|_2 <= 2.584e-14
+      DELTA = 4.932558e-05   =  5.89e+07 x e2      => K_32 != empty
+      (Gram enclosure radius 5.7e-14, lam_min(G) float 1.539239e-03, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             1.258e-03  +4.933e-05  0.640953985
+        5e-01             6.289e-04  +2.466e-05  0.661809010
+        1e-02             1.258e-05  +4.933e-07  0.668394548
+        1e-03             1.258e-06  +4.932e-08  0.668498050
+        1e-04             1.258e-07  +4.932e-09  0.668508400
+        1e-05             1.258e-08  +4.924e-10  0.668509435
+        1e-06             1.258e-09  +4.848e-11  0.668509539
+        1e-07             1.257e-10  +4.076e-12  0.668509549
+        1e-08             1.254e-11  -3.562e-13  0.668509550   (not certified)
+      CERTIFIED: E_32(root13) >= 0.668509549   [this run's optimiser upper 0.668580700, M7 sec 4: 0.668581/0.668510]
+      => H_flat(root13) > 32   and, since 0.668510 > h_min = 0.597382,  H_ent(root13) > 32
+
+H=64  pool 1025   eps 1.481e-13   e2 1.185e-12
+      maximin weights: t 5.199617e-04   sigma_min(W) >= 2.988733e-02   |r|_2 <= 3.100e-14
+      DELTA = 1.554027e-05   =  1.31e+07 x e2      => K_64 != empty
+      (Gram enclosure radius 1.1e-13, lam_min(G) float 8.941258e-04, D = 1e14)
+      entropy trade-off   t/t_max :  t          delta        h(mu) >=
+        1e+00             5.200e-04  +1.554e-05  0.623116141
+        5e-01             2.600e-04  +7.770e-06  0.647381420
+        1e-02             5.200e-06  +1.554e-07  0.653818267
+        1e-03             5.200e-07  +1.554e-08  0.653905852
+        1e-04             5.200e-08  +1.553e-09  0.653914453
+        1e-05             5.200e-09  +1.542e-10  0.653915313
+        1e-06             5.199e-10  +1.433e-11  0.653915399
+        1e-07             5.184e-11  +3.469e-13  0.653915408
+        1e-08             1.000e-14  -8.902e-12  0.653915403   (not certified)
+      CERTIFIED: E_64(root13) >= 0.653915408   [this run's optimiser upper 0.654501158, M7 sec 4: 0.654501/0.653915]
+      => H_flat(root13) > 64   and, since 0.653915 > h_min = 0.597382,  H_ent(root13) > 64
+
+# wrote /home/ralf/math/lean-code/BB61/r1b_certify.json

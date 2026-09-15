@@ -1,0 +1,15 @@
+# R1a hull report   alpha=2.414213562  h_min=0.440687  L=12  T=1e+10
+
+H=4  pool 65  enclosure radius 1.48e-13  hull distance -0.0e+00
+   entropy LP (M7 Thm 5): value 0.691073  atoms 9 (2H+1 = 9)  residual 3.3e-16
+   R1b four numbers on that simplex: w_min 1.195e-05  s 3.874e-03  margin w_min*s 4.631e-08  = 3.1e+05 x the enclosure radius
+   maximin-weight LP: every pool member carries lam >= 1.384e-02, residual 4.7e-17, sigma_min(V) 2.656e-01, t*sigma = 3.676e-03 = 2.5e+10 x eps
+
+H=8  pool 129  enclosure radius 1.48e-13  hull distance -0.0e+00
+   entropy LP (M7 Thm 5): value 0.690102  atoms 17 (2H+1 = 17)  residual 2.2e-16
+   R1b four numbers on that simplex: w_min 5.090e-05  s 3.784e-03  margin w_min*s 1.926e-07  = 1.3e+06 x the enclosure radius
+   maximin-weight LP: every pool member carries lam >= 6.427e-03, residual 5.2e-13, sigma_min(V) 2.606e-01, t*sigma = 1.675e-03 = 1.1e+10 x eps
+
+H=16  pool 257  enclosure radius 1.48e-13  hull distance -0.0e+00
+   entropy LP (M7 Thm 5): value 0.689054  atoms 32 (2H+1 = 33)  residual 2.1e-08
+   maximin-weight LP: every pool member carries lam >= 3.265e-03, residual 8.6e-16, sigma_min(V) 2.134e-01, t*sigma = 6.968e-04 = 4.7e+09 x eps

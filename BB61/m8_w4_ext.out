@@ -1,0 +1,21 @@
+# W4  2026-08-25 19:02  search L=18  deep [22, 24]  H [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]  cap 20  maxiter 400
+(3+sqrt13)/2  alpha=3.302775638  h_min=0.597382  budget=0.0958
+  search (9,9) L=18 eps=3.35e-05   deep (11,11):3.07e-06 (12,12):9.29e-07   surrogate charged at eps=9.29e-07
+  H=4    P~=0.681614  sum h|a|=    0.94  surrogate=0.681620  max|x|=0.126  box=.  2s
+  H=8    P~=0.679792  sum h|a|=    1.78  surrogate=0.679802  max|x|=0.137  box=.  4s
+  H=16   P~=0.672736  sum h|a|=    6.01  surrogate=0.672771  max|x|=0.152  box=.  3s
+  H=32   P~=0.668546  sum h|a|=   16.74  surrogate=0.668644  max|x|=0.176  box=.  10s
+  H=64   P~=0.654683  sum h|a|=   67.72  surrogate=0.655078  max|x|=0.214  box=.  7s
+  H=128  P~=0.641326  sum h|a|=  182.70  surrogate=0.642392  max|x|=0.266  box=.  73s
+  H=256  P~=0.625090  sum h|a|=  625.36  surrogate=0.628741  max|x|=0.347  box=.  149s
+  H=512  P~=0.606017  sum h|a|= 1368.50  surrogate=0.614008  max|x|=0.418  box=.  217s
+  H=1024 P~=0.588475  sum h|a|= 2749.87  surrogate=0.604532  max|x|=0.496  box=.  315s
+  H=2048 P~=0.569251  sum h|a|= 3800.73  surrogate=0.591445  max|x|=0.534  box=.  525s
+  deep window (11,11) L=22 eps=3.069e-06  built in 0s
+    L=22  H=1024 Lambda_enc=0.591005  Lambda_cw=0.642559 (=0.588496+5.41e-02)  P_deep=0.588496  margin +0.00638  CERT  237s
+    L=22  H=2048 Lambda_enc=0.574095  Lambda_cw=0.643574 (=0.569563+7.40e-02)  P_deep=0.569563  margin +0.02329  CERT  463s
+  deep window (12,12) L=24 eps=9.293e-07  built in 0s
+    L=24  H=1024 Lambda_enc=0.589216  Lambda_cw=0.605593 (=0.588506+1.71e-02)  P_deep=0.588506  margin +0.00817  CERT  940s
+    L=24  H=2048 Lambda_enc=0.570866  Lambda_cw=0.592503 (=0.569598+2.29e-02)  P_deep=0.569598  margin +0.02652  CERT  1798s
+total 4744 s
+wrote m8_w4_ext.json

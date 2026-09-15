@@ -1,0 +1,168 @@
+R0 / gate G-1 of `plan-BB16-counterexample.html`: F(Omega(alpha)) = T at alpha = 1+sqrt2.
+
+Route 4 (build a shift-invariant `mu` with `F_*mu = Leb`) has exactly one structural
+precondition, Prop. C of that plan: if `F(Omega(alpha)) != T` then 10.61 holds at `alpha`
+for support reasons and no counterexample can exist.  By M1 Prop. 11 (`F = tau_bar . Phi`)
+and M1 Prop. 4, `F(Omega(alpha))` is the confinement set
+
+    X(alpha) = (C(alpha) - K) mod 1,
+    C(alpha) = { (alpha-1) sum_{k>=1} eps_k alpha^-k },  K = { sum_{m>=0} c_m delta_m },
+    c_m = (alphabar - 1) alphabar^m       (degree two).
+
+The folder already asserts `X = T` at `1+sqrt2` through Theorem T of the T-T note
+(`BB61/tt_thickness.py`): Newhouse thickness `tau(C) tau(K) >= 1` plus two side conditions.
+That route is correct but it is *cited* ([PT93] 4.2 / [CHM02] sec 4, in the corrected
+"C-K IS an interval" form) and it only ever yields an inclusion.  This script replaces it,
+at the one alpha Route 4 cares about, by an **exact identity of sets** proved from scratch:
+
+    C - K = [ -sqrt2/2 , 2 + sqrt2/2 ]        (length 2 + sqrt2 = 3.414...)
+
+so X(1+sqrt2) = T with three units of room, no citation, and a constructive witness map.
+
+The proof in four steps, all verified below in exact Z[sqrt2] arithmetic:
+
+  (S1) c_m = -sqrt2 (-rho)^m with rho = sqrt2 - 1 = 1/alpha = -alphabar.  So with
+       A0 := { sum_{k>=0} a_k rho^k : a in {0,1}^N },
+       C = sqrt2 rho A0   and   K = -sqrt2 B,  B := { sum_m delta_m (-rho)^m }.
+
+  (S2) DIGIT RELABELLING.  B = A0 - 1/2, because 1/2 = sum_{m odd} rho^m exactly at this
+       alpha, and delta_m <-> a_m (m even), delta_m <-> 1 - a_m (m odd) is a bijection of
+       {0,1}^N onto itself carrying one sum to the other.  Hence
+
+           C - K = sqrt2 ( A0 + rho A0 ) - sqrt2/2 .
+
+  (S3) INDEPENDENCE OF DIGITS.  A0 + rho A0 = {0,1} + rho E with
+       E := { sum_{i>=0} u_i rho^i : u_i in {0,1,2} }, because u_i = a_i + a'_{i-1} runs
+       over {0,1,2} freely (each free bit is used once).
+
+  (S4) COVERING.  E = [0, 2/(1-rho)] = [0, 2+sqrt2] as soon as the digit step 1 is at most
+       rho * 2/(1-rho) = sqrt2; and then {0,1} + rho[0,2+sqrt2] = [0, 1+sqrt2] because
+       rho(2+sqrt2) = sqrt2 >= 1.  Both inequalities hold with room at this alpha.
+
+Blocks: (1) the identities, exact; (2) the covering lemma, exact; (3) a constructive
+witness check against the *original* definitions; (4) the T-T route re-derived exactly,
+with one correction to its stated interval; (5) the companion alpha = (3+sqrt5)/2;
+(6) the classification of the alpha this elementary route reaches.
+
+======================================================================================
+BLOCK 1 -- the identities at alpha = 1 + sqrt2, exact in Z[sqrt2]
+======================================================================================
+    [ok ] alpha is a root of X^2-2X-1
+    [ok ] alphabar is the conjugate root
+    [ok ] alpha = 1+sqrt2  alpha = 2.414213562373
+    [ok ] rho = 1/alpha = -alphabar = sqrt2-1  rho = 0.414213562373
+    [ok ] alpha - 1 = sqrt2
+    [ok ] alpha is a unit of norm -1
+    [ok ] c_m = (alphabar-1) alphabar^m = -sqrt2 (-rho)^m, m <= 40 (M1 Lemma 2 trace form)
+    [ok ] signs of c_m alternate, |c_m| = sqrt2 rho^m
+    [ok ] 1 - rho^2 = 2 rho  (the identity that makes both parities geometric)
+    [ok ] P = sqrt2/2  P = 0.707106781187
+    [ok ] Q = 1 + sqrt2/2  Q = 1.707106781187
+    [ok ] diam K = P + Q = 1 + sqrt2  diam K = 2.414213562373
+    [ok ] diam K >= 1 = d - 1  (M1 Lemma 3, the X7 vacuity)
+    [ok ] sum_{m odd} rho^m = 1/2  (this is what makes B = A0 - 1/2)  = 0.500000000000
+    [ok ] max A0 = 1/(1-rho) = 1 + sqrt2/2
+    [ok ] C = sqrt2 rho A0  =>  max C = 1
+
+======================================================================================
+BLOCK 2 -- the covering lemma, exact
+======================================================================================
+    Lemma (covering).  Let 0 < r < 1 and let the digit set be {0,1,...,n} with
+    L := n/(1-r).  If 1 <= r L  then  E := { sum_{i>=0} u_i r^i : u_i in {0..n} } = [0, L].
+    Proof: E = {0..n} + r E and E is compact with min 0, max L; the n+1 intervals
+    [u + 0, u + rL] have consecutive left endpoints one apart and length rL >= 1, so their
+    union is [0, n + rL] = [0, L] (n + rL = n + rn/(1-r) = n/(1-r) = L).  So [0,L] is a
+    fixed point of the Hutchinson operator of the IFS {x -> r x + u}, which is a
+    contraction on the compact sets: E = [0,L].
+    [ok ] L = 2/(1-rho) = 2 + sqrt2  L = 3.414213562373
+    [ok ] covering condition  1 <= rho L  (digit step 1, digits {0,1,2})  rho L = 1.414213562373 = sqrt2
+    [ok ] rho L = sqrt2 exactly
+    [ok ] slack in the covering condition: rho >= 1/3  rho - 1/3 = 0.080880
+    [ok ] the lemma's two identities: n + rho L = L with n = 2  so [0,L] is the attractor and E = [0, 2+sqrt2]
+    [ok ] {0,1} + rho[0,L] = [0, 1 + rho L] = [0, 1+sqrt2]  (needs rho L >= 1)
+    [ok ] (S2) at depth 10: B_n = A0_n - sum_{m odd} rho^m, as sets  1024 points, exact in Z[sqrt2]
+    [ok ] (S3) at depth 10: A0_n + rho A0_n = {0,1} + rho E_n, digits {0,1,2}  13859 distinct values on each side, exact
+    [ok ] C - K = sqrt2 [0, 1+sqrt2] - sqrt2/2 = [-sqrt2/2, 2+sqrt2/2]  [-0.707106781187, 2.707106781187]
+    [ok ] length(C - K) = 2 + sqrt2  = 3.414213562373
+    [ok ] length(C - K) = 1 + diam K  (so the hull is filled, not merely covered)
+    [ok ] GATE G-1: length >= 1, hence X(1+sqrt2) = (C-K) mod 1 = T  margin 2.414213562373 over the threshold 1
+
+======================================================================================
+BLOCK 3 -- constructive check against the ORIGINAL definitions
+======================================================================================
+    The proof is constructive: it produces, for each y in [-sqrt2/2, 2+sqrt2/2], a pair
+    of one-sided words (eps, delta) with y = pi(eps) - w(delta) exactly.  This block runs
+    that construction on a grid of targets and evaluates pi and w from their definitions
+    in M1 (Lemma 1 and Lemma 3), independently of every identity above.
+    [ok ] greedy witness reproduces y on a 4001-point grid of [-sqrt2/2, 2+sqrt2/2]  max |pi(eps) - w(delta) - y| = 1.332e-15
+    [ok ] witness words are 0/1 sequences (shown at y = 0.3)  eps[1:9] = [1, 1, 1, 1, 1, 1, 1, 1], delta[0:8] = [0, 1, 0, 1, 0, 1, 1, 1]
+    [ok ] the hull is exactly [min C - max K, max C - min K] = [-P, 1+Q]  [-0.707107, 2.707107]
+
+======================================================================================
+BLOCK 4 -- the T-T route (Theorem T) re-derived exactly, and one correction
+======================================================================================
+    [ok ] tau(C) = 1/(alpha-2) = 1+sqrt2  tau(C) = 2.414213562373
+    [ok ] tau(K) = rho/(1-2rho) = 1+sqrt2  tau(K) = 2.414213562373
+    [ok ] tau(C) tau(K) = 3+2sqrt2 >= 1  product = 5.828427124746
+    [ok ] gap_max(C) = (alpha-2)/alpha = 3-2sqrt2  = 0.171572875254
+    [ok ] gap_max(K) = sqrt2-1  = 0.414213562373
+    [ok ] side condition A: diam K > gap_max(C)  2.414214 > 0.171573
+    [ok ] side condition B: diam C = 1 > gap_max(K)  1 > 0.414214
+    [ok ] the two routes agree on the LENGTH of C-K
+    CORRECTION (R0, 2026-08-26).  plans/plan-1061.html states Theorem T's conclusion as
+    "C-K is the interval [-diam K, 1], of length >= 2".  The length is right; the endpoints
+    are not, and the same slip is in the T-T paragraph of the M4 row.  K straddles 0
+    (P = sqrt2/2 > 0 and Q = 1+sqrt2/2 > 0 are BOTH positive at every alpha with
+    alphabar < 0), so the hull of C-K is [min C - max K, max C - min K] = [-P, 1+Q], which
+    is [-0.707107, 2.707107] here, not [-2.414214, 1].  Nothing downstream depends on the
+    endpoints -- the conclusion X = T only needs the length -- but the statement should be
+    corrected where it appears.
+
+======================================================================================
+BLOCK 5 -- the companion unit alpha = (3+sqrt5)/2, same method
+======================================================================================
+    [ok ] alpha = (3+sqrt5)/2 is a root of X^2-3X+1  alpha = 2.618033988750
+    [ok ] alphabar = rho > 0 here (norm +1), so every c_m has the same sign  rho = 0.381966011250
+    [ok ] (alpha-1) rho = 1 - rho, so C and -K carry the SAME scale  = 0.618033988750
+    Here c_m = (rho-1) rho^m all have one sign, so K = -(1-rho) A0 and C = (1-rho) A0
+    with the same factor: C - K = (1-rho) (A0 + A0) = (1-rho) E, digits {0,1,2}, base rho.
+    [ok ] covering condition 1 <= rho L, L = 2/(1-rho)  rho L = 1.236067977500
+    [ok ] C - K = (1-rho)[0, L] = [0, 2]  length 2.000000000000
+    [ok ] GATE G-1 at (3+sqrt5)/2: length 2 >= 1, so X = T there too
+    So the two alpha at which M4's Thm T fires among the units -- the two quadratic Pisot
+    units in (2,3] -- both have F(Omega) = T by an elementary, citation-free identity.
+
+======================================================================================
+BLOCK 6 -- which alpha this elementary route reaches
+======================================================================================
+    The single-base digit argument needs C and -K to be digit systems in the SAME base,
+    which forces alpha to be a unit (rho = 1/alpha), and then:
+      norm +1 (X^2-aX+1, alphabar = +rho):  C - K = (1-rho) E,  condition 2rho >= 1-rho
+      norm -1 (X^2-aX-1, alphabar = -rho):  C - K = ((1-rho)/rho)(A0 + rho A0) - const,
+                                            which is a single base only if (1+rho)/(1-rho)
+                                            = 1/rho, i.e. rho^2 + 2rho - 1 = 0.
+    Both conditions are exactly "alpha <= 3", i.e. rho >= 1/3, and among quadratic Pisot
+    units with alpha > 2 that is exactly {1+sqrt2, (3+sqrt5)/2}.
+    min poly          alpha       rho    3rho-1  tau product   route
+    X^2-2X-1       2.414214  0.414214  0.242641     5.828427   elementary + Thm T
+    X^2-3X+1       2.618034  0.381966  0.145898     2.618034   elementary + Thm T
+    X^2-3X-1       3.302776  0.302776 -0.091673     0.589197   neither
+    X^2-4X+1       3.732051  0.267949 -0.196152     0.333333   neither
+    X^2-4X-1       4.236068  0.236068 -0.291796     0.200000   neither
+    X^2-5X+1       4.791288  0.208712 -0.373864     0.128348   neither
+    [ok ] the elementary route and Thm T agree on the unit family  both fire exactly on the two units in (2,3]
+
+======================================================================================
+VERDICT
+======================================================================================
+    GATE G-1 PASSES, at 1+sqrt2 and at (3+sqrt5)/2.
+
+    C - K = [-sqrt2/2, 2+sqrt2/2] exactly at 1+sqrt2, of length 2+sqrt2 = 3.414214, so
+    X(1+sqrt2) = F(Omega(1+sqrt2)) = T with a margin of 2.414214 over the threshold 1.
+    The support obstruction of Prop. C is provably absent: nothing about the SUPPORT of
+    the confinement set can prove 10.61 at 1+sqrt2, and Route 4's only structural
+    precondition holds.  R1 may proceed.
+
+    Not proved, and not to be claimed: X = T says the counterexample is not excluded by
+    support; it says nothing about whether one exists.  The measure-level question is
+    R1-R3.

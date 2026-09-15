@@ -135,13 +135,19 @@ Full sweep at `G = 360`, all positions, `L = 1/3 … 1/2`, depth 30
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | certified | **100 %** | 79.2 % | 55.3 % | 37.3 % | 26.6 % | 22.1 % | 13.0 % | 10.0 % | 6.5 % | 3.7 % | **0 %** |
 
-Refined at `G = 3600`: the last certified length is
+Refined at `G = 3600`: the last certified length **in this search mode** is
 
 > **L\* = 1466/3600 = 0.407222…**, at 14 positions
 > (i/3600 ∈ {961, 965, 971, 985, 986, 1018, 1026, 1108, 1116, 1148, 1149, 1163, 1169, 1173}),
 
 and a full-range scan at `j = 1467…1500` certifies **nothing**, anywhere. The
 surviving positions concentrate in `s ∈ [0.267, 0.326]`.
+
+> **Superseded 2026-09-03 by experiment X-F** (see *The frontier, and its exact object* below):
+> `L*` is the frontier of the **hull-merge** search, not of the certificate family.
+> Rank-stratified, the same row certifies 213 of 236 positions, the corpus now ships a window of
+> length `3/7 = 0.4286`, and the family's exact ceiling on the centred line is the Thue–Morse
+> constant `(1 − T(2/3))/2 = 0.4287053…`.  Everything else in this section stands.
 
 Three consequences.
 
@@ -216,12 +222,20 @@ certified unions can be searched exhaustively at coarse resolution and then
 refined (a certified union is the same *set* at any finer grid, so refining can
 only help):
 
-| cells N₀ | 12 | 16 | 18 | 20 | 24 | 30 | 36 | 48 | 60 | 120 | 240 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| method | exh | exh | exh | exh | rnd | rnd | rnd | rnd | rnd | climb | climb |
-| best \|U\| | .5833 | .6250 | .6667 | .6000 | .6667 | .6667 | .6944 | .7083 | .7167 | .7250 | **.74167** |
+| cells N₀ | 12 | 16 | 18 | 20 | 24 | 30 | 36 | 48 | 60 | 120 | 240 | 480 | 720 | 1440 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| method | exh | exh | exh | exh | rnd | rnd | rnd | rnd | rnd | climb | climb | climb | climb | climb |
+| best \|U\| | .5833 | .6250 | .6667 | .6000 | .6667 | .6667 | .6944 | .7083 | .7167 | .7250 | .74167 | .74583 | .75000 | **.754167** |
 
-The record union (178 of 240 cells, total length 89/120):
+The last three columns were added at experiment X-U (2026-09-03), restarting
+`x3climb.py` from the refined 240-record; each verdict was re-checked by the
+independent exact funnel in `xu.py`, and each greedy pass bought exactly 1/240
+of measure.  The 720-cell record is `540/720 = 3/4` exactly.  All of them are
+engine output: at depth 29 with 2801 blocks the certificate data is far outside
+the kernel's `decide` budget (see [Why not the 0.7417 record](#why-not-the-07417-record)).
+
+The 240-cell record union (178 of 240 cells, total length 89/120), the largest
+one small enough to print:
 
 ```
 [0,1/30) [1/20,2/15) [3/20,1/5) [13/60,11/30) [5/12,13/30) [9/20,8/15)
@@ -230,7 +244,10 @@ The record union (178 of 240 cells, total length 89/120):
 ```
 
 certified CYCLE at depth 30 with 3783 components merging into 2512 blocks, all
-of out-degree 1. **This is 0.7417 against [Dub08] Cor 1.2's 20/39 = 0.5128**,
+of out-degree 1 (the exact funnel of `xu.py` reproduces its level counts
+bit-for-bit and reaches out-degree 1 one step earlier, at depth 29 with 2526
+blocks — the two implementations coalesce hulls in a different order).
+**The current record is 0.754167 against [Dub08] Cor 1.2's 20/39 = 0.5128**,
 the best explicit certified-empty union in the twenty-eight sources read at
 M0 — i.e. a record on the curve that [KK18] **Problem 6.1** asks about (make
 Thm 5.9's non-constructive total-length-`1−ε` union explicit). The curve is
@@ -240,6 +257,13 @@ limit. *Claim the record on the curve, never the problem* (plan R-1).
 Note the two colors genuinely interleave: [KK18]'s **nonempty** union has total
 length 2/3 < 0.7417. Total length alone decides nothing — which is precisely why
 the atlas is a table and not an inequality.
+
+**What the records actually do to the cycles.** Experiment X-U ran the complete
+census of the 531 292 orbits of period ≤ 14 (7 138 565 points) against all four
+records.  Each keeps **one or two** of them: the fixed point 0, and at the 43/60
+and 89/120 records the 3-cycle `2/19 → 3/19 → 14/19`.  So the removed set is a
+*transversal* of the cycle census, and that is forced, not incidental — see
+[Cycles and the transversal](#cycles-and-the-transversal-x-u) below.
 
 ---
 
@@ -336,7 +360,7 @@ Three of these are worth separating out.
    **nonempty** union has total length `2/3`, and `Z32.union_two_thirds_empty`
    is an **empty** one of exactly the same total length.
 
-### Why not the 0.7417 record
+### Why not the 0.7417 record (nor the 0.754167 one)
 
 The engine's best union (240 cells, §X3) has 3783 surviving components at depth
 30. The funnel for it is thousands of intervals wide, and `decide` cost grows
@@ -344,7 +368,10 @@ like `Σ_k |T_k|·|T_{k+1}|·4·|U|`. The 48-cell record (`0.7083`) already
 projects to ~4 minutes of kernel time; `25/36` costs about 6 s. Narrowing the
 funnel — coarsening the intermediate levels outward, which is sound and only
 needs the *containment* to survive — is the obvious next engineering step and is
-not on the M3 critical path.
+not on the M3 critical path. The three X-U records (480, 720 and 1440 cells) are
+in the same regime, 2526 to 2801 blocks at depth 29, and are equally out of
+reach; and X-U's depth–size bound `K + log_{3/2}(B) ≳ 1/(1−|U|)` says the cost
+can only grow as the record climbs.
 
 ### Negative controls, again
 
@@ -649,6 +676,629 @@ any length tested (`sh reproduce.sh`, section N2(a)).
 
 ---
 
+## The three G-0 experiments (`xg0.py`, `XG0Certs.lean`)
+
+Gate G-0 of `plans/plan-z32-transform.html` opened three runs; `plans/note-z32transform-X.html`
+is the write-up, `xg0.py` regenerates the numbers into `data/xg0_{kp,d19,twocell}.txt`, and
+`XG0Certs.lean` is what the kernel checks (std3, `decide`, no cited axiom).
+
+### X-KP — Mahler is out of reach of this family, provably
+
+[KP18] Cor. 18 reduces Mahler's problem to the emptiness of `U = [0,1/6) ∪ [1/3,2/3)`, total
+length only `1/2`. Its hold set is **exactly** `H = [0,1/15) ∪ [1/3,2/5) ∪ [5/9,3/5)`, measure
+`8/45`, and `prune(H,H) = H` — a finite rational identity, so no depth ever empties it. The
+transition graph has characteristic polynomial `x(x²−x−1)`: the **golden-mean shift**. Periodic
+points of period dividing `n` are the **Lucas numbers** `1,3,4,7,11,18,29,47,…`, agreed on
+independently by `tr Aⁿ` and by `prodcert.py cycles`.
+
+| L | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|
+| horseshoe words N (`F_L`) | 2 | 3 | 5 | 8 | 13 | **21** |
+| log N / L | .2310 | .2747 | .3219 | .3466 | .3664 | **.3806** |
+
+`Z32.log_twentyone_div_eight_le_phiModel_kp` certifies `φ_model ≥ (log 21)/8`; the truth is
+`log φ = 0.48121…`. Infinitely many periodic orbits ⇒ **M7 Theorem B forbids every block
+certificate, archimedean or product, at every level**. The engine agrees: refused to depth 60 in
+the default and the rank-stratified mode alike.
+
+### X-D19 — [Dub19] Thm 1.2 missed by one unit of `1/1539`
+
+The window `[8/57, 805/1539)`, length `31/81 = 0.38272`, is refused at every depth to 61 in both
+modes: components grow as exactly `k+1`, the measure → 0 geometrically, and there is **exactly
+one** periodic orbit out to period 20 — the 3-cycle `4/19 → 6/19 → 9/19`, the same one
+`Z32.ZSet_three_two_sixth_3_8` is built around. The obstruction is the left endpoint alone:
+`(3·8/57)/2 = 4/19`, so `8/57` is a preimage of the cycle and drags an infinite backward orbit
+(left endpoints `a/(19·3^j)` accumulating at `4/19`) that no finite rank stratification absorbs.
+
+| window | length | verdict |
+|---|---|---|
+| `[216/1539, 805/1539)` = [Dub19] Thm 1.2 | .382716 | refused, depth 61, both modes |
+| `[217/1539, 805/1539)` | .382066 | **CYCLE**, depth 11, 3 blocks — `Z32.ZSet_three_two_d19_shift` |
+| `[218/1539, 805/1539)` | .381417 | CYCLE, depth 8, 3 blocks |
+| `[216/1539, 804…780/1539)` | .382066….366472 | refused, 41 components, unchanged |
+
+Twenty-five grid units off the right endpoint change nothing; one off the left endpoint decides it.
+
+### X-238 — the `1/5` ceiling was the search mode, not the method
+
+`Z32.two_cell_fifth_empty` (`‖ξ(3/2)ⁿ‖ < 1/5` impossible) was reported at G-0 as the engine's
+ceiling, with the default search failing already at `c = 0.21`. That is a property of the **hull
+merge**. Run `gencert.py --ranked` — the same relaxation `Z32.dubickas_2008_cor_1_2` needs:
+
+| c | .21 | .23 | .235 | **.238** | .2381 … .2381175 | ≥ .2381177 |
+|---|---|---|---|---|---|---|
+| funnel depth | 1 | 1 | 3 | **7** | 15 | — |
+| blocks / strata | 4/2 | 4/2 | 14/6 | **84/18** | 814 (50 strata at .2381) | — |
+
+`Z32.two_cell_238_empty` and `Z32.not_forall_abs_sub_round_lt_238` are the `c = 0.238` entry,
+kernel-checked; they **supersede `Z32.two_cell_fifth_empty`**. The `c = 0.2381` certificate
+(814 blocks) is past the `decide` wall — killed after 1848 s of kernel time at `maxHeartbeats 0`,
+the same wall as the 0.7417 union. The measured ceiling lies in
+`(0.2381175, 0.2381177]`, against the printed `0.238117…` of [Dub06JNT] (Bugeaud, Tract 193,
+Thm 3.14) — the two brackets overlap, so print is not beaten, but the gap G-0 priced at `0.038`
+is `2·10⁻⁶`.
+
+The ceiling is a property of the model, not of the code: the hold set of `‖·‖ < c` acquires its
+periodic orbits one at a time, at exact rationals `a/(3^P − 2^P)`, in a period-doubling cascade —
+
+| period | 1 | 2 | 4 | 8 | 16 | 12 (two orbits) | 10 (two) | 6 (two) |
+|---|---|---|---|---|---|---|---|---|
+| enters at c | 0 | 1/5 | 3/13 | 23/97 | 10233015/42981185 | 25115/105469 | 13839/58025 | 159/665 |
+| | 0 | .2 | .230769 | .237113 | .238081 | .238127 | .238501 | .239098 |
+
+— and the funnel a certificate needs grows with the orbit count it must carry (depth 1 with two
+orbits, 7 with four, 15 with five). Above `c = 1/4` the two-cell set is exactly forward-invariant
+(`S_k = U` for all `k`) all the way to `1/3`, where [Dub10] proves it nonempty.
+
+---
+
+## G-1 and M1 — the depth-one schema in closed form (`g1schema.py`, `SymbolicCert.lean`)
+
+Gate G-1 of `plans/plan-z32-transform.html` asked whether the thirty grid certificates of the
+`p > q²` table anti-unify. They do — into **one** schema in `(p, q, s)`, and it turned out to need
+no certificate at all. `plans/note-z32transform-G1.html` is the write-up, `g1schema.py`
+regenerates `data/transform/g1_schema.txt`, and `SymbolicCert.lean` is the theorem (std3, no cited axiom,
+and **nothing for the kernel to evaluate** — the only `decide` calls in it check `Nat.Coprime p q`
+at numeral bases).
+
+**The schema.** For coprime `p > q > 1` and *any real* `s`, put `θ = (p−q)s`, `k = ⌊θ⌋`,
+`ε = {θ}`. In the window coordinate `uₙ = {ξ(p/q)ⁿ − s} ∈ [0, 1/p)` the recursion is
+`q·u_{n+1} = p·uₙ + θ − sₙ`, so each carry lies in `(θ − q/p, θ + 1)`: `sₙ ∈ {k, k+1}`. Each
+letter is then confined to its own block,
+
+| letter | block | image under its own branch |
+|---|---|---|
+| `k` | `B_low = [0, (q − pε)/p²)` | `[ε/q, 1/p)` — flush against the window's right end |
+| `k+1` | `B_high = [(1 − ε)/p, 1/p)` | `[0, ε/q)` — flush against its left end |
+
+The hole between the blocks has width `(p−q)/p²`, independent of `ε`, and the two images meet at
+the single point `ε/q = f_k(s) = f_{k+1}(s + 1/p)`. So everything turns on where that one point
+sits: **the depth-one certificate closes iff `ε/q` lands in the hole**, i.e.
+
+    ε = 0   or   q ≤ pε   or   q²/(p(p+q)) ≤ ε ≤ q/(p+q).
+
+In the first two cases a block is empty and the carry word is constant; in the third each letter
+forbids its own repetition and the word alternates. Either way it is eventually periodic, which
+`Z32.not_isEventuallyPeriodic_carry` ([DN05] Lem. 2) forbids for `ξ ≠ 0`. That is the whole proof
+— six lines, no interval arithmetic.
+
+**What the engines say.** `g1schema.py` compares the closed form against two independent
+implementations — one written from `BlockCert.lean`'s `pieceOk`/`hits`/`funcOk`, one being
+`gencert.py` itself — on the thirty table entries (block count = surviving-carry count, and the
+three two-block rows are exactly the three with `ε` in the band), on 12 038 (base, position) pairs
+with `p ≤ 24` in **both** regimes, at the exact critical `ε` values, on the closed convention, and
+on wrapped windows. Zero mismatches everywhere. Out of sample it predicts which of the eight
+`(4,3)` windows are depth 1 — and the two it refuses hardest are the two this README records at
+funnel depth **26**.
+
+**What it costs the conjecture list.** C-3 of the plan ("in `p > q²` every rational length-`1/p`
+window certifies at depth `≤ 2`") is **false**: at `(5,2)`, `s = 1/8` needs depth 3 and
+`s = 3/25` needs depth **6**. The thirty table entries all have positions of denominator dividing
+6, which mostly misses the two failure bands.
+
+**Reach.** The uncertified positions are two `ε`-bands of equal length, total measure
+`2q²/(p(p+q))` — `8/35` at `5/2`, `8/195` at `13/2`, `9/14` at `4/3`. So depth one alone settles
+`1 − 2q²/(p(p+q))` of all real positions at every base, for every `ξ ≠ 0` and with no assumption
+on its arithmetic nature. Under the **closed** convention the band is the same but open, and
+`ε = 0` is lost — because there the left endpoint `s` is a fixed point of its own branch, which is
+conjecture C-5 of the plan, proved on this class.
+
+### What `SymbolicCert.lean` states
+
+| name | statement |
+|---|---|
+| `Z32.SchemaCertified` | the hypothesis on `ε`, denominators cleared |
+| `Z32.not_confined_of_certified` | a certified window traps no orbit |
+| `Z32.exists_fract_ge_of_certified` | the [Dub09AA]-style "infinitely often" form |
+| `Z32.ZSet_eq_empty_of_certified` | `Z_{p/q}(s, s+1/p) = ∅`, every real certified `s`, every base |
+| `Z32.ZSet_zero_eq_empty` | target T1: the plan's `𝒮₀`, at every coprime base |
+| `Z32.ZSet_half_eq_empty` | the gate's test position `s = 1/2`, for `p − q` even or `p ≥ 2q` |
+| `Z32.ZSet_{five_two, seven_two, nine_two, ten_three, eleven_three}` | target T2: the thirty entries of the `p > q²` table, now corollaries |
+| `Z32.ZSet_five_two_{upper, band, interval}` | target T3 grade 1: emptiness for a *continuum* of real positions at a base with `p > q²` |
+
+Every one is std3 (`propext`, `Classical.choice`, `Quot.sound`), sorry-free, and uses no
+certificate structure; the only `decide` calls check `Nat.Coprime p q` at numeral bases, never
+certificate data. The thirty Table 3 entries in `BlockCert.lean`/the atlas are untouched: they
+remain the independent kernel-checked route to the same conclusions.
+
+## X-P re-aimed — the two residual bands (`xp.py`)
+
+G-1 left exactly two open bands per base, in the coordinate `ε = frac((p−q)s)`:
+
+    LOW = (0, q²/(p(p+q)))        HIGH = (q/(p+q), q/p)
+
+of total measure `2q²/(p(p+q))`. Experiment X-P of `plans/plan-z32-transform.html`
+was re-aimed at those (rather than at all of `[0, 1−t]`) and run on 2026-09-02;
+`plans/note-z32transform-XP.html` is the memo, `data/transform/xp_bands.txt` the output.
+
+The right coordinate is the fibre coordinate `u = y − s`, in which the window is the
+**constant** interval `U = [0, 1/p)` and the two admissible branches are
+
+    f_j(u) = (p·u + ε − j)/q,   j ∈ {0,1}
+
+(`Z32.branch_base` / `Z32.branch_succ`). So the whole problem is one-parameter in `ε`,
+every funnel endpoint is an affine form `a + b·ε`, and the engine carries entire
+`ε`-intervals, subdividing at the first crossing of two forms. Nothing is sampled.
+
+| finding | evidence |
+|---|---|
+| **the involution** `ε ↦ q/p − ε` exchanges LOW and HIGH | `u ↦ 1/p − u` conjugates `f_j` at `ε` to `f_{1−j}` at `q/p − ε`; 1880 `ε`-pairs at ten bases, 0 asymmetries; HIGH's cell word is LOW's reversed, exactly |
+| **the decomposition is universal** — the same at every base | at cap 12 the word of (verdict, depth) is *identical* at `(5,2) (7,2) (9,2) (10,3) (11,3) (4,3) (13,2) (17,4) (3,2) (26,5)`, both regimes; cell counts agree at every cap: 9, 17, 27, 41, 57, 71, 95, 119, 139, 171 at caps 4…22 |
+| **certified fraction → 1 like `(q/p)^K`** | at `(5,2)`: 0.999874 at cap 12, `1 − 2.2e−8` at cap 22. So the exceptional set of positions is **null** ⇒ T3 grade 2 upgrades from co-finite measure to **full measure** |
+| the funnel is **linear**, not Fibonacci | max component count in a residual cell is exactly `K+1` at cap `K`, at every base ⇒ **zero entropy** everywhere in the band |
+| `--ranked` **buys nothing here** | on twelve residual cells the rank-stratified criterion returns exactly the same depths, always one stratum. Recorded so it is not retried |
+| the residual **nests, and no parent dies** | caps 6→8→10→12→14→16: every sliver lies in a sliver of the previous cap, none escapes, none dies ⇒ the exceptional set is a nonempty decreasing intersection, and null. It is **not** confined to the band endpoints: at `(5,2)` cap 16 there are slivers of width `~1e−12` at `ε ≈ 0.0157634, 0.0061694, 0.0410252, 0.1025643, 0.1125123` — 13.79 %, 5.40 %, 35.90 %, 89.74 % and 98.45 % across the band. Sliver count grows only *polynomially* (5, 9, 14, 21, 29, 36, 48, 60, 70, 86 at caps 4…22, fitting `0.45·K^1.68`, two-level ratio falling 1.80 → 1.23), which forbids a perfect subtree — so countable and dimension 0 *if that law persists*; the box-counting ratio is ≈0.21 at cap 20 and falls only like `log K / K` |
+
+Honest caveats. The decay constant is `q/p` per level, so it is fast when `p/q` is large
+and slow when `p/q → 1`: at the `(4,3)` control, cap 16 still leaves **1.1 %** of the band
+uncertified, and the grid scan there reaches depth 22 where `(5,2)` reaches 10. "Full
+measure" is well-supported evidence in the `p > q²` regime and merely consistent at `(4,3)`.
+Nothing in this section is kernel-checked — X-P is an experiment, and two distinct gaps stand
+between it and a theorem. *Per cell*: the verdict is uniform over an **interval** of `ε`, and
+`decide` checks rational instances, not intervals; one cell becomes one theorem only via the
+plan's `ParamCert` endpoint evaluation or via a schema. *Across cells*: "full measure" quantifies
+over infinitely many cells, so it needs a closed-form depth-`K` schema (the natural successor to
+`SymbolicCert.lean`, and now the target of milestone M3). The measured `1 − 2.2e−8` is evidence
+for that theorem, not an instance of it.
+
+Three implementations are compared before anything is believed (house rule R-5): the
+parametric engine on affine forms, `scalar_eps` written from the branch maps in `u`, and
+`scalar_s` = the corpus's own `gencert.py` in the original `y`-coordinate with the full
+carry alphabet. 1434 grid points and 2724 cell/breakpoint checks, 0 disagreements.
+
+## The depth-K schema — M3 (`DepthKSchema.lean`, `m3schema.py`)
+
+X-P's universality is the signature of a closed form, and here it is. Rescale the
+window coordinate to `v = p·u ∈ [0,1)`. The two carries become two branches, and
+between them a hole from which no step is possible:
+
+    low   p(v+ε) < q,    then  q·v' = p(v+ε)
+    high  1 ≤ v+ε,       then  q·v' = p(v+ε−1)
+    hole  q/p − ε ≤ v < 1 − ε        (width (p−q)/p, independent of ε)
+
+Run that map **from the window's own left endpoint**: `w₀ = 0`, `w_{i+1}` = the branch
+image of `w_i`. `Z32.Escape p q ε K w` says the orbit is defined for `K` steps and
+`w_K` lands in the hole (right end closed, which folds in the case where the orbit
+returns to `0`). That single condition is the schema, and it contains M1: `K = 0` is
+`q ≤ pε`, `K = 1` is the G-1 band `q² ≤ p(p+q)ε ≤ q(p+q)`, and `K ≥ 2` is what the two
+residual bands are made of (`Z32.certifiedK_of_certified`). Only `ε = 0` stays outside.
+
+**Why it certifies.** The `K+1` marked points cut `[0,1)` into `K+1` arcs; let
+`ν(x) = #{i ≤ K : w_i ≤ x}` be the arc index (`Z32.blockRank`). The branch map is
+increasing for the order that cuts at the hole's right end, and its two images tile
+`[0,1)`, so with `N_L`, `N_R` the marked points on each branch (`N_L + N_R = K`),
+
+    ν(v') = ν(v) + N_R + 1   on the low branch,     ν(v') + N_L = ν(v)   on the high branch
+
+— the rotation by `N_R+1` on `ℤ/(K+1)` — while `ν` also decides the branch
+(`ν ≤ N_L ⟺ low`). So along a confined orbit the rank sequence is deterministic with
+`K+1` values, it repeats, the carry word is eventually periodic, and
+`Z32.not_isEventuallyPeriodic_carry` closes it. This is also why X-P found the funnel
+component count to be exactly `K+1`: the components *are* those arcs.
+
+`Z32/DepthKSchema.lean` is that argument: 766 lines, std3, sorry-free, 0 cited axioms and
+**no certificate data for the kernel** — the proof is uniform in `p`, `q`, `s` and `K`, and the
+file's only two `decide`s check `Nat.Coprime 5 2` in the numeral instances. Landed:
+`ZSet_eq_empty_of_certifiedK`; the closed-form family `LowBand`/`escape_lowOrbit`/
+`ZSet_eq_empty_of_lowBand`, namely
+
+    q^{K+1}(p−q) ≤ p·ε·(p^{K+1} − q^{K+1})   and   ε·(p^{K+1} − q^{K+1}) ≤ q^K(p−q),
+
+which at `K = 1` *is* the G-1 band; and the instances `ZSet_five_two_depth_two`
+(`{3s} ∈ [8/195, 4/39]`, 54 % of the residual band on its own), `_depth_three`
+(`[16/1015, 8/203]`, whose endpoints are two of the interior accumulation points X-P
+located) and `_depth_two_interval` (`s ∈ [8/585, 4/117]`, no `Int.fract`). The one
+family covers 88 % of the residual LOW band at `(5,2)` and 93–98 % at the other
+`p > q²` bases; 60 % at the `(4,3)` control.
+
+**Provenance — this is a formalization, not a new theorem.** The criterion is
+[FLP95] Theorem 3.4 — `f^N(0) ≥ 1/β` ⇒ the survivor set is finite, with exactly `N`
+elements *cyclically permuted* by the map: the rank rotation, in 1995 — plus [Bug04]
+Lemma 1–2 (the returning case, and that together they are an *iff*); the closed-form
+family is [Bug04] Lemma 3's interval `J¹_{K+1}(q/p)`, the general branch word being
+`J_b^a(q/p)` with `b = K+1` blocks and rotation number `a/b`, `a = N_R+1`; and the
+statement that `Z_{p/q}(s, s+1/p) = ∅` for a **full-measure** set of `s` is
+[Bug04] Theorem 1, Acta Arith. 114 (2004) 301–311 (`papers/Bugeaud2004.pdf`). Nothing
+here may be called new: what the corpus adds is the machine-checked form and the
+identification of `Escape(K)` with the *depth* of a block certificate. The remaining
+`s` — where the marked orbit never escapes — are the Sturmian numbers of irrational
+slope; their emptiness is open in the source, they are null and uncountable
+([Bug04] Thm 3), of Hausdorff dimension 0 ([Gai25]) and transcendental ([BKLN21]).
+
+`m3schema.py` is the R-5 bridge (3 s, output `data/transform/depthk_schema.txt`): the
+escape depth against the corpus's own funnel engine (1600 `ε` at ten bases, 0
+mismatches); `Z32.Escape` and `Z32.LowBand` transcribed field by field from the Lean
+file (800/800 and 450/450); the rank rotation and the branch dichotomy on a grid
+(241 524 checks, 0 violations); and — independently of all of the above — [Bug04]
+Lemma 3's `J_b^a(q/p)` computed from the Sturmian sequence `ε_{−k}(a/b)`, reproducing
+the same partition with `b = K+1` and `a = N_R+1` (840 points, 0 mismatches).
+
+
+## The quantitative escape bound — M2 (`EscapeBound.lean`, `m2escape.py`)
+
+Every emptiness theorem in `Z32/` is a proof by contradiction from
+`Z32.not_isEventuallyPeriodic_carry`, so none of them says *when* an orbit leaves the
+window. `EscapeBound.lean` extracts the step count that is latent in that argument.
+Write `β = p/q`. The budget is
+
+    escapeSteps p q A X L  =  A + 1 + ⌈log_q (X·β^A + 1)⌉ + ⌈log_β (q/L)⌉
+
+with `A` the certificate's **combinatorial budget**: `|H|` (the number of blocks) on top of
+`K = |levels|` funnel steps for a block certificate, `K+2` for a depth-`K` schema. The two
+theorems say: for `0 < L ≤ ξ ≤ X` there is an `n` inside the budget with
+`{ξ(p/q)ⁿ}` outside the certified set — `Z32.BlockCert.Cert.exists_escape_le` (the plan's
+`Cert.escape_bound`) and `Z32.exists_escape_le_of_certifiedK`.
+
+**Where the rate comes from.** The funnel is proved on a finite range
+(`Cert.memL_blocks_of_le`, new — each level costs one step *at the top*, because a point is
+pushed down using the membership of its successor; the old `Cert.exists_block_path` is now
+derived from it). Pigeonhole then gives a block repeat among the indices `0 … |H|`, so the
+carry word is `P`-periodic from `t` with `t + P ≤ |H|`. From `s_{n+P} = s_n` the ladder
+`q·M_{n+1} = p·M_n` for `M_n = x_{n+P} − x_n` gives `q^m·M_{t+m} = p^m·M_t`
+(`q_pow_mul_orbDiff`), hence `q^m ∣ M_t` (`q_pow_dvd_orbDiff`) with `m = N − t − P`. Then
+the **dichotomy** `Z32.escape_endgame`: either `M_t ≠ 0`, and `q^{N−t−P} ≤ |ξ|β^{t+P} + 1`,
+or `M_t = 0`, and `|ξ|β^{N−P}(β−1) < 1`. The first is an upper bound on `N` in terms of `X`,
+the second in terms of `1/L` — which is why there are two logarithms.
+
+**Two logarithms, and why the second is not removable.** The plan asked for a bound in an
+upper bound for `ξ` alone. That is false, and the counterexample is one of the entries in
+this file: the two-cell set `[0,1/5) ∪ [4/5,1)` at `3/2` holds every `ξ ∈ (0,1/5)` for
+exactly `⌈log_{3/2}(1/(5ξ))⌉` steps, with `⌊ξ⌋ = 0` throughout (measured: 4, 8, 12, …, 44 at
+`ξ = 5^{-2} … 5^{-12}`). At `L = 1` the second term is a constant — 2 at `3/2`, 4 at `4/3`,
+1 at `5/2` — and the shape is the promised `A(c) + log_q X`.
+
+**Scope: the ranked certificate is excluded, and no bound exists for it.** The theorems
+require `c.strata = []`, a genuinely functional block graph. `funcOk` only forbids *two
+equal-rank* edges out of a block, so a block may carry an equal-rank edge and a lower-rank
+one; the model orbit can then follow the equal-rank cycle for arbitrarily long and drop only
+afterwards, and the periodicity ends exactly where it drops. Counting the drops does not
+rescue it: with `R` drops the first branch of the dichotomy would need `log q > R·log β`,
+false at `R = 4`, `p/q = 3/2` — i.e. at `certDub08`, the only ranked entry. Nine of the ten
+atlas entries are covered; `dubickas_2008_cor_1_2` keeps its qualitative theorem and gets no
+escape bound.
+
+The per-entry corollaries, with `A` the additive constant and the bound at `X = 10⁶`,
+`ξ ≥ 1` (last column: the largest escape time actually observed on a 448-point exact grid):
+
+    escape_sixth_3_8       [1/6,13/24)      3/2  K=8  |H|=3   A=14   36    8
+    escape_frontier        [961,2427]/3600  3/2  K=13 |H|=2   A=18   40    6
+    escape_union_712       union 7/12       3/2  K=7  |H|=1   A=11   32    9
+    escape_union_23        union 2/3        3/2  K=9  |H|=12  A=24   51   11
+    escape_union_2536      union 25/36      3/2  K=11 |H|=17  A=31   61   10
+    escape_two_cell_fifth  [0,1/5)∪[4/5,1)  3/2  K=1  |H|=2   A= 6   28    7
+    escape_four_three      [1/3,5/8)        4/3  K=5  |H|=2   A=12   26    6
+    escape_five_two_fifth  [1/5,2/5)        5/2  K=1  |H|=1   A= 4   26    1
+    escape_union_7083      union 17/24      3/2  K=17 |H|=100 A=120 199   11   (UnionRecord.lean)
+
+`escape_sixth_3_8_million` states one of them with no parameters at all: every `ξ ∈ [1,10⁶]`
+leaves `[1/6, 13/24)` within 36 steps. The bound is loose by 20–51 steps and the slack grows
+with `X`; the `log_q X` term itself is not loose (an orbit really can be confined for
+`~log_q|ξ|` steps — that is what `q^m ∣ M_t` says), but reaching it needs `ξ` exponentially
+close to the survivor set, and a targeted search along the surviving 3-cycle
+`4/19 → 6/19 → 9/19` (546 orbits `b·2^j + y₀`) reached escape time 9.
+
+`EscapeBound.lean` is 889 lines, std3, sorry-free, 0 cited axioms; `escape_union_7083`, the ninth
+and last entry a bound reaches, lives in `UnionRecord.lean` beside the certificate whose `decide`
+costs 90 s. `m2escape.py` is the R-5
+bridge (2 s, output `data/transform/escape_bound.txt`): the certificate shapes re-parsed
+from `BlockCert.lean` and `UnionRecord.lean` rather than read off the Lean statements (9/9); 11826 exactly simulated
+orbits against the certified bound at `X ∈ {10, 10³, 10⁶}`, 0 violations; every maximal
+periodic run of a real carry word checked against the ladder, the divisibility and the
+dichotomy (8728 runs, 0 failures); the `log(1/ξ)` counterexample against its closed form (0
+mismatches); and the schema front end at eight certified `(p,q,s)` including two from M3
+(2400 points, 0 violations).
+
+## Completeness and the obstruction — M4 (`CertComplete.lean`, `m4complete.py`)
+
+`BlockCert.lean` proves the scheme **sound**. `CertComplete.lean` proves the converse half:
+which sets the scheme can decide, and what stops it.
+
+**The engine is arithmetic, not dynamical.** The model dynamics is a *relation* — from
+`y ∈ [0,1)` there are `q` admissible successors `(py−s)/q`, one for each integer `s` in
+`(py−q, py]`. On the part of the dynamics that matters the branching disappears:
+
+> **`Z32.step_unique`.** If `u, v, v' ∈ [0,1)` are rationals whose denominators are coprime
+> to `q`, and `qv = pu − s`, `qv' = pu − s'` for integers `s, s'`, then `v = v'`.
+
+Over a common denominator `D` coprime to `q` the two relations read `qb = pa − sD` and
+`qc = pa − s'D`, so `D ∣ q(b − c)`, hence `D ∣ b − c`, and `b, c ∈ [0, D)`. Equivalently:
+among `q` consecutive admissible carries exactly one lies in the residue class
+`s ≡ pad⁻¹ (mod q)`, and that is the only branch keeping the denominator coprime to `q`.
+A point the orbit *returns to* is periodic, hence `A/(p^P − q^P)` whose denominator is
+coprime to `q` — so **the recurrent part of the dynamics is a function**.
+
+**C-2 at every base.** `Z32.cyclePoint_eq_base`: a `P`-periodic point of `q·y_{i+1} = p·yᵢ − sᵢ`
+is `A/(p^P − q^P)`, at every coprime base (the corpus had `Z32.cycle_point_eq` at `3/2` only).
+`Z32.hasDenom_of_return` proves it for a return *segment*, which is the form completeness
+consumes, and `Z32.cycleDenom_coprime` supplies `gcd(p^P − q^P, q) = 1`.
+
+**T5(i), completeness.** `Z32.holdSet_finite_imp`: if the **hold set** of `U` — the points of
+`U` carrying an infinite orbit of the carry relation inside `U` — is finite, then no `ξ ≠ 0`
+keeps its orbit in `U`. The chain: a confined orbit has finite range ⟹ some value recurs
+infinitely often ⟹ from the first visit every point lies on a loop, so its denominator is
+`p^P − q^P` ⟹ `step_unique` makes the tail deterministic ⟹ the orbit and its carry word are
+eventually periodic ⟹ [DN05]. The plan asked for the hold set to be "finitely many periodic
+orbits plus transients, arranged so that the itinerary is forced"; **the arrangement clause is
+free**. What is *not* done is building the `Cert` data from a finite hold set: the class is
+decided, the format is not yet proved complete on it.
+
+**T5(iii): the plan's conjecture C-5 is false.** It read "a closed-convention certificate
+exists iff no survivor cycle passes through an endpoint of `U`", with the closed
+`[0,1/5] ∪ [4/5,1]` and the closed [Dub08] union as its witnesses. Both have endpoint cycles
+*and* certificates. What is true:
+
+> **`Cert.eq_of_memI_block`.** For a certificate with `strata = []`, two orbits confined to `U`
+> that ever occupy the same block are equal. Hence `U` has at most `|H|` held points, and
+> (`Cert.ok_eq_false_of_infinite_hold`) a set with infinitely many held points admits **no
+> unranked certificate at any depth**.
+
+With no strata every block has at most one outgoing `(carry, block)` pair, so the carry word of
+a confined orbit is determined by its first block; two orbits with the same carry word separate
+like `(p/q)ⁿ`, which `[0,1)` cannot hold. And an endpoint cycle is what makes the hold set
+infinite: closing `1/5` in the two-cell arc admits the whole backward chain
+`1/5, 2/15, 4/45, 8/135, … = (1/5)(2/3)^k → 0`, every term of which runs down into the 2-cycle
+`1/5 ↔ 4/5`. In the half-open convention the chain dies at its first step.
+`Cert.ok_eq_false_of_covers_two_cell` states it in general: *any* unranked certificate covering
+the closed arc is invalid, whatever its denominator and depth — which replaces this file's
+recorded search result ("`gencert.py --closed` finds nothing to depth 60") by a theorem.
+
+**Five closed-convention entries.** Ranks are exactly the device that survives an infinite hold
+set, so each half-open entry should have a closed companion at the same funnel depth. Five do,
+all `decide`-checked:
+
+    certTwoCellFifthClosed  [0,1/5] ∪ [4/5,1]      3/2  D=15          K=1   4 blocks   2 strata
+    certWindow38Closed      [1/6,13/24]            3/2  D=157464      K=8   9 blocks   7 strata
+    certFrontierClosed      [961/3600,2427/3600]   3/2  D=5739562800  K=13 14 blocks  13 strata
+    certFourThreeClosed     [1/3,5/8]              4/3  D=24576       K=5  12 blocks   6 strata
+    certFiveTwoClosed       [1/5,2/5]              5/2  D=5           K=0   1 block    0 strata
+
+with theorems `two_cell_fifth_closed`, `sixth_3_8_closed`, `frontier_closed`,
+`four_three_closed`, `five_two_fifth_closed`. Closed emptiness is strictly stronger than its
+half-open shadow, so four of them are new statements. **The two-cell one is not**:
+`Z32.two_cell_238_empty` (`XG0Certs.lean`, experiment X-238) already proves
+`‖ξ(3/2)ⁿ‖ < 0.238` impossible and `[0,1/5] ∪ [4/5,1] ⊆ [0,119/500) ∪ [381/500,1)`, so
+`two_cell_fifth_closed` is a corollary of it. It is kept for the *certificate*: this is the set
+`BlockCert.lean` recorded as refused by `gencert.py --closed` to depth 60, and it certifies at
+funnel depth 1 — exactly as `ok_eq_false_of_covers_two_cell` predicts, the refusal being of the
+unranked search only. The three union entries have no closed companion to depth 16.
+
+`CertComplete.lean` is 861 lines, std3, sorry-free, 0 cited axioms.  `m4complete.py` is the R-5
+bridge (80 s, output `data/transform/cert_complete.txt`):
+`funnelOk` and `funcOk` re-implemented from the definitions and re-run on the five new
+certificates, with unranked controls that must fail (5 checked, 0 failures, 0 controls wrongly
+passing); 6868 points over 15 bases for `step_unique`, every one with **exactly one**
+coprime-denominator successor; 26244 cycle points at eight bases for C-2, 0 exceptions; the
+two-cell chain re-evaluated from the Lean definitions in both conventions; the ten-entry
+closed/half-open depth survey; and `|hold set| ≤ |blocks|` on every unranked entry — tight on
+five of the eight (3 = 3 at `[1/6,13/24)`, 2 = 2 at the frontier, 1 = 1 at the `7/12` union,
+2 = 2 at the two-cell arc and at `(4,3)`, 1 = 1 at `(5,2)`).
+
+## Cycles and the transversal — X-U (`CycleTransversal.lean`, `xu.py`)
+
+`CertComplete.lean` proved one half of the plan's conjecture C-2: a `P`-periodic point of the
+carry relation has denominator dividing `p^P − q^P`.  Experiment X-U needed to *enumerate* those
+cycles, and the first thing it produced was the recurrent map's name.
+
+**The recurrent map, in closed form.** On the points of denominator `D` with `gcd(D,q) = 1` the
+(unique, by `step_unique`) successor is
+
+    a/D  ↦  (p·a·q⁻¹ mod D) / D,
+
+multiplication by the element `p/q` of `ZMod D` (`Z32.cycOrbit`, `Z32.cycOrbit_rec`).  Two things
+follow that are invisible from the relation itself, and both are theorems:
+
+* **no transients in the recurrent set** — multiplication by a unit is a bijection, so every point
+  with `gcd(D, p·q) = 1` is *purely* periodic (`Z32.cycOrbit_periodic`);
+* **C-2 has a converse** — every point of denominator dividing `p^P − q^P` is periodic with
+  period dividing `P` (`Z32.cycOrbit_period_dvd`), so with `cyclePoint_eq_base` the `P`-periodic
+  points are *exactly* the `A/(p^P − q^P)`; and every coprime denominator at all is periodic
+  (`Z32.exists_periodic_orbit`).
+
+R-5: checked against the brute-force successor rule on 10 200 points over ten bases and all
+denominators `D ≤ 59` coprime to `q` — 0 non-unique successors, 0 disagreements; and the converse
+of C-2 exhaustively both ways at four bases for all `P ≤ 7`.
+
+**What that costs a certificate.** Periodic orbits are dense, and every one that `U` contains
+*entirely* is a hold point.  An unranked certificate needs the hold set finite
+(`Cert.eq_of_memI_block`), so:
+
+> `Z32.BlockCert.Cert.ok_eq_false_of_infinite_cycles` — **the removed set must be a transversal.**
+> If infinitely many distinct points of denominator coprime to `p·q` keep their whole orbit inside
+> `U`, then `c.ok = false` at every depth.
+
+This is the plan's conjecture **C-8** corrected and proved.  C-8 read the record unions as
+*removing* neighbourhoods of the period-`≤P` cycle spine; the census says the low-period spine is
+what they **keep**.  Of 531 292 orbits of period ≤ 14, the `25/36` and `17/24` records keep exactly
+one (the fixed point `0`) and the `43/60` and `89/120` records keep two (`0` and
+`2/19 → 3/19 → 14/19`, `Z32.carry_cycle_nineteen`).  Read off the exact funnel instead of the
+census, the same picture with the backward tree attached:
+
+    record    K   blocks   alive components = surviving cycles + tree
+    25/36    11       17    3    {0} + one component shrinking to 1 ∉ [0,1) + 1 transient
+    17/24    17      100    4    {0} + 3 transients
+    43/60    20      433   35    {0} + the 3-cycle + 31 transients
+    89/120   29     2526   60    {0} + the 3-cycle + 56 transients
+
+**C-8's recipe, tried.** 48 hand-built `U_P` (complement of the cells meeting the period-`≤P`
+spine, optionally with `m` levels of backward tree, `P ∈ {2..5}`, `m ∈ {0,1,2}`,
+`N ∈ {36,60,240,720}`; in 20 of them the removal exhausts the grid, so 28 are real trials).
+The best measure any of them certifies is **1/4**, on grids where the
+greedy climb reaches `43/60` and `3/4`.  And the failures are structural, not depth artifacts: for
+every larger `U_P` but two, the exact funnel reaches a **fixed point** `T_{d+1} = T_d`, so `T_d` —
+a union of 5 to 396 nondegenerate intervals — is contained in the hold set, and
+`ok_eq_false_of_infinite_hold` refuses the certificate at *every* depth.  Two were also put through
+`gencert.py` itself: the `1/4` set at `(P,m,N) = (3,2,240)` certifies there at depth 4 as well, and
+the `29/40` set at `(3,1,240)` is refused to depth 60 in both the default and the `--ranked` mode,
+its component count stuck at 63 from level 1 — the funnel fixed point seen from the engine's side.
+
+**The price of largeness.** Two exact facts: `Σ_s |g_s(S) ∩ [0,1)| = 2|S|` where `g_s(v) = (qv+s)/p`,
+and every `y` has exactly two successors, so `|f⁻¹(S)| ≥ |S|`.  Hence `|T_k| ≥ 1 − (k+1)δ` with
+`δ = 1 − |U|`; and past the certifying depth the block map is a function, so `|T_{K+j}| ≤ (2/3)ʲ·B`.
+Comparing gives, for every certificate,
+
+    K + log_{3/2}(B)  ≳  1/(1 − |U|).
+
+At today's measures this is slack by a factor of ten, but it prices C-8's target `1 − C(q/p)^{cP}`
+out of existence: funnel depth exponential in `P`, certificate data (denominator `G·p^K`) doubly
+exponential.  **Since 2026-09-03 the whole derivation is machine-checked** — see the next section.
+
+`CycleTransversal.lean` is 258 lines, std3, sorry-free, 0 cited axioms, with no data for the
+kernel.  `xu.py` is the R-5 bridge (about 8 minutes, output `data/transform/union_autopsy.txt`).
+Full write-up: `plans/note-z32transform-XU.html`.
+
+
+## The depth–size bound — M5(a) (`DepthSize.lean`)
+
+What a certificate *costs*, as a theorem.  Write `δ = |[0,1) ∖ U|` and let `T₀ = U`,
+`T_{k+1} = U ∩ f⁻¹(T_k)` be the exact funnel (`Z32.funnel`), with
+
+    f⁻¹(S) = { y ∈ [0,1) : ∃ v ∈ S, ∃ s ∈ ℤ, q·v = p·y − s }        (`Z32.pre`)
+
+the branch preimage of the carry relation — the set the certificate's `levels` over-approximate.
+
+| half | statement | name |
+|---|---|---|
+| expansion | `\|f⁻¹(S)\| ≥ \|S\|`, hence `\|T_k\| ≥ 1 − (k+1)δ` | `volume_le_volume_pre`, `one_le_volume_funnel_add` |
+| contraction | `\|T_{K+j}\| ≤ B·(q/p)ʲ` | `BlockCert.volume_funnel_le_of_cert` |
+| headline | `1 ≤ 2δ·(K + 2 + log_{p/q}(2B))` | `depth_size`, `depth_size_logb`, `BlockCert.cert_depth_size` |
+
+with `K = c.levels.length` the funnel depth and `B = c.blocks.length` the block count.  Read
+backwards it says a valid unranked certificate **must leave a hole of positive measure**
+(`BlockCert.volume_hole_pos`) and certifies a set of measure `< 1`
+(`BlockCert.volume_certSet_lt_one`) — a measure-theoretic sharpening of `ok_eq_false_of_full`,
+which only ruled out the whole window.  `BlockCert.hole_union_2536` is the bound at the `25/36`
+record: `δ ≥ 1/44` from `K = 11`, `B = 17` (both kernel-computed from the certificate, and both
+agreeing with `xu.py`'s certifier), against the true `11/36`.
+
+Two representation choices removed every measurability obligation, and neither was foreseen in the
+X-U write-up.  The preimage **factors** as
+
+    f⁻¹ = slice_p ∘ fold_q,     fold_q S = { fract(q·v) : v ∈ S },
+                                slice_n A = { y ∈ [0,1) : fract(n·y) ∈ A }
+
+(`Z32.pre_eq_slice_fold`) — "multiply by `p` mod 1, then divide by `q` in every admissible way" —
+and both maps are written as finite unions of **affine preimages**, never images, so
+`Real.volume_preimage_mul_left` and translation invariance apply to *arbitrary* sets.  Unfolding
+then preserves measure exactly (`volume_slice`, the `n` pieces are disjoint) and folding cannot
+shrink (`subset_slice_fold`: `S ⊆ slice_q (fold_q S)`), which is the whole expansion half; the
+exact identity `Σ_s |g_s(S) ∩ [0,1)| = 2|S|` of the X-U note never enters.  For the contraction
+half, `Real.volume_le_diam` bounds each block's share of the funnel by its **diameter**, so no
+interval list is ever measured and no disjointness is ever checked.
+
+The dynamical input is M4's determinism in a form the corpus lacked: `Cert.eq_of_memI_block` shows
+two orbits confined *forever* in the same block are equal; here confinement lasts `K + j` steps and
+the conclusion is quantitative — same block ⟹ same carry word ⟹ `|y − y'| ≤ (q/p)ʲ`
+(`BlockCert.abs_sub_le_of_memI_block`).  `Z32.exists_chain_of_mem_funnel` bridges the two shapes,
+extending a funnel point's finite chain past its end by the canonical successor
+`y ↦ fract(p·y)/q`.
+
+Where the bound bites is a *family*, not a set: C-8's `δ_P ≤ C(q/p)^{cP}` forces
+`K_P + log_{p/q} B_P ≳ C⁻¹(p/q)^{cP}` — depth exponential in `P`, certificate data doubly
+exponential.  Against the records themselves it is slack by 13× (`25/36`) to 27× (the 240-cell
+record).  `DepthSize.lean` is 815 lines, std3, sorry-free, 0 cited axioms, no kernel data, and is
+the first measure theory in this root.  `depthsize_check.py` is the R-5 bridge: it recomputes all
+three statements on the exact funnels of the `25/36` and `17/24` records (and reproduces the
+kernel's `K = 11, B = 17` and `K = 17, B = 100` from the engine side) in about two seconds.
+Full write-up: `plans/note-z32transform-M5.html`.
+
+
+## The frontier, and its exact object — X-F (`RankedFrontier.lean`, `xf.py`)
+
+Experiment X-F of `plans/plan-z32-transform.html` (milestone M6, write-up
+`plans/note-z32transform-M6.html`) was asked to autopsy the 14 frontier windows above.  It
+reproduced them — an independent exact-rational engine, 781 positions, **0 disagreements** with
+`data/x2_frontier.txt` — and then found that the frontier they mark is not the certificate
+family's.
+
+**`L* = 0.40722` belonged to the hull-merge search.**  `atlas.c` and the default `gencert.py`
+merge the surviving components into interval hulls and demand out-degree `≤ 1`.  The
+**rank-stratified** criterion (`gencert.py --ranked`; raw components, rank = size of the
+forward-reachable set — equivalently *no branching SCC*), sound by the same
+`Cert.not_confined` and already used by `dubickas_2008_cor_1_2` and `two_cell_238_empty`,
+certifies the same row at **213** of 236 positions instead of 14 — and at *exactly* the positions
+`961 ≤ i ≤ 1173`, i.e. exactly the windows whose closure lies in `(4/15, 11/15)`.  (`4/15 ↦ 2/5`
+and `11/15 ↦ 3/5`: the two preimages of the surviving 2-cycle nearest to it.  A window containing
+one of them traps an infinite backward chain accumulating on the cycle, the alive-component count
+is exactly `k+1` at depth `k`, and no finite interval partition separates them — the same
+mechanism X-D19 found in [Dub19]'s own window.)
+
+The certified region of the `(s,L)` plane is one **tongue** narrowing onto the axis `s = (1−L)/2`,
+and that the axis is a symmetry axis is forced: `y ↦ 1 − y` conjugates the carry relation to itself
+with the carry `s ↦ p − q − s`, so the whole atlas is mirror-symmetric and the 14 frontier windows
+fall into 7 mirror pairs.  `Z32/RankedFrontier.lean` ships the prettiest point of the tongue:
+
+| entry | \|U\| | Lean name | funnel |
+|---|---|---|---|
+| `[2/7, 5/7]` **closed** | **3/7 = .428571** | `Z32.ZSet_three_two_two_seven`, `Z32.two_seven_empty` | depth 15, 166 blocks, 32 rank strata |
+
+so that **for every `ξ ≠ 0`, `‖ξ(3/2)ⁿ‖ < 2/7` for infinitely many `n`**
+(`Z32.not_forall_two_seven_le_abs_sub_round`) — against the corpus's previous constant `1/3`, and
+past the longest single window in print, [Dub19] Thm 1.2's `31/81 = 0.38271`.
+
+### The exact ceiling is a Thue–Morse constant
+
+On the centred line write the window as `[c, 1−c)`; an orbit is inside exactly when
+`c ≤ minᵢ ‖yᵢ‖`.  Sorting every orbit of period `≤ 20` by that minimum gives a **period-doubling
+cascade** whose carry words are the Thue–Morse prefixes (up to a cyclic shift):
+
+| period | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|
+| `minᵢ ‖yᵢ‖` | `2/5` | `4/13` | `28/97` | `1948/6817` |
+| carry word | `01` | `0011` | `00101101` | `0010110011010011` |
+| enters at `L` | `1/5` | `5/13` | `41/97` | `2921/6817` |
+
+with the closed form `4c_k − 1 = 3·∏_{n=1}^{k−2}(3^{2ⁿ} − 2^{2ⁿ}) / (3^{2^{k−1}} + 2^{2^{k−1}})`,
+verified against the enumeration for `k ≤ 4`.  Dividing through by powers of `3` gives the limit
+immediately:
+
+> `c_k ↓ (1 + T(2/3))/4 = 0.285647324744458851…`,  `T(z) = ∏_{n≥0}(1 − z^{2ⁿ})`,
+
+which is **exactly** [Dub06JNT] Corollary 1's small limit point.  Measured, the family certifies at
+`c = 0.2856475` and fails at `c = 0.2856472`: the constant is inside the bracket.  The same cascade
+read from the other side is X-238's — `0, 1/5, 3/13, 23/97, 10233015/42981185, … → (3 − T(2/3))/12
+= 0.238117558418…`, whose ceiling X-238 measured in `(0.2381175, 0.2381177]`.
+
+**Both of this corpus's engine ceilings are the two constants of [Dub06JNT] Corollary 1, and
+neither is attainable**: below either one the set contains every cascade orbit, hence infinitely
+many periodic orbits, which `Cert.ok_eq_false_of_infinite_cycles` forbids.  So no further search on
+this certificate family can beat print on either side — not for want of effort, but because the
+printed constants are the accumulation points of the family's own obstruction.
+
+### What X-F says about the conjectures
+
+* **C-6 is half true.**  Sixteen windows of the `L*` row have the 2-cycle `{2/5, 3/5}` as their
+  only orbit to period 20; 14 certify, and `i = 960`, `i = 1174` do not.  The forward half was
+  never a conjecture — it is `Cert.eq_of_memI_block`.  The inventory is constant on 35 runs, each
+  interior run carrying *one* extra orbit of period `14, 12, 10, 8, 6, 4` inward, and the certified
+  positions are exactly the run **boundaries**: mode locking, with the certified set the
+  transitions rather than the plateaus.
+* **C-7 becomes an equality.**  With `ker(z) = sup{k : z ∈ T_k}`, the ranked funnel depth is *one
+  of* `ker(s)`, `ker(s+L)` at **213 of 213** ranked-certified positions, and is `2ᵏ − 1` on the
+  `k`-th cascade plateau of the centred line.
+* **A caution.**  The alive-component count is *not* an entropy proxy: `[2/7, 5/7)` has alive
+  counts `60/370/1180/2740` at depths `10/20/30/40` and still ranked-certifies at depth 15.  A
+  component may shrink onto a point outside `U`.  Only the ranked criterion decides.
+
 ## The atlas draft (two colors and the band)
 
 Single intervals `[s, s+L)`:
@@ -871,8 +1521,26 @@ every `p`-cycle.  That is the quantitative floor C7/WP2 runs on.
 | `prodcert.py` | M7/X4: the §4.3 product refinement `(cell, x mod qʲ)`, the periodic-orbit census, and the two no-go theorems it measures; `cycles`/`hold` subcommands |
 | `BlockCert.lean` | M3/M6: the soundness theorem for any coprime `p > q > 1`, and the eight `decide`-checked entries |
 | `x3climb.py` | refinement hill-climb for the union record, driving `atlas` as a black box |
+| `xg0.py` | the three gate-G-0 experiments X-KP / X-D19 / X-238; writes `data/xg0_*.txt` |
+| `g1schema.py` | gate G-1: the closed-form depth-1 schema in `(p,q,s)`, checked against an independent engine and against `gencert.py`; writes `data/transform/g1_schema.txt` |
+| `SymbolicCert.lean` | gate G-1 / milestone M1: the depth-one schema as a theorem for every base and every **real** position; T1, T2 (the thirty table entries) and T3 grade 1 as corollaries; no certificate data for the kernel |
+| `xp.py` | experiment X-P re-aimed at the two residual bands: the exact parametric `ε`-cell decomposition, plus two independent scalar engines; writes `data/transform/xp_bands.txt` |
+| `DepthKSchema.lean` | milestone M3: the depth-`K` schema — `Escape`, the rank rotation, `ZSet_eq_empty_of_certifiedK`, the closed-form `LowBand` family and the `(5,2)` depth-2/3 instances. A formalization of [FLP95] Thm 3.4 + [Bug04] Thm 1 and Lemmas 1–3; no certificate data for the kernel |
+| `m3schema.py` | M3's R-5 bridge: the escape criterion against the funnel engine, the Lean predicates transcribed, the rank rotation, and [Bug04] Lemma 3's intervals `J_b^a(q/p)` as an independent literature check; writes `data/transform/depthk_schema.txt` |
+| `EscapeBound.lean` | milestone M2: the quantitative escape bound — `escape_endgame` (the dichotomy), `escapeSteps`, both front ends, `Cert.exists_escape_le` (= the plan's `Cert.escape_bound`) and eight per-entry effective corollaries. Needs `c.strata = []`: the ranked `certDub08` admits no such bound |
+| `m2escape.py` | M2's R-5 bridge: certificate shapes re-parsed from `BlockCert.lean` and `UnionRecord.lean`, 11826 simulated orbits against the certified bound, 8728 endgame dichotomy checks, and the `log(1/ξ)` counterexample; writes `data/transform/escape_bound.txt` |
+| `CertComplete.lean` | milestone M4: completeness on the finite-hold-set class (`step_unique`, `holdSet_finite_imp`), C-2 at every base (`cyclePoint_eq_base`), the unranked obstruction (`Cert.eq_of_memI_block`, `Cert.ok_eq_false_of_infinite_hold`) and five closed-convention entries |
+| `m4complete.py` | M4's R-5 bridge: the two Bool checks re-implemented and run on the five new certificates plus unranked controls, `step_unique` and C-2 over many bases, the two-cell chain, the ten-entry depth survey and the block bound; writes `data/transform/cert_complete.txt` |
+| `CycleTransversal.lean` | experiment X-U: the recurrent map in closed form (`cycOrbit`, `cycOrbit_rec`), no transients (`cycOrbit_periodic`), the converse of C-2 (`cycOrbit_period_dvd`, `exists_periodic_orbit`), and the transversal theorem `Cert.ok_eq_false_of_infinite_cycles` — the corrected form of conjecture C-8 |
+| `xu.py` | X-U's driver and R-5 bridge: the closed-form map against brute force, the period-≤14 census (531 292 orbits) against the four records, each record's hold set from an independent exact funnel, the 48-entry hand-built `U_P` table with funnel-fixed-point detection, the refinement ladder to 1440 cells, and the two measure facts; writes `data/transform/union_autopsy.txt` |
+| `DepthSize.lean` | milestone M5(a): the depth–size bound — `slice`/`fold`/`pre` with `pre_eq_slice_fold`, the expansion half `volume_le_volume_pre` and `one_le_volume_funnel_add`, the contraction half `abs_sub_le_of_memI_block` + `volume_funnel_le_of_cert`, the headline `cert_depth_size` (`1 ≤ 2δ(K+2+log_{p/q}2B)`), and the corollaries `volume_hole_pos`, `volume_certSet_lt_one`, `hole_union_2536`. First measure theory in this root; no certificate data for the kernel |
+| `depthsize_check.py` | M5(a)'s R-5 bridge: the exact funnel of the `25/36` and `17/24` records against all three statements of the bound (`|T_k| ≥ 1−(k+1)δ`, `|T_{K+j}| ≤ B(q/p)ʲ`, the headline), and the headline arithmetic for the two wider records; writes `data/transform/depth_size.txt` (~2 s) |
+| `xf.py` | experiment X-F: the frontier row rechecked without `atlas.c`, the survivor-cycle inventory by carry-word DFS (cross-checked against the denominator census), the trichotomy, the kneading depths, the ranked frontier, the two staircases and the Thue–Morse cascade; writes `data/transform/frontier_autopsy.txt` (~3.5 min) |
+| `RankedFrontier.lean` | X-F's kernel-checked output: `certTwoSeven` (closed, rank-stratified, depth 15, 166 blocks over `D = 7·3¹⁵`) with `ZSet_three_two_two_seven`, `two_seven_empty`, `not_eventually_two_seven` and `not_forall_two_seven_le_abs_sub_round` (`‖ξ(3/2)ⁿ‖ < 2/7` infinitely often) |
+| `XG0Certs.lean` | their kernel-checked output: `two_cell_238_empty`, `ZSet_three_two_d19_shift`, `log_twentyone_div_eight_le_phiModel_kp` |
 | `reproduce.sh` | regenerates every number above into `data/`, with checksums |
 | `data/*.txt` | the sweep outputs quoted above |
+| `data/transform/*.txt` | the outputs of `plans/plan-z32-transform.html` (gate G-1, experiment X-P, milestones M3, M2 and M4), kept apart so the two plans' data cannot collide |
 
 Build: `gcc -O2 -o atlas atlas.c -lm` (likewise `hold`, `gridcert`).
 
@@ -890,6 +1558,11 @@ Build: `gcc -O2 -o atlas atlas.c -lm` (likewise `hold`, `gridcert`).
 - **[Pol81]** Pollington, C. R. Acad. Sci. **292** (1981) 383–384.
   **[Cho80]** Choquet. **[Bug04]** Bugeaud. **[Kwon15]** Kwon.
 - **[KK18]** Kari, Kopra — automata and `Z_{p/q}(S)`; Problem 6.1.
+- **[KP18]** Kurganskyy, Potapov, *De Bruijn graphs and powers of 3/2*, Trudy IPMM **32**
+  (2018), arXiv:1811.02254. Cor. 18 reduces Mahler's problem to `[0,1/6) ∪ [1/3,2/3)`.
+- **[Dub19]** Dubickas, Discrete Math. **342** (2019) 1949–1955. Thm 1.2 = the window
+  `[8/57, 805/1539]` at `3/2`. **[Dub06JNT]** Dubickas, J. Number Theory **117** (2006) 222–239,
+  quoted as Thm 3.14 of Bugeaud's Cambridge Tract 193.
 - **[AFS08]** Akiyama, Frougny, Sakarovitch. **[Aki08]** Akiyama.
 - Plan: `plans/plan-cert32.html`. Engine ancestor: `plans/plan-dubC1.html`,
   `DubC/README.md`.

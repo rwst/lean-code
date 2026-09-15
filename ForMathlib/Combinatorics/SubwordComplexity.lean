@@ -104,6 +104,31 @@ lemma factor_castSucc (u : ℕ → α) (k i : ℕ) :
   funext s
   simp [factor, Fin.val_castSucc]
 
+/-- Dropping the **first** letter of a length-`(k+1)` factor at `i` yields the length-`k` factor
+at `i + 1`. -/
+lemma factor_comp_succ (u : ℕ → α) (k i : ℕ) :
+    (factor u (k + 1) i) ∘ Fin.succ = factor u k (i + 1) := by
+  funext s
+  simp only [Function.comp_apply, factor, Fin.val_succ]
+  congr 1
+  omega
+
+/-- Splitting a length-`(a+b)` factor: its **first `a` letters** form the length-`a` factor at
+the same position. -/
+lemma factor_comp_castAdd (u : ℕ → α) (a b i : ℕ) :
+    (factor u (a + b) i) ∘ Fin.castAdd b = factor u a i := by
+  funext s
+  simp [factor]
+
+/-- Splitting a length-`(a+b)` factor: its **last `b` letters** form the length-`b` factor at
+position `i + a`. -/
+lemma factor_comp_natAdd (u : ℕ → α) (a b i : ℕ) :
+    (factor u (a + b) i) ∘ Fin.natAdd a = factor u b (i + a) := by
+  funext s
+  simp only [Function.comp_apply, factor, Fin.val_natAdd]
+  congr 1
+  omega
+
 /-- The set of length-`k` factors on `S` is the set of length-`(k+1)` factors on
 `S` truncated to their first `k` coordinates. -/
 lemma image_factor_castSucc [DecidableEq α] (u : ℕ → α) (k : ℕ) (S : Finset ℕ) :
