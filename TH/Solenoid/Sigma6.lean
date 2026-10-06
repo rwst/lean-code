@@ -276,9 +276,10 @@ theorem wind_injective : Function.Injective wind := by
 /-! ### Fixed points -/
 
 /-- **The only fixed point of the diagonal is the origin.**  `T x = x` says `(1/2) x = 0`, and
-multiplication by `1/2` is an automorphism of `Σ₆` because `2` is a unit of `ℤ[1/6]`.  (Contrast
-the individual generators: `σ₂` and `σ₃` have plenty of fixed points, e.g. all of the finite
-`(q-1)`-torsion.)  This is the input to the "no Dirac limit measure away from `0`" rung. -/
+multiplication by `1/2` is an automorphism of `Σ₆` because `2` is a unit of `ℤ[1/6]`.  (The same
+argument shows that `σ₂` and `σ₃` also fix only `0`, since `2 - 1 = 1` and `3 - 1 = 2` are units of
+`ℤ[1/6]`.  By contrast `×6 = σ₂ ∘ σ₃` fixes the nonzero point `[diag (1/5)]`, because `6 - 1 = 5`
+is not a unit; see `Solenoid.smulAut_mk_diag_eq_self_iff`.)  This is the input to the "no Dirac limit measure away from `0`" rung. -/
 @[category research solved, AMS 11, ref "A1plus", group "th_solenoid_sigma6"]
 theorem eq_zero_of_T32_eq_self (x : S6) (h : T32 x = x) : x = 0 := by
   obtain ⟨g, rfl⟩ := QuotientAddGroup.mk_surjective x
