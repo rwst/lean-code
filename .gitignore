@@ -12,3 +12,4 @@ scripts/app.html
 *.aux
 papers/
 */__pycache__/
+.gitignore
