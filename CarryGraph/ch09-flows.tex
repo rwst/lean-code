@@ -1,0 +1,174 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Circulations}\label{ch:flows}
+
+The earlier chapters ask whether an orbit can avoid a set forever. A density question asks how
+often it visits the set. For the fractional parts \(y_n=\frc{(3/2)^n}\), a weak form of
+equidistribution would say that every interval is visited with positive lower density. Counting
+visits along the walk that the cells of \(y_n\) trace in a cell graph leads to a classical
+object of network theory, the \emph{circulation}: a nonnegative weight on the arcs that is
+conserved at every vertex \cite[ch.~3]{BJG09}. The transition frequencies of any infinite walk
+converge, along a subsequence, to a circulation of total mass~\(1\)
+(Theorem~\ref{thm:balance}). So a vertex visited with lower density \(0\) is avoided by some
+circulation. This chapter describes the circulations of a finite carry graph through the
+structure of Chapters~\ref{ch:reach}--\ref{ch:entropy}, and shows why, for the \(3/2\) density
+problem, circulations alone can never prove positive density.
+
+Throughout, \(X\) is a carry graph with finite vertex set \(V\). Flows live on the underlying
+digraph \(v\to w\); labels play no role.
+
+\section{Circulations and cycles}
+
+\begin{definition}\label{def:circulation}
+A \emph{flow}\index{flow} is a function \(\nu\colon V\times V\to\R\). Its \emph{outflow} and
+\emph{inflow} at \(v\) are
+\[
+  \nu^+(v)=\sum_{w}\nu(v,w),\qquad \nu^-(v)=\sum_{u}\nu(u,v).
+\]
+A \emph{circulation}\index{circulation} is a flow with \(\nu\ge0\), with \(\nu(v,w)>0\) only if
+\(v\to w\), and with \(\nu^+=\nu^-\) at every vertex (\emph{conservation}). Its
+\emph{support}\index{circulation!support} is \(\{v:\nu^+(v)>0\}\).
+\end{definition}
+
+\begin{proposition}\label{prop:flow-essential}
+The support of a circulation is essential. In particular it lies in the core.
+\end{proposition}
+
+\begin{proof}
+If \(\nu^+(v)>0\), some arc \(v\to w\) carries flow, and \(\nu^+(w)=\nu^-(w)\ge\nu(v,w)>0\).
+Dually, \(\nu^-(v)=\nu^+(v)>0\) gives an arc \(u\to v\) with flow, and \(\nu^+(u)\ge\nu(u,v)>0\).
+The core contains every essential set (Proposition~\ref{prop:largest-essential}).
+\end{proof}
+
+\begin{theorem}[flow runs on cycles]\label{thm:flow-cycles}
+If a circulation carries flow on the arc \(v\to w\), then \(w\leadsto v\). So \(v\) is cyclic,
+and \(v\) and \(w\) lie in one strong component. A carry graph without cycles carries no
+circulation except \(0\).
+\end{theorem}
+
+\begin{proof}
+Let \(R\) be the set of vertices reachable from \(w\). No arc leaves \(R\), so for \(u\in R\)
+all outflow of \(u\) stays in \(R\). Summing conservation over \(R\),
+\[
+  \sum_{u\in R}\sum_{x\in R}\nu(u,x)=\sum_{u\in R}\nu^+(u)=\sum_{u\in R}\nu^-(u)
+  =\sum_{u\in R}\sum_{x\in R}\nu(x,u)+\sum_{u\in R}\sum_{x\notin R}\nu(x,u).
+\]
+The two double sums over \(R\times R\) agree, so no flow enters \(R\) from outside. The arc
+\(v\to w\) carries flow and ends in \(R\), hence \(v\in R\).
+\end{proof}
+
+The general theorem behind this is the decomposition of a circulation into a nonnegative
+combination of cycle indicators \cite[ch.~3]{BJG09}. In the zero-entropy case of
+Chapter~\ref{ch:entropy} the decomposition is forced and explicit.
+
+\begin{theorem}[circulations at zero entropy]\label{thm:flow-zero-entropy}
+Assume that no vertex of \(X\) branches inside its strong component
+(Definition~\ref{def:rank}). Let \(\nu\) be a circulation with support \(S\). Then there is a
+map \(\sigma\colon S\to S\) such that
+\begin{enumerate}[label=(\alph*)]
+\item all flow out of \(v\in S\) runs along the arc \(v\to\sigma(v)\):
+  \(\nu(v,w)=\nu^+(v)\) for \(w=\sigma(v)\), and \(0\) otherwise;
+\item \(\sigma\) is a permutation of \(S\);
+\item \(\nu^+(\sigma(v))=\nu^+(v)\).
+\end{enumerate}
+So the cycles of \(\sigma\) are simple cycles of \(X\), and \(\nu\) is the sum over these cycles of
+a constant weight times the cycle's indicator.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:flow-cycles}, every arc carrying flow out of \(v\) stays in the strong
+component of \(v\), so there is at most one such arc. Since \(\nu^+(v)>0\) there is exactly one;
+call its head \(\sigma(v)\). This gives (a), and \(\sigma(v)\in S\) by
+Proposition~\ref{prop:flow-essential}. The map \(\sigma\) is onto \(S\): if \(w\in S\), some
+\(u\) sends flow to \(w\), so \(u\in S\) and \(\sigma(u)=w\). A surjection of a finite set to
+itself is a bijection, which gives (b). For (c), \(\sigma(v)\) receives flow only from \(v\),
+because \(\sigma\) is injective, so \(\nu^+(\sigma v)=\nu^-(\sigma v)=\nu(v,\sigma v)=\nu^+(v)\).
+\end{proof}
+
+\section{The statistics of a walk}
+
+Let \(x_0\to x_1\to\cdots\) be an infinite walk in \(X\). Among the first \(N\) dates, let
+\(N_v\) count the visits to \(v\) and \(N_{vw}\) the steps \(v\to w\). Every visit to \(v\) is
+followed by one step, so \(\sum_w N_{vw}=N_v\) exactly. Every step into \(w\) is followed by a
+visit to \(w\), except possibly at the two ends, so \(\bigl|\sum_vN_{vw}-N_w\bigr|\le1\).
+
+\begin{theorem}[the balance lemma]\label{thm:balance}\index{balance lemma}
+Let \(N_k\to\infty\). There are a subsequence \(N_{k_j}\) and a circulation \(\nu\) with total
+mass \(\sum_v\nu^+(v)=1\) such that
+\[
+  \frac{N_{vw}}{N}\to\nu(v,w)\quad\text{and}\quad\frac{N_v}{N}\to\nu^+(v)
+  \qquad(N=N_{k_j},\ j\to\infty)
+\]
+for all \(v,w\). If \(N_v/N_k\to0\) for some vertex \(v\), there is a circulation of mass
+\(1\) whose support is an essential set avoiding \(v\).
+\end{theorem}
+
+\begin{proof}
+The vectors \((N_{vw}/N)_{v,w}\) lie in the compact cube \([0,1]^{V\times V}\), so a
+subsequence converges (Bolzano--Weierstrass). The out-marginal identity is exact, so the visit
+frequencies converge to the outflows along the same subsequence. The in-marginal is off by at
+most \(1/N\), which tends to \(0\), so the limit is conserved. A positive limit \(\nu(v,w)\)
+needs \(N_{vw}>0\) for some \(N\), so the walk used the arc \(v\to w\). The visit counts add up
+to \(N\), so the mass is \(1\). The last claim follows from Proposition~\ref{prop:flow-essential}.
+\end{proof}
+
+The balance lemma is the finite-resolution form of the Krylov--Bogolyubov argument: limits of
+empirical measures of an orbit are invariant measures. Here the space is finite and the measure
+is a flow, so no measure theory is involved.
+
+\section{The \texorpdfstring{\(3/2\)}{3/2} density problem}
+
+Let \(y_n=\frc{(3/2)^n}\). Consecutive fractional parts satisfy \(2y_{n+1}=3y_n-s_n\) with a
+carry \(s_n\in\{-1,0,1,2\}\). Split \([0,1)\) into the \(2^w\) dyadic cells
+\([b/2^w,(b+1)/2^w)\), and put an arc \(b\to b'\) when some point of cell \(b\) is carried into
+cell \(b'\) by one of the four branches. After scaling by \(2^w\) this is an intersection of two
+integer intervals, so the arc test is a finite computation. The cells of \(y_n\) form an
+infinite walk in this graph. The question is whether every cell is visited with positive lower
+density.
+
+By Theorem~\ref{thm:balance}, a cell \(b\) visited with lower density \(0\) is avoided by a
+circulation of mass \(1\). So positive density at \(b\) would follow if every essential set of
+the level-\(w\) graph contained \(b\). This criterion never applies. The point \(0\) is fixed
+(\(s=0\)), and \(2/5\to3/5\to2/5\) is a rational \(2\)-cycle, with carries \(0\) and \(1\) and
+denominator \(5=3^2-2^2\) (the shape of the rational cycles in \cite{Lag90}). For \(w\ge2\) the
+cell of \(0\) differs from the cells of \(2/5\) and \(3/5\). So for every cell \(b\), the loop at
+\(0\) or the \(2\)-cycle gives a circulation of mass \(1\) avoiding \(b\). Flow conservation on
+a cell graph cannot prove positive density at any window and any resolution. What it does show
+(Theorem~\ref{thm:flow-cycles}) is that every arc carrying balance flow lies on a cycle, so a
+counterexample to positive density is a circulation on the cycles of the cell graph. Excluding
+these cycle-supported limits is a Diophantine question about the orbit, not a question about the
+graph.
+
+\section*{Notes}
+Flows and circulations, and the decomposition of a circulation into cycles, are
+\cite[ch.~3]{BJG09}; only the zero-entropy case (Theorem~\ref{thm:flow-zero-entropy}) is
+formalised here. The balance lemma and the vacuity of the flow criterion were first proved for
+the \(3/2\) density problem, at level-\(w\) dyadic resolution. Theorem~\ref{thm:balance} is the
+same argument for an arbitrary walk in an arbitrary finite carry graph, and the bridge
+re-derives the original lemma from it.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Flow.lean})\\
+\midrule
+Definition~\ref{def:circulation} & \lean{outflow}, \lean{inflow}, \lean{IsCirculation},
+  \lean{flowSupp}\\
+Proposition~\ref{prop:flow-essential} & \lean{IsCirculation.essential},
+  \lean{IsCirculation.supp\_subset\_core}\\
+Theorem~\ref{thm:flow-cycles} & \lean{IsCirculation.}\allowbreak\lean{reach\_of\_pos},
+  \lean{.cyc\_of\_pos}, \lean{.sameSCC\_of\_pos}, \lean{.eq\_zero\_of\_not\_cyc}\\
+Theorem~\ref{thm:flow-zero-entropy} & \lean{IsCirculation.}\allowbreak\lean{eq\_of\_pos\_of\_noBranch},
+  \lean{.outflow\_eq\_of\_noBranch}, \lean{.noBranch\_perm}\\
+the marginals & \lean{visits}, \lean{transits}, \lean{sum\_transits\_out},
+  \lean{sum\_transits\_in}, \lean{abs\_sum\_transits\_in\_sub}, \lean{sum\_visits}\\
+Theorem~\ref{thm:balance} & \lean{empFreq}, \lean{empFlow}, \lean{exists\_circulation\_of\_walk},
+  \lean{exists\_circulation\_avoiding}\\
+the \(3/2\) density problem & \lean{CarryBridge.edgeGraph},
+  \lean{CarryBridge.isCirculation\_balanceFlow}, \lean{CarryBridge.isTrap\_map\_iff},
+  \lean{CarryBridge.BalanceVec.isTrap\_supp'}, \lean{CarryBridge.exists\_balanceVec'},
+  \lean{CarryBridge.BalanceVec.reach\_of\_pos}, \lean{CarryBridge.BalanceVec.mem\_core};
+  the vacuity is \lean{Z32.exists\_balanceVec\_zero}\\
+\bottomrule
+\end{tabular}
+\end{center}

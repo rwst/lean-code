@@ -1,0 +1,230 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Peeling and the core}\label{ch:core}
+
+A vertex from which every walk dies after a bounded number of steps contributes nothing to
+the long-run behaviour of a carry graph. Removing such vertices, and dually those that cannot
+be reached from arbitrarily far back, leaves the \emph{core}: the vertices on bi-infinite walks.
+Two of the problem families in Chapter~\ref{ch:overview} are, at bottom, statements about the
+core. In the digit problem a set \(K\) containing every cycle, together with determinism on
+\(K\), is a certificate. In the divisor problem an empty core is the \emph{unavoidable set}
+property of \cite{DubOst06}. This chapter computes the core by peeling, proves that two peeling
+stages suffice (Theorem~\ref{thm:two-stage}), and turns the peel into a bound on how long a
+walk can avoid the core (Theorem~\ref{thm:escape}).
+
+Throughout, \(X=(V,A,\succc)\) is a carry graph. Only its underlying digraph \(s\to t\) matters
+until Section~\ref{sec:functional-core}.
+
+\section{Forward rays, backward rays, the core}
+
+\begin{definition}\label{def:core}\index{core}
+A \emph{forward ray}\index{forward ray} from \(v\) is an infinite walk \(v=s_0\to s_1\to\cdots\). A \emph{backward
+ray}\index{backward ray} into \(v\) is a sequence \(v=s_0\leftarrow s_1\leftarrow\cdots\), that is, \(s_{n+1}\to s_n\)
+for all \(n\). Let
+\begin{align*}
+  F&=\{v : \text{a forward ray starts at } v\},\\
+  B(S)&=\{v : \text{a backward ray inside } S \text{ ends at } v\}\quad(S\subseteq V),\\
+  \operatorname{core}X&=F\cap B(V).
+\end{align*}
+A set \(S\) is \emph{essential}\index{essential} if every vertex of \(S\) has a successor in \(S\) and a
+predecessor in \(S\) \cite[Def.~2.2.9]{LM95}.
+\end{definition}
+
+So the core consists of the vertices on bi-infinite walks. It is the vertex set of the
+essential graph of \cite[§2.2]{LM95}, the unique subgraph with the same edge shift and no
+stranded vertices.
+
+\begin{proposition}[{\cite[Prop.~2.2.10]{LM95}}]\label{prop:largest-essential}
+The core is essential, and it contains every essential set. Every cyclic vertex lies in the
+core.
+\end{proposition}
+
+\begin{proof}
+If \(v\) is in the core, the second vertex \(w\) of a forward ray from \(v\) has a forward ray,
+and it has a backward ray, namely \(v\) followed by a backward ray into \(v\). So \(w\) is a
+successor of \(v\) in the core. Predecessors are symmetric. Conversely, starting in an essential
+set \(S\) one can always move to a successor in \(S\). Dependent choice gives a forward ray, and
+the same argument with predecessors gives a backward ray. Finally, the strong component of a
+cyclic vertex is essential.
+\end{proof}
+
+The second half needs only the axiom of dependent choice. In Lean it is the iteration of a
+chosen successor function on the subtype \(S\).
+
+\section{Two stages suffice}
+
+A naive peeling algorithm alternates two stages until nothing changes: remove vertices
+without a surviving successor, then vertices without a surviving predecessor. The
+digit-problem engine stops after one round of each and asserts that a third stage would remove
+nothing. The following theorem justifies this.
+
+\begin{theorem}[two-stage peel]\label{thm:two-stage}\index{two-stage peel}
+\begin{enumerate}[label=(\alph*)]
+\item \(F\) is the largest set in which every vertex has a successor in the set.
+\item For every \(S\), \(B(S)\subseteq S\) is the largest subset of \(S\) in which every vertex
+  has a predecessor in the set.
+\item Every vertex of \(B(F)\) has a successor in \(B(F)\), and \(B(F)=\operatorname{core}X\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) and (b) follow from the shift argument of Proposition~\ref{prop:largest-essential} and from
+dependent choice. For (c), let \(v\in B(F)\). Since \(v\in F\), it has a successor \(w\) with a
+forward ray. Prefixing \(v\) to a backward ray into \(v\) inside \(F\) gives a backward ray
+into \(w\) inside \(F\), so \(w\in B(F)\). Hence \(B(F)\) is essential and lies in the core. Conversely, if
+\(v\) is in the core, every vertex \(s_n\) of a backward ray into \(v\) reaches \(v\), and \(v\)
+has a forward ray. So \(s_n\in F\), and the backward ray lies in \(F\).
+\end{proof}
+
+\section{The computable peel and the escape depth}
+
+Let \(V\) and \(A\) be finite. Define
+\[
+  P_0=V,\qquad P_{k+1}=\{v\in P_k : \operatorname{out}(v)\cap P_k\neq\emptyset\}.
+\]
+
+\begin{proposition}\label{prop:peel}\index{peel}
+\(v\in P_k\) iff some walk of length \(k\) starts at \(v\). The sequence \(P_k\) decreases.
+Once \(P_{k+1}=P_k\), it is constant from \(k\) on, and this happens for some \(k\le|V|\).
+\end{proposition}
+
+\begin{proof}
+The first claim is by induction on \(k\): a walk of length \(k+1\) from \(v\) is an arc to a
+vertex with a walk of length \(k\). Walks can be shortened, so \(P_{k+1}\subseteq P_k\). If
+\(P_{k+1}=P_k\) then \(P_{k+2}\) is computed from the same set, so it equals \(P_{k+1}\). If the
+chain strictly decreased \(|V|+1\) times, \(P_{|V|+1}\) would have negative size.
+\end{proof}
+
+\begin{theorem}[escape depth]\label{thm:escape}\index{escape depth}
+Let \(V\) and \(A\) be finite.
+\begin{enumerate}[label=(\alph*)]
+\item \(v\in F\) iff some walk of length \(|V|\) starts at \(v\). So \(F=P_{|V|}\), and a vertex
+  outside \(F\) has no walk of length \(|V|\).
+\item A vertex removed in round \(k\), i.e.\ \(v\notin P_k\), has no walk of length \(k\).
+\item \(\operatorname{core}X=P_{|V|}(X)\cap P_{|V|}(X^{\mathrm{rev}})\). In particular the core
+  is computable.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) If \(v\in P_{|V|}\), then by stabilisation \(v\in P_m\) for all \(m\), so \(v\) has walks
+of every length. Kőnig's lemma (Theorem~\ref{thm:konig}) gives a forward ray. (b) is
+Proposition~\ref{prop:peel}. (c) A backward ray in \(X\) is a forward ray in the reverse
+graph.
+\end{proof}
+
+Part (b) is what the \emph{levels} of the problem engines measure. In the interval problem,
+an orbit point in a cell peeled in round \(k\) leaves the hold set within \(k\) steps. In the
+divisor problem, a residue peeled in round \(k\) admits no admissible digit string of length
+\(k\).
+
+\section{Empty core}
+
+\begin{theorem}[{\cite[Ex.~2.2.10]{LM95}, \cite{DubOst06}}]\label{thm:core-empty}
+For finite \(V\) and \(A\), the following are equivalent:
+\begin{enumerate}[label=(\roman*)]
+\item the core is empty;
+\item no vertex is cyclic;
+\item \(\mathrm{npaths}(v,|V|)=0\) for every \(v\);
+\item \(\mathrm{npaths}(v,n)=0\) for every \(v\) and some \(n\) (the adjacency matrix is
+  nilpotent).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i)\(\Rightarrow\)(ii) is Proposition~\ref{prop:largest-essential}. (ii)\(\Rightarrow\)(iii):
+a walk of length \(|V|\) visits \(|V|+1\) positions, so some vertex repeats, and that vertex
+is cyclic. (iii)\(\Rightarrow\)(iv) is trivial. (iv)\(\Rightarrow\)(i): a core vertex has a
+forward ray, hence walks of every length.
+\end{proof}
+
+In the digit problem, an empty core says that the divisors avoid every digit string of length
+\(|V|\). This is the unavoidable-set property of \cite{DubOst06}. It is strictly stronger than
+zero entropy (Chapter~\ref{ch:entropy}), which allows cycles.
+
+\section{Functional cores}\label{sec:functional-core}
+
+\begin{proposition}\label{prop:functional-core}
+Let \(K\supseteq\operatorname{core}X\), and suppose \(X\) restricted to \(K\) is functional: each
+vertex of \(K\) has at most one arc with target in \(K\). Then no vertex has two distinct arcs
+inside its strong component. Every strong component carrying a cycle is a simple cycle.
+\end{proposition}
+
+\begin{proof}
+If \(v\to^a t\) and \(v\to^b u\) both stay in the component of \(v\), then \(v\), \(t\), \(u\)
+are cyclic. So they lie in the core and in \(K\), and functionality gives \(a=b\), \(t=u\).
+\end{proof}
+
+This is the \emph{core certificate} of the digit problem. The pair consisting of a closed set
+\(K\) and determinism on \(K\) is a witness of zero entropy, and by
+Theorem~\ref{thm:rank-complete} it can always be converted into a rank. The converse fails: at
+base \(4\) modulo \(6\) a rank exists, but the units are not a deterministic core, because two
+cycles in different components are reachable from one state.
+
+\section{Peel chains}
+
+A certificate rarely stores the exact peel. It stores sets that are large enough, and checks
+one round at a time.
+
+\begin{definition}\label{def:peel-chain}
+A \emph{peel chain}\index{peel chain} of length \(J\) is a sequence \(A_0=V,A_1,\dots,A_J\) of
+vertex sets such that every \(v\in A_j\) with a successor in \(A_j\) and a predecessor in \(A_j\)
+lies in \(A_{j+1}\) (\(j<J\)).
+\end{definition}
+
+\begin{proposition}\label{prop:peel-chain}
+Let \(A_0,\dots,A_J\) be a peel chain. Every walk \(s_0\to s_1\to\cdots\) has \(s_n\in A_j\)
+whenever \(j\le n\), and the core lies in every \(A_j\).
+\end{proposition}
+
+\begin{proof}
+Induction on \(j\). If \(s_{n-1},s_n,s_{n+1}\in A_j\), then \(s_n\) has a predecessor and a
+successor in \(A_j\), so \(s_n\in A_{j+1}\). For the core use that it is essential
+(Proposition~\ref{prop:largest-essential}).
+\end{proof}
+
+\begin{proposition}\label{prop:functional-walk}
+In a finite functional carry graph, the labels of a walk of length \(N\) are periodic from some
+time \(t\) on, with a period \(P\ge1\) and \(t+P\le|V|\), as far as the walk goes.
+\end{proposition}
+
+\begin{proof}
+Two of the first \(|V|+1\) vertices coincide, say \(s_t=s_{t+P}\). By functionality the walk
+from \(s_t\) and the walk from \(s_{t+P}\) agree step by step, labels included.
+\end{proof}
+
+This is the combinatorial budget of an escape bound: a covered orbit whose block itinerary is
+a walk in a functional graph has a periodic carry word after at most \(|V|\) steps, and
+everything after that is arithmetic.
+
+\section*{Notes}
+The essential graph and the stranded-vertex removal are \cite[§2.2]{LM95}. The two-stage peel
+and the decidable form of the core come from the digit-problem engine. The escape depth is the
+form in which the core enters the cover theorems of Chapter~\ref{ch:covers}: an orbit in a cell
+outside \(P_k\) leaves the region covered by \(X\) within \(k\) steps.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Core.lean})\\
+\midrule
+Definition~\ref{def:core} & \lean{fwd}, \lean{bwdIn}, \lean{core}, \lean{Essential}\\
+Proposition~\ref{prop:largest-essential} & \lean{core\_essential},
+  \lean{subset\_core\_of\_essential}, \lean{mem\_core\_of\_cyc}, \lean{exists\_ray}\\
+Theorem~\ref{thm:two-stage} & \lean{fwd\_greatest}, \lean{bwdIn\_greatest}, \lean{two\_stage}\\
+Proposition~\ref{prop:peel} & \lean{peel}, \lean{mem\_peel}, \lean{peel\_antitone},
+  \lean{exists\_peel\_stable}, \lean{peel\_eq\_peel\_card}\\
+Theorem~\ref{thm:escape} & \lean{hasWalk\_card\_iff}, \lean{not\_hasWalk\_of\_not\_mem\_peel},
+  \lean{fwdSet}, \lean{mem\_fwdSet}, \lean{bwdIn\_univ\_eq}, \lean{coreSet},
+  \lean{mem\_coreSet}, \lean{decMemCore}\\
+Theorem~\ref{thm:core-empty} & \lean{core\_eq\_empty\_iff}, \lean{npaths\_pos\_iff},
+  \lean{exists\_cyc\_of\_walk}\\
+Proposition~\ref{prop:functional-core} & \lean{lnoBranch\_of\_functional}\\
+Definition~\ref{def:peel-chain}, Proposition~\ref{prop:peel-chain} & \lean{IsPeelChain},
+  \lean{IsPeelChain.walk\_mem}, \lean{IsPeelChain.core\_subset}\\
+Proposition~\ref{prop:functional-walk} & \lean{Functional.exists\_period\_of\_walk}\\
+digit problem & \lean{CarryBridge.coreClosed\_core}, \lean{CarryBridge.coreClosed\_of\_core\_subset},
+  \lean{CarryBridge.noBranch\_not\_coreDet\_four}\\
+\bottomrule
+\end{tabular}
+\end{center}

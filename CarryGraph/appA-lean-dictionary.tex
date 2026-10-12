@@ -1,0 +1,120 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Lean dictionary}\label{app:dictionary}
+
+Each chapter ends with a table from its statements to Lean declarations. This appendix gives
+the coarser map from the Lean files of \texttt{CarryGraph/} to the chapters, and then the bridge
+root \texttt{CarryBridge/}: every certificate of the corpus, the carry-graph property it
+witnesses, and the root theorems re-derived from the generic ones (primed names, same
+statements). Every theorem in both roots uses only the axioms \lean{propext},
+\lean{Classical.choice} and \lean{Quot.sound}; the files \texttt{AxCheck.lean} in each root
+print them (464 theorems in \texttt{CarryGraph/}; 173 in \texttt{CarryBridge/}, of which the 11 of
+\texttt{Z32Balance} are printed by \texttt{AxCheckBalance.lean}, because \texttt{Z32.BalanceVectors}
+and \texttt{Z32.CertComplete} cannot be imported together).
+
+\section*{Files and chapters}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.19\textwidth}>{\raggedright}p{0.62\textwidth}>{\raggedright\arraybackslash}p{0.11\textwidth}@{}}
+\toprule
+File & Main declarations & Chapter\\
+\midrule
+\texttt{Basic} & \lean{CarryGraph}, \lean{Adj}, \lean{under}, \lean{ofRel}, \lean{ofFinset},
+  \lean{reverse}, \lean{restrict}, \lean{relabel}, \lean{forget}, \lean{Hom} & \ref{ch:graphs}\\
+\texttt{Path} & \lean{IsWalk}, \lean{IsIPath}, \lean{IsWord}, \lean{npaths}, \lean{words},
+  \lean{RightResolving}, \lean{Functional}, K\H{o}nig & \ref{ch:graphs}\\
+\texttt{Reach} & \lean{Reach}, \lean{SameSCC}, \lean{Cyc}, \lean{reachSet}, \lean{desc},
+  \lean{preds}, geodesic K\H{o}nig & \ref{ch:reach}\\
+\texttt{Rank} & \lean{IsRank}, \lean{IsLRank}, \lean{NoBranch}, \lean{IsRank.evPer}, peel ranks,
+  rank depth & \ref{ch:reach}\\
+\texttt{Core} & \lean{core}, \lean{Essential}, \lean{two\_stage}, \lean{peel}, escape depth,
+  \lean{core\_eq\_empty\_iff} & \ref{ch:core}\\
+\texttt{Growth} & \lean{PolyGrowth}, \lean{polyGrowth\_or\_exp}, \lean{entropy},
+  \lean{IsSuperEigen}, \lean{IsSubEigen} & \ref{ch:entropy}\\
+\texttt{Horseshoe} & \lean{Horseshoe}, \lean{exists\_horseshoe\_of\_branch} & \ref{ch:entropy}\\
+\texttt{ZeroEntropy} & \lean{zeroEntropy\_tfae}, \lean{noBranch\_tfae} & \ref{ch:entropy}\\
+\texttt{Labelled} & \lean{EvPer}, \lean{AllPer}, \lean{det}, \lean{determinization} &
+  \ref{ch:sofic}\\
+\texttt{Language} & \lean{langFrom}, \lean{Sofic}, \lean{toNFA}, \lean{sofic\_iff} &
+  \ref{ch:sofic}\\
+\texttt{Follower} & \lean{followerGraph}, \lean{toFollower}, minimality & \ref{ch:sofic}\\
+\texttt{Shift} & \lean{blockWords}, \lean{labelShift}, \lean{rauzy} & \ref{ch:sofic}\\
+\texttt{Splitting} & \lean{RightCover}, \lean{inSplit}, \lean{outSplit}, \lean{lineGraph} &
+  \ref{ch:splitting}\\
+\texttt{Quotient} & homomorphisms and the rung, \lean{IsSimulation}, \lean{subdivide} &
+  \ref{ch:splitting}\\
+\texttt{Product} & \lean{labelProduct}, \lean{piProduct}, \lean{detStep\_piProduct} &
+  \ref{ch:splitting}\\
+\texttt{Cover} & \lean{Cover}, \lean{Realizes}, \lean{Cover.exists\_iPath},
+  \lean{Cover.evPer\_of\_allPer}, \lean{Cover.not\_allPer\_of\_horseshoe},
+  \lean{Cover.orbitEntropy\_le} &
+  \ref{ch:covers}\\
+\texttt{Dimension} & \lean{Cover.upperBoxDim\_le}, \lean{Cover.dimH\_le} & \ref{ch:covers}\\
+\texttt{Affine} & \lean{carry}, \lean{residueGraph}, \lean{blockGraph}, \lean{cellGraph},
+  \lean{affine}, \lean{cover\_affine}, \lean{dimH\_avoiders\_le} & \ref{ch:affine}\\
+\texttt{Interval} & \lean{blockHull}, \lean{cover\_affineHull},
+  \lean{dimH\_avoiders\_le\_hull} & \ref{ch:affine}\\
+\texttt{Mirror} & \lean{blockArc\_mirror}, \lean{adj\_affine\_mirror},
+  \lean{allPer\_affine\_mirror\_iff} & \ref{ch:affine}\\
+\texttt{Flow} & \lean{IsCirculation}, \lean{IsCirculation.reach\_of\_pos},
+  \lean{IsCirculation.noBranch\_perm}, \lean{exists\_circulation\_of\_walk} & \ref{ch:flows}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{The bridges}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Root certificate & Carry-graph reading (\texttt{CarryBridge})\\
+\midrule
+\texttt{DubC.CertOK} & \lean{IsRank (digitGraph a M)}; \lean{certOK\_iff\_noBranch},
+  \lean{certOK\_iff\_polyGrowth}, \lean{certOK\_full\_iff\_reduced'}\\
+\texttt{Oda.WG.Certified} & \lean{allCert\_iff\_subdivide} (phase test = label form of the
+  subdivision)\\
+\texttt{DubC2.Gen.succList} & \lean{genGraph P} \(\cong\) \lean{certGraph P}
+  (\lean{encHom}, \lean{decHom}, \lean{cellArc\_iff}, \lean{rnext\_val})\\
+\texttt{DubC2.Gen.Checked} & \lean{checked\_allPer}, \lean{checked\_lnoBranch\_det},
+  \lean{checked\_polyGrowth\_det}; \lean{checked\_isPeelChain}, \lean{checked\_round\_core},
+  \lean{detGraph}, \lean{checked\_isLRank\_det}, \lean{checked\_detSim};
+  \lean{certGraph\_allPer'}, \lean{divisor\_set\_of\_checked'},
+  \lean{divisor\_set\_mirror\_of\_checked'}\\
+\texttt{DubC2.Gen.CycChecked} & \lean{keepGraph}, \lean{checked\_keepGraph\_functional},
+  \lean{cycChecked\_cyc\_listed}\\
+\texttt{DubC2.Gen.horseOK}, \texttt{branchOK} & \lean{exists\_pseudoOrbit\_of\_horseOK},
+  \lean{not\_allPer\_of\_horseOK}, \lean{exists\_iPath\_of\_branchOK},
+  \lean{not\_allPer\_of\_branchOK}; \lean{not\_checked\_of\_horseOK'},
+  \lean{not\_checked\_of\_branchOK'} (\texttt{DubC2Witness})\\
+\texttt{DubC2.Gen.hullOK} & \lean{hullHom}; \lean{divisor\_set\_of\_checked\_hull'}\\
+\texttt{DubC2.Gen.EntCert} & \lean{entGraph\_simulation}, \lean{entGraph\_superEigen};
+  \lean{dimH\_eventually\_avoids\_le'}\\
+\texttt{DubC2.Gen.PseudoOrbit} & \lean{not\_allPer\_of\_pseudoOrbit}\\
+\texttt{DubC2.Gen.Follower} & \lean{folGraph}, \lean{reach\_folGraph\_iff},
+  \lean{branching\_iff}; \lean{exists\_injective\_path'}, \lean{finite\_of\_checked'},
+  \lean{checked\_iff\_finite'}; \lean{avoidLang}, \lean{sofic\_of\_checked},
+  \lean{avoidLang\_mono'}\\
+\texttt{DubC2.Gen.}\allowbreak\texttt{Follower.checkF} & \lean{checkF\_isLRank};
+  \lean{not\_branching\_of\_checkF'}, \lean{exists\_checked\_of\_checkF'}\\
+\texttt{DubC2.Gen.}\allowbreak\texttt{Follower.rstep} & \lean{resGraph}, \lean{primeGraph},
+  \lean{adj\_resGraph\_iff\_}\allowbreak\lean{piProduct}; \lean{rstep\_prodR'}\\
+\texttt{Z32.BlockCert.Cert} & \lean{blkGraph}, \lean{isLRank\_blkGraph},
+  \lean{functional\_blkGraph}, \lean{isIPath\_blocks}; \lean{Cert.not\_confined'},
+  \lean{card\_modelLang\_le\_of\_cert'}, \lean{not\_cert\_and\_horse'};
+  \lean{Cert.exists\_carry\_period\_le'}, \lean{Cert.exists\_escape\_le'},
+  \lean{Cert.eq\_of\_memI\_block'}, \lean{Cert.ok\_eq\_false\_of\_infinite\_hold'},
+  \lean{Cert.ok\_eq\_false\_of\_infinite\_cycles'} (\texttt{Z32Cert})\\
+\texttt{Z32.SchemaCertifiedK} & \lean{rotGraph}, \lean{rotGraph\_functional},
+  \lean{isIPath\_ranks}; \lean{isEventuallyPeriodic\_carry\_of\_certifiedK'},
+  \lean{not\_confined\_of\_certifiedK'}, \lean{exists\_carry\_period\_of\_certifiedK'},
+  \lean{exists\_escape\_le\_of\_certifiedK'} (\texttt{Z32Cert})\\
+\texttt{Z32.EntropyCert.}\allowbreak\texttt{TypeCert} & \lean{typeGraph},
+  \lean{typeGraph\_rightResolving}, \lean{typeGraph\_isSuperEigen},
+  \lean{typeGraph\_isSubEigen}, \lean{exists\_iPath\_of\_modelOrbit},
+  \lean{exists\_modelOrbit\_of\_isWord}; \lean{card\_modelLang\_eq\_words} (\texttt{Z32Type})\\
+\texttt{Z32.BalanceVec} & \lean{edgeGraph}, \lean{isCirculation\_balanceFlow},
+  \lean{isTrap\_map\_iff}, \lean{BalanceVec.reach\_of\_pos}, \lean{BalanceVec.mem\_core};
+  \lean{BalanceVec.isTrap\_supp'}, \lean{exists\_balanceVec'}\\
+\bottomrule
+\end{tabular}
+\end{center}
+

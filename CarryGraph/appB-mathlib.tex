@@ -1,0 +1,122 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{What Mathlib and ForMathlib supply}\label{app:mathlib}
+
+The Lean files of \texttt{CarryGraph/} import Mathlib and three ForMathlib modules, nothing
+else. This appendix lists what is taken from them, what had to be written because it is missing,
+and what was deliberately left out. The point of the list is the second column. A reader who
+wants to know how much of the book is new mathematics, and how much is bookkeeping around
+existing libraries, can read it off here.
+
+\section*{Taken from Mathlib}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Used for & Mathlib\\
+\midrule
+reachability (Chapter~\ref{ch:reach}) & \lean{Relation.ReflTransGen}, \lean{Relation.TransGen} and their
+  induction principles; \(\mathrm{Reach}\) and \(\mathrm{Cyc}\) are defined as these closures of
+  the underlying relation\\
+finiteness, pigeonhole & \lean{Finset}, \lean{Fintype}, \lean{Set.ncard},
+  \lean{Fintype.exists\_ne\_map\_eq\_of\_card\_lt}; every K\H{o}nig and rank argument is a
+  pigeonhole argument on these\\
+growth and entropy (Chapter~\ref{ch:entropy}) & \lean{expGrowthSup} (\texttt{Analysis/Asymptotics/ExpGrowth}),
+  \lean{expGrowthSup\_le\_of\_eventually\_le}, \lean{expGrowthSup\_monotone},
+  \lean{expGrowthSup\_pow}; polynomial versus exponential via
+  \lean{tendsto\_pow\_const\_div\_const\_pow\_of\_one\_lt}\\
+automata (Chapter~\ref{ch:sofic}) & \lean{NFA}, \lean{NFA.toDFA}, \lean{NFA.toDFA\_correct}: the subset
+  construction \(\det X\) \emph{is} \lean{NFA.toDFA} of the automaton read off \(X\)\\
+regular languages (Chapter~\ref{ch:sofic}) & \lean{Language.leftQuotient},
+  \lean{Language.}\allowbreak\lean{isRegular\_iff\_finite\_range\_}\allowbreak\lean{leftQuotient} (Myhill--Nerode): sofic
+  \(\Leftrightarrow\) regular and prefix-closed is a corollary\\
+TFAE bookkeeping & \lean{List.TFAE} and \texttt{tfae\_have}\\
+the affine system (Chapter~\ref{ch:affine}) & \lean{Int.floor}, \lean{Int.fract}, \lean{ZMod},
+  \lean{IsCoprime}, \lean{Nat.log}\\
+dimension (Chapter~\ref{ch:covers}) & \lean{dimH}, \lean{dimH\_iUnion}, \lean{dimH\_le\_upperBoxDim}\\
+compactness (Chapter~\ref{ch:flows}) & \lean{isCompact\_univ\_pi}, \lean{IsCompact.tendsto\_subseq}
+  (Bolzano--Weierstrass on the cube of flows), \lean{squeeze\_zero\_norm}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Taken from ForMathlib}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Used for & ForMathlib\\
+\midrule
+upper box dimension (Chapter~\ref{ch:covers}) & \texttt{Topology/MetricSpace/BoxDimension}:
+  \lean{upperBoxDim}, \lean{externalCoveringNumber}, \lean{upperBoxDim\_le}; Mathlib has
+  Hausdorff dimension but no box dimension\\
+label shifts (Chapter~\ref{ch:sofic}) & \texttt{Dynamics/SymbolicDynamics/Duality}: \lean{ofLanguage} and the
+  language--subshift duality, giving the two-sided label shift of an essential set\\
+Rauzy graphs (Chapter~\ref{ch:sofic}) & \texttt{Dynamics/SymbolicDynamics/Rauzy}: the relation \lean{Step}
+  that is the underlying digraph of \lean{rauzy}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Written here because it is missing}
+
+\begin{itemize}[leftmargin=1.5em]
+\item \emph{Labelled digraphs with finite out-neighbourhoods on an arbitrary vertex type.}
+  Mathlib's \lean{Digraph} and \lean{SimpleGraph} carry no labels, and \lean{Quiver} has no
+  finiteness. The structure \lean{CarryGraph V A} is one field, \(\succc : V\to A\to
+  \mathrm{Finset}\,V\).
+\item \emph{Decidable reachability.} Mathlib decides no closure of a relation. Here the
+  function \lean{reachSet} iterates successor sets to a fixpoint within \(|V|\) rounds (see
+  \lean{mem\_reachSet}), which makes \(\mathrm{Reach}\), the core and the descendant count
+  computable.
+\item \emph{K\H{o}nig's lemma for finitely branching graphs}, plain and geodesic. Mathlib's
+  \texttt{Order/KonigLemma} needs a strongly atomic order or an inverse system, and either wrapper
+  is longer than the direct pigeonhole proof (25 lines).
+\item \emph{Strong components, ranks, cores, escape depth} (Chapters~\ref{ch:reach}--\ref{ch:core}), \emph{entropy of a
+  graph} and its eigenvector brackets (Chapter~\ref{ch:entropy}), \emph{splittings, homomorphisms, simulations,
+  subdivision and label products} (Chapter~\ref{ch:splitting}), \emph{covers} and the transfer theorems
+  (Chapter~\ref{ch:covers}), \emph{circulations} and the balance lemma (Chapter~\ref{ch:flows}).
+\item \emph{A shift lemma for} \lean{expGrowthSup} (\lean{expGrowthSup\_shift}): the growth rate
+  of \(n\mapsto u_{n+1}\) is that of \(u\).
+\end{itemize}
+
+\section*{Left out}
+
+Perron--Frobenius theory is not formalised (decision D-4 of the plan). The entropy is bracketed
+by super- and sub-eigenvectors (Theorem~\ref{thm:brackets}), which is what every
+certificate in the corpus uses, and no bridge needs the Perron eigenvalue itself. Likewise the
+identity \(h(X)=\max_C h(X_C)\) over strong components \cite[Thm.~4.4.4]{LM95} and the period
+of a strong component are mentioned in Chapter~\ref{ch:entropy} but not proved in Lean, and
+Tarjan's algorithm is not needed, because strong components are decided through
+\lean{reachSet}. None of them is used later.
+
+\section*{Checking a certificate with the kernel}
+
+A theorem about a concrete graph is proved by evaluating a decision procedure in the kernel
+(\texttt{decide +kernel}). How the witness is phrased decides whether this is feasible. On the
+path graph \(0\to1\to\dots\to n-1\circlearrowleft\) with rank \(\rho(v)=n-1-v\), measured on one
+machine with three threads and the time to load the imports subtracted:
+
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+form of the check & \(n\) & time & peak memory\\
+\midrule
+\lean{IsRank} unfolded, vertex pairs and triples & 20 & 0.5\,s & 2.4\,GB\\
+ & 40 & 4.5\,s & 3.7\,GB\\
+ & 80 & \multicolumn{2}{r}{killed at 12\,GB}\\
+arc-local, \lean{Finset}-valued successors & 100 & 2\,s & 3.5\,GB\\
+ & 300 & 26\,s & 9.7\,GB\\
+ & 1000 & \multicolumn{2}{r}{killed at 12\,GB}\\
+arc-local \lean{Bool} check, \lean{List}-valued successors & 1000 & 0.4\,s & 1.6\,GB\\
+ & 10\,000 & 2.5\,s & 2.3\,GB\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The defining form quantifies over all pairs and triples of vertices and costs \(|V|^3\). The
+arc-local form costs one pass over the arcs, but kernel reduction of \lean{Finset} membership
+through \lean{Multiset} quotients is slow. The practical rule, which the large certificates of
+the corpus already follow, is therefore: state the check as a \lean{Bool} function on lists,
+prove once that it implies \lean{IsRank} (or \lean{IsLRank}), and let the kernel evaluate only
+the \lean{Bool} function. \texttt{decide} on the defining predicates is for examples with a few
+dozen vertices.

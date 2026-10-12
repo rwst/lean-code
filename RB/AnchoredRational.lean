@@ -47,7 +47,7 @@ The escape step is field-agnostic and needs no adaptation: `RB.escape_of_linear_
 statement about real numbers) and `RB.exists_coeffs_of_ne_top` (now at `F = ℚ`) close the argument
 exactly as before, and `RB.anchoredNearest`, `RB.abs_anchoredDefect_nearest`,
 `RB.anchoredNearest_max_le` supply the data.  The `ℚ`-side place bookkeeping comes from the
-`CZ`/`NKR` machinery (`NKR.localNorm_triple`, `NKR.padic_max3_of_gcd_eq_one`).
+`CZ`/`NKR` machinery (`SubspaceTriple.localNorm_triple`, `SubspaceTriple.padic_max3_of_gcd_eq_one`).
 
 ## Contents
 
@@ -110,8 +110,8 @@ theorem anchoredVec_ne_zero (m : ℤ) (d : ℕ) : anchoredVec m d ≠ 0 := by
 @[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]
 theorem anchoredVec_localNorm_real (m : ℤ) (d : ℕ) :
     localNorm real (anchoredVec m d) = max (|(m : ℝ)| * 2 ^ d) (3 ^ d) := by
-  rw [anchoredVec, NKR.localNorm_triple, NKR.real_intCast_natAbs, NKR.real_intCast_natAbs,
-    NKR.real_intCast_natAbs]
+  rw [anchoredVec, SubspaceTriple.localNorm_triple, SubspaceTriple.real_intCast_natAbs, SubspaceTriple.real_intCast_natAbs,
+    SubspaceTriple.real_intCast_natAbs]
   have e0 : ((m * 2 ^ d : ℤ).natAbs : ℝ) = |(m : ℝ)| * 2 ^ d := by
     rw [Nat.cast_natAbs]
     push_cast
@@ -131,9 +131,9 @@ theorem anchoredVec_localNorm_real (m : ℤ) (d : ℕ) :
 @[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]
 theorem anchoredVec_localNorm_padic (p : ℕ) [Fact p.Prime] (m : ℤ) (d : ℕ) :
     localNorm (padic p) (anchoredVec m d) = 1 := by
-  rw [anchoredVec, NKR.localNorm_triple]
+  rw [anchoredVec, SubspaceTriple.localNorm_triple]
   simpa [anchoredTripleInt] using
-    NKR.padic_max3_of_gcd_eq_one p (anchoredTripleInt m d) (anchoredTripleInt_gcd m d)
+    SubspaceTriple.padic_max3_of_gcd_eq_one p (anchoredTripleInt m d) (anchoredTripleInt_gcd m d)
 
 /-- The height of the triple is `M` — over `ℚ` the naive height, with no degree factor. -/
 @[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]

@@ -1,0 +1,64 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.
+% Released under CC0 1.0 Universal (public-domain dedication).
+\documentclass[11pt,a4paper]{book}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage{makeidx}
+\makeindex
+\usepackage[hidelinks]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\succc}{\operatorname{succ}}
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\frc}[1]{\{#1\}}
+
+\title{Carry Graphs\\[1ex]\large Finite labelled digraphs behind integer parts of powers}
+\author{Ralf Stephan\\\small in collaboration with Claude Code}
+\date{Draft, \today}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+\setcounter{chapter}{-1}
+\input{ch00-overview}
+\input{ch01-graphs}
+\input{ch02-reach}
+\input{ch03-core}
+\input{ch04-entropy}
+\input{ch05-sofic}
+\input{ch06-splitting}
+\input{ch07-covers}
+\input{ch08-affine}
+\input{ch09-flows}
+
+\appendix
+\input{appA-lean-dictionary}
+\input{appB-mathlib}
+
+\backmatter
+\bibliographystyle{alpha}
+\bibliography{carry}
+\printindex
+\end{document}

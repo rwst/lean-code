@@ -1,0 +1,137 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Why carry graphs}\label{ch:overview}
+
+\section{One recurrence}
+
+Let \(p>q\ge 1\) be coprime integers, \(\xi>0\) a real number and \(\nu\) a real shift.
+Write
+\[
+  \xi\Bigl(\frac pq\Bigr)^{n}+\nu \;=\; x_n+y_n,\qquad x_n\in\Z,\quad y_n\in[0,1),
+\]
+so that \(x_n=\lfloor \xi(p/q)^n+\nu\rfloor\) is the integer part and \(y_n\) the fractional
+part. Multiplying the identity at \(n\) by \(p/q\) and comparing with the identity at \(n+1\)
+gives
+\begin{equation}\label{eq:carry}
+  q\,x_{n+1} \;=\; p\,x_n + s_n,
+  \qquad
+  s_n \;=\; p\,y_n - q\,y_{n+1} - (p-q)\,\nu \in \Z .
+\end{equation}
+The integer \(s_n\) is the \emph{carry} of step \(n\). It takes only finitely many values,
+because \(y_n,y_{n+1}\in[0,1)\), and it is the only information that passes from the
+fractional part to the integer part. For \(q=1\) and \(\nu=0\) the recurrence is
+\(x_{n+1}=p\,x_n+s_n\) with \(s_n\in\{0,\dots,p-1\}\), and \(s_n\) is the \(n\)-th base-\(p\)
+digit of \(\xi\) after the point.
+
+Many old questions about the integers \(\lfloor\xi(p/q)^n\rfloor\) and the fractional parts
+\(\frc{\xi(p/q)^n}\) concern the \emph{carry word} \(s_0s_1s_2\cdots\):
+\begin{itemize}
+\item whether \(x_n\) is composite for infinitely many \(n\) \cite{FS67,DN05,Dub09};
+\item whether every \(x_n\) can avoid a finite set \(\mathcal P\) of prime divisors;
+\item whether all \(y_n\) can stay in a short interval
+  (Mahler's \(Z\)-number problem \cite{Mah68,FLP95}).
+\end{itemize}
+In each case the question can be asked about finite data: a residue of \(x_n\) modulo some
+\(M\), the cell of \(y_n\) in a partition of \([0,1)\) into \(D\) intervals, or both. The
+recurrence~\eqref{eq:carry} moves this finite data along a finite labelled digraph whose arc
+labels are the carries. This book is about that digraph.
+
+\section{The object}
+
+\begin{definition}
+A \emph{carry graph} over a label set \(A\) is a set \(V\) of vertices together with a map
+\(\succc\colon V\times A\to\{\text{finite subsets of }V\}\). There is an arc
+\(v\xrightarrow{a}w\) when \(w\in\succc(v,a)\).
+\end{definition}
+
+The vertex set may be infinite. Only the out-neighbourhoods have to be finite, and that is
+the condition the rest of the book uses. Forgetting the labels gives an ordinary digraph in the
+sense of \cite[§1.2]{BJG09}. Keeping them gives a labelled graph in the sense of
+\cite[§3.1]{LM95}. A finite carry graph is therefore an object of symbolic dynamics, and most
+of the tools of \cite{LM95} chapters~1--4 apply to it.
+
+Three families of carry graphs recur.
+\begin{description}[style=nextline]
+\item[Residue graphs.] Vertices are residues \(r\in\Z/M\). Under the label \(s\), the arc
+  \(r\xrightarrow{s}(pr+s)q^{-1}\) is present when \(\gcd(q,M)=1\). Here \(x_n\bmod M\) walks
+  along this graph and the label is the carry. Deleting the residues divisible by a prime of
+  \(\mathcal P\) leaves the residues an avoiding orbit may visit.
+\item[Cell graphs.] Vertices are the cells \([c/D,(c+1)/D)\), \(0\le c<D\). There is an arc
+  \(c\xrightarrow{s}c'\) when some \(y\) in cell \(c\) has \((p\,y-(p-q)\nu-s)/q\) in cell
+  \(c'\). Then \(y_n\) walks along this graph and the label is again the carry.
+\item[Products.] The pair \((x_n\bmod M,\ \text{cell of }y_n)\) walks along the \emph{label
+  product} of a residue graph and a cell graph. Its arcs are the pairs of arcs carrying the
+  same label (Chapter~\ref{ch:splitting}).
+\end{description}
+
+\section{Covers, and the shape of every theorem}
+
+The orbit itself lives in an infinite space: the pairs \((x_n,y_n)\), or the reals \(\xi\).
+A carry graph \(X\) is tied to the orbit by a \emph{cover}. This is an assignment
+\(\rho\colon V\to\mathcal P(S)\) of a region of state space to every vertex, such that every
+step of the dynamics from \(\rho(v)\) under carry \(a\) lands in \(\rho(w)\) for some arc
+\(v\xrightarrow{a}w\). A cover makes every orbit a path of \(X\), and the carry word of the
+orbit the label of that path. Conversely, \(X\) \emph{realises} the dynamics when every finite
+labelled path is the carry word of some orbit segment.
+
+With these two notions, every result about the problems above has the same shape:
+\[
+  \begin{gathered}
+  \text{cover of the dynamics by }X\;+\;\text{a property of the finite graph }X\\
+  \Longrightarrow\;\text{a property of every orbit.}
+  \end{gathered}
+\]
+The graph properties that occur are few:
+\begin{itemize}
+\item every infinite path of \(X\) is eventually periodic (\emph{zero entropy},
+  Chapter~\ref{ch:entropy}); combined with the aperiodicity of carry words
+  \cite[Lemma~2]{DN05}, an avoiding orbit then cannot exist;
+\item every infinite path leaves a vertex set after a bounded number of steps
+  (\emph{escape}, Chapter~\ref{ch:core});
+\item the number of labelled paths of length \(n\) is at most \(C\lambda^n\), which bounds an
+  entropy or a Hausdorff dimension (Chapter~\ref{ch:covers});
+\item and, in the other direction, the existence of two closed walks of equal length
+  through one vertex (a \emph{horseshoe}). When \(X\) realises the dynamics, this produces
+  orbits with positive entropy, and it shows that no proof of the first kind exists for that
+  graph.
+\end{itemize}
+A computer search finds the graph and a finite witness for the property, such as a rank
+function, a peeling sequence, a sub-eigenvector or a pair of closed walks. A proof assistant
+checks the witness, and the transfer theorems of this book turn the checked property into a
+statement about orbits. The book develops the graph theory and the transfer theorems once,
+for all carry graphs. The witnesses and searches belong to the individual problems and appear
+here only as examples.
+
+\section{What is in the book}
+
+Chapters~\ref{ch:graphs}--\ref{ch:core} cover walks, Kőnig's lemma, reachability, strong
+components and their acyclic orderings \cite[§1.4--1.5]{BJG09}. They also introduce ranks
+and the peeling of a graph down to its core, the part that carries every infinite path.
+Chapter~\ref{ch:entropy} counts paths. It proves the dichotomy between polynomial and
+exponential growth, the equivalence of six descriptions of zero entropy, and the
+eigenvector bounds that stand in for the Perron--Frobenius theorem \cite[§4.1--4.4,
+§5.3]{LM95}. Chapter~\ref{ch:sofic} studies labels: label languages, the subset
+construction, follower sets and sofic shifts \cite[ch.~3]{LM95}. Chapter~\ref{ch:splitting}
+covers state splitting, higher-block and line graphs, homomorphisms, and label products
+\cite[§2.3--2.4]{LM95}, \cite[§4.5]{BJG09}. Chapter~\ref{ch:covers} defines covers and
+proves the transfer theorems. Chapter~\ref{ch:affine} specialises to the affine carry graphs
+of the recurrence~\eqref{eq:carry}. It proves that the residue--cell graph is a label
+product and works through the problems listed above as examples. Chapter~\ref{ch:flows} turns from
+avoidance to frequency: circulations, the balance lemma for the visit frequencies of a walk,
+and why flow conservation alone cannot prove that \(\frc{(3/2)^n}\) visits every interval with
+positive density.
+
+\section{Lean}
+
+Every definition and theorem in this book is formalised in Lean~4 on top of Mathlib
+\cite{Mathlib}, in the directory that also holds this book. The two use the same names:
+a carry graph is the structure \lean{CarryGraph V A} with one field
+\lean{succ : V \(\to\) A \(\to\) Finset V}. Each chapter ends with a table that matches its numbered
+results to Lean declarations, and Appendix~\ref{app:dictionary} collects these tables.
+Appendix~\ref{app:mathlib} lists what Mathlib already provided and what had to be built.
+
+\section*{Notes}
+The recurrence~\eqref{eq:carry} and the carry word are classical. The aperiodicity of the
+carry word is \cite[Lemma~2]{DN05}. Residue dynamics for \(q=1\) is the method of
+\cite{FS67} and \cite{Dub09}. Cell dynamics and the intervals that confine
+\(\frc{\xi(p/q)^n}\) go back to \cite{FLP95}. Finite graph witnesses for composite terms of
+\(\lfloor\xi(a/b)^n\rfloor\) appear in \cite{Oda26}.

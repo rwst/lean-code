@@ -1,0 +1,380 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Splittings, homomorphisms and products}\label{ch:splitting}
+
+The same problem can be encoded by many carry graphs. The \texttt{DubC} engine works modulo
+\(M=14M'\) or modulo \(M'\). The interval problem uses residues, cells, or both at once. Word
+graphs with long edges can be broken into letters. This chapter collects the constructions that
+change the graph and records what they preserve. The invariants that matter are the entropy,
+zero entropy (Theorem~\ref{thm:six-faces}), an empty core (Theorem~\ref{thm:core-empty}) and
+the label form (Definition~\ref{def:allper}). The vertex count is never one of them.
+
+\section{Right covers}
+
+\begin{definition}\label{def:rightcover}
+Let \(X\) and \(Y\) be carry graphs on \(V\) and \(W\), and \(U\subseteq W\). A map
+\(p\colon W\to V\) is a \emph{right cover}\index{right cover} of \(X\) by \(Y\) on \(U\) if \(U\) is closed under
+successors and, for \(y\in U\) and every label \(a\), \(p\) maps the \(a\)-successors of \(y\)
+bijectively onto the \(a\)-successors of \(p(y)\).
+\end{definition}
+
+This is the graph form of a right-resolving factor code \cite[§8.2]{LM95}. A right cover on all
+of \(W\) is a homomorphism \(Y\to X\).
+
+\begin{proposition}\label{prop:rightcover-paths}
+If \(p\) is a right cover on \(U\), then for \(y\in U\) and all \(n\)
+\[
+\mathrm{npaths}_Y(y,n)=\mathrm{npaths}_X(p(y),n).
+\]
+\end{proposition}
+
+\begin{proof}
+Induction on \(n\). The recursion
+\[
+\mathrm{npaths}(y,n+1)=\sum_a\sum_{z\in\succc(y,a)}\mathrm{npaths}(z,n)
+\]
+is carried term by term along the bijections.
+\end{proof}
+
+A vertex is a \emph{sink} if no arc leaves it.
+
+\begin{theorem}\label{thm:rightcover}\index{right cover}
+Let \(V\), \(W\) and \(A\) be finite and \(p\) a right cover on \(U\). Suppose every vertex of
+\(W\setminus U\) is a sink, and every vertex of \(V\) is a sink or has a preimage in \(U\). Then
+\(X\) and \(Y\) have the same entropy, both or neither have zero entropy, and both or neither
+have an empty core.
+\end{theorem}
+
+\begin{proof}
+For \(n\ge1\), sinks carry no path of length \(n\). Choosing one preimage of each non-sink vertex
+of \(X\) and using Proposition~\ref{prop:rightcover-paths} gives
+\(\mathrm{ntot}_X(n)\le\mathrm{ntot}_Y(n)\). Bounding each \(\mathrm{npaths}_Y(y,n)\) by
+\(\mathrm{ntot}_X(n)\) gives \(\mathrm{ntot}_Y(n)\le|W|\,\mathrm{ntot}_X(n)\). Total path counts
+comparable up to constant factors have the same exponential growth rate, and they vanish at
+the same lengths. Then apply Theorem~\ref{thm:six-faces} (entropy \(\le0\)) and
+Theorem~\ref{thm:core-empty}.
+\end{proof}
+
+\begin{example}[full and reduced model]\label{ex:full-reduced}
+For base \(7\) the digit graph \(D_{7,14M'}\) of Example~\ref{ex:digit} has the units modulo
+\(14M'\) as vertices. Its \emph{reduced model} \(R_{M'}\) has the units modulo \(M'\) and arcs
+\(\rho\xrightarrow{d}7\rho+d\) for the digits \(d\in\{2,4,6\}\). These are the digits that keep
+\(7r+d\) prime to \(2\) and \(7\). Reduction modulo \(M'\) is a right cover on the units. The
+\(d\)-successor \(7x+d\) of a unit \(x\) is a unit iff \(d\in\{2,4,6\}\) and \(7x+d\) is prime to
+\(M'\), and this is exactly the condition for the \(d\)-arc of \(R_{M'}\) at the reduction. Each
+side has at most one \(d\)-successor, so the bijection is automatic. If \(\gcd(M',14)=1\), every
+unit modulo \(M'\) lifts to a unit modulo \(14M'\) by the Chinese remainder theorem. Theorem~\ref{thm:rightcover}
+then says that the two models have the same zero-entropy verdict. Their cores still differ in
+size: at \(y=19\) they have \(53\,218\) and \(48\,548\) vertices. The full core is an in-splitting
+of the reduced one.
+\end{example}
+
+\section{State splitting}
+
+Let \(\pi\colon V\times A\times V\to C\) assign a class to every arc, with \(C\) finite and
+non-empty.
+
+\begin{definition}\label{def:split}
+The \emph{in-splitting}\index{in-splitting} \(X_\pi^{\mathrm{in}}\) \cite[Def.~2.4.7]{LM95} has vertices \((u,c)\)
+and an arc \((u,c)\xrightarrow{a}(v,\pi(u,a,v))\) for every arc \(u\xrightarrow{a}v\) of \(X\):
+the copies of \(v\) sort the arcs \emph{into} \(v\). The \emph{out-splitting}\index{out-splitting}
+\(X_\pi^{\mathrm{out}}\) \cite[Def.~2.4.3]{LM95} has an arc \((u,c)\xrightarrow{a}(v,c')\) for
+every arc \(u\xrightarrow{a}v\) of class \(\pi(u,a,v)=c\) and every \(c'\): the copies of \(u\)
+share out the arcs \emph{out of} \(u\).
+\end{definition}
+
+\begin{theorem}\label{thm:split}
+\begin{enumerate}[label=(\alph*)]
+\item The first projection is a right cover of \(X\) by \(X_\pi^{\mathrm{in}}\) on all
+  vertices. So \(\mathrm{npaths}(\,(u,c),n)=\mathrm{npaths}(u,n)\).
+\item \(\sum_{c\in C}\mathrm{npaths}_{X_\pi^{\mathrm{out}}}((u,c),n)=|C|\cdot
+  \mathrm{npaths}_X(u,n)\).
+\item Both splittings have the entropy of \(X\), have zero entropy iff \(X\) has, and have an
+  empty core iff \(X\) has.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) The \(a\)-successors of \((u,c)\) are the pairs \((v,\pi(u,a,v))\), one for each
+\(a\)-successor \(v\) of \(u\). (b) Induction on \(n\). A path from \((u,c)\) starts with an arc
+of class \(c\), and summing over \(c\) recovers every arc out of \(u\) exactly once. (c) From
+(a) and Theorem~\ref{thm:rightcover} for the in-splitting. From (b),
+\(\mathrm{ntot}_{X_\pi^{\mathrm{out}}}=|C|\,\mathrm{ntot}_X\) for the out-splitting.
+\end{proof}
+
+Part (b) is the counting content of the conjugacy theorem for splittings
+\cite[Thm.~2.4.10]{LM95}, which needs no conjugacy here. A right cover need not be surjective
+or injective on vertices. The vertex count is free while every growth invariant is fixed.
+
+\section{Line graphs and higher blocks}
+
+\begin{definition}\label{def:linegraph}
+The \emph{line graph}\index{line graph} \(X^{[2]}\) \cite[§4.5]{BJG09}, the edge graph of
+\cite[Def.~2.3.4]{LM95}, has the triples \((u,a,v)\) as vertices and an arc
+\((u,a,v)\xrightarrow{b}(v,b,w)\) whenever both \(u\xrightarrow{a}v\) and \(v\xrightarrow{b}w\)
+are arcs of \(X\). Triples that are not arcs are isolated. Iterating gives the higher block
+graphs \(X^{[n]}\).
+\end{definition}
+
+The target map \((u,a,v)\mapsto v\) is a right cover on the arcs. It is not a right cover in
+the sense of Theorem~\ref{thm:rightcover}, because a vertex of \(X\) without incoming arcs has no
+preimage. What replaces it is a shift.
+
+\begin{lemma}\label{lem:shift}
+\(\mathrm{ntot}_{X^{[2]}}(n+1)=\mathrm{ntot}_X(n+2)\). If a sequence \(u\) of naturals
+satisfies \(u(n+1)\le c\,u(n)\), then \(u\) and \(n\mapsto u(n+1)\) have the same exponential
+growth rate.
+\end{lemma}
+
+\begin{proof}
+A path of length \(n+1\) from the arc \((u,a,v)\) is a path of length \(n+1\) from \(v\).
+Summing over the arcs out of \(u\) gives \(\mathrm{npaths}_X(u,n+2)\). For the second claim,
+\(\log u(n+1)/n\ge\log u(n+1)/(n+1)\) because \(u(n+1)\) is \(0\) or at least \(1\). The
+\(\limsup\) of the right-hand side is that of \(\log u(n)/n\), and the bound \(u(n+1)\le c\,u(n)\)
+gives the other inequality. Total path counts satisfy the bound with
+\(c=|V|^2|A|\).
+\end{proof}
+
+\begin{theorem}\label{thm:linegraph}
+The line graph has the entropy of \(X\), has zero entropy iff \(X\) has, and has an empty core
+iff \(X\) has.
+\end{theorem}
+
+The window-\(K\) states of the \texttt{DubC2} engine and the contracted graphs of
+\cite{Oda26} record several consecutive steps in one vertex. They are presentations of this
+higher-block kind, and Theorem~\ref{thm:linegraph} is why recording more history never changes
+a verdict.
+
+\section{Homomorphisms and simulations}
+
+A homomorphism \(f\colon X\to Y\) (Definition~\ref{def:carry-graph}) maps paths to paths with
+the same labels. Three things follow at once.
+\begin{itemize}
+\item Cycles go to cycles, so a set containing every cycle of \(Y\) pulls back to one
+  containing every cycle of \(X\). With a peel rank this is the rung of
+  Corollary~\ref{cor:rung}.
+\item Bi-infinite paths go to bi-infinite paths, so \(f\) maps the core into the core, and
+  \(\operatorname{core}Y=\emptyset\) implies \(\operatorname{core}X=\emptyset\).
+\item The label form passes from \(Y\) to \(X\) (Proposition~\ref{prop:state-label}(c)).
+\end{itemize}
+Path counts need one more condition.
+
+\begin{proposition}\label{prop:locinj}\index{homomorphism!locally injective}
+Let \(f\) be \emph{locally injective}: injective on the \(a\)-successors of each vertex. Then
+\[
+\mathrm{npaths}_X(v,n)\le\mathrm{npaths}_Y(f(v),n).
+\]
+So the entropy of \(X\) is at most
+that of \(Y\), and zero entropy passes from \(Y\) to \(X\).
+\end{proposition}
+
+\begin{proof}
+Induction on \(n\). Local injectivity turns the sum over the \(a\)-successors of \(v\) into a sum
+over their images, which is a subset of the \(a\)-successors of \(f(v)\).
+\end{proof}
+
+A \emph{simulation}\index{simulation} of \(X\) by \(Y\) is a relation \(R\subseteq V\times W\) such that from
+related vertices every arc \(v\xrightarrow{a}v'\) of \(X\) is matched by an arc
+\(w\xrightarrow{a}w'\) of \(Y\) with \(R(v',w')\). A homomorphism is a functional simulation.
+Infinite paths lift along a simulation one step at a time, so words of \(X\) are words of
+\(Y\), and if every vertex of \(X\) is related to some vertex of \(Y\), the label form passes from
+\(Y\) to \(X\).
+
+\begin{theorem}[peel, then simulate]\label{thm:peel-simulate}
+Let \(A_0,\dots,A_J\) be a peel chain of \(X\) (Definition~\ref{def:peel-chain}) with
+\(A_J\subseteq K\). If the restriction of \(X\) to \(K\) is simulated by a graph \(Y\) with the
+label form, and every vertex of \(K\) is related to a vertex of \(Y\), then \(X\) has the label
+form.
+\end{theorem}
+
+\begin{proof}
+An infinite path of \(X\) lies in \(K\) from step \(J\) on
+(Proposition~\ref{prop:peel-chain}). Its tail lifts to \(Y\) with the same labels, which are
+eventually periodic.
+\end{proof}
+
+This is the shape of a two-part certificate: rounds that push every infinite walk into a small
+set \(K\), then a deterministic automaton on \(K\) with a rank.
+
+\section{Label products}
+
+\begin{definition}\label{def:labelproduct}
+The \emph{label product}\index{label product} \(X\otimes Y\) \cite[Def.~3.4.8]{LM95} has vertex set \(V\times W\)
+and an arc \((v,w)\xrightarrow{a}(v',w')\) whenever \(v\xrightarrow{a}v'\) and
+\(w\xrightarrow{a}w'\). The indexed product \(\bigotimes_i X_i\) of a finite family is defined
+in the same way.
+\end{definition}
+
+\begin{proposition}\label{prop:labelproduct}
+\begin{enumerate}[label=(\alph*)]
+\item A path of \(X\otimes Y\) is a pair of paths reading the same word. So
+  \(L_{X\otimes Y}(v,w)=L_X(v)\cap L_Y(w)\), and sofic languages are closed under intersection
+  \cite[Prop.~3.4.10]{LM95}. Products of right-resolving graphs are right-resolving.
+\item The projections are homomorphisms. If one factor has the label form or an empty core,
+  so does the product.
+\item One step of the subset construction factorises, and likewise for indexed products:
+  \[
+  \operatorname{detStep}(S\times T,a)=\operatorname{detStep}(S,a)\times
+  \operatorname{detStep}(T,a).
+  \]
+\item \(h(X\otimes Y)\le h(X)+h(Y)\). If \(Y\) is right-resolving, then \(h(X\otimes Y)\le h(X)\).
+  If both factors have zero entropy, so does the product.
+\item The number of words of length \(n\) from \((v,w)\) is at most the minimum of the
+  numbers from \(v\) and from \(w\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a), (b) and (c) are immediate from the definition. (d) By induction,
+\[
+\mathrm{npaths}((v,w),n)\le\mathrm{npaths}(v,n)\,\mathrm{npaths}(w,n),
+\]
+and the growth rate of a product of sequences is at most the sum of the rates. The entropy is finite
+by the super-eigenvector bound of Theorem~\ref{thm:brackets} with the constant vector. If \(Y\)
+is right-resolving, the first projection is locally injective (Proposition~\ref{prop:locinj}).
+Polynomial bounds multiply. (e) follows from (a).
+\end{proof}
+
+The bound \(h(X\otimes Y)\le\min(h(X),h(Y))\) is false for path counts. Let \(X\) be a single
+vertex with an \(a\)-loop, and \(Y\) two vertices with all four \(a\)-arcs. Then \(X\otimes Y\) is a
+copy of \(Y\), with \(2^{n+1}\) paths of length \(n\) and entropy \(\log2>0=h(X)\). The bound
+holds for words by (e), because words are what the labels see.
+
+Part (c) is the graph content of the Chinese-remainder step in the follower automaton of
+\texttt{DubC2}: the residue coordinate modulo \(M=\prod p_i^{k_i}\) is the indexed product of the
+coordinates modulo \(p_i^{k_i}\), and the subset construction acts on each factor separately.
+For an inclusion \(I\subseteq J\) of index sets, restriction is a homomorphism
+\(\bigotimes_{j\in J}X_j\to\bigotimes_{i\in I}X_i\). So adding primes to \(\mathcal P\) shrinks
+the language and keeps every certificate. The same holds next to a shared factor such as the
+cell coordinate, because the product of two homomorphisms is a homomorphism of label products.
+
+\section{Subdivision}\label{sec:subdivision}
+
+A \emph{word graph} is a finite set \(E\subseteq V\times A^*\times V\) of arcs labelled by
+non-empty words. An \emph{infinite word path} \((v_i,w_i)\) with times \(t_{i+1}=t_i+|w_i|\)
+outputs the sequence \(\ell\) with \(\ell(t_i+k)=w_i[k]\). The graphs of \cite{Oda26} are word
+graphs, and they become carry graphs by subdivision.
+
+\begin{definition}\label{def:subdivide}
+The \emph{subdivision}\index{subdivision} \(\operatorname{sd}E\) has the vertices of \(V\) and, for each arc
+\(e=(u,w,v)\) and each \(0<i<|w|\), an interior vertex \((e,i)\). The arc \(e\) becomes the chain
+\[
+u=(e,0)\xrightarrow{w[0]}(e,1)\xrightarrow{w[1]}\cdots\xrightarrow{w[|w|-1]}(e,|w|)=v .
+\]
+\end{definition}
+
+\begin{theorem}[subdivision]\label{thm:subdivide}
+Let every word of \(E\) be non-empty.
+\begin{enumerate}[label=(\roman*)]
+\item Between vertices of \(V\), \(\operatorname{sd}E\) reads exactly the concatenations of the
+  words along finite word paths.
+\item \(\operatorname{sd}E\) has the label form iff every infinite word path of \(E\) has
+  eventually periodic output.
+\item \(\operatorname{sd}E\) has zero entropy iff no vertex of \(E\) has two distinct word arcs
+  that both return to it.
+\item The prefixes of the outputs of word paths from \(u\) form the language of
+  \(\operatorname{sd}E\) at \(u\), so they form a sofic language.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Every vertex reached from \(V\) is a position \((e,i)\) with \(0<i\le|w|\), and its rest
+\(w[i..]\) leads to the end of \(e\). (i) follows by induction on the word read. (iii) An
+interior vertex has a single out-arc, so branching can only happen at \(V\). Two distinct word
+arcs out of \(u\) leave \(u\) along distinct pairs (label, target), and a target returns to \(u\)
+iff the end of its word arc does. (iv) follows from (i). (ii) In one direction a word path
+becomes a path of \(\operatorname{sd}E\) with the output as labels. In the other, an infinite
+path of \(\operatorname{sd}E\) reaches \(V\) within \(\max|w|\) steps. From there it runs
+through one whole word arc after another, and a recursive choice of these arcs gives a word
+path with the same output.
+\end{proof}
+
+Part (ii) and the determinization theorem (Theorem~\ref{thm:determinization}) together extend
+\cite[Thm.~21]{Oda26} from one-letter graphs (Chapter~\ref{ch:sofic}) to every word graph with
+finitely many arcs. The phase test holds on
+every strong component iff every infinite word path has eventually periodic output, iff
+\(\det\operatorname{sd}E\) has the state form. This covers the contracted graphs of the normal
+form. The one hypothesis is that the edge set is a finite set of non-empty words.
+
+\section*{Notes}
+State splitting, higher blocks and label products are \cite[§§2.3, 2.4, 3.4]{LM95}. Line
+digraphs are \cite[§4.5]{BJG09}. Right covers are the graph side of the right-resolving factor
+codes of \cite[ch.~8]{LM95}. The counting form of their invariance needs no conjugacy, no
+Perron--Frobenius theory and no adjacency matrix. Example~\ref{ex:full-reduced} is gate X-SPLIT
+of the certificate-graph study: the fibres of the full core over the reduced one have size
+\(1\) or \(2\), namely the number of distinct incoming digits. Theorem~\ref{thm:subdivide}
+answers gate G-2 of the plan positively, at the level of whole graphs. The per-component form,
+in which the phase test on one strong component equals the state form of its subdivision, is
+not needed.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Splitting.lean}, \texttt{Quotient.lean}, \texttt{Product.lean})\\
+\midrule
+Definition~\ref{def:rightcover} & \lean{RightCover}, \lean{RightCover.toHom}, \lean{IsSink}\\
+Proposition~\ref{prop:rightcover-paths} & \lean{npaths\_eq\_of\_rightCover}\\
+Theorem~\ref{thm:rightcover} & \lean{ntot\_le\_of\_rightCover}, \lean{ntot\_rightCover\_le},
+  \lean{entropy\_eq\_of\_ntot}, \lean{core\_eq\_empty\_iff\_of\_ntot},
+  \lean{entropy\_eq\_of\_rightCover}, \lean{lnoBranch\_iff\_of\_rightCover},
+  \lean{polyGrowth\_iff\_of\_rightCover}, \lean{core\_eq\_empty\_iff\_of\_rightCover}\\
+Example~\ref{ex:full-reduced} & \lean{CarryBridge.reducedGraph},
+  \lean{CarryBridge.digitGraph\_rightCover}, \lean{CarryBridge.npaths\_full\_eq\_reduced},
+  \lean{CarryBridge.exists\_unit\_lift}, \lean{CarryBridge.certOK\_full\_iff\_reduced'}\\
+Definition~\ref{def:split}, Theorem~\ref{thm:split} & \lean{inSplit}, \lean{adj\_inSplit},
+  \lean{inSplit\_rightCover}, \lean{npaths\_inSplit}, \lean{entropy\_inSplit},
+  \lean{lnoBranch\_inSplit\_iff}, \lean{core\_inSplit}; \lean{outSplit}, \lean{adj\_outSplit},
+  \lean{sum\_npaths\_outSplit}, \lean{ntot\_outSplit}, \lean{entropy\_outSplit},
+  \lean{lnoBranch\_outSplit\_iff}, \lean{core\_outSplit}\\
+Definition~\ref{def:linegraph} & \lean{lineGraph}, \lean{adj\_lineGraph},
+  \lean{lineGraph\_rightCover}, \lean{npaths\_lineGraph}\\
+Lemma~\ref{lem:shift} & \lean{ntot\_lineGraph}, \lean{expGrowthSup\_shift},
+  \lean{ntot\_succ\_le}, \lean{core\_eq\_empty\_iff\_ntot}\\
+Theorem~\ref{thm:linegraph} & \lean{entropy\_lineGraph}, \lean{lnoBranch\_lineGraph\_iff},
+  \lean{core\_lineGraph}\\
+Homomorphisms & \lean{Hom.mem\_core}, \lean{core\_subset\_preimage\_core},
+  \lean{Hom.core\_eq\_empty}, \lean{cyc\_mem\_of\_peelRank\_of\_hom}\\
+Proposition~\ref{prop:locinj} & \lean{Hom.LocInj}, \lean{Hom.npaths\_le},
+  \lean{Hom.polyGrowth\_of\_locInj}, \lean{Hom.entropy\_le\_of\_locInj},
+  \lean{Hom.lnoBranch\_of\_locInj}\\
+Simulations & \lean{IsSimulation}, \lean{Hom.isSimulation}, \lean{IsSimulation.reads},
+  \lean{IsSimulation.langFrom\_subset}, \lean{IsSimulation.exists\_iPath},
+  \lean{allPer\_of\_simulation}\\
+Theorem~\ref{thm:peel-simulate} & \lean{allPer\_of\_peelChain}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Product.lean}, \texttt{Quotient.lean})\\
+\midrule
+Definition~\ref{def:labelproduct} & \lean{labelProduct}, \lean{adj\_labelProduct},
+  \lean{fstHom}, \lean{sndHom}, \lean{Hom.prodMap}; \lean{piProduct}, \lean{adj\_piProduct},
+  \lean{projHom}\\
+Proposition~\ref{prop:labelproduct} & (a) \lean{reads\_labelProduct},
+  \lean{mem\_langFrom\_labelProduct}, \lean{langFrom\_labelProduct}, \lean{Sofic.inter},
+  \lean{rightResolving\_labelProduct}, \lean{reads\_piProduct},
+  \lean{mem\_langFrom\_piProduct}, \lean{rightResolving\_piProduct}; (b)
+  \lean{allPer\_labelProduct\_left}, \lean{allPer\_labelProduct\_right},
+  \lean{core\_labelProduct\_left}, \lean{core\_labelProduct\_right}, \lean{allPer\_piProduct};
+  (c) \lean{detStep\_labelProduct}, \lean{detStep\_piProduct}; (d)
+  \lean{npaths\_labelProduct\_le}, \lean{ntot\_labelProduct\_le}, \lean{entropy\_ne\_top},
+  \lean{entropy\_labelProduct\_le}, \lean{fstHom\_locInj}, \lean{entropy\_labelProduct\_le\_left},
+  \lean{lnoBranch\_labelProduct}; (e) \lean{card\_words\_labelProduct\_le}\\
+Monotonicity & \lean{restrictHom}, \lean{allPer\_piProduct\_mono},
+  \lean{langFrom\_piProduct\_antitone}, \lean{allPer\_labelProduct\_piProduct\_mono}\\
+Word graphs & \lean{WReads}, \lean{WReach}, \lean{WNoBranch}, \lean{WCovers}, \lean{WAllPer}\\
+Definition~\ref{def:subdivide} & \lean{sdLen}, \lean{sdPos}, \lean{subdivide},
+  \lean{adj\_subdivide}, \lean{sd\_step\_inl}, \lean{sd\_step\_inr}, \lean{reads\_sdPos}\\
+Theorem~\ref{thm:subdivide} & (i) \lean{reads\_subdivide\_iff}, \lean{wReads\_of\_reads};
+  (ii) \lean{allPer\_subdivide\_iff}, \lean{sd\_follow}, \lean{sd\_arc}; (iii)
+  \lean{lnoBranch\_subdivide\_iff}, \lean{eq\_of\_sdPos\_one}; (iv)
+  \lean{mem\_langFrom\_subdivide}, \lean{sofic\_wordLang}\\
+\cite[Thm.~21]{Oda26}, all finite word graphs & \lean{wAllPer\_iff\_det},
+  \lean{CarryBridge.covers\_iff\_wCovers}, \lean{CarryBridge.odaAllPer\_iff\_subdivide},
+  \lean{CarryBridge.allCert\_iff\_subdivide}\\
+\bottomrule
+\end{tabular}
+\end{center}

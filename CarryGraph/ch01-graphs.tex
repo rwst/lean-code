@@ -1,0 +1,176 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Carry graphs, walks and words}\label{ch:graphs}
+
+This chapter fixes the language: carry graphs and their constructions, walks and infinite
+paths, the words a carry graph reads, and how to count them. It ends with Kőnig's lemma, the
+one place where finite branching is used in its full strength. Everything here is standard
+\cite[§1.3, §2.2, §3.1]{LM95}, \cite[§1.2--1.4]{BJG09}. The only departure from the textbooks
+is that the vertex set may be infinite.
+
+\section{Carry graphs}
+
+\begin{definition}\label{def:carry-graph}
+Let \(V\) and \(A\) be sets. A \emph{carry graph}\index{carry graph} \(X\) on \(V\) over the alphabet \(A\) is a
+map \(\succc_X\colon V\times A\to\{\text{finite subsets of }V\}\). We write
+\(v\xrightarrow{a}w\), or \(X\colon v\xrightarrow{a}w\), when \(w\in\succc_X(v,a)\), and call it
+an \emph{arc}\index{arc} with \emph{label}\index{label} \(a\). The \emph{underlying digraph}\index{underlying digraph} has an arc \(v\to w\) when
+\(v\xrightarrow{a}w\) for some \(a\).
+\end{definition}
+
+When \(A\) is finite, every vertex has finitely many out-neighbours in the underlying digraph,
+namely \(\operatorname{out}(v)=\bigcup_a\succc(v,a)\). In that case \(X\) is \emph{finitely
+branching}, which is all that Kőnig's lemma needs. No finiteness is assumed for \(V\).
+The follower automaton of Chapter~\ref{ch:sofic} is a carry graph whose vertex set is infinite
+in general.
+
+Parallel arcs with the same label are not allowed. Two arcs \(v\to w\) with distinct labels
+are allowed and are counted separately. In the terms of \cite[§3.1]{LM95}, a carry graph is a
+labelled graph with at most one edge per (source, label, target) triple. Every finite labelled
+relation \(E\subseteq V\times A\times V\) is a carry graph, and every carry graph with finite
+\(V\) and \(A\) is such a relation: its set of arcs.
+
+\begin{example}[digit graph]\label{ex:digit}\index{digit graph}
+Let \(a\ge2\) and \(M\ge1\). The \emph{digit graph} \(D_{a,M}\) has vertex set \(\Z/M\),
+alphabet \(\{0,\dots,a-1\}\), and an arc \(r\xrightarrow{d}ar+d\) whenever both \(r\) and
+\(ar+d\) are units. If \(x_n=\lfloor\xi a^n\rfloor\) and \(d_n\) is the \(n\)-th base-\(a\)
+digit of \(\xi\), then \(x_{n+1}=ax_n+d_n\). So the residues of \(x_n\) walk along \(D_{a,M}\)
+for as long as they are units, and they read the digits of \(\xi\).
+\end{example}
+
+\begin{example}[cell graph]\label{ex:cell}
+Let \(p>q\ge1\), \(\nu\in\R\), \(D\ge1\), and let \(S\subset\Z\) be finite. The cell graph has
+vertex set \(\{0,\dots,D-1\}\), alphabet \(S\), and an arc \(c\xrightarrow{s}c'\) when the
+interval \(\bigl(p\,[c/D,(c+1)/D)-(p-q)\nu-s\bigr)/q\) meets \([c'/D,(c'+1)/D)\). By the
+carry identity~\eqref{eq:carry}, the cells of the fractional parts \(y_n\) walk along it.
+\end{example}
+
+\paragraph{Constructions.} For a carry graph \(X\):
+\begin{itemize}
+\item the \emph{reverse} \(X^{\top}\) turns every arc around and keeps its label;
+\item the \emph{restriction} \(X|_S\) to \(S\subseteq V\) keeps the arcs with both ends in
+  \(S\);
+\item for \(g\colon A\to B\), the \emph{relabelling} \(g_*X\) has \(v\xrightarrow{b}w\) iff
+  \(v\xrightarrow{a}w\) in \(X\) for some \(a\) with \(g(a)=b\); forgetting labels is the case
+  \(B=\{*\}\).
+\end{itemize}
+A \emph{homomorphism}\index{homomorphism} \(f\colon X\to Y\) of carry graphs over the same alphabet is a map on
+vertices sending arcs to arcs with the same label:
+\(v\xrightarrow{a}w\) implies \(f(v)\xrightarrow{a}f(w)\).
+
+\begin{example}\label{ex:proj}
+If \(M'\mid M\), reduction modulo \(M'\) is a homomorphism \(D_{a,M}\to D_{a,M'}\), because ring
+homomorphisms send units to units and preserve \(ar+d\). This is the map behind the ladder of
+Chapter~\ref{ch:reach}.
+\end{example}
+
+\section{Walks, infinite paths, words}
+
+A \emph{walk} of length \(n\) is a sequence \(g_0\to g_1\to\dots\to g_n\) in the underlying
+digraph. An \emph{infinite path} is a pair of sequences \((s,\ell)\) with
+\(s_n\xrightarrow{\ell_n}s_{n+1}\) for all \(n\). We say that \emph{reading} the word
+\(w=a_1\cdots a_k\in A^*\) from \(v\) can end at \(u\) if there is a walk
+\(v=t_0\xrightarrow{a_1}t_1\to\dots\xrightarrow{a_k}t_k=u\). The word \(w\) is a \emph{word of
+\(X\) at \(v\)} if reading it from \(v\) ends somewhere. These words form the \emph{label
+language} \(\mathcal L_v(X)\).
+
+\begin{proposition}\label{prop:words}
+\begin{enumerate}[label=(\alph*)]
+\item Reading \(w_1w_2\) from \(v\) ends at \(u\) iff reading \(w_1\) ends at some \(t\) from
+  which reading \(w_2\) ends at \(u\).
+\item \(\mathcal L_v(X)\) contains the empty word and is closed under prefixes.
+\item For a finite \(S\subseteq V\), the set \(\operatorname{ends}(S,w)\) of vertices where reading
+  \(w\) from \(S\) can end is finite. It is computed letter by letter by
+  \(\operatorname{ends}(S,aw)=\operatorname{ends}\bigl(\bigcup_{v\in S}\succc(v,a),\,w\bigr)\),
+  and \(w\in\mathcal L_v(X)\) iff \(\operatorname{ends}(\{v\},w)\neq\emptyset\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) is induction on \(w_1\). (b) follows from (a). (c) is induction on \(w\): a finite union of
+finite sets is finite.
+\end{proof}
+
+Part (c) means that membership in \(\mathcal L_v(X)\) is decidable whenever equality of vertices
+is, even for infinite \(V\). The sets \(\operatorname{ends}(\{v\},w)\) are the states of the
+subset construction of Chapter~\ref{ch:sofic}.
+
+\section{Counting paths and words}
+
+Let \(A\) be finite. The number of labelled paths of length \(n\) from \(v\) is
+\[
+  N_v(0)=1,\qquad N_v(n+1)=\sum_{a\in A}\ \sum_{u\in\succc(v,a)}N_u(n),
+\]
+and \(\mathcal L_v^n\) denotes the set of words of length \(n\) at \(v\).
+
+\begin{definition}
+\(X\) is \emph{right-resolving}\index{right-resolving} if \(|\succc(v,a)|\le1\) for all \(v,a\) \cite[Def.~3.3.1]{LM95}.
+\(X\) is \emph{functional}\index{functional} if at most one arc leaves each vertex.
+\end{definition}
+
+\begin{proposition}\label{prop:count}
+\begin{enumerate}[label=(\alph*)]
+\item \(|\mathcal L_v^n|\le N_v(n)\).
+\item If \(X\) is right-resolving, then \(|\mathcal L_v^n|=N_v(n)\): a path from \(v\) is
+  determined by its label \cite[Prop.~3.3.9]{LM95}.
+\item If \(X\) is functional, then \(N_v(n)\le1\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Both sides of (a) satisfy the same recursion, with \(\le\) on the left because the words
+\(a\,w'\) obtained from different successors can coincide. For (b), words with different first
+letters are different. For a fixed first letter there is at most one successor, and prefixing
+\(a\) is injective, so the recursion holds with equality. For (c), induct on \(n\): at most one
+term of the outer sum is non-empty, and it has one summand.
+\end{proof}
+
+\section{Kőnig's lemma}
+
+\begin{theorem}[Kőnig]\label{thm:konig}\index{K\H{o}nig's lemma}
+Let \(A\) be finite and \(v\in V\). If there are walks of every length starting at \(v\), then
+there is an infinite path starting at \(v\). In particular, if \(\mathcal L_v(X)\) contains
+words of every length, then \(X\) has an infinite path \((s,\ell)\) with \(s_0=v\).
+\end{theorem}
+
+\begin{proof}
+Call a vertex \emph{good} if walks of every length start at it. Let \(v\) be good, and suppose
+no successor of \(v\) is good. For each \(w\in\operatorname{out}(v)\) choose \(N_w\) such that no
+walk of length \(N_w\) starts at \(w\), and put \(N=\max_wN_w\). This maximum exists because
+\(\operatorname{out}(v)\) is finite. A walk of length \(N+1\) from \(v\) passes through some
+\(w\in\operatorname{out}(v)\) and continues with a walk of length \(N\ge N_w\) from \(w\). Its
+prefix of length \(N_w\) is then a walk of length \(N_w\) from \(w\), a contradiction. So every
+good vertex has a good successor, and choosing one repeatedly gives the infinite path. Labels
+are chosen arc by arc.
+\end{proof}
+
+Mathlib proves Kőnig's lemma for strongly atomic orders and inverse systems
+(\texttt{Order/KonigLemma}). For carry graphs the direct argument above is shorter than
+either reduction. A sharper version, with an injective path, is Theorem~\ref{thm:geodesic-konig}
+in the next chapter.
+
+\section*{Notes}
+The definitions follow \cite[§2.2, §3.1]{LM95} and \cite[§1.2]{BJG09}. The only difference is
+that vertex sets may be infinite, with finitely many arcs per label. Right-resolving
+presentations are the subject of \cite[§3.3]{LM95}. The digit graph is the coprimality subshift
+of \cite{FS67,Dub09}, and the cell graph goes back to \cite{FLP95}.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Basic.lean}, \texttt{Path.lean})\\
+\midrule
+Definition~\ref{def:carry-graph} & \lean{CarryGraph}, \lean{Adj}, \lean{under}, \lean{out}\\
+finite relations, arc sets & \lean{ofRel}, \lean{ofFinset}, \lean{arcs}, \lean{ofFinset\_arcs}\\
+constructions & \lean{reverse}, \lean{restrict}, \lean{relabel}, \lean{forget}, \lean{Hom}\\
+Example~\ref{ex:digit}, \ref{ex:proj} & \lean{CarryBridge.digitGraph}, \lean{CarryBridge.projHom}\\
+walks, infinite paths & \lean{IsWalk}, \lean{IsIPath}\\
+Proposition~\ref{prop:words} & \lean{Reads}, \lean{IsWord}, \lean{reads\_append},
+  \lean{IsWord.of\_append}, \lean{ends}, \lean{isWord\_iff\_ends\_nonempty}\\
+Proposition~\ref{prop:count} & \lean{npaths}, \lean{words}, \lean{card\_words\_le\_npaths},
+  \lean{card\_words\_eq\_npaths}, \lean{Functional.npaths\_le\_one}\\
+Theorem~\ref{thm:konig} & \lean{exists\_walk\_of\_forall\_hasWalk},
+  \lean{exists\_iPath\_of\_forall\_isWord}\\
+\bottomrule
+\end{tabular}
+\end{center}

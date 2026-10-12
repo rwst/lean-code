@@ -40,7 +40,7 @@ are algebraic irrational exactly when `δ` is — so *one* number field serves e
 
 ## Layer 2 (std3 + [Sub]): the `n = 3` Subspace application over a number field
 
-`RB.nkForms` generalizes the `ℚ`-forms `NKR.Lforms3` of the one-axiom refactor verbatim to
+`RB.nkForms` generalizes the `ℚ`-forms `SubspaceTriple.Lforms3` of the one-axiom refactor verbatim to
 an arbitrary number field `F` and an arbitrary distinguished place `w₀`: at `w₀` the
 approximation form `γ₁X₁ + γ₂X₂ − X₀` replaces the first coordinate form
 (`RB.nkForms_apply_self` shows the evaluation `γ₁x₁ + γ₂x₂ − x₀`; for the anchored instance
@@ -225,7 +225,7 @@ noncomputable def coordForms : Fin 3 → ((Fin 3 → F) →ₗ[F] F) :=
   ![LinearMap.proj 0, LinearMap.proj 1, LinearMap.proj 2]
 
 /-- The per-place linear forms of the anchored/RPF `n = 3` Subspace application over a
-number field `F` — `NKR.Lforms3` with `ℚ` replaced by `F` and the distinguished place a
+number field `F` — `SubspaceTriple.Lforms3` with `ℚ` replaced by `F` and the distinguished place a
 parameter: at `w₀` the approximation form `γ₁X₁ + γ₂X₂ − X₀` replaces the first coordinate
 form; at every other place the coordinate forms.  For the anchored instance `γ₁ = −γ₂ = δ_b`
 and `w₀` the defining real place of `ℚ(δ)`. -/
@@ -243,7 +243,7 @@ lemma nkForms_apply_self (γ₁ γ₂ : F) (w₀ : AbsoluteValue F ℝ) (x : Fin
   simp [nkForms, approxForms, smul_eq_mul]
 
 /-- Linear independence of the approximation triple, for *all* coefficients — the `ℚ`-proof of
-`NKR.lforms3_linearIndependent` ports to `F` unchanged. -/
+`SubspaceTriple.lforms3_linearIndependent` ports to `F` unchanged. -/
 @[category API, AMS 11, ref "NKR25" "B1E2a2", group "rb_anchored"]
 lemma approxForms_linearIndependent (γ₁ γ₂ : F) :
     LinearIndependent F (approxForms γ₁ γ₂) := by

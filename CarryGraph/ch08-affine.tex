@@ -1,0 +1,386 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Affine carry graphs}\label{ch:affine}
+
+This chapter makes the recurrence~\eqref{eq:carry} a system in the sense of
+Chapter~\ref{ch:covers} and builds its covers. Neither the system nor the graphs mention
+certificates. A certificate of \texttt{DubC}, \texttt{DubC2}, \texttt{Oda26} or \texttt{Z32} is
+a decidable witness for a property of one of these graphs. Matching each format to its graph
+is the work of the bridges (Chapter~\ref{ch:splitting} for \texttt{DubC} and \texttt{Oda26},
+the next milestone for \texttt{DubC2} and \texttt{Z32}).
+
+\section{The affine system}
+
+Fix integers \(p>q\ge1\) and a real shift \(\nu\). The \emph{affine step} is
+\[
+T(z)=\frac pq\,(z-\nu)+\nu,
+\]
+so \(z_n=\xi(p/q)^n+\nu\) satisfies \(z_{n+1}=T(z_n)\). The \emph{carry} of \(z\) is
+\(s(z)=q\lfloor T(z)\rfloor-p\lfloor z\rfloor\).
+
+\begin{lemma}\label{lem:affine}
+For every real \(z\), with \(y=\frc z\) and \(y'=\frc{T(z)}\):
+\begin{enumerate}[label=(\alph*)]
+\item \(q\lfloor T(z)\rfloor=p\lfloor z\rfloor+s(z)\), the carry recurrence;
+\item \(q\,y'=p\,y-(p-q)\nu-s(z)\), the fractional recurrence;
+\item \(\lfloor-(p-q)\nu\rfloor-q\le s(z)<\lfloor-(p-q)\nu\rfloor-q+p+q+1\), the carry window.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) is the definition. (b) follows from \(q\,T(z)=pz-(p-q)\nu\) and (a). For (c), write
+\(s=p\,y-(p-q)\nu-q\,y'\) with \(y,y'\in[0,1)\) and compare with
+\(\lfloor-(p-q)\nu\rfloor\le-(p-q)\nu<\lfloor-(p-q)\nu\rfloor+1\).
+\end{proof}
+
+Fix a window start \(s_0\) and a letter count \(n_A\). Letter \(t\in\{0,\dots,n_A-1\}\) stands
+for the carry \(s_0+t\). For a finite set \(\mathcal P\) of positive integers (the divisor set),
+\(x\) \emph{avoids} \(\mathcal P\) if no \(\ell\in\mathcal P\) divides \(x\).
+
+\begin{definition}\label{def:affine-system}
+The \emph{affine system}\index{affine system} is \((\R,T,\mathrm{adm})\) over the letters \(\{0,\dots,n_A-1\}\),
+where \(\mathrm{adm}(z,t)\) holds iff \(s(z)=s_0+t\) and both \(\lfloor z\rfloor\) and
+\(\lfloor T(z)\rfloor\) avoid \(\mathcal P\).
+\end{definition}
+
+Suppose the window contains all carries; Lemma~\ref{lem:affine}\,(c) gives one such window.
+Then the integers \(\lfloor\xi(p/q)^n+\nu\rfloor\) avoid \(\mathcal P\) for all \(n\ge N\)
+exactly when the orbit of \(z_N\) is admissible forever, with the carry word as its label
+sequence.
+
+\section{Residues, blocks and cells}
+
+\begin{definition}[residue graph]\label{def:residue}
+Let \(M\ge1\) and split the divisor set into \(P_M\) (divisors of \(M\)) and \(P_q\). The
+\emph{residue graph}\index{residue graph} on \(\Z/M\) has an arc \(r\xrightarrow{t}r'\) iff
+\(q\,r'=p\,r+(s_0+t)\) in \(\Z/M\), the residues \(r\) and \(r'\) avoid \(P_M\), and the carry
+\(s_0+t\) avoids \(P_q\).
+\end{definition}
+
+\begin{proposition}\label{prop:cover-residue}
+Suppose every \(\ell\in P_M\) divides \(M\) and every \(\ell\in P_q\) divides \(q\) and is
+coprime to \(p\), with \(P_M\cup P_q\subseteq\mathcal P\). Then the residue graph covers the
+affine system through \(\rho(r)=\{z:\lfloor z\rfloor\equiv r\pmod M\}\).
+\end{proposition}
+
+\begin{proof}
+Reduce Lemma~\ref{lem:affine}\,(a) modulo \(M\). Divisibility by \(\ell\mid M\) depends only on
+the residue. If some \(\ell\in P_q\) divided the carry
+\(s=q\lfloor T(z)\rfloor-p\lfloor z\rfloor\), it would divide \(p\lfloor z\rfloor\), hence (being coprime to \(p\))
+\(\lfloor z\rfloor\), which is avoided.
+\end{proof}
+
+The cell coordinate generalises to arbitrary intervals. Let \(I_i=[a_i,b_i)\)
+(\(i=1,\dots,m\)) be intervals with rational ends. Lemma~\ref{lem:affine}\,(b) maps \(I_i\)
+under the letter \(s\) to \(\bigl(p\,I_i-(p-q)\nu-s\bigr)/q\).
+
+\begin{definition}[block and cell graphs]\label{def:block}
+The \emph{block graph}\index{block graph} of \((I_i)\) at rational \(\nu\) has an arc \(i\xrightarrow{t}j\) iff the
+image of \(I_i\) under the letter \(s=s_0+t\) meets \(I_j\):
+\[
+q\,a_j<p\,b_i-(p-q)\nu-s\quad\text{and}\quad p\,a_i-(p-q)\nu-s<q\,b_j .
+\]
+The \emph{cell graph}\index{cell graph} is the block graph of the \(D\) cells \([c/D,(c+1)/D)\)
+(Example~\ref{ex:cell}). The \emph{affine graph}\index{affine graph} is the label product
+\[
+\mathrm{Aff}_{p,q,\nu}(M,D,P_M,P_q)=\mathrm{Res}_{p,q}(M,P_M,P_q)\otimes\mathrm{Cell}_{p,q,\nu}(D).
+\]
+\end{definition}
+
+\begin{theorem}[the affine cover]\label{thm:cover-affine}\index{affine cover}
+\begin{enumerate}[label=(\alph*)]
+\item A block graph whose intervals cover \([0,1)\) covers the affine system through
+  \(\rho(i)=\{z:\frc z\in I_i\}\). In particular the cell graph does.
+\item Under the hypotheses of Proposition~\ref{prop:cover-residue}, the affine graph covers the
+  affine system through \(\rho(r,c)=\{z:\lfloor z\rfloor\equiv r,\ \frc z\in[c/D,(c+1)/D)\}\),
+  and every real \(z\) lies in some \(\rho(r,c)\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) The \emph{fractional system} has the maps \(y\mapsto(py-(p-q)\nu-s)/q\), and a step is
+admissible when it stays in \([0,1)\). If \(y\in I_i\) and its image \(y'\) lies in \(I_j\),
+then \(q\,a_j\le qy'<p\,b_i-(p-q)\nu-s\), and symmetrically, so the arc is present. By
+Lemma~\ref{lem:affine}\,(b), \(z\mapsto\frc z\) maps admissible affine steps to admissible
+fractional steps, and the cover pulls back (Chapter~\ref{ch:covers}, constructions).
+(b) Proposition~\ref{prop:cover-residue}, part~(a) and the product principle.
+\end{proof}
+
+\paragraph{Gate G-4.} For the 16 cells of \texttt{DubC2/Atlas}, the successor lists of
+\texttt{DubC2} (the function \lean{Params.succList}) were compared arc by arc, in exact rational arithmetic, with the
+label product of Definition~\ref{def:block}: 30\,310 arcs, no mismatch. The \texttt{DubC2}
+engine computes exactly \(\mathrm{Aff}\), including the rounding at cell boundaries.
+
+\section{Realisability and refinement}
+
+\begin{theorem}[Markov block graphs are exact]\label{thm:markov}\index{Markov block graph}
+Let \(a_i<b_i\) and \(I_i\subseteq[0,1)\). Suppose every arc \(i\xrightarrow{t}j\) is
+\emph{Markov}: \(I_j\) lies inside the image of \(I_i\). Then the block graph realises its
+words in the fractional system. Every word from \(i\) is followed by all points of a nonempty
+subinterval of \(I_i\).
+\end{theorem}
+
+\begin{proof}
+Induction on the word, from the end. If the points of \([\alpha',\beta')\subseteq I_j\) follow
+\(w\), the preimage of \([\alpha',\beta')\) under the letter \(t\) is a nonempty half-open
+interval, and the Markov condition puts it inside \(I_i\).
+\end{proof}
+
+With Theorem~\ref{thm:count}\,(b), a right-resolving Markov block graph computes the entropy of
+the carry language of the fractional system. The \texttt{Z32} type certificate is an instance.
+
+Infinite paths are a different matter: nested half-open intervals can have an empty
+intersection.
+
+\begin{example}\label{ex:doubling}
+The map \(y\mapsto 2y-s\) (\(p=2\), \(q=1\), \(\nu=0\)) on the single block \([0,1)\) with
+letters \(s\in\{0,1\}\) is Markov, with equality at the right endpoint for \(s=1\). The constant
+path of the letter \(1\) is not the itinerary of any point: \(1-y_n=2^n(1-y_0)\) leaves \([0,1]\).
+Its only candidate is the fixed point \(1\notin[0,1)\).
+\end{example}
+
+\begin{theorem}[realisability forever]\label{thm:markov-inf}
+If every arc \(i\xrightarrow{t}j\) is Markov with the right endpoint of \(I_j\) strictly inside the
+image of \(I_i\), every infinite path of the block graph is the itinerary of a point of its first
+interval that is admissible forever.
+\end{theorem}
+
+\begin{proof}
+The points whose first \(m+1\) positions lie in the \emph{closed} intervals of the path form a
+decreasing sequence of non-empty compact sets (non-empty by pulling a point back along the
+path), so they have a common point \(y\). If \(y_{n+1}\le b_{j}\), the strict condition gives
+\(y_n<b_i\), so every position lies in its half-open interval.
+\end{proof}
+
+\begin{proposition}[refinement]\label{prop:refine}
+If each interval \(I_i\) lies inside \(J_{\pi(i)}\), then \(\pi\) is a homomorphism from the
+block graph of \(I\) to the block graph of \(J\). In particular \(c\mapsto\lfloor c/k\rfloor\)
+maps the cell graph with \(kD\) cells onto the one with \(D\) cells. By
+Proposition~\ref{prop:labelproduct} and \lean{allPer\_of\_hom}, every label-form certificate of
+the coarse graph holds for the fine one.
+\end{proposition}
+
+\section{The mirror}\label{sec:mirror}
+
+Reflecting \([0,1)\) and negating the carries maps the affine system at \(\nu\) to the one at
+\(1-\nu\). On the graph side this is exact.
+
+\begin{proposition}\label{prop:mirror}
+The arc condition of Definition~\ref{def:block} is invariant under
+\((I,J,\nu,s)\mapsto(1-I,1-J,1-\nu,-s)\). Hence the cell graph at \(1-\nu\), with cells and letter
+window reversed, has exactly the arcs of the cell graph at \(\nu\). If every prime of \(P_M\)
+divides \(M\), the residue graph is invariant under \(r\mapsto-r\), \(s\mapsto-s\), and the affine
+graphs at \(\nu\) and \(1-\nu\) are isomorphic up to relabelling. In particular one has the label
+form iff the other has.
+\end{proposition}
+
+\begin{proof}
+Write the arc condition out: the two inequalities exchange roles. Divisibility of \(r\) and of
+\(M-r\) by \(\ell\mid M\) agree.
+\end{proof}
+
+The half-open cells reflect to cells open on the other side, so the covers are not mirror
+images at the endpoints. Each graph covers its own system (Theorem~\ref{thm:cover-affine}),
+and that is all Theorem~\ref{thm:divisor-any-cover} below needs: a certified cell at \(\nu\) is
+a theorem at \(1-\nu\), with no orbit-level argument.
+
+\section{Parameter intervals}
+
+The arc condition of Definition~\ref{def:block} is linear in \(\nu\). With
+\(\alpha=p\,b_i-s-q\,a_j\) and \(\beta=p\,a_i-s-q\,b_j\) it reads \(\beta<(p-q)\nu<\alpha\).
+
+\begin{definition}\label{def:hull}
+For rational \(\nu_0\le\nu_1\), the \emph{hull}\index{hull} block graph has an arc \(i\xrightarrow{t}j\) iff
+\((p-q)\nu_0<\alpha\), \(\beta<(p-q)\nu_1\) and \(\beta<\alpha\). The \emph{affine hull}\index{hull!affine} is the
+product of the residue graph with the hull of the cells.
+\end{definition}
+
+\begin{theorem}\label{thm:hull}
+Let \(q<p\).
+\begin{enumerate}[label=(\alph*)]
+\item The hull is the union of the block graphs at rational \(\nu\in[\nu_0,\nu_1]\).
+\item For every real \(\nu\in[\nu_0,\nu_1]\), the hull covers the affine system at \(\nu\), and
+  so does the affine hull.
+\item A smaller interval gives a subgraph of the hull. A larger divisor set gives a subgraph of
+  the residue graph, and the label form of the affine graph passes from \((P_M,P_q)\) to every
+  \((P'_M,P'_q)\supseteq(P_M,P_q)\).
+\item The window \(s_0\le\lfloor-(p-q)\nu_1\rfloor-q\),
+  \(\lfloor-(p-q)\nu_0\rfloor+p+1\le s_0+n_A\) contains every carry for every
+  \(\nu\in[\nu_0,\nu_1]\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) Take \((p-q)\nu\) halfway between \(\max((p-q)\nu_0,\beta)\) and
+\(\min((p-q)\nu_1,\alpha)\). (b) The arc condition at real \(\nu\) implies the three hull
+inequalities. Then apply Theorem~\ref{thm:cover-affine}. (c) Homomorphisms by the identity.
+(d) Lemma~\ref{lem:affine}\,(c) and monotonicity of the floor.
+\end{proof}
+
+Part~(b) is the mechanism of \texttt{DubC2/NuAtlas} and \lean{DubC2.Params.hullOK}: one
+certificate on a hull settles a whole interval of real shifts at once.
+
+\section{The dimension of the avoiders}
+
+\begin{theorem}\label{thm:dim-avoiders}
+Let \(q<p\), and let \(X\) be any finite carry graph that covers the affine system through
+\(\rho\), with \(\bigcup_v\rho(v)=\R\) and a window containing every carry. Then
+\[
+\dim_H\bigl\{\xi\in\R:\ \lfloor\xi(p/q)^n+\nu\rfloor\text{ avoids }\mathcal P\text{ for all
+large }n\bigr\}\ \le\ \max\Bigl(0,\frac{h(X)}{\log(p/q)}\Bigr).
+\]
+In particular this holds for the affine graph and, uniformly in \(\nu\in[\nu_0,\nu_1]\), for the
+affine hull.
+\end{theorem}
+
+\begin{proof}
+Split the set by the first time \(N\) from which it avoids \(\mathcal P\) and by the integer
+part \(x_0\) of \(z_N\). The point \(z_N\) is admissible forever. Two such points with the same
+integer part that follow the same word keep equal integer parts along the run, by the carry
+recurrence. Their runs therefore stay within distance \(1\), and \(T\) expands by exactly
+\(p/q\). So the itinerary localises with ratio \(q/p\), and Theorem~\ref{thm:dimension} bounds
+each piece. The map \(z_N\mapsto\xi\) is Lipschitz, and a countable union does not raise the
+Hausdorff dimension.
+\end{proof}
+
+This is \lean{DubC2.Gen.dimH\_eventually\_avoids\_le} with the certificate removed: the graph
+can be any cover, and the bound is its entropy. A super-eigenvector bracket
+(Theorem~\ref{thm:brackets}) turns it into the explicit number \(\log(a/b)/\log(p/q)\). At
+\(\mathcal P=\{2\}\) and \(p/q=3/2\) the bound is \(1\): there the model has entropy
+\(\log(3/2)\), which is Mahler's problem \cite{Mah68}.
+
+\section{The certificates as carry graphs}\label{sec:cert-bridges}
+
+The two certificate roots of the corpus check finite witnesses for the graphs of this chapter.
+The bridge files of the root \texttt{CarryBridge/} spell out the dictionary. They re-derive the roots' soundness theorems from the generic ones, using one
+arithmetic fact:
+
+\begin{theorem}[the divisor theorem through any cover]\label{thm:divisor-any-cover}\index{divisor theorem}
+Let \(1<q<p\) be coprime, and let \(X\) be any carry graph that covers the affine system through
+\(\rho\), with \(\bigcup_v\rho(v)=\R\) and a window containing every carry. If \(X\) has the
+label form, then for every \(\xi\ne0\) infinitely many of \(\lfloor\xi(p/q)^n+\nu\rfloor\) are
+divisible by a member of \(\mathcal P\).
+\end{theorem}
+
+\begin{proof}
+Otherwise some tail \(z_N=\xi(p/q)^N+\nu\) is admissible forever. By
+Theorem~\ref{thm:transfer-per} its carry sequence is eventually periodic. The carry word of
+\(\xi(p/q)^n+\nu\) is not eventually periodic for \(\xi\ne0\) \cite[Lemma~2]{DN05}.
+\end{proof}
+
+\paragraph{DubC2.} A cell \(\mathcal C=(p,q,a/b,M,D,P_M,P_q,s_0,n_A)\) of \texttt{DubC2.Gen} lists
+the arcs of the affine graph \(\mathrm{affine}(p,q,a/b,s_0,n_A,M,D,P_M,P_q)\), with the vertex
+\((r,c)\) numbered \(rD+c\). Multiplying the arc condition of Definition~\ref{def:block} by
+\(bD\) gives the certificate's integer test
+\[
+qb\,c'<pb(c+1)-K(s),\qquad pb\,c-K(s)<qb(c'+1),
+\]
+where \(K(s)=(p-q)aD+sbD\).
+The candidate range \([c_{\mathrm{lo}},c_{\mathrm{hi}})\) of \lean{succList} contains every
+\(c'\) that passes this test, and the residue step \(r'=(pr+s)q^{-1}\bmod M\) is the residue
+graph's. So the certificate graph and the affine graph are isomorphic. A checked certificate
+is a witness for the label form of the affine graph in exactly the shape of
+Theorem~\ref{thm:peel-simulate}: its rounds are a peel chain (Definition~\ref{def:peel-chain})
+ending inside a listed core, and its table of subset states is a carry graph with a labelled
+rank that simulates the certificate graph on the core. Theorem~\ref{thm:divisor-any-cover} then
+gives \texttt{DubC2}'s divisor theorem, and by Proposition~\ref{prop:mirror} the same theorem at
+the mirror shift \(1-a/b\).
+
+The other DubC2 witnesses are read the same way:
+\begin{itemize}
+\item A hull check over \([a_0/b,a_1/b]\) is a homomorphism from the affine hull into the graph
+at \(a/b\). By Theorem~\ref{thm:hull}, one certificate then settles every real shift of the
+interval.
+\item An entropy certificate is a subset automaton that simulates the affine graph, so it covers
+the system as well. Its weights form a super\-/eigenvector, and
+Theorem~\ref{thm:dim-avoiders} gives the bound \(\log(a/b)/\log(p/q)\).
+\item A cycle certificate lists the cycles of the rank-keeping part of the subset automaton
+and a potential. With rank \(0\) on the listed states it is a peel rank, so every cycle of the
+rank-keeping part is listed (Theorem~\ref{thm:peel}).
+\item The follower automaton is a right-resolving carry graph on an infinite vertex set. ``Some
+\(D\) certifies'' becomes: finitely many vertices are reachable, and none of them branches. One
+direction is geodesic Kőnig plus one arithmetic lemma: a periodic letter sequence cannot drive
+an injective follower path. A follower tree check is a labelled rank on the reachable part.
+\item A horseshoe witness yields an avoiding pseudo-orbit whose letters are not eventually
+periodic, so no cover has the label form. A branching witness only yields finite pseudo-orbit
+segments, but every prefix of an aperiodic word is then read, and Corollary~\ref{cor:konig-labels}
+gives an infinite path with aperiodic labels.
+\end{itemize}
+
+\paragraph{Z32.} A block certificate at base \(p/q\) (with \(\nu=0\)) gives a block graph whose
+vertices are the distinct blocks and whose arcs are the \texttt{hits} relation. Its
+stratification is a labelled rank. The funnel puts every orbit that stays in \(U\) on an
+infinite path of this graph, so the rank theorem and \cite[Lemma~2]{DN05} rule such orbits out.
+The other \texttt{Z32} results are statements about finite functional carry graphs as well:
+\begin{itemize}
+\item The escape bound needs a time after which the carry word repeats. For an unranked
+certificate it is Proposition~\ref{prop:functional-walk} on the block graph, with budget
+\(|V|\le\#\text{blocks}\).
+\item The depth-\(K\) schema of the windows \([s,s+1/p)\) is the rotation of \(K+2\) ranks by the
+low and the high branch, a functional graph on \(K+2\) vertices. A confined orbit's ranks walk
+it, which gives both the qualitative theorem and the budget \(K+2\).
+\item Two confined orbits in one block of an unranked certificate read the same carry word,
+because a path in a functional graph is determined by its start. Equal words separate at the
+rate \((p/q)^n\), so the hold set is finite and the removed set must meet all but finitely many
+cycles.
+\item A type certificate for an anchored window \([0,\ell)\) is a right-resolving carry graph that
+covers and realises the window's model system exactly. Its two weight vectors are a super- and a
+sub-eigenvector (Theorem~\ref{thm:brackets}), and its label language from the root is the
+window's language.
+\end{itemize}
+
+\begin{example}\label{ex:two-cell}
+Take \(p/q=3/2\) and \(U=[0,1/5)\cup[4/5,1)\). The certificate has denominator \(15\) and funnel
+depth \(1\), and its two blocks are \(B_0=[0,2/15)\) and \(B_1=[13/15,1)\). Among the four carries
+\(s\in\{-1,0,1,2\}\) the block graph has exactly two arcs, both loops: \(B_0\xrightarrow{0}B_0\)
+and \(B_1\xrightarrow{1}B_1\). It is functional. A confined orbit would therefore have carry word
+eventually \(0^\infty\) or \(1^\infty\), which is impossible for \(\xi\ne0\). Hence no \(\xi\ne0\)
+has \(\lVert\xi(3/2)^n\rVert<1/5\) for all \(n\) (with the half-open convention at \(4/5\)).
+\end{example}
+
+A horseshoe certificate for the same \(U\) would realise \(N^k\ge2^k\) model words of length
+\(kL\). A functional block graph allows at most one word per block, so the two kinds of
+certificate never meet, by counting alone (\lean{not\_cert\_and\_horse'}).
+
+\section*{Lean}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Affine.lean}, \texttt{Interval.lean})\\
+\midrule
+Lemma~\ref{lem:affine} & \lean{affStep}, \lean{carry}, \lean{affStep\_orbit},
+  \lean{q\_mul\_floor\_affStep}, \lean{q\_mul\_affStep}, \lean{fract\_affStep},
+  \lean{carry\_window}\\
+Definition~\ref{def:affine-system} & \lean{Avoid}, \lean{affAdm}\\
+Definition~\ref{def:residue}, Proposition~\ref{prop:cover-residue} & \lean{ResOK},
+  \lean{residueGraph}, \lean{adj\_residueGraph}, \lean{resOK\_intCast},
+  \lean{cover\_residueGraph}\\
+Definition~\ref{def:block} & \lean{BlockArc}, \lean{ival}, \lean{blockGraph},
+  \lean{adj\_blockGraph}, \lean{cells}, \lean{cellGraph}, \lean{affine}\\
+Theorem~\ref{thm:cover-affine} & (a) \lean{fracStep}, \lean{fracAdm},
+  \lean{cover\_frac\_of\_blockArc}, \lean{fract\_semiconj}, \lean{cover\_blockGraph},
+  \lean{exists\_cell}, \lean{cover\_cellGraph}; (b) \lean{cover\_affine},
+  \lean{affine\_rho\_cover}\\
+Theorem~\ref{thm:markov} & \lean{realizes\_blockGraph}\\
+Example~\ref{ex:doubling}, Theorem~\ref{thm:markov-inf} & \lean{not\_realizesInf\_doubling},
+  \lean{continuous\_orbit\_fracStep}, \lean{realizesInf\_blockGraph}\\
+Proposition~\ref{prop:mirror} & \lean{blockArc\_mirror}, \lean{cells\_rev},
+  \lean{adj\_cellGraph\_mirror}, \lean{resOK\_neg}, \lean{adj\_residueGraph\_mirror},
+  \lean{adj\_affine\_mirror}, \lean{allPer\_affine\_mirror\_iff}, \lean{allPer\_iff\_of\_adj\_equiv}
+  (\texttt{CarryGraph/Mirror.lean})\\
+Proposition~\ref{prop:refine} & \lean{blockGraph\_hom}, \lean{cellGraph\_hom}\\
+Definition~\ref{def:hull}, Theorem~\ref{thm:hull} & \lean{blockHull}, \lean{adj\_blockHull},
+  \lean{cellHull}, \lean{affineHull}; (a) \lean{adj\_blockHull\_iff}; (b)
+  \lean{blockArc\_hull}, \lean{cover\_blockHull}, \lean{cover\_affineHull}; (c)
+  \lean{blockHull\_mono}, \lean{blockHull\_hom}, \lean{residueGraph\_hom},
+  \lean{allPer\_affine\_mono}; (d) \lean{carry\_window\_of\_interval}\\
+Theorem~\ref{thm:dim-avoiders} & \lean{floor\_run\_eq}, \lean{survivors},
+  \lean{dimH\_survivors\_le}, \lean{dimH\_avoiders\_le}, \lean{dimH\_avoiders\_le\_hull}\\
+Theorem~\ref{thm:divisor-any-cover} & \lean{CarryBridge.frequently\_not\_avoid\_of\_allPer}
+  (\texttt{CarryBridge/DubC2.lean})\\
+Section~\ref{sec:cert-bridges} & \texttt{CarryBridge/}: \texttt{DubC2}, \texttt{DubC2Witness},
+  \texttt{Z32}, \texttt{Z32Cert}, \texttt{Z32Type}, \texttt{Z32Balance}; see
+  Appendix~\ref{app:dictionary}\\
+\bottomrule
+\end{tabular}
+\end{center}

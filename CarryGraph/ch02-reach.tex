@@ -1,0 +1,241 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter[Reachability, components, ranks]{Reachability, strong components and ranks}\label{ch:reach}
+
+Most of the finite witnesses in the problems of Chapter~\ref{ch:overview} are
+\emph{ranks}: functions \(\rho\colon V\to\N\) that never increase along an arc. This chapter
+develops ranks from the strong-component structure of \cite[§1.5]{BJG09}. The main results
+characterise when a rank exists that leaves at most one rank-keeping successor
+(Theorem~\ref{thm:rank-complete}), show that it forces eventual periodicity
+(Theorem~\ref{thm:evper}), and give the peel-rank criterion that locates all cycles
+(Theorem~\ref{thm:peel}).
+
+\section{Reachability}
+
+Write \(u\leadsto v\) if there is a walk from \(u\) to \(v\), and \(u\leadsto_n v\) if there is
+one of length exactly \(n\). Two vertices are in the same \emph{strong component}\index{strong component} if
+\(u\leadsto v\) and \(v\leadsto u\). This is an equivalence relation. A vertex is \emph{cyclic}\index{cyclic}
+if a walk of positive length leads from it back to itself, that is, if it has a successor
+\(t\) with \(t\leadsto v\). Cyclic vertices form whole strong components.
+Homomorphisms preserve \(\leadsto\) and send cyclic vertices to cyclic vertices.
+
+\paragraph{Computing reachability.} Let \(A\) be finite. The \emph{ball} of radius \(k\)
+around \(v\) is \(B_0=\{v\}\), \(B_{k+1}=B_k\cup\operatorname{out}(B_k)\). So
+\(w\in B_k\) iff \(v\leadsto_n w\) for some \(n\le k\).
+
+\begin{proposition}\label{prop:ball}
+If \(B_{k+1}=B_k\), then \(B_k\) contains every vertex reachable from \(v\). If \(V\) is finite,
+this happens for some \(k\le|V|\). Hence the vertices reachable from \(v\) are exactly those
+in \(B_{|V|}\), and reachability is decidable.
+\end{proposition}
+
+\begin{proof}
+A ball that equals its successor ball is closed under \(\operatorname{out}\), so it contains
+every vertex reachable from \(v\). If \(B_{k+1}\neq B_k\) for all \(k\le|V|\), then
+\(|B_k|\ge k+1\) for \(k\le|V|\) by induction, and \(|B_{|V|}|>|V|\) is impossible. Balls
+increase with \(k\).
+\end{proof}
+
+Mathlib has no decision procedure for the reflexive--transitive closure of a relation, so
+Proposition~\ref{prop:ball} is what makes \(\leadsto\) usable by \texttt{decide}.
+
+\section{The two canonical ranks}
+
+Let \(V\) and \(A\) be finite. The \emph{descendant count} and the \emph{predecessor count} are
+\[
+  \operatorname{desc}(v)=|\{u : v\leadsto u\}|,\qquad
+  \operatorname{preds}(v)=|\{u : u\leadsto v\}| .
+\]
+
+\begin{proposition}[acyclic ordering, {\cite[Prop.~1.4.3, §1.5]{BJG09}}]\label{prop:desc}
+Let \(s\to t\) be an arc.
+\begin{enumerate}[label=(\alph*)]
+\item \(\operatorname{desc}(t)\le\operatorname{desc}(s)\), with equality iff \(t\leadsto s\),
+  i.e.\ iff \(s\) and \(t\) lie in one strong component.
+\item \(\operatorname{preds}(s)\le\operatorname{preds}(t)\). If \(s\) and \(t\) lie in different
+  components, then \(\{u: u\leadsto s\}\subsetneq\{u:u\leadsto t\}\).
+\item \(\operatorname{desc}\) of the reverse graph is \(\operatorname{preds}\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Descendants of \(t\) are descendants of \(s\). If the two finite sets have equal size, they
+are equal, so \(s\), a descendant of itself, is a descendant of \(t\). Conversely, if
+\(t\leadsto s\) the inclusion goes both ways. (b) is dual, with \(t\) a predecessor of itself
+but not of \(s\). (c) holds because a walk in the reverse graph is a reversed walk.
+\end{proof}
+
+So \(\operatorname{desc}\) is non-increasing along arcs and strictly decreasing exactly across
+components. In other words, it is a rank form of the acyclic ordering of the strong component
+digraph. Equivalently, the condensation is acyclic. The predecessor count is the dual ordering,
+increasing along arcs. One problem family uses one convention and another uses the other. This
+book uses non-increasing ranks throughout.
+
+\section{Ranks and branching}
+
+\begin{definition}\label{def:rank}
+A \emph{rank}\index{rank} of \(X\) is a \(\rho\colon V\to\N\) such that
+\begin{enumerate}[label=(R\arabic*)]
+\item \(\rho(t)\le\rho(s)\) for every arc \(s\to t\);
+\item every vertex \(s\) has at most one successor \(t\) with \(\rho(t)=\rho(s)\).
+\end{enumerate}
+A \emph{labelled rank}\index{rank!labelled} replaces (R2) by: at most one arc \(s\xrightarrow{a}t\) with
+\(\rho(t)=\rho(s)\). \(X\) has \emph{no branching}\index{no branching} if no vertex has two distinct successors in
+its own strong component (labelled: two distinct arcs).
+\end{definition}
+
+\begin{theorem}\label{thm:rank-complete}
+For finite \(V\) and \(A\), \(X\) has a rank iff it has no branching, and then
+\(\operatorname{desc}\) is a rank. The labelled version holds likewise. For infinite \(V\), if
+every vertex has finitely many descendants, the same holds with
+\(\operatorname{desc}(v)=|\{u:v\leadsto u\}|\).
+\end{theorem}
+
+\begin{proof}
+A rank is constant on strong components: along a walk it cannot increase, and a walk leads
+back. So two successors of \(s\) in the component of \(s\) are both rank-keeping, and (R2)
+makes them equal. Conversely, without branching, \(\operatorname{desc}\) satisfies (R1) by
+Proposition~\ref{prop:desc}(a). By the same proposition, a successor that keeps
+\(\operatorname{desc}\) lies in the component of \(s\), and there is at most one of those. For
+infinite \(V\), use \(|\cdot|\) on finite sets in the same argument.
+\end{proof}
+
+No branching means that every strong component containing an arc is a single cycle
+\cite[Def.~2.2.13]{LM95}. Chapter~\ref{ch:entropy} shows that this is exactly zero entropy.
+Here we prove its first consequence.
+
+\begin{theorem}[eventual periodicity]\label{thm:evper}\index{eventually periodic!walks}
+Let \(\rho\) be a rank and \(s_0\to s_1\to\cdots\) an infinite walk such that only finitely many
+vertices are reachable from \(s_0\). Then there are \(n_0\) and \(L>0\) with \(s_{m+L}=s_m\) for
+all \(m\ge n_0\). If \(\rho\) is a labelled rank and \((s,\ell)\) an infinite path, the labels
+\(\ell\) are eventually periodic with the same period.
+\end{theorem}
+
+\begin{proof}
+The sequence \(\rho(s_n)\) does not increase, so it is constant from some \(n_1\) on. From then
+on every step is rank-keeping, so by (R2) \(s_{m+1}\) is determined by \(s_m\). The walk stays
+in a finite set, so \(s_p=s_q\) for some \(n_1\le p<q\). By induction \(s_{m+(q-p)}=s_m\) for
+all \(m\ge p\). In the labelled case the arcs \(s_m\xrightarrow{\ell_m}s_{m+1}\) and
+\(s_m=s_{m+L}\xrightarrow{\ell_{m+L}}s_{m+L+1}=s_{m+1}\) are both rank-keeping, so
+\(\ell_{m+L}=\ell_m\).
+\end{proof}
+
+Theorem~\ref{thm:evper} is the engine behind the digit problem of Chapter~\ref{ch:overview}.
+If the residues of \(\lfloor\xi a^n\rfloor\) modulo \(M\) are eventually units, they form an
+infinite walk in \(D_{a,M}\). A rank of \(D_{a,M}\) makes the walk eventually periodic. For
+\(a\le M\) the digit is determined by consecutive residues, so the digit word is eventually
+periodic too, and \cite[Theorem~4]{Dub09} turns that into infinitely many composite terms.
+The theorem is local: it uses only the part of the graph reachable from the walk.
+
+\section{Peel ranks}
+
+\begin{theorem}[peel rank]\label{thm:peel}
+Let \(C\supseteq\{\text{cyclic vertices}\}\) and \(K\subseteq V\). Suppose
+\(\rho\colon V\to\N\) satisfies \(\rho(t)\le\rho(s)\) for every arc \(s\to t\) inside \(C\), and
+\(\rho(t)<\rho(s)\) for every such arc with \(s\notin K\). Then every cyclic vertex lies in
+\(K\). The same holds with all inequalities and arcs reversed: \(\rho(s)\le\rho(t)\) inside
+\(C\), strictly if \(t\notin K\).
+\end{theorem}
+
+\begin{proof}
+Let \(r\notin K\) be cyclic, with a closed walk \(r\to t\leadsto r\). Every vertex of this
+closed walk is cyclic, hence in \(C\). The first step drops the rank strictly and no later step
+raises it, so \(\rho(r)\le\rho(t)<\rho(r)\). For the reversed statement, apply this to the
+reverse graph, which has the same cyclic vertices.
+\end{proof}
+
+\begin{corollary}[rungs]\label{cor:rung}\index{rung}
+Let \(f\colon X\to Y\) be a homomorphism and \(K'\) a set containing every cyclic vertex of
+\(Y\). If \(\rho\) is a peel rank for \(K\) on \(C=f^{-1}(K')\), then every cyclic vertex of
+\(X\) lies in \(K\).
+\end{corollary}
+
+\begin{proof}
+Homomorphisms send cyclic vertices to cyclic vertices, so \(f^{-1}(K')\) contains every cyclic
+vertex of \(X\). Then apply Theorem~\ref{thm:peel}.
+\end{proof}
+
+With \(f\) the reduction \(D_{a,M}\to D_{a,M'}\) (Example~\ref{ex:proj}),
+Corollary~\ref{cor:rung} is one rung of a ladder of moduli \(M_1\mid M_2\mid\cdots\). Each rung
+only needs to check the rank on the fibre over the previous core. This is how the base-\(7\)
+case of the composite problem was checked.
+
+\begin{proposition}[core form]\label{prop:coreform}
+If every cyclic vertex lies in \(K\) and no vertex of \(K\) has two distinct successors in \(K\),
+then \(X\) has no branching. For finite \(V\), \(A\) it therefore has a rank.
+\end{proposition}
+
+\begin{proof}
+Two successors of \(v\) in the component of \(v\) are cyclic, as is \(v\), so all three lie
+in \(K\).
+\end{proof}
+
+The converse fails. A rank can exist while the set of units is not deterministic: in base
+\(4\) modulo \(6\) a rank exists, but the units do not satisfy the hypothesis of
+Proposition~\ref{prop:coreform} with \(K\) the set of all units.
+
+\begin{proposition}[rank depth]\label{prop:depth}\index{rank!depth}
+Along a walk \(g_0\to\dots\to g_n\) on which \(\rho\) never increases, the number of steps with
+\(\rho(g_{i+1})<\rho(g_i)\), plus \(\rho(g_n)\), is at most \(\rho(g_0)\).
+\end{proposition}
+
+\begin{proof}
+Induction on \(n\): each strict drop lowers \(\rho\) by at least one.
+\end{proof}
+
+\section{Geodesic Kőnig}
+
+\begin{theorem}\label{thm:geodesic-konig}\index{K\H{o}nig's lemma!geodesic}
+Let \(A\) be finite. If infinitely many vertices are reachable from \(v\), then there is an
+infinite walk \(v=s_0\to s_1\to\cdots\) whose vertices are pairwise distinct. In fact
+\(\operatorname{dist}(v,s_n)=n\) for all \(n\).
+\end{theorem}
+
+\begin{proof}
+Let \(\operatorname{dist}(v,w)\) be the length of a shortest walk from \(v\) to \(w\). Call an
+arc \(u\to w\) \emph{geodesic} if \(u\) is reachable and
+\(\operatorname{dist}(v,w)=\operatorname{dist}(v,u)+1\). Every reachable \(w\) is reached from
+\(v\) by geodesic arcs in exactly \(\operatorname{dist}(v,w)\) steps. To see this, take the last
+step \(u\to w\) of a shortest walk. Then \(\operatorname{dist}(v,u)\) is at most the length of
+the walk minus one, and at least \(\operatorname{dist}(v,w)-1\), so the arc is geodesic, and we
+induct. Balls are finite, so for each \(n\) some reachable \(w\) has
+\(\operatorname{dist}(v,w)\ge n\). Hence the geodesic subgraph has walks of every length from
+\(v\). Theorem~\ref{thm:konig} gives an infinite geodesic walk, along which the distance
+increases by one at each step.
+\end{proof}
+
+This is the abstract half of the finiteness theorem for follower automata in
+Chapter~\ref{ch:sofic}: an infinite automaton has an infinite path that never revisits a state.
+
+\section*{Notes}
+Strong components and their acyclic ordering are \cite[§1.5]{BJG09}. The two rank conventions
+appear in the problems as descendant counts (the digit and divisor problems) and as predecessor
+counts (the word-graph certificates of \cite{Oda26}). Theorem~\ref{thm:evper} for finite graphs
+and Theorem~\ref{thm:peel} come from the digit problem. Theorem~\ref{thm:rank-complete} is
+their converse, and it shows that a rank witness exists exactly when the graph has zero entropy
+(Chapter~\ref{ch:entropy}).
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Reach.lean}, \texttt{Rank.lean})\\
+\midrule
+reachability, components, cycles & \lean{Reach}, \lean{ReachIn}, \lean{SameSCC},
+  \lean{sameSCC\_equivalence}, \lean{Cyc}, \lean{cyc\_iff}\\
+homomorphisms & \lean{Hom.reach\_map}, \lean{Hom.cyc\_map}\\
+Proposition~\ref{prop:ball} & \lean{ball}, \lean{mem\_ball}, \lean{exists\_ball\_stable},
+  \lean{reachSet}, \lean{mem\_reachSet}, \lean{decReach}\\
+Proposition~\ref{prop:desc} & \lean{desc}, \lean{preds}, \lean{desc\_eq\_iff},
+  \lean{desc\_lt\_of\_not\_reach}, \lean{preds\_ssubset}, \lean{desc\_reverse}\\
+Definition~\ref{def:rank} & \lean{IsRank}, \lean{IsLRank}, \lean{NoBranch}, \lean{LNoBranch}\\
+Theorem~\ref{thm:rank-complete} & \lean{IsRank.noBranch}, \lean{noBranch\_isRank\_desc},
+  \lean{exists\_isRank\_iff\_noBranch}, \lean{noBranch\_isRank\_ncard}\\
+Theorem~\ref{thm:evper} & \lean{IsRank.evPer}, \lean{IsLRank.evPer}\\
+Theorem~\ref{thm:peel} & \lean{cyc\_mem\_of\_peelRank}, \lean{cyc\_mem\_of\_peelRank\_rev}\\
+Corollary~\ref{cor:rung} & \lean{CarryBridge.coreClosed\_of\_ladder'}\\
+Proposition~\ref{prop:coreform} & \lean{noBranch\_of\_cyc\_det}\\
+Proposition~\ref{prop:depth} & \lean{drops\_add\_le}\\
+Theorem~\ref{thm:geodesic-konig} & \lean{exists\_injective\_walk\_of\_infinite\_reach}\\
+\bottomrule
+\end{tabular}
+\end{center}

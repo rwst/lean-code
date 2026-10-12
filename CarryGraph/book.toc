@@ -1,0 +1,27 @@
+\contentsline {chapter}{\numberline {1}Why carry graphs}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}One recurrence}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}The object}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Covers, and the shape of every theorem}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}What is in the book}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Lean}{3}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Carry graphs, walks and words}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Carry graphs}{5}{section.2.1}%
+\contentsline {paragraph}{Constructions.}{6}{section*.3}%
+\contentsline {section}{\numberline {2.2}Walks, infinite paths, words}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Counting paths and words}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Kőnig's lemma}{7}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Reachability, components, ranks}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Reachability}{9}{section.3.1}%
+\contentsline {paragraph}{Computing reachability.}{9}{section*.6}%
+\contentsline {section}{\numberline {3.2}The two canonical ranks}{10}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Ranks and branching}{10}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Peel ranks}{11}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Geodesic Kőnig}{12}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Peeling and the core}{15}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Growth and entropy}{17}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Labels, languages and sofic shifts}{19}{chapter.6}%
+\contentsline {chapter}{\numberline {7}Splittings, homomorphisms and products}{21}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Covers of dynamical systems}{23}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Affine carry graphs}{25}{chapter.9}%
+\contentsline {chapter}{\numberline {A}Lean dictionary}{27}{appendix.A}%
+\contentsline {chapter}{\numberline {B}What Mathlib and ForMathlib supply}{29}{appendix.B}%

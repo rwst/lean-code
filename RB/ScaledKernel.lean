@@ -393,30 +393,30 @@ private lemma finite_of_gap_injOn (δ : ℚ) (hδ : δ ≠ 0) (θ : ℚ) (hθ0 :
     div_pos (log_inv_pos hθ0' hθ1') (by positivity)
   -- the value slot: `δ·u₁ + (−δ)·u₂ = δ·((3/2)^c − (3/2)^a)`
   have hval : ∀ p : ℕ × ℕ,
-      δ * NKR.uval (enc p).1.1 (enc p).1.2 + (-δ) * NKR.uval (enc p).2.1 (enc p).2.2
+      δ * SubspaceTriple.uval (enc p).1.1 (enc p).1.2 + (-δ) * SubspaceTriple.uval (enc p).2.1 (enc p).2.2
         = δ * ((3 / 2 : ℚ) ^ p.2 - (3 / 2 : ℚ) ^ p.1) := by
     intro p
-    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, NKR.uval_neg_natCast]
+    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, SubspaceTriple.uval_neg_natCast]
     ring
   have habs : ∀ q ∈ enc '' T,
-      1 ≤ |NKR.uval q.1.1 q.1.2| ∧ 1 ≤ |NKR.uval q.2.1 q.2.2| := by
+      1 ≤ |SubspaceTriple.uval q.1.1 q.1.2| ∧ 1 ≤ |SubspaceTriple.uval q.2.1 q.2.2| := by
     rintro q ⟨p, -, rfl⟩
-    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, NKR.uval_neg_natCast]
+    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, SubspaceTriple.uval_neg_natCast]
     rw [abs_of_pos (by positivity), abs_of_pos (by positivity)]
     exact ⟨one_le_pow₀ (by norm_num), one_le_pow₀ (by norm_num)⟩
-  have hP2 : ∀ q ∈ enc '' T, NKR.uval q.1.1 q.1.2 ≠ -NKR.uval q.2.1 q.2.2 := by
+  have hP2 : ∀ q ∈ enc '' T, SubspaceTriple.uval q.1.1 q.1.2 ≠ -SubspaceTriple.uval q.2.1 q.2.2 := by
     rintro q ⟨p, -, rfl⟩
-    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, NKR.uval_neg_natCast]
+    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, SubspaceTriple.uval_neg_natCast]
     have h1 : (0 : ℚ) < (3 / 2 : ℚ) ^ p.2 := by positivity
     have h2 : (0 : ℚ) < (3 / 2 : ℚ) ^ p.1 := by positivity
     intro h
     rw [h] at h1
     linarith
   have hratio : ∀ q ∈ enc '' T, ∀ q' ∈ enc '' T, q ≠ q' →
-      NKR.uval q.1.1 q.1.2 / NKR.uval q.2.1 q.2.2
-        ≠ NKR.uval q'.1.1 q'.1.2 / NKR.uval q'.2.1 q'.2.2 ∧
-      NKR.uval q.2.1 q.2.2 / NKR.uval q.1.1 q.1.2
-        ≠ NKR.uval q'.2.1 q'.2.2 / NKR.uval q'.1.1 q'.1.2 := by
+      SubspaceTriple.uval q.1.1 q.1.2 / SubspaceTriple.uval q.2.1 q.2.2
+        ≠ SubspaceTriple.uval q'.1.1 q'.1.2 / SubspaceTriple.uval q'.2.1 q'.2.2 ∧
+      SubspaceTriple.uval q.2.1 q.2.2 / SubspaceTriple.uval q.1.1 q.1.2
+        ≠ SubspaceTriple.uval q'.2.1 q'.2.2 / SubspaceTriple.uval q'.1.1 q'.1.2 := by
     rintro q ⟨p, hpT, rfl⟩ q' ⟨p', hp'T, rfl⟩ hqq'
     have hpp' : p ≠ p' := fun h => hqq' (congrArg enc h)
     obtain ⟨-, hac, -⟩ := hTsub hpT
@@ -424,7 +424,7 @@ private lemma finite_of_gap_injOn (δ : ℚ) (hδ : δ ≠ 0) (θ : ℚ) (hθ0 :
     have hgap : p.2 - p.1 ≠ p'.2 - p'.1 := fun h => hpp' (hinj hpT hp'T h)
     have hne : (3 / 2 : ℚ) ^ (p.2 - p.1) ≠ (3 / 2 : ℚ) ^ (p'.2 - p'.1) :=
       fun h => hgap (three_halves_pow_injective h)
-    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, NKR.uval_neg_natCast]
+    simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd, SubspaceTriple.uval_neg_natCast]
     refine ⟨?_, ?_⟩
     · rw [three_halves_div_pow hac.le, three_halves_div_pow hac'.le]
       exact hne
@@ -434,13 +434,13 @@ private lemma finite_of_gap_injOn (δ : ℚ) (hδ : δ ≠ 0) (θ : ℚ) (hθ0 :
       simp only [inv_div] at h'
       rwa [three_halves_div_pow hac.le, three_halves_div_pow hac'.le] at h'
   have hposd : ∀ q ∈ enc '' T,
-      0 < (δ * NKR.uval q.1.1 q.1.2 + (-δ) * NKR.uval q.2.1 q.2.2).distToNearestInt := by
+      0 < (δ * SubspaceTriple.uval q.1.1 q.1.2 + (-δ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt := by
     rintro q ⟨p, hpT, rfl⟩
     obtain ⟨ha2, hac, -⟩ := hTsub hpT
     rw [hval p]
     exact dist_pos_of_num_le hδ hac (hTnum p hpT)
   have happrox : ∀ q ∈ enc '' T,
-      ((δ * NKR.uval q.1.1 q.1.2 + (-δ) * NKR.uval q.2.1 q.2.2).distToNearestInt : ℝ)
+      ((δ * SubspaceTriple.uval q.1.1 q.1.2 + (-δ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt : ℝ)
         < ((CZ.height23 q.1.1 q.1.2 * CZ.height23 q.2.1 q.2.2 : ℕ) : ℝ)
             ^ (-(Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3))) := by
     rintro q ⟨p, hpT, rfl⟩
@@ -456,7 +456,7 @@ private lemma finite_of_gap_injOn (δ : ℚ) (hδ : δ ≠ 0) (θ : ℚ) (hθ0 :
     (hTinf.image enc_injective.injOn) habs hP2 hratio hposd happrox
   obtain ⟨p, hpT, rfl⟩ := hq𝒩
   obtain ⟨ha2, hac, -⟩ := hTsub hpT
-  rw [enc_fst_fst, enc_fst_snd, NKR.uval_neg_natCast] at hn
+  rw [enc_fst_fst, enc_fst_snd, SubspaceTriple.uval_neg_natCast] at hn
   exact three_halves_pow_not_int (by omega) n hn
 
 /-! ## The `δ`-general kernel -/

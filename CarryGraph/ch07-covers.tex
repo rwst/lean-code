@@ -1,0 +1,254 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Covers of dynamical systems}\label{ch:covers}
+
+So far every theorem has been about a graph. This chapter connects graphs to orbits. One
+definition, the \emph{cover}, states what every ``the real orbit is a path'' lemma in the
+corpus proves. Once it holds, the graph theory of Chapters~\ref{ch:core}--\ref{ch:splitting}
+turns into statements about orbits with no further work: periodicity of carry words, escape
+times, word counts, dimension bounds, and the obstruction principle. This chapter proves these
+\emph{transfer theorems} once, for an abstract system. Chapter~\ref{ch:affine} supplies the
+covers of the recurrence~\eqref{eq:carry}.
+
+\section{Systems, runs and covers}
+
+\begin{definition}\label{def:system}
+A \emph{system}\index{system} over the alphabet \(A\) is a set \(S\) with maps \(f_a\colon S\to S\)
+(\(a\in A\)) and an \emph{admissibility}\index{admissibility} relation \(\mathrm{adm}(x,a)\): ``the step \(a\) may be
+taken at \(x\)''. A point \(x\) \emph{follows}\index{follow (a run)} the word \(a_1\cdots a_n\) if each step of the
+\emph{run}\index{run} \(x_0=x\), \(x_k=f_{a_k}(x_{k-1})\) is admissible: \(\mathrm{adm}(x_{k-1},a_k)\) for
+all \(k\). Write \(\mathrm{run}(x,w)=x_n\). A label sequence \(\ell\colon\N\to A\) is
+\emph{admissible forever}\index{admissible forever} at \(x\) if \(x\) follows every prefix of \(\ell\).
+\end{definition}
+
+The maps \(f_a\) may ignore their label. In Chapter~\ref{ch:affine} there is a single map
+\(z\mapsto(p/q)(z-\nu)+\nu\), and the label is the carry, which admissibility pins down. Avoiding
+a divisor set is part of admissibility, so ``admissible forever'' means ``avoids \(\mathcal P\)
+forever''.
+
+\begin{definition}\label{def:cover}
+A carry graph \(X\) on \(V\) \emph{covers}\index{cover} the system through \(\rho\colon V\to\mathcal P(S)\)
+if every admissible step from \(\rho(v)\) is shadowed by an arc:
+\[
+x\in\rho(v),\ \mathrm{adm}(x,a)\ \Longrightarrow\ f_a(x)\in\rho(w)\text{ for some }
+v\xrightarrow{a}w.
+\]
+\(X\) \emph{realises}\index{realise} its words if every word of \(X\) from \(v\) is followed by some point of
+\(\rho(v)\), and \emph{realises forever}\index{realise!forever} if every infinite labelled path
+\((s_n,\ell_n)\) of \(X\) is admissible forever at some point of \(\rho(s_0)\).
+\end{definition}
+
+A cover is a soundness statement and needs no converse. Upper bounds (periodicity, escape,
+entropy, dimension) need only a cover. Lower bounds need realisation. A cover that also
+realises its words is \emph{exact}: its words are the itineraries
+(Theorem~\ref{thm:count}\,(b)).
+
+\begin{proposition}[shadowing]\label{prop:shadow}\index{shadowing}
+Let \(X\) cover the system through \(\rho\) and \(x\in\rho(v)\).
+\begin{enumerate}[label=(\alph*)]
+\item If \(x\) follows \(w\), then \(X\) reads \(w\) from \(v\) to some \(u\) with
+  \(\mathrm{run}(x,w)\in\rho(u)\).
+\item If \(\ell\) is admissible forever at \(x\), there is an infinite labelled path
+  \((s_n,\ell_n)\) of \(X\) with \(s_0=v\) and \(x_n\in\rho(s_n)\) for all \(n\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Induction on \(w\), one application of the cover per letter. (b) Choose \(s_{n+1}\) among
+the arcs that the cover provides at step \(n\). The choice is recursive along the orbit, so no
+compactness is needed and \(V\) may be infinite.
+\end{proof}
+
+\paragraph{Constructions.} Covers survive the operations of Chapter~\ref{ch:splitting}.
+\begin{itemize}
+\item A supergraph of a cover is a cover, and so is a cover of a system with fewer admissible
+  steps.
+\item The image of a cover under a homomorphism \(g\) is a cover through the fibre unions
+  \(\bigcup_{g(v)=u}\rho(v)\).
+\item If \(\pi\colon S'\to S\) maps admissible steps to admissible steps
+  (\(\pi(f'_a x)=f_a(\pi x)\)), a cover of \(S\) covers \(S'\) through the preimages
+  \(\pi^{-1}\rho(v)\). This is how the fractional parts enter in Chapter~\ref{ch:affine}.
+\item Covers by \(X\) and \(Y\) give a cover by the label product \(X\otimes Y\) through
+  \(\rho(v)\cap\sigma(w)\), and likewise for indexed products. This is the
+  \emph{residue\,\(\times\)\,cell principle}: the residue and the cell of \(x_n\) are tracked
+  separately and combined at no cost.
+\item The subset construction covers through \(\rho(T)=\bigcup_{v\in T}\rho(v)\).
+\item The line graph covers through \(\rho(u\xrightarrow{a}v)=\rho(v)\), and by iteration so does
+  every higher block graph \cite[§2.3]{LM95}.
+\end{itemize}
+
+\section{The transfer theorems}
+
+\begin{theorem}[periodicity]\label{thm:transfer-per}
+Let \(X\) cover the system through \(\rho\), and let \(\ell\) be admissible forever at a point
+of some \(\rho(v)\).
+\begin{enumerate}[label=(\alph*)]
+\item If \(X\) has the label form (Definition~\ref{def:allper}), \(\ell\) is eventually
+  periodic.
+\item In particular this holds if \(V\) is finite and \(X\) has zero entropy, or if \(\det X\)
+  has zero entropy (Theorem~\ref{thm:determinization}).
+\item Conversely, one admissible-forever \(\ell\) that is not eventually periodic rules out the
+  label form of every cover.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Proposition~\ref{prop:shadow}\,(b) makes \(\ell\) the label sequence of an infinite path of
+\(X\). Then apply the label form, Theorem~\ref{thm:six-faces} or
+Theorem~\ref{thm:determinization}.
+\end{proof}
+
+Part~(a) generalises two corpus theorems:
+\begin{itemize}
+\item \lean{DubC.digits\_eventually\_periodic\_of\_certOK},
+\item \lean{DubC2.Gen.isEventuallyPeriodic\_of\_path}.
+\end{itemize}
+\cite[Lemma~2]{DN05} says that the carry word of a
+nonzero \(\xi\) is never eventually periodic. So part~(c), applied to that word, is the shape of
+every divisor-set theorem in the corpus: a certificate for the label form of \emph{some} cover
+shows that no \(\xi\ne0\) avoids \(\mathcal P\).
+
+\begin{theorem}[the obstruction principle]\label{thm:obstruction}\index{obstruction principle}
+Let \(Y\) be finite and right-resolving, and suppose it realises forever through \(\sigma\), with
+\(\sigma(u)\subseteq\bigcup_v\rho(v)\). If \(Y\) has a horseshoe at \(u\)
+(Definition~\ref{def:horseshoe}) with two distinct petals, then no cover \(X\) of the same
+system through \(\rho\) has the label form. If \(V\) is finite, no such \(X\) has zero entropy.
+\end{theorem}
+
+\begin{proof}
+Theorem~\ref{thm:horseshoe} turns two petals into an infinite path \((s,\ell)\) of \(Y\) that
+is not eventually periodic as a pair. Since \(Y\) is right-resolving, \(\ell\) is not eventually
+periodic either (Proposition~\ref{prop:state-label} and its right-resolving converse).
+Realisation gives a point of \(\sigma(u)\subseteq\bigcup\rho\) at which \(\ell\) is admissible
+forever. Then apply Theorem~\ref{thm:transfer-per}\,(c).
+\end{proof}
+
+This is the principle behind the DubC2 horseshoe and branch witnesses, and behind
+\cite[Thm.~42]{Oda26}. An obstruction found in one presentation, for instance a small
+hand-made graph that realises its paths by the intermediate value theorem, rules out
+certificates in \emph{every} presentation of the system.
+
+\begin{theorem}[escape]\label{thm:transfer-escape}
+Let \(V\) and \(A\) be finite and let \(X\) cover the system through \(\rho\).
+\begin{enumerate}[label=(\alph*)]
+\item If \(v\notin\mathrm{peel}_k(X)\) (Proposition~\ref{prop:peel}), no point of \(\rho(v)\)
+  follows a word of length \(k\).
+\item If the core of \(X\) is empty, no point of \(\bigcup_v\rho(v)\) follows a word of length
+  \(|V|\). In particular no orbit from \(\bigcup_v\rho(v)\) is admissible forever.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:shadow}\,(a), a followed word of length \(k\) is a walk of length
+\(k\) from \(v\). Then apply Proposition~\ref{prop:peel} and Theorem~\ref{thm:core-empty}.
+\end{proof}
+
+This is the unavoidable-divisor-set theorem of \cite{DubOst06} and the escape bound of the
+\texttt{Z32} funnels. The peel index of \(v\) bounds the escape time of every point of
+\(\rho(v)\) (Theorem~\ref{thm:escape}).
+
+\section{Counting itineraries}
+
+The \emph{itineraries} of length \(n\) from a set \(T\subseteq S\) are the words followed by
+some point of \(T\).
+
+\begin{theorem}[entropy inequality]\label{thm:count}
+Let \(V\) and \(A\) be finite and let \(X\) cover the system through \(\rho\).
+\begin{enumerate}[label=(\alph*)]
+\item The itineraries of length \(n\) from \(\rho(v)\) are words of \(X\) from \(v\), so there
+  are at most \(\mathrm{npaths}(v,n)\) of them. If \(T\subseteq\bigcup_v\rho(v)\), there are at
+  most \(\mathrm{ntot}(n)\) itineraries of length \(n\) from \(T\), and their exponential growth
+  rate is at most \(h(X)\).
+\item If \(X\) realises its words, the itineraries from \(\rho(v)\) are exactly the words from
+  \(v\). If moreover \(X\) is right-resolving, then \(h(X)\) is the growth rate of the
+  itineraries from the union of all \(\rho(v)\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) is Proposition~\ref{prop:shadow}\,(a) and Proposition~\ref{prop:count}. For (b), a
+right-resolving graph has as many words as paths, so
+\(\mathrm{ntot}(n)=\sum_v\#\mathrm{words}(v,n)\le|V|\cdot\#\{\text{itineraries}\}\), and a
+constant factor does not change the growth rate.
+\end{proof}
+
+So \(h(X)\) bounds the complexity of the carry language of the system from above, through every
+finite cover. An exact right-resolving cover, such as the \texttt{Z32} type certificate,
+computes it.
+
+\section{Dimension}
+
+Let \(S\) be a (pseudo-)metric space and let \(K\subseteq S\) be a set of points of
+\(\bigcup_v\rho(v)\) that follow words of every length. The itinerary \emph{localises} with
+ratio \(r<1\) if two points of \(K\) in one \(\rho(v)\) that follow the same word of length
+\(n\) are within \(c\,r^n\) of each other.
+
+\begin{theorem}[dimension $\le$ entropy$/\log\lambda$]\label{thm:dimension}\index{dimension!Hausdorff, box}
+Let \(V\) and \(A\) be finite, let \(X\) cover the system through \(\rho\), and let the itinerary
+localise on \(K\) with ratio \(r=\lambda^{-1}\in(0,1)\). Then
+\[
+\overline{\dim}_B K\le\frac{h(X)}{\log\lambda},\qquad
+\dim_H K\le\frac{h(X)}{\log\lambda}\quad(K\ne\emptyset).
+\]
+Localisation holds if every admissible step expands distances by at least \(\lambda\) and the run
+endpoints of two such points are \(c\)-close.
+\end{theorem}
+
+\begin{proof}
+Choose one point of \(K\) for each pair \((v,w)\) with \(w\) a word of length \(n\) from \(v\)
+that some point of \(K\cap\rho(v)\) follows. The balls of radius \(c\,r^n\) around these points
+cover \(K\). There are at most \(\sum_v\#\mathrm{words}(v,n)\le\mathrm{ntot}(n)\) of them. The
+upper box dimension is the growth rate of the covering numbers at scales \(c\,r^n\), divided by
+\(\log r^{-1}\) (\texttt{ForMathlib}'s \lean{upperBoxDim\_eq\_upperBoxDimWith} and
+\lean{coveringGrowth\_const\_mul}). It is therefore at most \(h(X)/\log\lambda\). Finally,
+\(\dim_H\le\overline{\dim}_B\). For the expanding criterion, induction along the run gives
+\(d(x,y)\le r^{n}\,d(\mathrm{run}(x,w),\mathrm{run}(y,w))\).
+\end{proof}
+
+With the eigenvector bracket of Theorem~\ref{thm:brackets} this gives explicit numbers: a
+super-eigenvector with ratio \(a/b\) yields \(\dim_H K\le\log(a/b)/\log\lambda\). That is the
+inequality \lean{DubC2.Gen.upperBoxDim\_avoiders\_le} proves for one certificate format.
+Chapter~\ref{ch:affine} derives it for every cover of the affine system (Theorem~\ref{thm:dim-avoiders}).
+
+\section*{Notes}
+
+Covers in this sense are one-sided, set-valued Markov partitions \cite[§6.5]{LM95}. A cover
+need not be a partition, the sets \(\rho(v)\) may overlap, and \(X\) may have more arcs than the
+system uses. The shadowing proposition replaces the coding map of a Markov partition by a choice
+of path, and the transfer theorems need nothing more. The entropy inequality is the
+graph-theoretic half of \cite[Prop.~4.1.13, ch.~4]{LM95}; the dimension bound is the counting
+step of \cite[§3.2]{Fal03}.
+
+\section*{Lean}
+
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Cover.lean}, \texttt{Dimension.lean})\\
+\midrule
+Definition~\ref{def:system} & \lean{run}, \lean{Follows}, \lean{orbit}, \lean{AdmForever},
+  \lean{orbit\_succ'}, \lean{AdmForever.tail}, \lean{pre}, \lean{length\_pre},
+  \lean{pre\_succ}, \lean{AdmForever.follows}\\
+Definition~\ref{def:cover} & \lean{Cover}, \lean{Realizes}, \lean{RealizesInf}\\
+Proposition~\ref{prop:shadow} & (a) \lean{Cover.follows}, \lean{Cover.isWord}; (b)
+  \lean{Cover.exists\_iPath}\\
+Constructions & \lean{Cover.mono}, \lean{Cover.mono\_adm}, \lean{Cover.map},
+  \lean{Cover.comap}, \lean{Cover.labelProduct}, \lean{Cover.piProduct}, \lean{Cover.det},
+  \lean{Cover.lineGraph}, \lean{Cover.ofSimulation}\\
+Theorem~\ref{thm:transfer-per} & \lean{Cover.evPer\_of\_allPer},
+  \lean{Cover.evPer\_of\_lnoBranch}, \lean{Cover.evPer\_of\_det}, \lean{Cover.not\_allPer}\\
+Theorem~\ref{thm:obstruction} & \lean{Cover.not\_allPer\_of\_horseshoe},
+  \lean{Cover.not\_lnoBranch\_of\_horseshoe}\\
+Theorem~\ref{thm:transfer-escape} & \lean{Cover.not\_follows\_of\_not\_hasWalk},
+  \lean{Cover.escape\_of\_peel}, \lean{Cover.escape\_of\_core\_empty},
+  \lean{Cover.not\_admForever\_of\_core\_empty}\\
+Theorem~\ref{thm:count} & (a) \lean{orbitWords}, \lean{orbitLang},
+  \lean{Cover.orbitWords\_subset}, \lean{Cover.ncard\_orbitWords\_le},
+  \lean{Cover.orbitLang\_subset}, \lean{Cover.ncard\_orbitLang\_le},
+  \lean{Cover.orbitEntropy\_le}; (b) \lean{Realizes.words\_subset}, \lean{Cover.orbitWords\_eq},
+  \lean{Cover.orbitEntropy\_eq}\\
+Theorem~\ref{thm:dimension} & \lean{Cover.externalCoveringNumber\_le},
+  \lean{Cover.upperBoxDim\_le}, \lean{Cover.dimH\_le}, \lean{edist\_le\_of\_follows},
+  \lean{Cover.upperBoxDim\_le\_of\_expanding}\\
+\bottomrule
+\end{tabular}
+\end{center}

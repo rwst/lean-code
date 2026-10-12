@@ -1,0 +1,315 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Labels, languages and sofic shifts}\label{ch:sofic}
+
+Chapter~\ref{ch:entropy} counted labelled paths. Two paths with the same labels were counted
+twice. In the applications only the labels matter: they are the carries, and the carries
+determine the orbit. This chapter studies a carry graph as a \emph{presentation} of its labels
+\cite[ch.~3]{LM95}. Three questions come up in the problem families of
+Chapter~\ref{ch:overview}:
+\begin{enumerate}[label=(\arabic*)]
+\item Is every infinite label sequence eventually periodic? This is the conclusion every
+  certificate in the floor problems aims at.
+\item Can this be decided on the graph itself, or only after making the labels deterministic?
+\item Is the language of labels finitely presentable at all? The follower automaton of the
+  interval problem is a carry graph with infinitely many vertices, and soficity asks whether a
+  finite one would do.
+\end{enumerate}
+The answers are the determinization theorem (Theorem~\ref{thm:determinization}), the bridge
+to regular languages (Theorem~\ref{thm:sofic-regular}) and the follower-set graph
+(Section~\ref{sec:follower}).
+
+\section{Two forms of periodicity}
+
+\begin{definition}\label{def:allper}
+A sequence \(\ell:\N\to A\) is \emph{eventually periodic}\index{eventually periodic} if \(\ell(m+L)=\ell(m)\) for some
+\(L>0\) and all \(m\ge n_0\). A carry graph \(X\) has the \emph{label form}\index{eventually periodic!label form} \(\mathrm{AllPer}\) if
+the label sequence of every infinite path is eventually periodic. It has the \emph{state form}\index{eventually periodic!state form}
+if no vertex branches (Definition~\ref{def:branch}).
+\end{definition}
+
+The state form is face~2 of Theorem~\ref{thm:six-faces}. It speaks about vertices, while the
+label form speaks about labels only.
+
+\begin{proposition}\label{prop:state-label}
+Let \(V\) be finite and \(A\) arbitrary.
+\begin{enumerate}[label=(\alph*)]
+\item The state form holds iff every infinite path is eventually periodic, vertices and labels
+  together. In particular it implies the label form.
+\item If \(X\) is right-resolving, the two forms are equivalent.
+\item A homomorphism \(f:X\to Y\) carries the label form of \(Y\) back to \(X\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Without branching, the number of vertices reachable from \(v\) is a labelled rank. This
+uses only that each reach set is finite, so \(A\) need not be finite. By
+Theorem~\ref{thm:evper} the path is eventually periodic. The converse is the horseshoe of
+Theorem~\ref{thm:horseshoe}. (b) In a right-resolving graph the start vertex and the labels
+determine the path. If the labels have period \(L\) from \(n_0\) on, the vertices
+\(s(n_0+kL)\), \(k\ge0\), repeat by pigeonhole, and the repetition propagates along the
+periodic labels. So the path is eventually periodic, and (a) applies. (c) \(f\) maps infinite
+paths to infinite paths with the same labels.
+\end{proof}
+
+Without right-resolution the label form is strictly weaker.
+
+\begin{example}[the \(5/3\) tube]\label{ex:tube}
+At \(p/q=5/3\), shift \(\nu=\tfrac12\), primes \(\{2,3\}\), \(K=2\) and cell resolution \(k=3\),
+the joint residue-and-cell graph of the interval problem has an eight-vertex strong component
+with arcs
+\[
+0,1\xrightarrow{-2}4,5\xrightarrow{-2}6,7\xrightarrow{\;2\;}2,3\xrightarrow{\;2\;}0,1
+\]
+(12 arcs, data \texttt{CarryGraph/data/tube53\_k3.txt}). Vertex \(0\) has the two arcs
+\(0\xrightarrow{-2}4\) and \(0\xrightarrow{-2}5\), and both targets return to \(0\). So the state
+form fails. Every arc raises a level modulo 4, and its label depends only on the level, so
+every infinite path reads \((-2,-2,2,2)^\infty\) from some point on, and the label form holds.
+The same phenomenon occurs in a three-vertex graph, \(0\xrightarrow{a}1\), \(0\xrightarrow{a}2\),
+\(1\xrightarrow{b}0\), \(2\xrightarrow{b}0\), which presents \((ab)^\infty\) and branches at
+\(0\). Both checks for this graph are done by \lean{decide}.
+\end{example}
+
+This is why, in the interval problem, the state form is not monotone in the cell resolution
+\(k\): refining the cells can produce two parallel tubes with the same labels.
+
+\section{The subset construction}
+
+\begin{definition}[{\cite[Thm.~3.3.2]{LM95}}]\label{def:det}
+For \(S\subseteq V\) and \(a\in A\) let \(S\cdot a=\{w : v\xrightarrow{a}w,\ v\in S\}\). The
+\emph{subset construction}\index{subset construction} \(\det X\) is the carry graph on the finite subsets of \(V\), with an
+arc \(S\xrightarrow{a}S\cdot a\) whenever \(S\cdot a\neq\emptyset\).
+\end{definition}
+
+\(\det X\) is right-resolving by construction. It is computable: in Lean it is a carry graph on
+\(\mathrm{Finset}\,V\). Reading a word \(w\) from \(S\) in \(\det X\) leads to the set of
+vertices that \(w\) reaches from \(S\) in \(X\). Hence the language of \(\det X\) from \(\{v\}\)
+is the language of \(X\) from \(v\).
+
+\begin{lemma}[Kőnig for the subset construction]\label{lem:det-konig}
+Every infinite path of \(\det X\) from a non-empty \(S_0\) lifts to an infinite path of \(X\)
+from a vertex of \(S_0\), with the same labels. Neither \(V\) nor \(A\) needs to be finite.
+\end{lemma}
+
+\begin{proof}
+Let \(S_0\xrightarrow{\ell_0}S_1\xrightarrow{\ell_1}\cdots\). Every vertex of \(S_m\) is reached
+from \(S_0\) by a walk reading \(\ell_0\cdots\ell_{m-1}\), so for each \(m\) some vertex of the
+finite set \(S_0\) starts such a walk. By pigeonhole one vertex \(v_0\) does so for every \(m\).
+Among its finitely many \(\ell_0\)-successors, again one has walks reading
+\(\ell_1\cdots\ell_{m}\) for every \(m\). Dependent choice gives the path.
+\end{proof}
+
+\begin{corollary}\label{cor:konig-labels}
+Let \(V\) be finite and \(\ell_0\ell_1\cdots\) a label sequence every prefix of which is read by
+some walk of \(X\). Then \(\ell\) is the label sequence of an infinite path of \(X\).
+\end{corollary}
+
+\begin{proof}
+Run the subset construction from \(S_0=V\) along \(\ell\). Each \(S_m\) contains the end of a walk
+reading \(\ell_0\cdots\ell_{m-1}\), so it is non-empty, and the \(S_m\) form a path of
+\(\det X\). Lemma~\ref{lem:det-konig} lifts it.
+\end{proof}
+
+This is the step that turns a supply of finite admissible words into an obstruction: if the
+prefixes of an aperiodic sequence are all read, the label form fails.
+
+\begin{theorem}[determinization]\label{thm:determinization}\index{determinization}
+For finite \(V\) the following are equivalent:
+\begin{enumerate}[label=(\roman*)]
+\item \(X\) has the label form;
+\item \(\det X\) has the label form;
+\item \(\det X\) has the state form;
+\end{enumerate}
+and, for finite \(A\),
+\begin{enumerate}[label=(\roman*),resume]
+\item \(\det X\) has polynomial growth;
+\item \(h(\det X)\le 0\);
+\item the label language grows polynomially: for some \(C,d\) and all \(v,n\),
+  \[\#\{w : |w|=n,\ w\text{ is read from }v\}\le C(n+1)^d.\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i)\(\Leftrightarrow\)(ii): a path of \(X\) gives a path of \(\det X\) with the same labels,
+and Lemma~\ref{lem:det-konig} gives the converse. (ii)\(\Leftrightarrow\)(iii) is
+Proposition~\ref{prop:state-label}(b), since \(\det X\) is right-resolving.
+(iii)\(\Leftrightarrow\)(iv)\(\Leftrightarrow\)(v) is Theorem~\ref{thm:six-faces} for
+\(\det X\). For (vi): in a right-resolving graph paths and words correspond one to one
+(Proposition~\ref{prop:count}), so \(\mathrm{npaths}_{\det X}(\{v\},n)\) is the number of words
+of length \(n\) from \(v\). Conversely, the words from \(S\) are the union of the words from the
+vertices of \(S\). This gives \(\mathrm{npaths}_{\det X}(S,n)\le|V|\,C(n+1)^d+1\).
+\end{proof}
+
+Item (vi) is the precise meaning of the informal criterion ``\(\lambda_{\det}=1\)'' used for the
+interval problem: the label language grows polynomially. It needs no Perron--Frobenius theory.
+For the tube of Example~\ref{ex:tube}, (i) holds while the state form on \(X\) fails, so (iii)
+holds while it fails on \(X\) itself.
+
+\section{Languages and regularity}
+
+\begin{definition}\label{def:sofic}
+The \emph{language}\index{language} of \(X\) from \(v\) is the set \(\mathcal L(X,v)\) of words read on finite
+walks from \(v\). A language \(L\subseteq A^*\) is \emph{prefix-closed}\index{prefix-closed} if it contains the empty
+word and every prefix of each of its words. It is \emph{sofic}\index{sofic} if \(L=\mathcal L(X,v)\) for a
+finite carry graph \(X\) and some \(v\).
+\end{definition}
+
+This is the one-sided, rooted notion. Two-sided sofic shifts appear in
+Section~\ref{sec:shift}. Every \(\mathcal L(X,v)\) is prefix-closed. Reading \(X\) as a
+nondeterministic automaton with start state \(v\) and every state accepting gives an NFA with
+language \(\mathcal L(X,v)\). Mathlib's subset construction \lean{NFA.toDFA} run from a finite
+set \(S\) on a word \(w\) ends in exactly the state that \(\det X\) reaches.
+
+\begin{theorem}\label{thm:sofic-regular}\index{Myhill--Nerode theorem}
+A language is sofic iff it is regular and prefix-closed.
+\end{theorem}
+
+\begin{proof}
+A sofic language is accepted by the NFA just described, hence by a finite DFA. Conversely,
+restrict a finite DFA for \(L\) to its accepting states, and keep an arc \(s\xrightarrow{a}t\)
+only if \(t\) accepts. A word \(w\) is read from the start state iff all its prefixes are
+accepted, and for prefix-closed \(L\) this is \(w\in L\).
+\end{proof}
+
+For \(u\in A^*\), the \emph{follower set} of \(u\) in \(L\) is
+\(F_L(u)=\{w : uw\in L\}\) \cite[Def.~3.2.4]{LM95}. In Mathlib it is the left quotient
+\lean{L.leftQuotient u}. Mathlib's Myhill--Nerode theorem says that \(L\) is regular iff it has
+finitely many left quotients. With Theorem~\ref{thm:sofic-regular} this gives:
+
+\begin{corollary}[{\cite[Thm.~3.2.10]{LM95}, one-sided form}]\label{cor:sofic-follower}
+A prefix-closed language is sofic iff it has finitely many follower sets.
+\end{corollary}
+
+\section{The follower-set graph}\label{sec:follower}
+
+\begin{definition}\label{def:follower-graph}
+The \emph{follower-set graph}\index{follower-set graph} \(\mathcal F_A\) is the carry graph whose vertices are all
+languages over \(A\), with an arc \(L\xrightarrow{a}F_L(a)\) whenever \(a\in L\).
+\end{definition}
+
+It is one graph for all languages at once, and it is right-resolving. Membership in a language
+is not decidable in general, so \(\mathcal F_A\) is a tool for proofs and not for computation.
+
+\begin{theorem}\label{thm:follower-graph}
+Let \(L\) be prefix-closed.
+\begin{enumerate}[label=(\alph*)]
+\item Reading \(w\) from \(L\) in \(\mathcal F_A\) succeeds iff \(w\in L\), and it ends at
+  \(F_L(w)\). Hence \(\mathcal L(\mathcal F_A,L)=L\), and the vertices reachable from \(L\) are
+  the follower sets of the words of \(L\).
+\item \(L\) is sofic iff only finitely many vertices of \(\mathcal F_A\) are reachable from
+  \(L\).
+\item (Minimality.) If \(X\) is right-resolving, then \(x\mapsto\mathcal L(X,x)\) is a
+  homomorphism \(X\to\mathcal F_A\). For finite \(V\), the vertices reachable from
+  \(\mathcal L(X,v)\) number at most \(|V|\), and at most \(2^{|V|}\) if \(X\) is arbitrary.
+\item If \(A\) is finite and \(L\) is not sofic, there is an infinite sequence
+  \(\ell_0\ell_1\cdots\) all of whose prefixes lie in \(L\) and have pairwise distinct follower
+  sets.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) By induction on \(w\), using \(F_L(aw)=F_{F_L(a)}(w)\) and the fact that \(F_L(a)\) is
+prefix-closed when \(a\in L\). (b) The follower set of a word outside \(L\) is empty, so the
+reachable vertices together with \(\emptyset\) are all follower sets. Apply
+Corollary~\ref{cor:sofic-follower}. (c) In a right-resolving graph \(F_{\mathcal L(X,v)}(u)\) is
+the language of the unique vertex that \(u\) reaches from \(v\). So the reachable follower sets
+are among the \(|V|\) languages \(\mathcal L(X,x)\). For arbitrary \(X\) apply this to
+\(\det X\), which has \(2^{|V|}\) states and the same language from \(\{v\}\). (d) By (b),
+infinitely many vertices are reachable from \(L\), and \(\mathcal F_A\) has finite out-degree.
+Geodesic Kőnig (Theorem~\ref{thm:geodesic-konig}) gives an infinite path from \(L\) whose
+vertices are pairwise distinct, and by (a) these are the follower sets of its prefixes.
+\end{proof}
+
+Part~(c) merges follower-equivalent states \cite[Lemma~3.3.8]{LM95}. With
+Proposition~\ref{prop:state-label}(c) it shows that a minimized certificate table is sound for
+the original graph. Part (d) is the generic half of the infinite-automaton result of the
+interval problem: there the follower automaton is infinite, and an injective path of states is
+found. Note that (b) concerns the follower-set graph and not an arbitrary presentation. An
+infinite automaton can still present a sofic language when many of its states have the same
+follower set, and for the interval problem this is in fact the case.
+
+\section{The two-sided label shift and Rauzy graphs}\label{sec:shift}
+
+Let \(S\subseteq V\) be essential (Definition~\ref{def:core}). The words read on walks inside
+\(S\) form a factorial and extendable language. Factorial means it is closed under deleting the
+first or the last letter. Extendable means every word extends by a letter on each side: an
+essential set gives every vertex a successor and a predecessor inside \(S\). By the duality
+between languages and subshifts \cite[§1.3]{LM95}, it is the language of exactly one subshift
+of \(A^{\Z}\), the \emph{label shift} \(X_S\). For \(S=\operatorname{core}X\) this is the sofic
+shift presented by \(X\) \cite[Def.~3.1.3]{LM95}. If each arc is labelled by itself, it is the
+edge shift \cite[Def.~2.2.5]{LM95}.
+
+\begin{proposition}\label{prop:label-shift}\index{label shift}
+For a non-empty essential \(S\) and a finite alphabet, the words of length \(n\) of \(X_S\) are
+exactly the words of length \(n\) read inside \(S\). The label sequence of every bi-infinite
+path inside \(S\) lies in \(X_S\). Every vertex of a bi-infinite path lies in the core.
+\end{proposition}
+
+The converse of the second statement, that every point of \(X_{\operatorname{core}}\) labels a
+bi-infinite path, also holds for finite \(V\) by compactness. It is not needed here.
+
+The \emph{Rauzy graph} of order \(n\) of a factorial language \(L\) is the carry graph on the
+words of length \(n\), with an arc \(u\xrightarrow{a}v\) whenever some word \(e\) of length
+\(n+1\) starts with \(u\), ends with \(v\), and has last letter \(a\). Its underlying digraph is
+the Rauzy graph used in complexity theory. The Sturmian and complexity material of the interval
+problem lives on these graphs.
+
+\section*{Notes}
+The subset construction and follower sets are \cite[§§3.2--3.3]{LM95}. The determinization
+theorem with its growth leg comes from the interval problem: the certificate engine checks the
+state form, and the tube example shows that only the det form is a property of the labels.
+\cite[Thm.~21]{Oda26} is the same theorem in a different language: for a graph whose edges
+carry single letters, the phase test on every strong component holds iff every infinite walk
+has eventually periodic output. With this chapter it holds iff \(\det X\) has the state form
+(Theorem~\ref{thm:determinization}). The graphs of \cite{Oda26} that the corpus formalises,
+namely the one-step graph \(G_K(W)\), the complete graph \(G(M,K)\) and \(G'(R,K)\), all carry
+single letters. Their projection map \cite[Lemma~31]{Oda26} is a carry-graph homomorphism, so
+projection soundness is Proposition~\ref{prop:state-label}(c). Only the contracted graphs of
+the normal form carry longer words. They enter by subdivision in
+Chapter~\ref{ch:splitting}.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Labelled.lean}, \texttt{Language.lean}, \texttt{Follower.lean},
+  \texttt{Shift.lean})\\
+\midrule
+Definition~\ref{def:allper} & \lean{EvPer}, \lean{AllPer}, \lean{AllEvPer.allPer}\\
+Proposition~\ref{prop:state-label} & \lean{lnoBranch\_isLRank\_ncard}, \lean{lnoBranch\_iff\_allEvPer},
+  \lean{allPer\_of\_lnoBranch}, \lean{evPer\_path\_of\_rr}, \lean{lnoBranch\_iff\_allPer\_of\_rr},
+  \lean{allPer\_of\_hom}\\
+Example~\ref{ex:tube} & \lean{tube}, \lean{tube53\_separates}, \lean{allPer\_of\_graded},
+  \lean{diamond\_separates} (by \lean{decide})\\
+Definition~\ref{def:det} & \lean{detStep}, \lean{det}, \lean{adj\_det}, \lean{det\_rightResolving},
+  \lean{isWord\_det}, \lean{isWord\_det\_singleton}, \lean{words\_det\_singleton}\\
+Lemma~\ref{lem:det-konig} & \lean{det\_iPath\_of\_iPath}, \lean{exists\_iPath\_of\_det},
+  \lean{exists\_forall\_of\_finset}\\
+Corollary~\ref{cor:konig-labels} & \lean{exists\_iPath\_of\_forall\_reads}\\
+Theorem~\ref{thm:determinization} & \lean{allPer\_det\_iff}, \lean{determinization},
+  \lean{allPer\_iff\_polyGrowth\_det}, \lean{allPer\_iff\_entropy\_det},
+  \lean{allPer\_iff\_wordGrowth}\\
+Definition~\ref{def:sofic} & \lean{langFrom}, \lean{PrefixClosed}, \lean{langFrom\_prefixClosed},
+  \lean{Sofic}, \lean{sofic\_of\_finite}, \lean{langFrom\_det\_singleton}\\
+NFA reading & \lean{toNFA}, \lean{mem\_evalFrom\_toNFA}, \lean{toNFA\_accepts},
+  \lean{toDFA\_evalFrom\_toNFA}\\
+Theorem~\ref{thm:sofic-regular} & \lean{Sofic.isRegular}, \lean{sofic\_of\_isRegular},
+  \lean{sofic\_iff\_isRegular\_and\_prefixClosed}\\
+Corollary~\ref{cor:sofic-follower} & \lean{sofic\_iff} (Mathlib \lean{Language.}\allowbreak
+  \lean{isRegular\_iff\_finite\_range\_leftQuotient}), \lean{mem\_leftQuotient\_langFrom}\\
+Definition~\ref{def:follower-graph} & \lean{followerGraph}, \lean{adj\_followerGraph},
+  \lean{followerGraph\_rightResolving}\\
+Theorem~\ref{thm:follower-graph} & \lean{reads\_followerGraph}, \lean{langFrom\_followerGraph},
+  \lean{reach\_followerGraph}, \lean{sofic\_iff\_finite\_reach}, \lean{toFollower},
+  \lean{ncard\_reach\_le\_of\_rr}, \lean{ncard\_reach\_le}, \lean{allPer\_of\_followerGraph},
+  \lean{exists\_injective\_of\_not\_sofic}\\
+Proposition~\ref{prop:label-shift} & \lean{blockWords}, \lean{isLanguage\_blockWords},
+  \lean{labelShift}, \lean{language\_labelShift}, \lean{mem\_labelShift\_of\_path},
+  \lean{mem\_core\_of\_biPath}, \lean{mem\_labelShift\_core\_of\_path}\\
+Rauzy graphs & \lean{rauzy}, \lean{adj\_rauzy}, \lean{under\_rauzy}, \lean{reach\_rauzy}\\
+\cite{Oda26} & \lean{CarryBridge.toWG}, \lean{CarryBridge.ofWG}, \lean{CarryBridge.odaAllPer\_iff},
+  \lean{CarryBridge.allCert\_iff\_det}, \lean{CarryBridge.allCert\_iff\_wordGrowth},
+  \lean{CarryBridge.odaProjHom}, \lean{CarryBridge.allPer\_of\_proj},
+  \lean{CarryBridge.allCert\_oneStepU\_iff}\\
+\bottomrule
+\end{tabular}
+\end{center}

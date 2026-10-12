@@ -8,7 +8,14 @@ import CITED.NairKumarRoutProof
 import Mathlib.Data.Set.Function
 
 /-!
-# Stage 2c: the gap dichotomy — the kernel (K) and M4, modulo two cited results
+# Stage 2c (superseded): the gap dichotomy — the kernel (K) and M4 via NKR + CZ
+
+**Superseded (2026-10-10).**  `TH/KernelDirect.lean` proves the same theorems
+(`pairRepulsion_all`, `kernel_holds`, `complexity_superlinear`,
+`middleBandViolators_finite`) by a single three-variable Subspace application, with
+no Nair–Kumar–Rout input; it is what `Solution.lean` imports.  This file is kept for
+the record of the first route and must not be imported together with `TH.KernelDirect`
+(the theorem names coincide).
 
 The middle-band kernel falls to the **gap dichotomy** of [M4A3] §6.3 (route 1),
 an unpublished one-page argument formalized here for the first time:
@@ -203,27 +210,27 @@ private lemma finite_of_gap_injOn (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1)
       linarith
   -- the NKR hypotheses for 𝒩 := enc '' T
   have habs : ∀ q ∈ enc '' T,
-      1 ≤ |NKR.uval q.1.1 q.1.2| ∧ 1 ≤ |NKR.uval q.2.1 q.2.2| := by
+      1 ≤ |SubspaceTriple.uval q.1.1 q.1.2| ∧ 1 ≤ |SubspaceTriple.uval q.2.1 q.2.2| := by
     rintro q ⟨p, -, rfl⟩
     simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd,
-      NKR.uval_neg_natCast]
+      SubspaceTriple.uval_neg_natCast]
     rw [abs_of_pos (by positivity), abs_of_pos (by positivity)]
     exact ⟨one_le_pow₀ (by norm_num), one_le_pow₀ (by norm_num)⟩
   have hP2 : ∀ q ∈ enc '' T,
-      NKR.uval q.1.1 q.1.2 ≠ -NKR.uval q.2.1 q.2.2 := by
+      SubspaceTriple.uval q.1.1 q.1.2 ≠ -SubspaceTriple.uval q.2.1 q.2.2 := by
     rintro q ⟨p, -, rfl⟩
     simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd,
-      NKR.uval_neg_natCast]
+      SubspaceTriple.uval_neg_natCast]
     have h1 : (0 : ℚ) < (3 / 2) ^ p.2 := by positivity
     have h2 : (0 : ℚ) < (3 / 2) ^ p.1 := by positivity
     intro h
     rw [h] at h1
     linarith
   have hratio : ∀ q ∈ enc '' T, ∀ q' ∈ enc '' T, q ≠ q' →
-      NKR.uval q.1.1 q.1.2 / NKR.uval q.2.1 q.2.2
-        ≠ NKR.uval q'.1.1 q'.1.2 / NKR.uval q'.2.1 q'.2.2 ∧
-      NKR.uval q.2.1 q.2.2 / NKR.uval q.1.1 q.1.2
-        ≠ NKR.uval q'.2.1 q'.2.2 / NKR.uval q'.1.1 q'.1.2 := by
+      SubspaceTriple.uval q.1.1 q.1.2 / SubspaceTriple.uval q.2.1 q.2.2
+        ≠ SubspaceTriple.uval q'.1.1 q'.1.2 / SubspaceTriple.uval q'.2.1 q'.2.2 ∧
+      SubspaceTriple.uval q.2.1 q.2.2 / SubspaceTriple.uval q.1.1 q.1.2
+        ≠ SubspaceTriple.uval q'.2.1 q'.2.2 / SubspaceTriple.uval q'.1.1 q'.1.2 := by
     rintro q ⟨p, hpT, rfl⟩ q' ⟨p', hp'T, rfl⟩ hqq'
     have hpp' : p ≠ p' := fun h => hqq' (congrArg enc h)
     obtain ⟨-, hac, -⟩ := hTsub hpT
@@ -232,7 +239,7 @@ private lemma finite_of_gap_injOn (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1)
     have hne : (3 / 2 : ℚ) ^ (p.2 - p.1) ≠ (3 / 2 : ℚ) ^ (p'.2 - p'.1) :=
       fun h => hgap (three_halves_pow_injective h)
     simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd,
-      NKR.uval_neg_natCast]
+      SubspaceTriple.uval_neg_natCast]
     constructor
     · rw [three_halves_div_pow hac.le, three_halves_div_pow hac'.le]
       exact hne
@@ -242,14 +249,14 @@ private lemma finite_of_gap_injOn (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1)
       simp only [inv_div] at h'
       rwa [three_halves_div_pow hac.le, three_halves_div_pow hac'.le] at h'
   have happrox : ∀ q ∈ enc '' T,
-      (((1 : ℚ) * NKR.uval q.1.1 q.1.2
-          + (-1 : ℚ) * NKR.uval q.2.1 q.2.2).distToNearestInt : ℝ)
+      (((1 : ℚ) * SubspaceTriple.uval q.1.1 q.1.2
+          + (-1 : ℚ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt : ℝ)
         < ((CZ.height23 q.1.1 q.1.2 * CZ.height23 q.2.1 q.2.2 : ℕ) : ℝ)
             ^ (-(Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3))) := by
     rintro q ⟨p, hpT, rfl⟩
     obtain ⟨ha2, hac, hdist⟩ := hTsub hpT
     simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd,
-      NKR.uval_neg_natCast, CZ.height23_neg_natCast, one_mul, neg_one_mul,
+      SubspaceTriple.uval_neg_natCast, CZ.height23_neg_natCast, one_mul, neg_one_mul,
       ← sub_eq_add_neg]
     calc (((3 / 2 : ℚ) ^ p.2 - (3 / 2 : ℚ) ^ p.1).distToNearestInt : ℝ)
         ≤ ((θ ^ p.2 : ℚ) : ℝ) := by exact_mod_cast hdist
@@ -257,12 +264,12 @@ private lemma finite_of_gap_injOn (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1)
       _ < _ := theta_pow_lt_height_rpow hθ0' hθ1' hac
   -- strict positivity: `(3/2)^c − (3/2)^a` is not an integer (parity)
   have hposd : ∀ q ∈ enc '' T,
-      0 < ((1 : ℚ) * NKR.uval q.1.1 q.1.2
-        + (-1 : ℚ) * NKR.uval q.2.1 q.2.2).distToNearestInt := by
+      0 < ((1 : ℚ) * SubspaceTriple.uval q.1.1 q.1.2
+        + (-1 : ℚ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt := by
     rintro q ⟨p, hpT, rfl⟩
     obtain ⟨ha2, hac, -⟩ := hTsub hpT
     simp only [enc_fst_fst, enc_fst_snd, enc_snd_fst, enc_snd_snd,
-      NKR.uval_neg_natCast, one_mul, neg_one_mul, ← sub_eq_add_neg]
+      SubspaceTriple.uval_neg_natCast, one_mul, neg_one_mul, ← sub_eq_add_neg]
     rcases lt_or_eq_of_le
       (Rat.distToNearestInt_nonneg ((3 / 2 : ℚ) ^ p.2 - (3 / 2 : ℚ) ^ p.1)) with h | h
     · exact h
@@ -275,7 +282,7 @@ private lemma finite_of_gap_injOn (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1)
     (hTinf.image enc_injective.injOn) habs hP2 hratio hposd happrox
   obtain ⟨p, hpT, rfl⟩ := hq𝒩
   obtain ⟨ha2, hac, -⟩ := hTsub hpT
-  rw [enc_fst_fst, enc_fst_snd, NKR.uval_neg_natCast] at hn
+  rw [enc_fst_fst, enc_fst_snd, SubspaceTriple.uval_neg_natCast] at hn
   exact three_halves_pow_not_int (by omega) n hn
 
 /-! ## The gap dichotomy and M4 -/

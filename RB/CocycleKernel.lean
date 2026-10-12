@@ -98,8 +98,8 @@ open CC ForMathlib.SubwordComplexity
 /-- The cocycle in the exponent encoding of the Diophantine engines: `Λₙ = 2^{−n}·3^{Sₙ}`. -/
 @[category API, AMS 11, ref "B2A2", group "rb_collatz_cocycle"]
 lemma cocycle_eq_uval (n₀ n : ℕ) :
-    cocycle n₀ n = NKR.uval (-(n : ℤ)) (sOdd n₀ n) := by
-  unfold cocycle NKR.uval
+    cocycle n₀ n = SubspaceTriple.uval (-(n : ℤ)) (sOdd n₀ n) := by
+  unfold cocycle SubspaceTriple.uval
   rw [zpow_neg, zpow_natCast, zpow_natCast]
   field_simp
 
@@ -109,7 +109,7 @@ lemma sval_eq_cocycle (δ' : ℚ) (n₀ n : ℕ) :
     CZ.sval δ' 1 (-(n : ℤ)) (sOdd n₀ n) = δ' * cocycle n₀ n := by
   unfold CZ.sval
   rw [cocycle_eq_uval]
-  unfold NKR.uval
+  unfold SubspaceTriple.uval
   push_cast
   ring
 
@@ -510,10 +510,10 @@ private lemma enc_injective (n₀ : ℕ) : Function.Injective (enc n₀) := by
   exact Prod.ext (by omega) (by omega)
 
 private lemma uval_enc_fst (n₀ : ℕ) (p : ℕ × ℕ) :
-    NKR.uval (enc n₀ p).1.1 (enc n₀ p).1.2 = cocycle n₀ p.2 := (cocycle_eq_uval n₀ p.2).symm
+    SubspaceTriple.uval (enc n₀ p).1.1 (enc n₀ p).1.2 = cocycle n₀ p.2 := (cocycle_eq_uval n₀ p.2).symm
 
 private lemma uval_enc_snd (n₀ : ℕ) (p : ℕ × ℕ) :
-    NKR.uval (enc n₀ p).2.1 (enc n₀ p).2.2 = cocycle n₀ p.1 := (cocycle_eq_uval n₀ p.1).symm
+    SubspaceTriple.uval (enc n₀ p).2.1 (enc n₀ p).2.2 = cocycle n₀ p.1 := (cocycle_eq_uval n₀ p.1).symm
 
 /-- **The infinitely-many-ratios branch**: a family of violators with pairwise-distinct ratios
 `Λ_c/Λ_a`, all past the thresholds, is finite.  NKR data: `α₁ = δ`, `α₂ = −δ`,
@@ -527,21 +527,21 @@ private lemma finite_of_ratio_injOn {n₀ : ℕ} {δ A θ : ℚ} (hδ : δ ≠ 0
     (hinj : Set.InjOn (fun p : ℕ × ℕ => cocycle n₀ p.2 / cocycle n₀ p.1) T) : T.Finite := by
   by_contra hTfin
   have hTinf : T.Infinite := hTfin
-  have hvals : ∀ p ∈ T, δ * NKR.uval (enc n₀ p).1.1 (enc n₀ p).1.2
-      + (-δ) * NKR.uval (enc n₀ p).2.1 (enc n₀ p).2.2
+  have hvals : ∀ p ∈ T, δ * SubspaceTriple.uval (enc n₀ p).1.1 (enc n₀ p).1.2
+      + (-δ) * SubspaceTriple.uval (enc n₀ p).2.1 (enc n₀ p).2.2
       = δ * (cocycle n₀ p.2 - cocycle n₀ p.1) := by
     intro p _
     rw [uval_enc_fst, uval_enc_snd]
     ring
   have habs : ∀ q ∈ enc n₀ '' T,
-      1 ≤ |NKR.uval q.1.1 q.1.2| ∧ 1 ≤ |NKR.uval q.2.1 q.2.2| := by
+      1 ≤ |SubspaceTriple.uval q.1.1 q.1.2| ∧ 1 ≤ |SubspaceTriple.uval q.2.1 q.2.2| := by
     rintro q ⟨p, hpT, rfl⟩
     have hac := (hTsub hpT).1
     have hNa := hTN p hpT
     rw [uval_enc_fst, uval_enc_snd,
       abs_of_pos (cocycle_pos n₀ p.2), abs_of_pos (cocycle_pos n₀ p.1)]
     exact ⟨hN1 p.2 (by omega), hN1 p.1 hNa⟩
-  have hP2 : ∀ q ∈ enc n₀ '' T, NKR.uval q.1.1 q.1.2 ≠ -NKR.uval q.2.1 q.2.2 := by
+  have hP2 : ∀ q ∈ enc n₀ '' T, SubspaceTriple.uval q.1.1 q.1.2 ≠ -SubspaceTriple.uval q.2.1 q.2.2 := by
     rintro q ⟨p, -, rfl⟩
     rw [uval_enc_fst, uval_enc_snd]
     have h1 := cocycle_pos n₀ p.2
@@ -549,10 +549,10 @@ private lemma finite_of_ratio_injOn {n₀ : ℕ} {δ A θ : ℚ} (hδ : δ ≠ 0
     intro h
     linarith
   have hratio : ∀ q ∈ enc n₀ '' T, ∀ q' ∈ enc n₀ '' T, q ≠ q' →
-      NKR.uval q.1.1 q.1.2 / NKR.uval q.2.1 q.2.2
-        ≠ NKR.uval q'.1.1 q'.1.2 / NKR.uval q'.2.1 q'.2.2 ∧
-      NKR.uval q.2.1 q.2.2 / NKR.uval q.1.1 q.1.2
-        ≠ NKR.uval q'.2.1 q'.2.2 / NKR.uval q'.1.1 q'.1.2 := by
+      SubspaceTriple.uval q.1.1 q.1.2 / SubspaceTriple.uval q.2.1 q.2.2
+        ≠ SubspaceTriple.uval q'.1.1 q'.1.2 / SubspaceTriple.uval q'.2.1 q'.2.2 ∧
+      SubspaceTriple.uval q.2.1 q.2.2 / SubspaceTriple.uval q.1.1 q.1.2
+        ≠ SubspaceTriple.uval q'.2.1 q'.2.2 / SubspaceTriple.uval q'.1.1 q'.1.2 := by
     rintro q ⟨p, hpT, rfl⟩ q' ⟨p', hp'T, rfl⟩ hqq'
     have hpp' : p ≠ p' := fun hh => hqq' (congrArg (enc n₀) hh)
     have hne : cocycle n₀ p.2 / cocycle n₀ p.1 ≠ cocycle n₀ p'.2 / cocycle n₀ p'.1 :=
@@ -566,7 +566,7 @@ private lemma finite_of_ratio_injOn {n₀ : ℕ} {δ A θ : ℚ} (hδ : δ ≠ 0
     field_simp at hh ⊢
     linarith [hh]
   have hpos : ∀ q ∈ enc n₀ '' T,
-      0 < (δ * NKR.uval q.1.1 q.1.2 + (-δ) * NKR.uval q.2.1 q.2.2).distToNearestInt := by
+      0 < (δ * SubspaceTriple.uval q.1.1 q.1.2 + (-δ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt := by
     rintro q ⟨p, hpT, rfl⟩
     have hac := (hTsub hpT).1
     have hNa := hTN p hpT
@@ -576,7 +576,7 @@ private lemma finite_of_ratio_injOn {n₀ : ℕ} {δ A θ : ℚ} (hδ : δ ≠ 0
       = δ * ((2 : ℚ) ^ p.2 * (cocycle n₀ p.2 - cocycle n₀ p.1)) by ring,
       two_pow_mul_cocycle_sub hac]
   have happrox : ∀ q ∈ enc n₀ '' T,
-      ((δ * NKR.uval q.1.1 q.1.2 + (-δ) * NKR.uval q.2.1 q.2.2).distToNearestInt : ℝ)
+      ((δ * SubspaceTriple.uval q.1.1 q.1.2 + (-δ) * SubspaceTriple.uval q.2.1 q.2.2).distToNearestInt : ℝ)
         < ((CZ.height23 q.1.1 q.1.2 * CZ.height23 q.2.1 q.2.2 : ℕ) : ℝ) ^ (-eps θ) := by
     rintro q ⟨p, hpT, rfl⟩
     have hac := (hTsub hpT).1

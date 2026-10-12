@@ -1,0 +1,209 @@
+% (C) 2026 Ralf Stephan, in collaboration with Claude Code.  CC0 1.0.
+\chapter{Growth and entropy}\label{ch:entropy}
+
+The number of labelled paths of length \(n\) in a finite carry graph grows either polynomially
+or exponentially. Nothing in between occurs, and the rank of Chapter~\ref{ch:reach} decides
+which (Theorem~\ref{thm:dichotomy}). Most of the problem families in Chapter~\ref{ch:overview}
+ask for the polynomial side, in one of six equivalent forms that this chapter collects in
+Theorem~\ref{thm:six-faces}. The exponential side is witnessed by a \emph{horseshoe}: two
+closed walks of one length at one vertex (Section~\ref{sec:horseshoe}).
+
+Throughout, \(V\) and \(A\) are finite. Recall \(\mathrm{npaths}(v,n)\), the number of labelled
+paths of length \(n\) from \(v\). Two paths differ if they differ in some arc, label or
+target, so parallel arcs with different labels count separately.
+
+\section{The dichotomy}
+
+\begin{definition}\label{def:branch}
+\(X\) has \emph{polynomial growth}\index{polynomial growth} if \(\mathrm{npaths}(v,n)\le C(n+1)^d\) for some \(C,d\) and
+all \(v,n\). A vertex \(v\) \emph{branches}\index{branching} if it has two distinct arcs \(v\to^a t\),
+\(v\to^b u\), \((a,t)\neq(b,u)\), whose targets both reach \(v\) again.
+\end{definition}
+
+A labelled rank (Definition~\ref{def:rank} with ``successor'' replaced by ``arc'') exists iff no
+vertex branches (Theorem~\ref{thm:rank-complete}).
+
+\begin{theorem}[growth dichotomy]\label{thm:dichotomy}\index{growth dichotomy}
+\begin{enumerate}[label=(\alph*)]
+\item If \(\rho\) is a labelled rank and \(\rho\le R\), then
+  \(\mathrm{npaths}(v,n)\le\bigl((|A||V|+1)(n+1)\bigr)^R\).
+\item If \(v\) branches, there is \(N>0\) with \(\mathrm{npaths}(v,kN)\ge 2^k\) for all \(k\).
+\end{enumerate}
+Hence either \(X\) has polynomial growth or some vertex doubles its path count every \(N\)
+steps, and not both.
+\end{theorem}
+
+\begin{proof}
+(a) Fix \(n\le N\) and put \(Y=|A||V|N+1\). We show by induction on \(r\) that a vertex of rank
+\(r\) has at most \(Y^r\) paths of length \(n\le N\). From a vertex of rank \(r\), at most one
+arc keeps the rank. The other arcs, at most \(|A||V|\) of them, lead to rank \(<r\) and
+contribute at most \(Y^{r-1}\) paths each. So along the rank-keeping chain the count grows by
+at most \(|A||V|\,Y^{r-1}\) per step, and after \(n\le N\) steps it is at most
+\(1+n|A||V|Y^{r-1}\le Y^r\).
+
+(b) Let \(t\leadsto v\) in \(j_1\) steps and \(u\leadsto v\) in \(j_2\) steps. Paths from
+\(v\) of length \(m\) inject into paths from \(t\) and from \(u\) of length \(j_1+j_2+1+m\) by
+prefixing the return walks. The two first arcs are distinct, so
+\(\mathrm{npaths}(v,m+j_1+j_2+2)\ge 2\,\mathrm{npaths}(v,m)\). Take \(N=j_1+j_2+2\).
+Exponential beats polynomial, so the two alternatives exclude each other.
+\end{proof}
+
+\section{Entropy}
+
+\begin{definition}\label{def:entropy}
+The \emph{entropy}\index{entropy} of \(X\) is
+\[
+  h(X)=\limsup_{n\to\infty}\frac1n\log\sum_{v\in V}\mathrm{npaths}(v,n)\ \in[-\infty,\infty].
+\]
+\end{definition}
+
+This is the topological entropy of the edge shift of \(X\) \cite[§4.1]{LM95}. It is
+\(-\infty\) exactly when the core is empty (Theorem~\ref{thm:core-empty}), and otherwise it is
+\(\ge0\). By the Perron--Frobenius theorem it equals \(\log\lambda_A\), where \(\lambda_A\) is the
+spectral radius of the adjacency matrix \cite[Thm.~4.3.1, Thm.~4.4.4]{LM95}. This book does not
+prove that formula. Nothing in the problem families needs \(\lambda_A\) itself, and the
+following brackets give the bounds that the certificates actually check.
+
+\begin{theorem}[eigenvector brackets, {\cite[§5.3]{LM95}}]\label{thm:brackets}\index{eigenvector brackets}
+Let \(a,b\in\N\), \(b>0\), and write \((Aw)(v)=\sum_{v\to^c t}w(t)\).
+\begin{enumerate}[label=(\alph*)]
+\item If \(w\colon V\to\N\) satisfies \(w\ge1\) and \(b\,(Aw)\le a\,w\) pointwise,
+  then \(b^n\mathrm{npaths}(v,n)\le a^n w(v)\) and \(h(X)\le\log(a/b)\).
+\item If \(a\,w\le b\,(Aw)\) pointwise, \(w\le M\), and \(w(v_0)>0\), then
+  \(a^n w(v_0)\le b^n M\,\mathrm{npaths}(v_0,n)\) and \(h(X)\ge\log(a/b)\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Both path bounds follow by induction on \(n\) from
+\(\mathrm{npaths}(v,n+1)=\sum_{v\to^c t}\mathrm{npaths}(t,n)\). Summing over \(v\) and taking
+\(\frac1n\log\), the constants disappear in the limit.
+\end{proof}
+
+For example, the golden mean graph (arcs \(0\to^0 0\), \(0\to^1 1\), \(1\to^0 0\)) with
+\(w=(8,5)\) satisfies both brackets with \(13/8\) and \(8/5\). So its entropy lies in
+\([\log 1.6,\log 1.625]\); in fact it is \(\log\varphi\). The check is a finite computation, and
+in Lean it is a single \texttt{decide}. The entropy certificates of the interval problem are
+brackets of exactly this kind.
+
+\begin{proposition}\label{prop:entropy-poly}
+Polynomial growth implies \(h(X)\le0\). If some vertex satisfies \(\mathrm{npaths}(v,kN)\ge c^k\)
+with \(c\ge1\), then \(h(X)\ge(\log c)/N\).
+\end{proposition}
+
+\begin{proof}
+For every \(\varepsilon>0\), \(C(n+1)^d\le e^{\varepsilon n}\) eventually. The lower bound reads
+the \(\limsup\) along the subsequence \(n=kN\).
+\end{proof}
+
+\section{Horseshoes}\label{sec:horseshoe}
+
+\begin{definition}\label{def:horseshoe}
+A \emph{horseshoe}\index{horseshoe} at \(v\) with petals indexed by a set \(I\) is a family of closed labelled
+walks at \(v\), all of one length \(L>0\), that are pairwise distinct as arc sequences.
+\end{definition}
+
+For a sequence \(\beta\colon\N\to I\), the \emph{block path} reads petal \(\beta(k)\) in
+positions \(kL,\dots,(k+1)L-1\). It is an infinite labelled path from \(v\), because each petal
+returns to \(v\), and distinct sequences give distinct paths.
+
+\begin{theorem}\label{thm:horseshoe}
+Let \(H\) be a horseshoe at \(v\) with \(|I|\ge1\) petals of length \(L\).
+\begin{enumerate}[label=(\alph*)]
+\item \(\mathrm{npaths}(v,kL)\ge|I|^k\), so \(h(X)\ge(\log|I|)/L\).
+\item If \(|I|\ge2\), some infinite labelled path from \(v\) is not eventually periodic.
+\item Conversely, a branching vertex carries a horseshoe with two petals.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) The \(|I|^k\) block paths of \(k\) blocks are distinct paths of length \(kL\). A finite
+family of distinct paths of length \(n\) from \(v\) has at most \(\mathrm{npaths}(v,n)\)
+members, by induction on \(n\) after sorting the family by first arc. (b) Choose two petals
+\(i\neq j\) that first differ at position \(m\), and read petal \(i\) in block \(k\) iff \(k\) is
+a power of two. If the path had period \(P\) from \(n_0\) on, then blocks \(k\) and \(k+P\) would
+agree at position \(m\) for all \(k\ge n_0\). But for \(k=2^{n_0+P}\), exactly one of \(k\) and
+\(k+P\) is a power of two. (c) With \(v\to^a t\leadsto v\) and \(v\to^b u\leadsto v\), the two
+loops concatenated in either order have one length and differ in their first arc.
+\end{proof}
+
+Part (a) is the horseshoe lower bound of the interval problem, a rose of \(N\) words of length
+\(L\). Part (b) is the obstruction of the cell problem: a horseshoe realised by the orbit
+dynamics rules out zero entropy for \emph{every} cover of the same system
+(Chapter~\ref{ch:covers}).
+
+\section{Zero entropy, six ways}
+
+\begin{theorem}[zero entropy]\label{thm:six-faces}\index{zero entropy}
+For a finite carry graph the following are equivalent:
+\begin{enumerate}[label=(\arabic*)]
+\item a labelled rank exists;
+\item no vertex branches;
+\item every infinite labelled path is eventually periodic, vertices and labels with one period;
+\item \(X\) has polynomial growth;
+\item \(h(X)\le0\);
+\item every strong component carrying a cycle is a simple cycle: each cyclic vertex has exactly
+  one arc whose target returns to it.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)\(\Leftrightarrow\)(2) is Theorem~\ref{thm:rank-complete}. (1)\(\Rightarrow\)(3) is
+Theorem~\ref{thm:evper}. (3)\(\Rightarrow\)(2) is Theorem~\ref{thm:horseshoe}(b,c).
+(2)\(\Rightarrow\)(4) is Theorem~\ref{thm:dichotomy}(a) with the descendant-count rank.
+(4)\(\Rightarrow\)(5) and (5)\(\Rightarrow\)(2) are Proposition~\ref{prop:entropy-poly} with
+Theorem~\ref{thm:dichotomy}(b). (2)\(\Leftrightarrow\)(6) unwinds the definitions.
+\end{proof}
+
+Applied to the label-forgetting graph \(X^{\circ}\) (one label, an arc \(s\to t\) whenever \(X\)
+has one), Theorem~\ref{thm:six-faces} gives the unlabelled form. A rank exists iff no vertex has
+two distinct \emph{successors} in its component, iff every infinite walk is eventually periodic,
+iff walk counts grow polynomially, iff \(h(X^{\circ})\le0\). For the digit graph of the
+coprimality subshift this is the completeness of the digit-problem certificate. A rank
+certificate exists iff residue walks grow polynomially, iff every admissible residue walk is
+eventually periodic, iff the subshift has zero entropy. The ``only if'' directions were known;
+the ``if'' directions are new.
+
+Face (6), with words instead of letters on the arcs, is the phase test of \cite[Thm.~21]{Oda26}.
+The word-labelled reading needs subdivision and is postponed to Chapter~\ref{ch:splitting}.
+
+\section*{Notes}
+Entropy of edge shifts is \cite[§4.1--4.4]{LM95}. The counting proof of the dichotomy avoids
+Perron--Frobenius and is the one the certificates use: the rank is the witness for the
+polynomial side and the horseshoe for the exponential side. The irreducible decomposition
+\(h(X)=\max_C h(X_C)\) over strong components \cite[Thm.~4.4.4]{LM95} and the period of a
+strong component \cite[§10.5]{BJG09} are stated here without Lean proofs. Neither is used later.
+
+\section*{Lean dictionary}
+\begin{center}\small
+\begin{tabular}{@{}>{\raggedright}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+Text & Lean (\texttt{CarryGraph/Growth.lean}, \texttt{Horseshoe.lean}, \texttt{ZeroEntropy.lean})\\
+\midrule
+path counts & \lean{arcsFrom}, \lean{npaths\_succ'}, \lean{npaths\_le\_succ},
+  \lean{npaths\_mono\_of\_reach}\\
+Definition~\ref{def:branch} & \lean{PolyGrowth}, \lean{LNoBranch}\\
+Theorem~\ref{thm:dichotomy} & \lean{npaths\_le\_of\_isLRank}, \lean{isLRank\_polyGrowth},
+  \lean{pow\_le\_npaths\_of\_branch}, \lean{polyGrowth\_lnoBranch}, \lean{polyGrowth\_or\_exp}\\
+Definition~\ref{def:entropy} & \lean{ntot}, \lean{entropy} (Mathlib \lean{expGrowthSup})\\
+Theorem~\ref{thm:brackets} & \lean{IsSuperEigen}, \lean{IsSubEigen}, \lean{pow\_mul\_npaths\_le},
+  \lean{pow\_mul\_le\_npaths}, \lean{entropy\_le\_of\_superEigen},
+  \lean{log\_le\_entropy\_of\_subEigen}\\
+Proposition~\ref{prop:entropy-poly} & \lean{expGrowthSup\_poly\_le},
+  \lean{entropy\_le\_zero\_of\_polyGrowth}, \lean{log\_div\_le\_entropy},
+  \lean{entropy\_le\_zero\_iff}, \lean{entropy\_pos\_iff}\\
+Definition~\ref{def:horseshoe} & \lean{Horseshoe}, \lean{Horseshoe.blockS}, \lean{Horseshoe.blockL},
+  \lean{Horseshoe.isIPath}, \lean{Horseshoe.block\_injective}\\
+Theorem~\ref{thm:horseshoe} & \lean{card\_le\_npaths}, \lean{Horseshoe.pow\_le\_npaths},
+  \lean{Horseshoe.log\_card\_div\_le\_entropy}, \lean{Horseshoe.exists\_not\_evPer},
+  \lean{exists\_horseshoe\_of\_branch}\\
+Theorem~\ref{thm:six-faces} & \lean{zeroEntropy\_tfae}, \lean{AllEvPer}, \lean{SimpleCycles},
+  \lean{lnoBranch\_iff\_simpleCycles}\\
+unlabelled form & \lean{noBranch\_tfae}, \lean{lnoBranch\_forget\_iff}, \lean{isLRank\_forget\_iff}\\
+digit problem & \lean{CarryBridge.certOK\_iff\_polyGrowth}, \lean{CarryBridge.certOK\_iff\_allEvPer},
+  \lean{CarryBridge.certOK\_iff\_entropy}, \lean{CarryBridge.certOK\_iff\_entropy\_labelled}\\
+witness checking & \lean{decIsRank}, \lean{decIsLRank}, \lean{decLNoBranch},
+  \lean{decIsSuperEigen}, \lean{decIsSubEigen}\\
+\bottomrule
+\end{tabular}
+\end{center}
