@@ -492,7 +492,7 @@ theorem norm_auxCoeff_le {φ : K →+* ℂ} {E : MvPolynomial σ (PowerSeries K)
     intro ν hν
     have h1 : ‖monoVal Y ν‖ ≤ B ^ (ν.sum fun _ e => e) := by
       rw [monoVal, Finsupp.prod, norm_prod, Finsupp.sum, ← Finset.prod_pow_eq_pow_sum]
-      refine Finset.prod_le_prod (fun s _ => by positivity) fun s _ => ?_
+      refine Finset.prod_le_prod₀ (fun s _ => by positivity) fun s _ => ?_
       rw [norm_pow]
       exact pow_le_pow_left₀ (norm_nonneg _) (hY s) _
     refine h1.trans (pow_le_pow_right₀ hB ?_)

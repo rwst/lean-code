@@ -14,8 +14,9 @@ Jean-Paul Allouche and Jeffrey Outlaw Shallit, *Automatic Sequences: Theory, App
 Generalizations*, Cambridge University Press, 2003.
 
 This file records the foundational notions of the theory of automatic sequences, used throughout
-the corpus (e.g. by the Adamczewski–Bugeaud transcendence results in `AB/` and the automatic
-parity-vector development in `B3/`).
+the corpus (e.g. by the automatic parity-vector development in `B3/`; the Adamczewski–Bugeaud
+transcendence results are the Subspace-Theorems library's `AdamczewskiBugeaud2007`, whose
+`Function.IsAutomatic` is `AS.IsAutomatic'` under another name).
 
 ## Notions
 

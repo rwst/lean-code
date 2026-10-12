@@ -21,7 +21,7 @@ theorem coordForms_linearIndependent : LinearIndependent ℚ coordForms := by
 @[category research solved, AMS 11 37, ref "Eve96" "AB07", group "b3_missing_lemma"]
 theorem infFactor_le_one (v : AbsoluteValue ℚ ℝ) (x : Fin 3 → ℚ) :
     (∏ i, v (coordForms i x) / (⨆ j, v (x j))) ≤ 1 := by
-  apply Finset.prod_le_one
+  apply Finset.prod_le_one₀
   · intro i _
     exact div_nonneg (v.nonneg _) (Real.iSup_nonneg (fun j => v.nonneg _))
   · intro i _
@@ -112,7 +112,7 @@ theorem phi_twoPlace_product_le_invSup (vinf : AbsoluteValue ℚ ℝ)
 @[category research solved, AMS 11 37, ref "AB07" "BL96" "Eve96", group "b3_missing_lemma"]
 theorem conditionStar_hover (vinf : AbsoluteValue ℚ ℝ) (hne : vinf ≠ Rat.AbsoluteValue.padic 2)
     {v : ℤ_[2]} {n : ℕ} (hv : BL.Φ v = (n : ℤ_[2])) {w : ℝ} (hw : 1 < w)
-    (hCS : AB.ConditionStar w (binaryDigit v)) :
+    (hCS : ConditionStar w (binaryDigit v)) :
     ∃ (D P : ℕ → ℤ) (N : ℕ → ℕ), Tendsto N atTop atTop ∧ (∀ m, Odd (D m)) ∧
       ∀ m, (∏ v' ∈ {vinf, Rat.AbsoluteValue.padic 2},
           ∏ i, v' (phiForms (n : ℤ) v' i (placePoint (D m : ℚ) (P m : ℚ))) /

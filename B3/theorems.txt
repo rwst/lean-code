@@ -1,5 +1,4 @@
-import AB.StammeringSequences
-import AB.SubspaceTheoremE
+import B3.ConditionStar
 import BL.ConjugacyMap
 import BL.ForwardFormula
 import CITED.AlloucheShallitBasic
@@ -36,10 +35,10 @@ theorem shiftPeriodicPoint_mem_ratInt {w : ℤ_[2]} {p : ℕ} (hp : 0 < p)
     (hfix : S^[p] w = w) : w ∈ RatInt
 
 theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
-    ¬ AB.IsEventuallyPeriodic (binaryDigit v)
+    ¬ Function.IsEventuallyPeriodic (binaryDigit v)
 
 theorem ratInt_eventuallyPeriodic_binaryDigit {v : ℤ_[2]} (hv : v ∈ RatInt) :
-    AB.IsEventuallyPeriodic (binaryDigit v)
+    Function.IsEventuallyPeriodic (binaryDigit v)
 
 theorem parityBridge (m : ℕ) : parity (m : ℤ_[2]) = L90.parity (m : ℚ)
 
@@ -50,7 +49,7 @@ theorem ratInt_imp_eventuallyPeriodicParity (n : ℕ) (h : parityVector n ∈ Ra
     L90.EventuallyPeriodicParity (n : ℚ)
 
 theorem binaryDigit_isStammering (v : ℤ_[2]) (hauto : IsAutomatic2Adic v) (hirr : v ∉ RatInt) :
-    AB.IsStammering (binaryDigit v)
+    ∃ w : ℝ, 1 < w ∧ ConditionStar w (binaryDigit v)
 
 theorem isUnit_one_sub_of_norm_lt_one {R : ℤ_[2]} (hR : ‖R‖ < 1) : IsUnit (1 - R)
 
@@ -481,7 +480,7 @@ theorem phi_twoPlace_product_le_invSup (vinf : AbsoluteValue ℚ ℝ)
 
 theorem conditionStar_hover (vinf : AbsoluteValue ℚ ℝ) (hne : vinf ≠ Rat.AbsoluteValue.padic 2)
     {v : ℤ_[2]} {n : ℕ} (hv : BL.Φ v = (n : ℤ_[2])) {w : ℝ} (hw : 1 < w)
-    (hCS : AB.ConditionStar w (binaryDigit v)) :
+    (hCS : ConditionStar w (binaryDigit v)) :
     ∃ (D P : ℕ → ℤ) (N : ℕ → ℕ), Tendsto N atTop atTop ∧ (∀ m, Odd (D m)) ∧
       ∀ m, (∏ v' ∈ {vinf, Rat.AbsoluteValue.padic 2},
           ∏ i, v' (phiForms (n : ℤ) v' i (placePoint (D m : ℚ) (P m : ℚ))) /
@@ -521,11 +520,10 @@ def Confinable {m : ℕ} (x : ℕ → (Fin m → ℚ)) : Prop :=
 
 theorem subspace_pigeonhole {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0)
     (hineq : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
       Height.mulHeight (x k) ^ (-(m : ℝ) - ε)) :
@@ -533,11 +531,10 @@ theorem subspace_pigeonhole {m : ℕ} (hm : 2 ≤ m)
 
 theorem subspace_reduction {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0)
     (hineq : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
       Height.mulHeight (x k) ^ (-(m : ℝ) - ε))
@@ -546,11 +543,10 @@ theorem subspace_reduction {m : ℕ} (hm : 2 ≤ m)
 
 theorem subspace_contradiction_of_rate {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
     (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
       (2 : ℝ) ^ (-(N k : ℝ)))
@@ -560,11 +556,10 @@ theorem subspace_contradiction_of_rate {m : ℕ} (hm : 2 ≤ m)
 
 theorem subspace_contradiction_of_rate_sharp {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
     (hHpos : ∀ k, 0 < Height.mulHeight (x k))
     (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
@@ -575,11 +570,10 @@ theorem subspace_contradiction_of_rate_sharp {m : ℕ} (hm : 2 ≤ m)
 
 theorem subspace_pigeonhole_infinite {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (I : Set ℕ) (hI : I.Infinite) (hx0 : ∀ k ∈ I, x k ≠ 0)
     (hineq : ∀ k ∈ I, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤
       Height.mulHeight (x k) ^ (-(m : ℝ) - ε)) :
@@ -587,11 +581,10 @@ theorem subspace_pigeonhole_infinite {m : ℕ} (hm : 2 ≤ m)
 
 theorem subspace_contradiction_of_rate_sharp_frequently {m : ℕ} (hm : 2 ≤ m)
     (S : Finset (AbsoluteValue ℚ ℝ))
-    (hS_inf : ∀ v ∈ archAbsVal (K := ℚ), v ∈ S)
     (hS_place : ∀ v ∈ S, v ∈ archAbsVal (K := ℚ) ∨ v ∈ nonarchAbsVal (K := ℚ))
     (L : AbsoluteValue ℚ ℝ → Fin m → Module.Dual ℚ (Fin m → ℚ))
     (hL : ∀ v ∈ S, LinearIndependent ℚ (L v))
-    (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1)
+    (ε : ℝ) (hε : 0 < ε)
     (x : ℕ → (Fin m → ℚ)) (hx0 : ∀ k, x k ≠ 0) (N : ℕ → ℕ)
     (hHpos : ∀ k, 0 < Height.mulHeight (x k))
     (hover : ∀ k, (∏ v ∈ S, ∏ i : Fin m, v ((L v i) (x k)) / (⨆ j, v (x k j))) ≤

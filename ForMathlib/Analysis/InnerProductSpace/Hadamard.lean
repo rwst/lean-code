@@ -45,7 +45,7 @@ theorem norm_det_le_prod_norm (a : OrthonormalBasis (Fin n) 𝕜 E) (v : Fin n �
     congr 1
     rw [← OrthonormalBasis.coe_toBasis, Module.Basis.toMatrix_mul_toMatrix]
   rw [hcob, norm_mul, a.det_to_matrix_orthonormalBasis b, one_mul, hgs, norm_prod]
-  refine Finset.prod_le_prod (fun i _ => norm_nonneg _) fun i _ => ?_
+  refine Finset.prod_le_prod₀ (fun i _ => norm_nonneg _) fun i _ => ?_
   calc ‖⟪b i, v i⟫_𝕜‖ ≤ ‖b i‖ * ‖v i‖ := norm_inner_le_norm _ _
     _ = ‖v i‖ := by rw [b.orthonormal.1 i, one_mul]
 

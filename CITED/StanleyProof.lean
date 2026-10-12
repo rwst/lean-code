@@ -192,7 +192,7 @@ noncomputable scoped instance ratFuncDifferential : Differential (RatFunc K) :=
 
 /-- `d/dX` on `K⸨X⸩`: the unique derivation extending `PowerSeries.derivative`. -/
 noncomputable scoped instance laurentDifferential : Differential (LaurentSeries K) :=
-  ⟨fracDeriv (toIntDerivation (PowerSeries.derivative K))⟩
+  ⟨fracDeriv (toIntDerivation (PowerSeries.derivative (R := K)))⟩
 
 @[simp] lemma deriv_algebraMap_polynomial (p : K[X]) :
     (algebraMap K[X] (RatFunc K) p)′ = algebraMap K[X] (RatFunc K) (Polynomial.derivative p) :=
@@ -200,7 +200,7 @@ noncomputable scoped instance laurentDifferential : Differential (LaurentSeries 
 
 @[simp] lemma deriv_algebraMap_powerSeries (f : PowerSeries K) :
     (algebraMap (PowerSeries K) (LaurentSeries K) f)′
-      = algebraMap (PowerSeries K) (LaurentSeries K) (PowerSeries.derivative K f) :=
+      = algebraMap (PowerSeries K) (LaurentSeries K) (PowerSeries.derivative (R := K) f) :=
   fracDeriv_algebraMap _ _
 
 scoped instance : DifferentialAlgebra (RatFunc K) (LaurentSeries K) := by
@@ -241,13 +241,13 @@ noncomputable def lderiv (K : Type*) [Field K] : LaurentSeries K → LaurentSeri
 omit [CharZero K] in
 lemma lderiv_algebraMap (u : PowerSeries K) :
     lderiv K (algebraMap (PowerSeries K) (LaurentSeries K) u)
-      = algebraMap (PowerSeries K) (LaurentSeries K) (PowerSeries.derivative K u) :=
+      = algebraMap (PowerSeries K) (LaurentSeries K) (PowerSeries.derivative (R := K) u) :=
   deriv_algebraMap_powerSeries K u
 
 omit [CharZero K] in
 lemma lderiv_iterate_algebraMap (i : ℕ) (u : PowerSeries K) :
     (lderiv K)^[i] (algebraMap (PowerSeries K) (LaurentSeries K) u)
-      = algebraMap (PowerSeries K) (LaurentSeries K) ((PowerSeries.derivative K)^[i] u) := by
+      = algebraMap (PowerSeries K) (LaurentSeries K) ((PowerSeries.derivative (R := K))^[i] u) := by
   induction i generalizing u with
   | zero => simp
   | succ n ih =>
@@ -262,7 +262,7 @@ linear ODE with polynomial coefficients. -/
 @[category research solved, AMS 11 68 05, ref "Sta80", group "stanley_closure"]
 theorem exists_ode {f : PowerSeries K} (hf : IsAlgebraic K[X] f) :
     ∃ (r : ℕ) (p : Fin (r + 1) → K[X]), (∃ i, p i ≠ 0) ∧
-      ∑ i : Fin (r + 1), (p i : PowerSeries K) * (PowerSeries.derivative K)^[(i : ℕ)] f = 0 := by
+      ∑ i : Fin (r + 1), (p i : PowerSeries K) * (PowerSeries.derivative (R := K))^[(i : ℕ)] f = 0 := by
   set g : LaurentSeries K := algebraMap (PowerSeries K) (LaurentSeries K) f with hg
   -- `g` is algebraic over the *field* `K(X)`, hence generates a finite extension
   have halg : IsAlgebraic (RatFunc K) g :=
@@ -323,13 +323,13 @@ theorem exists_ode {f : PowerSeries K} (hf : IsAlgebraic K[X] f) :
         mul_zero]
     have hdesc : algebraMap (PowerSeries K) (LaurentSeries K)
         (∑ i : Fin (d + 1), (q i : PowerSeries K)
-          * (PowerSeries.derivative K)^[(i : ℕ)] f) = 0 := by
+          * (PowerSeries.derivative (R := K))^[(i : ℕ)] f) = 0 := by
       rw [map_sum]
       refine Eq.trans (Finset.sum_congr rfl fun i _ => ?_) key
       rw [map_mul, hg, lderiv_iterate_algebraMap]
       rfl
     have h0 : algebraMap (PowerSeries K) (LaurentSeries K)
-        (∑ i : Fin (d + 1), (q i : PowerSeries K) * (PowerSeries.derivative K)^[(i : ℕ)] f)
+        (∑ i : Fin (d + 1), (q i : PowerSeries K) * (PowerSeries.derivative (R := K))^[(i : ℕ)] f)
         = algebraMap (PowerSeries K) (LaurentSeries K) 0 := by rw [hdesc, map_zero]
     exact HahnSeries.ofPowerSeries_injective h0
 
@@ -400,15 +400,15 @@ lemma coeff_coe_mul (q : K[X]) (u : PowerSeries K) (N n : ℕ) (hq : q.natDegree
 @[category API, AMS 11 68 05, ref "Sta80", group "stanley_closure"]
 theorem sum_recCoeff_eq_zero {f : PowerSeries K} {r N : ℕ} {p : Fin (r + 1) → K[X]}
     (hN : ∀ i, (p i).natDegree ≤ N)
-    (hode : ∑ i : Fin (r + 1), (p i : PowerSeries K) * (PowerSeries.derivative K)^[(i : ℕ)] f = 0)
+    (hode : ∑ i : Fin (r + 1), (p i : PowerSeries K) * (PowerSeries.derivative (R := K))^[(i : ℕ)] f = 0)
     (n : ℕ) :
     ∑ j ∈ Finset.range (N + r + 1),
       (recCoeff p N j).eval (n : K) * PowerSeries.coeff (n + j) f = 0 := by
   have h0 : ∑ i : Fin (r + 1),
-      PowerSeries.coeff (n + N) ((p i : PowerSeries K) * (PowerSeries.derivative K)^[(i : ℕ)] f)
+      PowerSeries.coeff (n + N) ((p i : PowerSeries K) * (PowerSeries.derivative (R := K))^[(i : ℕ)] f)
       = 0 := by rw [← map_sum, hode, map_zero]
   have hexp : ∀ i : Fin (r + 1),
-      PowerSeries.coeff (n + N) ((p i : PowerSeries K) * (PowerSeries.derivative K)^[(i : ℕ)] f)
+      PowerSeries.coeff (n + N) ((p i : PowerSeries K) * (PowerSeries.derivative (R := K))^[(i : ℕ)] f)
       = ∑ k ∈ Finset.range (N + 1),
           (C ((p i).coeff k) * ascPoly K (N - k + 1) (i : ℕ)).eval (n : K)
             * PowerSeries.coeff (n + recShift N (i, k)) f := by

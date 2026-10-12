@@ -69,10 +69,9 @@ bounded-gap slice of the kernel (K) (`δ = (3/2)^{s₀} − 1`, `q = 1`,
 * `CZ.height23_neg_natCast` — `H(2^{-a}·3^a) = 3^a`, the height normalization
   used by both consumers.
 
-**The Main Theorem itself** ([CZ04], ℚ-specialized) is stated and **derived**
-from the `S`-arithmetic Subspace Theorem (`Subspace.evertseSchlickewei`, the one
-cited axiom of the refactor) as `CZ.pseudoPisot_approx_of_subspace` in
-`CITED/CorvajaZannierProof.lean`.  The cited `axiom CZ.pseudoPisot_approx` that
+**The Main Theorem itself** ([CZ04], ℚ-specialized) is stated and **derived** as
+`CZ.pseudoPisot_approx_of_subspace` in `CITED/CorvajaZannierProof.lean`, a corollary of the
+Subspace-Theorems library's Main Theorem (`CorvajaZannier2004/`).  The cited `axiom CZ.pseudoPisot_approx` that
 used to live here was **retired 2026-07-14** — the statement survives verbatim
 as that theorem.
 

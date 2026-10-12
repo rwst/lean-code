@@ -62,7 +62,7 @@ theorem sieveDensity_nonneg (S : Finset ℕ) (hS : ∀ l ∈ S, 1 ≤ l) : 0 ≤
   linarith
 
 theorem sieveDensity_le_one (S : Finset ℕ) (hS : ∀ l ∈ S, 1 ≤ l) : sieveDensity S ≤ 1 := by
-  refine prod_le_one (fun l hl => ?_) fun l hl => ?_
+  refine prod_le_one₀ (fun l hl => ?_) fun l hl => ?_
   · have : (1 : ℝ) ≤ l := by exact_mod_cast hS l hl
     have : 1 / (l : ℝ) ≤ 1 := by rw [div_le_one (by linarith)]; exact this
     linarith
@@ -188,7 +188,7 @@ theorem exists_avoids (S : Finset ℕ) (hS : ∀ l ∈ S, l.Prime ∧ l ≠ 2) (
   have hb := sieveCount_bound S (fun l hl => (hS l hl).1) a (a + H) (by omega)
   have hδ : (2 / 3 : ℝ) ^ S.card ≤ sieveDensity S := by
     rw [sieveDensity, ← prod_const]
-    refine prod_le_prod (fun _ _ => by norm_num) fun l hl => ?_
+    refine prod_le_prod₀ (fun _ _ => by norm_num) fun l hl => ?_
     have h3 : 3 ≤ l := by
       have := (hS l hl).1.two_le
       have := (hS l hl).2

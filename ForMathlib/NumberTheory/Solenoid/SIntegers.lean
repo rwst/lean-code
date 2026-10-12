@@ -9,6 +9,8 @@ public import Mathlib.Data.Nat.PrimeFin
 public import Mathlib.Data.Nat.Factorization.Basic
 public import Mathlib.NumberTheory.Padics.PadicNorm
 public import ForMathlib.NumberTheory.PadicFracPart
+public import DiophantineApproximation.PrimeProducts
+public import DiophantineApproximation.RationalPlaces
 
 @[expose] public section
 
@@ -68,75 +70,11 @@ Everything in this file is standard; the contribution is the formalisation.
   Section 1.4.
 -/
 
-/-- Every typed prime is prime.  Global, and declared once in this repository: Mathlib's
-`NumberTheory/Padics/HeightOneSpectrum.lean` keeps the same instance local. -/
-instance Nat.Primes.instFactPrime (p : Nat.Primes) : Fact (p : ℕ).Prime := ⟨p.2⟩
-
 namespace Nat
-
-/-- The primes dividing `n`, as a finite set of `Nat.Primes`.  It is empty for `n = 0` and for
-`n = 1`. -/
-def primesOf (n : ℕ) : Finset Nat.Primes :=
-  n.primeFactors.subtype Nat.Prime
-
-theorem mem_primesOf {n : ℕ} {l : Nat.Primes} : l ∈ n.primesOf ↔ (l : ℕ) ∈ n.primeFactors :=
-  Finset.mem_subtype
-
-/-- A prime belongs to `n.primesOf` exactly when it divides `n`, for `n ≠ 0`. -/
-theorem mem_primesOf_iff_dvd {n : ℕ} (hn : n ≠ 0) {l : Nat.Primes} :
-    l ∈ n.primesOf ↔ (l : ℕ) ∣ n := by
-  rw [mem_primesOf, Nat.mem_primeFactors]
-  exact ⟨fun h ↦ h.2.1, fun h ↦ ⟨l.2, h, hn⟩⟩
-
-/-- A prime dividing a power of `n` belongs to `n.primesOf`. -/
-theorem mem_primesOf_of_dvd_pow {n k : ℕ} (hn : n ≠ 0) {l : Nat.Primes} (h : (l : ℕ) ∣ n ^ k) :
-    l ∈ n.primesOf :=
-  (mem_primesOf_iff_dvd hn).mpr (l.2.dvd_of_dvd_pow h)
 
 end Nat
 
 namespace Rat
-
-/-- **The finite part of the product formula, over the primes of the number itself.**  If every
-prime factor of `d` lies in `S`, then `∏ l ∈ S, padicNorm l d = d⁻¹`: the factors `S` adds
-beyond the prime factors of `d` are `1`, and none is missing. -/
-theorem prod_padicNorm_natCast (S : Finset Nat.Primes) :
-    ∀ d : ℕ, d ≠ 0 → (∀ l : Nat.Primes, (l : ℕ) ∣ d → l ∈ S) →
-      ∏ l ∈ S, padicNorm (l : ℕ) ((d : ℕ) : ℚ) = ((d : ℕ) : ℚ)⁻¹ := by
-  intro d
-  induction d using Nat.strong_induction_on with
-  | _ d ih =>
-    intro hd hS
-    rcases eq_or_ne d 1 with rfl | hd1
-    · simp
-    obtain ⟨l₀, hl₀p, e, rfl⟩ : ∃ l₀ : ℕ, l₀.Prime ∧ ∃ e : ℕ, d = l₀ * e := by
-      obtain ⟨l₀, hl₀p, hl₀d⟩ := Nat.exists_prime_and_dvd hd1
-      exact ⟨l₀, hl₀p, hl₀d⟩
-    have he0 : e ≠ 0 := by rintro rfl; simp at hd
-    have helt : e < l₀ * e :=
-      lt_mul_of_one_lt_left (Nat.pos_of_ne_zero he0) hl₀p.one_lt
-    have hSe : ∀ l : Nat.Primes, (l : ℕ) ∣ e → l ∈ S :=
-      fun l hl ↦ hS l (hl.mul_left l₀)
-    have hsingle : ∏ l ∈ S, padicNorm (l : ℕ) ((l₀ : ℕ) : ℚ) = ((l₀ : ℕ) : ℚ)⁻¹ := by
-      have hmem : (⟨l₀, hl₀p⟩ : Nat.Primes) ∈ S := hS ⟨l₀, hl₀p⟩ ⟨e, rfl⟩
-      refine Eq.trans (Finset.prod_eq_single (s := S)
-        (f := fun l : Nat.Primes ↦ padicNorm (l : ℕ) ((l₀ : ℕ) : ℚ))
-        (⟨l₀, hl₀p⟩ : Nat.Primes) (fun b _ hb ↦ ?_) (fun hcon ↦ absurd hmem hcon)) ?_
-      · have hne : (b : ℕ) ≠ l₀ := fun hc ↦ hb (Subtype.ext hc)
-        exact (padicNorm.nat_eq_one_iff _).mpr
-          fun hdvd ↦ hne ((Nat.prime_dvd_prime_iff_eq b.2 hl₀p).mp hdvd)
-      · change padicNorm l₀ ((l₀ : ℕ) : ℚ) = ((l₀ : ℕ) : ℚ)⁻¹
-        exact padicNorm.padicNorm_p hl₀p.one_lt
-    have hrec := ih e helt he0 hSe
-    have hcast : ((l₀ * e : ℕ) : ℚ) = ((l₀ : ℕ) : ℚ) * ((e : ℕ) : ℚ) := by push_cast; ring
-    calc ∏ l ∈ S, padicNorm (l : ℕ) ((l₀ * e : ℕ) : ℚ)
-        = ∏ l ∈ S, padicNorm (l : ℕ) ((l₀ : ℕ) : ℚ) * padicNorm (l : ℕ) ((e : ℕ) : ℚ) := by
-          refine Finset.prod_congr rfl fun l _ ↦ ?_
-          rw [hcast, padicNorm.mul]
-      _ = (∏ l ∈ S, padicNorm (l : ℕ) ((l₀ : ℕ) : ℚ))
-            * ∏ l ∈ S, padicNorm (l : ℕ) ((e : ℕ) : ℚ) := Finset.prod_mul_distrib
-      _ = ((l₀ : ℕ) : ℚ)⁻¹ * ((e : ℕ) : ℚ)⁻¹ := by rw [hsingle, hrec]
-      _ = ((l₀ * e : ℕ) : ℚ)⁻¹ := by rw [hcast, mul_inv]
 
 end Rat
 

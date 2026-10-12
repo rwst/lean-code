@@ -6,7 +6,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 import BB13.CensusSweep
 import BB13.Subspace
 import BB13.TwoAdicRigidity
-import AB.SubspaceTheorem
+import AdamczewskiBugeaud2007.PadicTranscendence
 import Mathlib.NumberTheory.Padics.PadicIntegers
 
 /-!
@@ -84,9 +84,10 @@ condition read at a point of `ℤ₂`) *is* satisfiable at every length.
    `v₂(mₐ) = o(a)` forbids that, and in the data the last index meeting it is `a = 5`.
 
 4. **What the AB machinery gives is transcendence, not a contradiction.**  The anchored block is a
-   `ConditionStar` witness: `bitAt_const_of_isFailure` (the block, in digit form, from
+   Condition (∗)₂ witness: `bitAt_const_of_isFailure` (the block, in digit form, from
    `filter_bits`) and `transcendental_of_anchored_blocks` (the bridge to
-   `AB.transcendental_of_conditionStar`, [AB07] Theorem 6 via Schlickewei) give — for a digit
+   `Padic.transcendental_ofDigits_of_forall_periodic`, [AB07] Theorem 6 via Schlickewei, proved in
+   the Subspace-Theorems library) give — for a digit
    sequence with blocks `[Rⱼ, Rⱼ+Lⱼ)`, `Rⱼ ≤ 3·⌊Lⱼ/2⌋`, not eventually periodic — that the
    `p`-adic value is transcendental.  The two halves are deliberately *not* joined here: joining
    them is exactly the lock of wall 2, which is unavailable.  And even joined, "λ is
@@ -97,12 +98,11 @@ condition read at a point of `ℤ₂`) *is* satisfiable at every length.
 
 ## Footprint
 
-`std3` for 24 of the 29 theorems.  Three (`exists_selfRef_height_bound`, `selfRef_finite`,
-`no_selfRef_limit`) carry `Subspace.evertseSchlickewei` through `failures_bounded`
-(`BB13/Subspace.lean`, the Corvaja–Zannier/Subspace lane); `shallow_eventually` carries
-`BugeaudEvertse.ridout_line_cover` through Theorem D; `transcendental_of_anchored_blocks` carries
-`AB.transcendental_of_conditionStar`.  All three are cited axioms already in the corpus; **no new
-axiom is introduced here**.  In particular `selfRef_census` is `std3` — `census_scan_100000` is
+`std3` for 28 of the 29 theorems: `Subspace.evertseSchlickewei` (behind
+`exists_selfRef_height_bound`, `selfRef_finite`, `no_selfRef_limit`, through `failures_bounded`)
+and [AB07] Theorem 6 (behind `transcendental_of_anchored_blocks`) are theorems now, from the
+Subspace-Theorems library.  `shallow_eventually` carries the cited axiom
+`BugeaudEvertse.ridout_line_cover` through Theorem D; **no new axiom is introduced here**.  In particular `selfRef_census` is `std3` — `census_scan_100000` is
 axiom-free — so the unconditional statement inside the certified range costs nothing.
 
 ## References
@@ -613,35 +613,32 @@ theorem bitAt_const_of_isFailure {n t i i' : ℕ} (hf : IsFailure 3 2 (3 / 4) n)
 
 /-- **The bridge to [AB07].**  A binary digit sequence with constant blocks `[Rⱼ, Rⱼ+Lⱼ)` whose
 starts are bounded by three halves of the blocks (`Rⱼ ≤ 3⌊Lⱼ/2⌋`) satisfies Condition (∗)₂, hence
-— if it is not eventually periodic — defines a **transcendental** 2-adic number.  Take
-`Uⱼ` = the first `Rⱼ` digits and `Vⱼ` = a half-block; `Uⱼ Vⱼ²` is a prefix because the block is
-constant.  Cited input: `AB.transcendental_of_conditionStar` ([AB07] Thm 6, via [Sch77]).
+— if it is not eventually periodic — defines a **transcendental** 2-adic number
+`∑ᵢ dᵢ 2ⁱ = Padic.ofDigits d`.  Take `Uⱼ` = the first `Rⱼ` digits and `Vⱼ` = a half-block;
+`Uⱼ Vⱼ²` is a prefix because the block is constant.  Input: [AB07] Theorem 6 in its working form,
+`Padic.transcendental_ofDigits_of_forall_periodic` (Subspace-Theorems library, via [Sch77]).
 
 This is the strongest conclusion the subword-complexity route can reach, and it is **not** a
 contradiction: `λ = 3^α` transcendental is consistent with everything.  Joining it to
 `bitAt_const_of_isFailure` would additionally require the lock of `block_transfer_gap`. -/
 @[category research solved, AMS 11 68, ref "AB07" "Sch77", group "bugeaud_10_13"]
 theorem transcendental_of_anchored_blocks (d : ℕ → ℕ) (hd : ∀ i, d i < 2) (R L : ℕ → ℕ)
-    (hpos : ∀ j, 0 < L j / 2) (hmono : StrictMono fun j => L j / 2)
+    (hmono : StrictMono fun j => L j / 2)
     (hconst : ∀ j i i', R j ≤ i → i < R j + L j → R j ≤ i' → i' < R j + L j → d i = d i')
-    (hratio : ∀ j, R j ≤ 3 * (L j / 2)) (hnep : ¬ AB.IsEventuallyPeriodic d) :
-    Transcendental ℚ (AB.henselValue 2 0 d) := by
-  refine AB.transcendental_of_conditionStar 2 0 d hd 2 (by norm_num) ⟨hnep, R, fun j => L j / 2,
-    hpos, ?_, ⟨3, ?_⟩, hmono⟩
-  · intro j i hi1 hi2
-    have hfl : ⌊(2 : ℝ) * ((L j / 2 : ℕ) : ℝ)⌋₊ = 2 * (L j / 2) := by
-      rw [show (2 : ℝ) * ((L j / 2 : ℕ) : ℝ) = ((2 * (L j / 2) : ℕ) : ℝ) by push_cast; ring,
-        Nat.floor_natCast]
-    rw [hfl] at hi2
-    have hi1' : R j + L j / 2 ≤ i := hi1
-    have hi2' : i < R j + 2 * (L j / 2) := hi2
-    have hhalf : 2 * (L j / 2) ≤ L j := by omega
-    show d i = d (i - L j / 2)
-    exact hconst j i (i - L j / 2) (by omega) (by omega) (by omega) (by omega)
-  · intro j
-    have h := hratio j
-    have : ((R j : ℕ) : ℝ) ≤ ((3 * (L j / 2) : ℕ) : ℝ) := by exact_mod_cast h
-    push_cast at this ⊢
+    (hratio : ∀ j, R j ≤ 3 * (L j / 2)) (hnep : ¬ Function.IsEventuallyPeriodic d) :
+    Transcendental ℚ (Padic.ofDigits (p := 2) fun i => (⟨d i, hd i⟩ : Fin 2)) := by
+  have hirr := Padic.ofDigits_notMem_range_ratCast (p := 2) (a := fun i => (⟨d i, hd i⟩ : Fin 2))
+    fun ⟨N, q, hq, h⟩ => hnep ⟨N, q, hq, fun n hn => congrArg Fin.val (h n hn)⟩
+  refine Padic.transcendental_ofDigits_of_forall_periodic hirr (w := 2) (C := 3) (r := R)
+    (by norm_num) (by norm_num) hmono (fun j => ?_) (fun j i hi1 hi2 => ?_)
+  · have h : ((R j : ℕ) : ℝ) ≤ ((3 * (L j / 2) : ℕ) : ℝ) := by exact_mod_cast hratio j
+    push_cast at h ⊢
     linarith
+  · have hcl : ⌈(2 : ℝ) * ((L j / 2 : ℕ) : ℝ)⌉₊ = 2 * (L j / 2) := by
+      rw [show (2 : ℝ) * ((L j / 2 : ℕ) : ℝ) = ((2 * (L j / 2) : ℕ) : ℝ) by push_cast; ring,
+        Nat.ceil_natCast]
+    simp only [hcl] at hi2
+    have hhalf : 2 * (L j / 2) ≤ L j := by omega
+    exact Fin.ext (hconst j (i + L j / 2) i (by omega) (by omega) (by omega) (by omega))
 
 end BB13

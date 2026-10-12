@@ -214,7 +214,8 @@ theorem pairRepulsion_all (θ : ℚ) (hθ0 : 0 < θ) (hθ1 : θ < 1) :
     · exact Or.inr ⟨hp, by omega⟩
   -- the Subspace Theorem at n = 3
   obtain ⟨T, hTproper, hTcover⟩ := evertseSchlickewei_rat (n := 3) (by norm_num)
-    {Rat.AbsoluteValue.real, padic 2, padic 3} (Lforms3 1 (-1))
+    {Rat.AbsoluteValue.real, padic 2, padic 3} Subspace.isPlace_real_padic_two_three
+    (Lforms3 1 (-1))
     (fun v _ => lforms3_linearIndependent 1 (-1) v)
     (Real.log (θ : ℝ)⁻¹ / (2 * Real.log 3) / 4) (by positivity)
   have hcover : ∀ p ∈ V₂, ∃ W ∈ T, xv p ∈ W := by

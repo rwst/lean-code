@@ -34,7 +34,7 @@ applications — the base field is `ℚ`:
 * `NumberField.mulHeight₁_ratCast`, `NumberField.logHeight₁_ratCast` : the same for a single
   rational number, together with the explicit evaluations
   `NumberField.mulHeight₁_ratCast_eq_max` (`max |num| den` to the `D`-th power),
-  `NumberField.mulHeight₁_intCast`, `NumberField.logHeight₁_intCast` and
+  `NumberField.mulHeight₁_intCast_of_ne_zero`, `NumberField.logHeight₁_intCast` and
   `NumberField.mulHeight₁_natCast`.
 
 ## The route
@@ -263,7 +263,7 @@ theorem mulHeight₁_ratCast_eq_max (q : ℚ) :
   ring
 
 /-- The height of a nonzero integer in a number field of degree `D` is `|n|^D`. -/
-theorem mulHeight₁_intCast {n : ℤ} (hn : n ≠ 0) :
+theorem mulHeight₁_intCast_of_ne_zero {n : ℤ} (hn : n ≠ 0) :
     mulHeight₁ ((n : ℤ) : K) = (n.natAbs : ℝ) ^ Module.finrank ℚ K := by
   have h : ((n : ℤ) : K) = (((n : ℚ) : ℚ) : K) := by norm_cast
   rw [h, mulHeight₁_ratCast, Rat.mulHeight₁_intCast hn]

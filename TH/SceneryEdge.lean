@@ -3,7 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import BertinPisot.AlphaPowMod1
 import TH.Solenoid.LimitMeasures
 import Mathlib.Topology.MetricSpace.HausdorffDimension

@@ -90,7 +90,7 @@ lemma shift_mem (Y : Subshift A G) (g : G) {x : G → A} (hx : x ∈ Y) : shift 
   Y.mapsTo g hx
 
 /-- The order on subshifts is inclusion. -/
-instance : PartialOrder (Subshift A G) := .ofSetLike (Subshift A G) (G → A)
+instance : PartialOrder (Subshift A G) := .ofSetLike (Subshift A G)
 
 lemma le_def {Y Z : Subshift A G} : Y ≤ Z ↔ ∀ ⦃x⦄, x ∈ Y → x ∈ Z := SetLike.le_def
 

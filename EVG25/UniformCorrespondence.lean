@@ -1,11 +1,30 @@
-import CollatzMapBasics.Terras
-import CollatzMapBasics.Decomposition
-import CollatzMapBasics.Base3div2.Base3div2Basics
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+
+Proposition 6 of Eliahou–Verger-Gaugry (arXiv:2504.13716v1): the Collatz conjecture is
+equivalent to "the proportion of even numbers among the iterates of T tends to 1/2"
+(`conjecture_2_4_iff_2_5`).  Also Conjectures 18 and 19 of that note as `Prop` definitions
+(`conjecture_4_2`, `conjecture_4_3`), normality ⟹ digit-1 density
+(`conjecture_4_3_implies_4_2`), and Conjecture 18 = the U-orbit density at 0
+(`conjecture_4_2_eq_U_orbit_zero`).
+
+Brought over from the author's `Collatz-Map-Basics` package
+(`CollatzMapBasics/UniformCorrespondence.lean`).  Changes: imports, namespace and references
+retargeted to this repository's CC/ root (`CC.Terras`, `CC.Decomposition`,
+`EVG25.Base3div2Basics`, namespace `CC`); `T_iter_one_even` reproved, its one-line `simp_all`
+no longer closing the goal on this toolchain; and the `native_decide` proofs inside
+`small_cases` replaced by kernel `decide`.
+-/
+import CC.Terras
+import CC.Decomposition
+import EVG25.Base3div2Basics
 import Mathlib.Topology.Order.Basic
 import Mathlib.Topology.Algebra.Order.Field
 import Mathlib.Order.Filter.AtTopBot.Basic
 
-namespace CollatzMapBasics
+namespace CC
 
 open Classical Filter
 
@@ -20,7 +39,11 @@ lemma num_odd_steps_split (a b n : ℕ) :
 
 /-- T applied 2j times to 1 gives 1. -/
 lemma T_iter_one_even (j : ℕ) : T_iter (2 * j) 1 = 1 := by
-  induction j <;> simp_all [T_iter, T_one, T_two]
+  induction j with
+  | zero => rfl
+  | succ j ih =>
+    have h : 2 * (j + 1) = 2 * j + 1 + 1 := by ring
+    simp only [h, T_iter, ih, T_one, T_two]
 
 /-- T applied 2j+1 times to 1 gives 2. -/
 lemma T_iter_one_odd (j : ℕ) : T_iter (2 * j + 1) 1 = 2 := by
@@ -105,15 +128,15 @@ lemma forward (n : ℕ) (_hn : n ≥ 1) (k₀ : ℕ) (hk₀ : k₀ ≥ 1) (hreac
 lemma small_cases (n : ℕ) (hn : 1 ≤ n) (hn9 : n ≤ 9) :
     ∃ k, k ≥ 1 ∧ T_iter k n = 1 := by
   interval_cases n
-  · exact ⟨2, by omega, by native_decide⟩
-  · exact ⟨1, by omega, by native_decide⟩
-  · exact ⟨5, by omega, by native_decide⟩
-  · exact ⟨2, by omega, by native_decide⟩
-  · exact ⟨4, by omega, by native_decide⟩
-  · exact ⟨6, by omega, by native_decide⟩
-  · exact ⟨11, by omega, by native_decide⟩
-  · exact ⟨3, by omega, by native_decide⟩
-  · exact ⟨13, by omega, by native_decide⟩
+  · exact ⟨2, by omega, by decide⟩
+  · exact ⟨1, by omega, by decide⟩
+  · exact ⟨5, by omega, by decide⟩
+  · exact ⟨2, by omega, by decide⟩
+  · exact ⟨4, by omega, by decide⟩
+  · exact ⟨6, by omega, by decide⟩
+  · exact ⟨11, by omega, by decide⟩
+  · exact ⟨3, by omega, by decide⟩
+  · exact ⟨13, by omega, by decide⟩
 
 /-- For odd n ≥ 10: 10(3n+1) ≤ 31n, i.e., T(n) ≤ 31n/20. -/
 lemma T_odd_upper (n : ℕ) (hn : n ≥ 10) (hodd : n % 2 = 1) :
@@ -352,4 +375,4 @@ theorem conjecture_4_2_eq_U_orbit_zero : conjecture_4_2 ↔ U_orbit_density 0 :=
   unfold conjecture_4_2 U_orbit_density numOddU numOnesSat sat
   rfl
 
-end CollatzMapBasics
+end CC

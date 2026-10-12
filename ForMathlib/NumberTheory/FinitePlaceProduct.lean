@@ -8,6 +8,7 @@ module
 
 public import Mathlib.NumberTheory.NumberField.ProductFormula
 public import Mathlib.NumberTheory.Height.NumberField
+public import DiophantineApproximation.PlacesOverFinite
 
 @[expose] public section
 
@@ -75,11 +76,6 @@ theorem InfinitePlace.apply_ratCast (v : InfinitePlace K) (q : ℚ) : v ((q : K)
   exact Real.norm_eq_abs _
 
 namespace FinitePlace
-
-/-- A finite place is bounded by `1` on the image of `ℤ`. -/
-theorem apply_intCast_le_one (w : FinitePlace K) (n : ℤ) : w ((n : K)) ≤ 1 :=
-  IsNonarchimedean.apply_intCast_le_one (map_zero_le w 1) (map_one w) (map_neg_eq_map w)
-    (FinitePlace.add_le w)
 
 /-- A finite place is bounded by `1` on the image of `ℕ`. -/
 theorem apply_natCast_le_one (w : FinitePlace K) (n : ℕ) : w ((n : K)) ≤ 1 :=
@@ -152,7 +148,7 @@ theorem prod_finitePlace_ratCast {q : ℚ} (hq : q ≠ 0) (T : Finset (FinitePla
 most `1`. -/
 theorem prod_finitePlace_intCast_le_one (n : ℤ) (T : Finset (FinitePlace K)) :
     (∏ w ∈ T, w ((n : K))) ≤ 1 :=
-  Finset.prod_le_one (fun _ _ ↦ apply_nonneg _ _)
+  Finset.prod_le_one₀ (fun _ _ ↦ apply_nonneg _ _)
     (fun w _ ↦ FinitePlace.apply_intCast_le_one w n)
 
 end NumberField

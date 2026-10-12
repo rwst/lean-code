@@ -7,7 +7,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function Filter
+open BL Function Filter
 
 @[category research solved, AMS 11 37, ref "AB07" "BL96", group "b3_missing_lemma"]
 theorem hover_place_two_of_ratInt (n : ℤ) {x : ℤ_[2]} (hx : x ∈ RatInt)

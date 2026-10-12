@@ -1,16 +1,25 @@
 /-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+
 Definitions and basic properties of the number system in rational base 3/2,
 following Eliahou–Verger-Gaugry (arXiv:2504.13716v1) and Akiyama–Frougny–Sakarovitch.
 
 Given n ∈ ℕ, its representation in base 3/2 is n = (1/2) Σ aᵢ (3/2)^i
 with digits aᵢ ∈ {0,1,2}. The digit extraction follows Proposition 2.2:
   a₀ = (2n) mod 3,  parent = (2n) / 3,  and  ⟨n⟩ = ⟨parent⟩ a₀.
+
+Brought over from the author's `Collatz-Map-Basics` package
+(`CollatzMapBasics/Base3div2/Base3div2Basics.lean`).  Changes: imports, namespace and
+references retargeted to this repository's CC/ root (`CC.Terras`, namespace `CC.Base3div2`),
+and the `native_decide` proofs of `sat_one` … `sat_seven` replaced by kernel `decide`.
 -/
-import CollatzMapBasics.Terras
+import CC.Terras
 
-namespace CollatzMapBasics.Base3div2
+namespace CC.Base3div2
 
-open CollatzMapBasics
+open CC
 
 /-! ## Digit extraction -/
 
@@ -223,13 +232,13 @@ def U_iter : ℕ → ℕ → ℕ
 def sat (k : ℕ) : ℕ := U_iter k 0
 
 @[simp] theorem sat_zero : sat 0 = 0 := rfl
-theorem sat_one : sat 1 = 1 := by native_decide
-theorem sat_two : sat 2 = 2 := by native_decide
-theorem sat_three : sat 3 = 4 := by native_decide
-theorem sat_four : sat 4 = 7 := by native_decide
-theorem sat_five : sat 5 = 11 := by native_decide
-theorem sat_six : sat 6 = 17 := by native_decide
-theorem sat_seven : sat 7 = 26 := by native_decide
+theorem sat_one : sat 1 = 1 := by decide
+theorem sat_two : sat 2 = 2 := by decide
+theorem sat_three : sat 3 = 4 := by decide
+theorem sat_four : sat 4 = 7 := by decide
+theorem sat_five : sat 5 = 11 := by decide
+theorem sat_six : sat 6 = 17 := by decide
+theorem sat_seven : sat 7 = 26 := by decide
 
 /-- `sat (k + 1) = U (sat k)`. -/
 theorem sat_succ (k : ℕ) : sat (k + 1) = U (sat k) := rfl
@@ -375,4 +384,4 @@ theorem parity_criterion {n : ℕ} (_hn : n ≥ 1) :
     · exact absurd h1 (by positivity)
     · exact h2
 
-end CollatzMapBasics.Base3div2
+end CC.Base3div2

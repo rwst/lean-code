@@ -5,7 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 
 import ForMathlib.Combinatorics.Involution
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import Mathlib.FieldTheory.Minpoly.Basic
 import Mathlib.FieldTheory.Minpoly.Field
 import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed

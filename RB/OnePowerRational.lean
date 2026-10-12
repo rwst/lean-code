@@ -344,10 +344,10 @@ theorem onePower_finite_of_irrational (hδ : Irrational δ) {θ : ℚ} (hθ0 : 0
   obtain ⟨ε, hε, hgate⟩ := exists_eps_ratGate hθ1'
   -- the Subspace conclusion for the homogeneous forms
   obtain ⟨T, hT, hsol⟩ := Subspace.schmidt1D' (n := 3) (K := ℚ⟮δ⟯) (by norm_num)
-    real (realPlace δ) (realPlace_extends_real δ)
+    real Subspace.isPlace_real (realPlace δ) (realPlace_extends_real δ)
     (approxForms (genMultiplier δ 0) 0)
     (approxForms_linearIndependent _ _)
-    {padic 2, padic 3}
+    {padic 2, padic 3} Subspace.isPlace_padic_two_three
     (by simp [CZ.real_ne_padic2, CZ.real_ne_padic3])
     (fun _ ↦ coordForms) (fun _ _ ↦ coordForms_linearIndependent) ε hε
   -- the analytic gate

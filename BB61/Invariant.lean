@@ -114,13 +114,13 @@ variable {Ω Ω' : Type*} [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasu
 
 /-- Push-forward along a measurable map, on bundled probability measures. -/
 noncomputable def pmap {g : Ω → Ω'} (hg : Measurable g) (ν : ProbabilityMeasure Ω) :
-    ProbabilityMeasure Ω' := ν.map hg.aemeasurable
+    ProbabilityMeasure Ω' := ν.map g
 
 omit [TopologicalSpace Ω] [OpensMeasurableSpace Ω] [TopologicalSpace Ω'] [BorelSpace Ω'] in
 @[simp, category API, AMS 11, ref "Bug12", group "bugeaud_10_61"]
 theorem toMeasure_pmap {g : Ω → Ω'} (hg : Measurable g) (ν : ProbabilityMeasure Ω) :
     ((pmap hg ν : ProbabilityMeasure Ω') : Measure Ω') = Measure.map g (ν : Measure Ω) :=
-  ProbabilityMeasure.toMeasure_map _ _
+  ProbabilityMeasure.toMeasure_map _
 
 @[category API, AMS 11, ref "Bug12", group "bugeaud_10_61"]
 theorem continuous_pmap {g : Ω → Ω'} (hg : Continuous g) : Continuous (pmap hg.measurable) :=

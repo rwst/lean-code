@@ -97,7 +97,7 @@ theorem apply_le_mulHeight₁_of_mem_nonarchAbsVal {v : AbsoluteValue K ℝ}
       rw [finprod_eq_single g ⟨v, hv⟩ fun w hw ↦ ite_eq_right hw]
       simp [hg]
     rw [← hsingle]
-    refine finprod_le_finprod hgs (fun w ↦ ?_) hfs fun w ↦ ?_
+    refine finprod_le_finprod₀ hgs (fun w ↦ ?_) hfs fun w ↦ ?_
     · simp only [hg]; split <;> positivity
     · simp only [hg]
       split
@@ -157,7 +157,7 @@ affine companion of Mathlib's projective `Height.logHeight_eval_le`. -/
 theorem logHeight₁_eval_le {ι : Type*} [DecidableEq ι] (x : ι → K) (p : MvPolynomial ι K) :
     logHeight₁ (MvPolynomial.eval x p) ≤
       totalWeight K * log #p.support
-        + ∑ m ∈ p.support, (logHeight₁ (MvPolynomial.coeff m p)
+        + ∑ m ∈ p.support, (logHeight₁ (p.coeff m)
             + ∑ i ∈ m.support, m i * logHeight₁ (x i)) := by
   rw [MvPolynomial.eval_eq]
   refine le_trans (logHeight₁_sum_le _ _) ?_

@@ -6,7 +6,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function
+open BL Function
 
 @[category research solved, AMS 11 37, ref "AB07" "BL96" "Eve96", group "b3_missing_lemma"]
 theorem rate_le_den_rpow_gen (τ : ℝ) (hτ : 0 ≤ τ) (c N : ℕ) {D : ℝ} (hD : 0 < D)

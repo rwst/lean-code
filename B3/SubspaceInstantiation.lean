@@ -1,12 +1,11 @@
 import B3.BlockConstruction
-import AB.SubspaceTheoremE
 import Mathlib.LinearAlgebra.Dual.Defs
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function
+open BL Function
 
 @[category API, AMS 11 37, ref "BL96" "AB07"]
 def subspaceDen (c p : ℕ) : ℤ := 3 ^ c - 2 ^ p

@@ -8,7 +8,7 @@ import ForMathlib.Analysis.Equidistribution.IntegralCriterion
 import ForMathlib.Analysis.Equidistribution.AddCircleWeyl
 import ForMathlib.Data.Real.NearestInt
 import ForMathlib.NumberTheory.Lacunary
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import ForMathlib.LinearAlgebra.Matrix.Hankel
 import ForMathlib.LinearAlgebra.FiltrationGrowth
 import ForMathlib.LinearAlgebra.Matrix.Determinant.AntiDiagonal
@@ -252,7 +252,7 @@ attribute [category research solved, AMS 11, ref "Wal00"]
 -- to that case by scaling invariance.
 attribute [category API, AMS 11, ref "BG06" "B1E2a2"]
   NumberField.iSup_finitePlace_intCast_eq_one_of_gcd_eq_one Rat.exists_primitive_smul
-  NumberField.mulHeight₁_ratCast_eq_max NumberField.mulHeight₁_intCast
+  NumberField.mulHeight₁_ratCast_eq_max NumberField.mulHeight₁_intCast_of_ne_zero
   NumberField.logHeight₁_intCast NumberField.mulHeight₁_natCast
 attribute [category research solved, AMS 11, ref "BG06" "B1E2a2"]
   NumberField.mulHeight_intCast_of_gcd_eq_one

@@ -5,6 +5,7 @@ See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Data.Nat.GCD.Basic
+import DiophantineApproximation.GcdBound
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
@@ -27,7 +28,7 @@ exactly `{∞, 2, 3}`).
 
 ## Statement conventions (faithful transcription)
 
-* **Bases general, headline `ℚ`-specialized.**  The `axiom` `gcd_pow_sub_one_lt` keeps
+* **Bases general, headline `ℚ`-specialized.**  The theorem `gcd_pow_sub_one_lt` keeps
   the bases `a, b` general (the theorem's actual generality); the proved lemma
   `gcd_two_three_pow_lt` is the `a = 2`, `b = 3` (`S = {∞, 2, 3}`) case, its
   hypotheses discharged by `multIndep_two_three`.  (Mirrors the sibling engines
@@ -53,9 +54,11 @@ the `exp(εn)` bound is far stronger than any elementary estimate but stays inef
 
 * `BCZ.MultIndep` — multiplicative independence of two naturals.
 * `BCZ.multIndep_two_three` — `MultIndep 2 3` (parity: `2 ∤ 3ⁿ`), proved.
-* `BCZ.gcd_pow_sub_one_lt` — **Theorem 1** of [BCZ03], recorded as a cited `axiom`.
+* `BCZ.MultIndep.zpow_mul_zpow_ne_one` — the integer-exponent form of independence.
+* `BCZ.gcd_pow_sub_one_lt` — **Theorem 1** of [BCZ03], proved from the Subspace-Theorems
+  library (formerly a cited `axiom`).
 * `BCZ.gcd_two_three_pow_lt` — the `a = 2, b = 3` (`S = {∞, 2, 3}`) headline, proved from
-  the axiom.
+  the theorem.
 
 ## References
 
@@ -92,20 +95,57 @@ lemma multIndep_two_three : MultIndep 2 3 := by
   · norm_num at h3
   · exact ⟨rfl, hn0⟩
 
+/-- Multiplicative independence in the integer-exponent form of the Subspace-Theorems library:
+for `a, b ≥ 2`, `MultIndep a b` excludes every nontrivial `aᵉ bᶠ = 1` with `e, f ∈ ℤ`.  Opposite
+signs reduce to `aᵐ = bⁿ`; equal signs to `aᵐ bⁿ = 1`, impossible for bases `≥ 2`. -/
+@[category API, AMS 11, ref "BCZ03", group "three_halves_m4"]
+lemma MultIndep.zpow_mul_zpow_ne_one {a b : ℕ} (ha : 2 ≤ a) (hb : 2 ≤ b) (hind : MultIndep a b) :
+    ∀ e f : ℤ, (e, f) ≠ (0, 0) → (a : ℚ) ^ e * (b : ℚ) ^ f ≠ 1 := by
+  have ha0 : (a : ℚ) ≠ 0 := by exact_mod_cast (show a ≠ 0 by omega)
+  have hb0 : (b : ℚ) ≠ 0 := by exact_mod_cast (show b ≠ 0 by omega)
+  have hnat : ∀ m n : ℕ, a ^ m * b ^ n = 1 → m = 0 ∧ n = 0 := by
+    intro m n h
+    obtain ⟨h1, h2⟩ := mul_eq_one.mp h
+    exact ⟨(Nat.pow_eq_one.mp h1).resolve_left (by omega),
+      (Nat.pow_eq_one.mp h2).resolve_left (by omega)⟩
+  intro e f hne h
+  apply hne
+  obtain ⟨m, rfl | rfl⟩ := Int.eq_nat_or_neg e <;> obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg f <;>
+    simp only [zpow_neg, zpow_natCast] at h
+  · have h' : a ^ m * b ^ n = 1 := by exact_mod_cast h
+    obtain ⟨rfl, rfl⟩ := hnat m n h'
+    rfl
+  · have h' : a ^ m = b ^ n := by exact_mod_cast (mul_inv_eq_one₀ (pow_ne_zero n hb0)).mp h
+    obtain ⟨rfl, rfl⟩ := hind m n h'
+    rfl
+  · have h' : a ^ m = b ^ n := by exact_mod_cast (inv_mul_eq_one₀ (pow_ne_zero m ha0)).mp h
+    obtain ⟨rfl, rfl⟩ := hind m n h'
+    rfl
+  · have h' : a ^ m * b ^ n = 1 := by
+      have : ((a : ℚ) ^ m * (b : ℚ) ^ n)⁻¹ = 1 := by rw [mul_inv]; exact h
+      exact_mod_cast inv_eq_one.mp this
+    obtain ⟨rfl, rfl⟩ := hnat m n h'
+    rfl
+
 /-- **Bugeaud–Corvaja–Zannier, Theorem 1** ([BCZ03]): for multiplicatively independent
 integers `a, b ≥ 2` and every `ε > 0`, the greatest common divisor of `aⁿ − 1` and
 `bⁿ − 1` satisfies
 
   `gcd(aⁿ − 1, bⁿ − 1) < exp(ε·n)`   for all sufficiently large `n`.
 
-Recorded as a cited `axiom` on the authority of [BCZ03] — a Schmidt-Subspace-theorem
-argument (viewing `1/(aⁿ − 1)` as a small linear form in `S`-unit variables, `S` the
-primes dividing `ab` together with `∞`) that we do not re-derive.  The threshold index
-`N = N(a, b, ε)` is **ineffective** ([BCZ03], Remark 5). -/
+Formerly a cited `axiom`; now a theorem, from the Subspace-Theorems library's
+`Nat.finite_setOf_exp_le_gcd_pow_sub_one` (DA Layer 8.7, Corvaja–Zannier's gcd bound, one
+application of the `p`-adic Subspace Theorem).  The threshold index `N = N(a, b, ε)` is
+**ineffective** ([BCZ03], Remark 5). -/
 @[category research solved, AMS 11, ref "BCZ03", group "three_halves_m4"]
-axiom gcd_pow_sub_one_lt (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (hind : MultIndep a b)
+theorem gcd_pow_sub_one_lt (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (hind : MultIndep a b)
     (ε : ℝ) (hε : 0 < ε) :
-    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (Nat.gcd (a ^ n - 1) (b ^ n - 1) : ℝ) < Real.exp (ε * n)
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → (Nat.gcd (a ^ n - 1) (b ^ n - 1) : ℝ) < Real.exp (ε * n) := by
+  obtain ⟨N, hN⟩ := (Nat.finite_setOf_exp_le_gcd_pow_sub_one ha hb
+    (hind.zpow_mul_zpow_ne_one ha hb) hε).bddAbove
+  refine ⟨N + 1, fun n hn ↦ lt_of_not_ge fun hle ↦ ?_⟩
+  have := hN (show n ∈ {n : ℕ | Real.exp (ε * n) ≤ Nat.gcd (a ^ n - 1) (b ^ n - 1)} from hle)
+  omega
 
 /-- **The `S = {∞, 2, 3}` headline** ([BCZ03], Theorem 1 at `a = 2`, `b = 3`): for every
 `ε > 0`, `gcd(2ⁿ − 1, 3ⁿ − 1) < exp(ε·n)` for all sufficiently large `n`.  Proved from

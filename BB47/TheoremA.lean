@@ -22,7 +22,7 @@ Throughout, `w : ℕ → Fin b` is the base-`b` digit word of an irrational numb
 **Primary (rewritten 2026-09-13).**  The horizon bound `p(n, w) ≤ s_n + p_∞(n, w)`
 (`BB47.pComplexity_le_horizon_add_pInf`) makes each hypothesis below a hypothesis on the
 *ordinary* complexity, and the complexity lower bounds for algebraic irrationals then apply
-directly: `AB.tendsto_pComplexity_div_atTop` = [AB07, Thm. 1] for Theorem A, and
+directly: `Real.tendsto_complexity_div_atTop` = [AB07, Thm. 1] (proved, Subspace-Theorems) for Theorem A, and
 `BugeaudEvertse.exists_pComplexity_gt` = [BE08, Thm. 2.1] for Theorem A′.  Neither proof mentions
 the repetition function, and Theorem A′ needs no normalisation of `η`.
 
@@ -113,7 +113,7 @@ for an algebraic irrational.  No repetition function, no pigeonhole; see
 theorem theorem_A (hb : 2 ≤ b) (w : ℕ → Fin b) (hirr : Irrational (value b w))
     (h : HorizonLinearIO w) : Transcendental ℚ (value b w) := by
   obtain ⟨C, hC⟩ := h
-  refine AB.transcendental_of_pComplexity_linear_io hb w hirr (C : ℝ) fun N => ?_
+  refine transcendental_of_pComplexity_linear_io hb w hirr (C : ℝ) fun N => ?_
   obtain ⟨n, hn, hnv⟩ := hC N
   refine ⟨n, hn, ?_⟩
   have : pComplexity w n ≤ C * n := le_trans (pComplexity_le_horizon_add_pInf w n) hnv

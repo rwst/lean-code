@@ -4,7 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import ForMathlib.NumberTheory.ConjugatePowerSum
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 
 /-!
 # The fractional parts of the powers of a Pisot number

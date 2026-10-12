@@ -10,6 +10,10 @@ public import Mathlib.NumberTheory.Height.NumberField
 public import Mathlib.Data.Matrix.Mul
 public import Mathlib.Algebra.FiniteSupport.Basic
 public import Mathlib.NumberTheory.Height.MvPolynomial
+public import ArithmeticHeights.Affine
+public import ArithmeticHeights.Matrix
+public import ArithmeticHeights.LinearForm
+public import ArithmeticHeights.Northcott
 
 @[expose] public section
 
@@ -173,60 +177,6 @@ end Local
 
 /-! ### The height of a sum of entries of a single tuple -/
 
-/-- **The projective sum bound.**  If every term of the sum is an entry of one and the same tuple
-`w : κ → K`, read off along index maps `f a : ι → κ`, then the height of the resulting tuple
-exceeds that of `w` by at most `#s ^ totalWeight K`.
-
-Contrast `Height.mulHeight₁_sum_le`, whose right-hand side is a *product* of the heights of the
-terms; here a single `mulHeight w` suffices, which is what makes an iteration cost an additive
-rather than a multiplicative constant per step. -/
-theorem mulHeight_sum_comp_le' [Finite ι] [Finite κ] {n : ℕ} (hn : 0 < n) {s : ι → Finset α}
-    (hs : ∀ i, #(s i) ≤ n) (f : α → ι → κ) (w : κ → K) :
-    mulHeight (fun i ↦ ∑ a ∈ s i, w (f a i)) ≤ (n : ℝ) ^ totalWeight K * mulHeight w := by
-  have hcard : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
-  have hs1 : (1 : ℝ) ≤ (n : ℝ) ^ totalWeight K := one_le_pow₀ hcard
-  rcases eq_or_ne (fun i ↦ ∑ a ∈ s i, w (f a i)) (0 : ι → K) with h0 | h0
-  · rw [h0, mulHeight_zero]
-    exact hs1.trans <| le_mul_of_one_le_right (by positivity) (one_le_mulHeight w)
-  obtain ⟨i₀, hi₀⟩ := Function.ne_iff.mp h0
-  have hι : Nonempty ι := ⟨i₀⟩
-  have hw : w ≠ 0 := by
-    rintro rfl
-    exact hi₀ (by simp)
-  obtain ⟨k₀, _⟩ := Function.ne_iff.mp hw
-  have hκ : Nonempty κ := ⟨k₀⟩
-  rw [mulHeight_eq h0, mulHeight_eq hw]
-  have hconst : ((n : ℝ)) ^ totalWeight K
-      = (Multiset.map (fun _ : AbsoluteValue K ℝ ↦ (n : ℝ)) archAbsVal).prod := by
-    rw [Multiset.map_const', Multiset.prod_replicate]
-    rfl
-  rw [hconst, ← mul_assoc, ← Multiset.prod_map_mul]
-  refine mul_le_mul ?_ ?_ ?_ ?_
-  · exact Multiset.prod_map_le_prod_map₀ _ _
-      (fun v _ ↦ Real.iSup_nonneg_of_nonnegHomClass v _) fun v _ ↦ iSup_apply_sum_le' v hs f w
-  · exact finprod_le_finprod (hasFiniteMulSupport_iSup_nonarchAbsVal h0)
-      (fun v ↦ Real.iSup_nonneg_of_nonnegHomClass v.val _)
-      (hasFiniteMulSupport_iSup_nonarchAbsVal hw) fun v ↦
-        iSup_apply_sum_le_of_isNonarchimedean' (isNonarchimedean _ v.prop) s f w
-  · exact finprod_nonneg fun v ↦ Real.iSup_nonneg_of_nonnegHomClass v.val _
-  · exact Multiset.prod_map_nonneg fun v _ ↦
-      mul_nonneg (by positivity) (Real.iSup_nonneg_of_nonnegHomClass v _)
-
-/-- **The projective sum bound**, all the sums over the same index set. -/
-theorem mulHeight_sum_comp_le [Finite ι] [Finite κ] {s : Finset α} (hs : s.Nonempty)
-    (f : α → ι → κ) (w : κ → K) :
-    mulHeight (fun i ↦ ∑ a ∈ s, w (f a i)) ≤ (#s : ℝ) ^ totalWeight K * mulHeight w :=
-  mulHeight_sum_comp_le' hs.card_pos (s := fun _ ↦ s) (fun _ ↦ le_rfl) f w
-
-/-- The logarithmic form of `Height.mulHeight_sum_comp_le`. -/
-theorem logHeight_sum_comp_le [Finite ι] [Finite κ] {s : Finset α} (hs : s.Nonempty)
-    (f : α → ι → κ) (w : κ → K) :
-    logHeight (fun i ↦ ∑ a ∈ s, w (f a i)) ≤ totalWeight K * log #s + logHeight w := by
-  have hcard : (0 : ℝ) < (#s : ℝ) := by exact_mod_cast hs.card_pos
-  simp only [logHeight_eq_log_mulHeight]
-  refine (log_le_log (mulHeight_pos _) (mulHeight_sum_comp_le hs f w)).trans_eq ?_
-  rw [log_mul (by positivity) (mulHeight_ne_zero w), log_pow]
-
 /-! ### Projective versus affine heights -/
 
 /-- The projective height of a tuple is at most the product of the affine heights of its entries.
@@ -259,64 +209,11 @@ theorem logHeight_le_sum_logHeight₁ [Fintype ι] [DecidableEq ι] (z : ι → 
 
 /-! ### From projective to affine heights -/
 
-/-- The affine height of a ratio of two coordinates is at most the projective height of the
-tuple.  This is the bridge that turns a bound on `mulHeight` into a statement about a single
-field element. -/
-theorem mulHeight₁_div_le_mulHeight [Finite ι] (z : ι → K) (i j : ι) :
-    mulHeight₁ (z i / z j) ≤ mulHeight z := by
-  have h : ![z i, z j] = z ∘ ![i, j] := by ext k; fin_cases k <;> rfl
-  rw [mulHeight₁_div_eq_mulHeight, h]
-  exact mulHeight_comp_le ![i, j] z
-
-/-- The logarithmic form of `Height.mulHeight₁_div_le_mulHeight`. -/
-theorem logHeight₁_div_le_logHeight [Finite ι] (z : ι → K) (i j : ι) :
-    logHeight₁ (z i / z j) ≤ logHeight z :=
-  log_le_log (mulHeight₁_pos _) (mulHeight₁_div_le_mulHeight z i j)
-
 /-! ### The affine height of a tuple -/
-
-/-- The **affine** height of a tuple: the projective height of the tuple with a coordinate `1`
-appended.
-
-Unlike the projective `mulHeight`, this dominates the height of each single coordinate
-(`mulHeight₁_le_mulHeightAff`) — for `mulHeight` that is false, since it is invariant under
-scaling.  It still obeys the matrix-product bound with an additive cost per multiplication
-(`Matrix.logHeightAff_mul_le`), which is what makes it the right notion for a matrix recursion
-whose *entries* have to stay of controlled height. -/
-noncomputable def mulHeightAff (x : ι → K) : ℝ := mulHeight fun o : Option ι ↦ o.elim 1 x
-
-/-- The affine logarithmic height of a tuple. -/
-noncomputable def logHeightAff (x : ι → K) : ℝ := log (mulHeightAff x)
-
-theorem logHeightAff_eq_log_mulHeightAff (x : ι → K) :
-    logHeightAff x = log (mulHeightAff x) := rfl
 
 section Aff
 
 variable [Finite ι]
-
-theorem one_le_mulHeightAff (x : ι → K) : 1 ≤ mulHeightAff x := one_le_mulHeight _
-
-theorem mulHeightAff_pos (x : ι → K) : 0 < mulHeightAff x := mulHeight_pos _
-
-theorem mulHeightAff_ne_zero (x : ι → K) : mulHeightAff x ≠ 0 := mulHeight_ne_zero _
-
-theorem logHeightAff_nonneg (x : ι → K) : 0 ≤ logHeightAff x := logHeight_nonneg _
-
-/-- The affine height of a tuple dominates the affine height of each of its coordinates. -/
-theorem mulHeight₁_le_mulHeightAff (x : ι → K) (i : ι) : mulHeight₁ (x i) ≤ mulHeightAff x := by
-  have h : (![x i, 1] : Fin 2 → K) = (fun o : Option ι ↦ o.elim 1 x) ∘ ![some i, none] := by
-    ext j; fin_cases j <;> rfl
-  rw [mulHeight₁_eq_mulHeight, h]
-  exact mulHeight_comp_le _ _
-
-/-- The logarithmic form of `Height.mulHeight₁_le_mulHeightAff`. -/
-theorem logHeight₁_le_logHeightAff (x : ι → K) (i : ι) : logHeight₁ (x i) ≤ logHeightAff x :=
-  log_le_log (mulHeight₁_pos _) (mulHeight₁_le_mulHeightAff x i)
-
-/-- The projective height of a tuple is at most its affine height. -/
-theorem mulHeight_le_mulHeightAff (x : ι → K) : mulHeight x ≤ mulHeightAff x :=
-  mulHeight_comp_le some fun o : Option ι ↦ o.elim 1 x
 
 omit [Finite ι] in
 /-- The affine height of a tuple is at most the product of the heights of its coordinates. -/
@@ -375,7 +272,7 @@ theorem mulHeight_monomial_le {σ : Type*} [Fintype σ] (β : σ → K) (d : σ 
   have hne : ∀ i : σ, (fun e : Fin (d i + 1) ↦ β i ^ (e : ℕ)) ≠ 0 := fun i h ↦ by
     simpa using congrFun h 0
   rw [mulHeight_fun_prod_eq hne]
-  exact Finset.prod_le_prod (fun i _ ↦ (mulHeight_pos _).le) fun i _ ↦ mulHeight_pow_le (β i) (d i)
+  exact Finset.prod_le_prod₀ (fun i _ ↦ (mulHeight_pos _).le) fun i _ ↦ mulHeight_pow_le (β i) (d i)
 
 /-- **The height of the value of a multivariate polynomial**, in the sharp form: the degree in
 each variable enters *once*, not once per monomial.  This is [Wal00] Lemma 3.7 (used by [AF22] as
@@ -458,34 +355,6 @@ theorem logHeight₁_eval_le_of_degreeOf {σ : Type*} [Fintype σ] [DecidableEq 
 
 /-! ### The naive tuple analogue of `mulHeight₁_sum_le` is false -/
 
-/-- Any field element whose height exceeds `2 ^ totalWeight K` refutes the tuple analogue of
-`Height.mulHeight₁_sum_le`: the two tuples `![x, 0]` and `![0, 1]` both have height `1`, while
-their sum `![x, 1]` has height `mulHeight₁ x`.  The mechanism is scaling invariance
-(`Height.mulHeight_smul_eq_mulHeight`), which the left-hand side of such a bound does not enjoy,
-so no choice of constant can repair the statement. -/
-theorem not_mulHeight_add_le_of_lt_mulHeight₁ {x : K} (hx : (2 : ℝ) ^ totalWeight K < mulHeight₁ x) :
-    ¬ mulHeight ((![x, 0] : Fin 2 → K) + (![0, 1] : Fin 2 → K))
-        ≤ (2 : ℝ) ^ totalWeight K
-            * (mulHeight (![x, 0] : Fin 2 → K) * mulHeight (![0, 1] : Fin 2 → K)) := by
-  have h1 : (![x, 0] : Fin 2 → K) + (![0, 1] : Fin 2 → K) = ![x, 1] := by
-    ext i; fin_cases i <;> simp
-  rw [h1, ← mulHeight₁_eq_mulHeight]
-  simpa using not_le.2 hx
-
-/-- The tuple analogue of `Height.mulHeight₁_sum_le` fails already over `ℚ`. -/
-theorem exists_not_mulHeight_add_le :
-    ∃ x : ℚ, ¬ mulHeight ((![x, 0] : Fin 2 → ℚ) + (![0, 1] : Fin 2 → ℚ))
-      ≤ (2 : ℝ) ^ totalWeight ℚ
-          * (mulHeight (![x, 0] : Fin 2 → ℚ) * mulHeight (![0, 1] : Fin 2 → ℚ)) := by
-  obtain ⟨n, hn⟩ := exists_nat_gt ((2 : ℝ) ^ totalWeight ℚ)
-  have hpos : (0 : ℝ) ≤ 2 ^ totalWeight ℚ := by positivity
-  have hn0 : n ≠ 0 := by
-    rintro rfl
-    rw [Nat.cast_zero] at hn
-    exact hpos.not_gt hn
-  have : NeZero n := ⟨hn0⟩
-  exact ⟨(n : ℚ), not_mulHeight_add_le_of_lt_mulHeight₁ (by rwa [Rat.mulHeight₁_natCast])⟩
-
 end Height
 
 /-! ### Heights of matrices -/
@@ -495,28 +364,6 @@ namespace Matrix
 open Height
 
 variable {K : Type*} [Field K] [AdmissibleAbsValues K] {ι ι' ι'' : Type*}
-
-/-- The (projective) multiplicative height of a matrix: the height of the tuple of its entries. -/
-noncomputable def mulHeight (A : Matrix ι ι' K) : ℝ :=
-  Height.mulHeight fun p : ι × ι' ↦ A p.1 p.2
-
-/-- The (projective) logarithmic height of a matrix. -/
-noncomputable def logHeight (A : Matrix ι ι' K) : ℝ := Real.log (mulHeight A)
-
-theorem logHeight_eq_log_mulHeight (A : Matrix ι ι' K) : logHeight A = Real.log (mulHeight A) :=
-  rfl
-
-theorem one_le_mulHeight [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 1 ≤ mulHeight A :=
-  Height.one_le_mulHeight _
-
-theorem mulHeight_pos [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 0 < mulHeight A :=
-  Height.mulHeight_pos _
-
-theorem mulHeight_ne_zero [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : mulHeight A ≠ 0 :=
-  Height.mulHeight_ne_zero _
-
-theorem logHeight_nonneg [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 0 ≤ logHeight A :=
-  Height.logHeight_nonneg _
 
 /-- The identity matrix has height `1`. -/
 @[simp]
@@ -533,53 +380,6 @@ theorem mulHeight_one [Finite ι] [DecidableEq ι] : mulHeight (1 : Matrix ι ι
 theorem logHeight_one [Finite ι] [DecidableEq ι] : logHeight (1 : Matrix ι ι K) = 0 := by
   simp [logHeight_eq_log_mulHeight]
 
-/-- **The height of a matrix product.**  The projective height of `A * B` exceeds the product of
-the projective heights of `A` and `B` by at most `(card ι') ^ totalWeight K`, where `ι'` is the
-contracted index.  Compare `Height.mulHeight₁_mul_le`, which is entry by entry and therefore
-loses a factor `card ι'` *per entry*. -/
-theorem mulHeight_mul_le [Finite ι] [Fintype ι'] [Nonempty ι'] [Finite ι'']
-    (A : Matrix ι ι' K) (B : Matrix ι' ι'' K) :
-    mulHeight (A * B)
-      ≤ (Fintype.card ι' : ℝ) ^ totalWeight K * (mulHeight A * mulHeight B) := by
-  classical
-  set x : ι × ι' → K := fun p ↦ A p.1 p.2 with hx
-  set y : ι' × ι'' → K := fun p ↦ B p.1 p.2 with hy
-  set w : (ι × ι') × (ι' × ι'') → K := fun q ↦ x q.1 * y q.2 with hw
-  set f : ι' → (ι × ι'') → (ι × ι') × (ι' × ι'') := fun l p ↦ ((p.1, l), (l, p.2)) with hf
-  have key : (fun p : ι × ι'' ↦ (A * B) p.1 p.2)
-      = fun p : ι × ι'' ↦ ∑ l ∈ Finset.univ, w (f l p) := by
-    ext p
-    simp [Matrix.mul_apply, hw, hf, hx, hy]
-  have hmain : mulHeight (A * B) ≤ (Fintype.card ι' : ℝ) ^ totalWeight K * Height.mulHeight w := by
-    rw [mulHeight, key]
-    simpa using Height.mulHeight_sum_comp_le Finset.univ_nonempty f w
-  refine hmain.trans ?_
-  have hle : Height.mulHeight w ≤ mulHeight A * mulHeight B := by
-    rcases eq_or_ne x 0 with h | h
-    · have : w = 0 := by rw [hw, h]; ext q; simp
-      rw [this, Height.mulHeight_zero]
-      exact one_le_mul_of_one_le_of_one_le (one_le_mulHeight A) (one_le_mulHeight B)
-    rcases eq_or_ne y 0 with h' | h'
-    · have : w = 0 := by rw [hw, h']; ext q; simp
-      rw [this, Height.mulHeight_zero]
-      exact one_le_mul_of_one_le_of_one_le (one_le_mulHeight A) (one_le_mulHeight B)
-    exact le_of_eq (Height.mulHeight_fun_mul_eq h h')
-  exact mul_le_mul_of_nonneg_left hle (by positivity)
-
-/-- The logarithmic form of `Matrix.mulHeight_mul_le`: the cost of one matrix multiplication is
-the *additive* constant `totalWeight K * log (card ι')`. -/
-theorem logHeight_mul_le [Finite ι] [Fintype ι'] [Nonempty ι'] [Finite ι'']
-    (A : Matrix ι ι' K) (B : Matrix ι' ι'' K) :
-    logHeight (A * B)
-      ≤ totalWeight K * Real.log (Fintype.card ι') + (logHeight A + logHeight B) := by
-  have hcard : (0 : ℝ) < (Fintype.card ι' : ℝ) := by
-    exact_mod_cast Fintype.card_pos_iff.mpr ‹Nonempty ι'›
-  simp only [logHeight_eq_log_mulHeight]
-  refine (Real.log_le_log (mulHeight_pos _) (mulHeight_mul_le A B)).trans_eq ?_
-  rw [Real.log_mul (pow_ne_zero _ hcard.ne')
-      (mul_ne_zero (mulHeight_ne_zero A) (mulHeight_ne_zero B)), Real.log_pow,
-    Real.log_mul (mulHeight_ne_zero A) (mulHeight_ne_zero B)]
-
 /-- The projective height of a matrix is at most the product of the affine heights of its
 entries: the entry-by-entry input to the machinery above. -/
 theorem mulHeight_le_prod_mulHeight₁ [Fintype ι] [Fintype ι'] [DecidableEq ι] [DecidableEq ι']
@@ -594,30 +394,6 @@ theorem logHeight_le_sum_logHeight₁ [Fintype ι] [Fintype ι'] [DecidableEq ι
   Height.logHeight_le_sum_logHeight₁ _
 
 /-! ### The affine height of a matrix -/
-
-/-- The **affine** height of a matrix: the affine height of the tuple of its entries.  This is the
-notion the entries of an iterated matrix product must be measured in — see
-`Matrix.mulHeight₁_le_mulHeightAff`. -/
-noncomputable def mulHeightAff (A : Matrix ι ι' K) : ℝ :=
-  Height.mulHeightAff fun p : ι × ι' ↦ A p.1 p.2
-
-/-- The affine logarithmic height of a matrix. -/
-noncomputable def logHeightAff (A : Matrix ι ι' K) : ℝ := Real.log (mulHeightAff A)
-
-theorem logHeightAff_eq_log_mulHeightAff (A : Matrix ι ι' K) :
-    logHeightAff A = Real.log (mulHeightAff A) := rfl
-
-theorem one_le_mulHeightAff [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 1 ≤ mulHeightAff A :=
-  Height.one_le_mulHeightAff _
-
-theorem mulHeightAff_pos [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 0 < mulHeightAff A :=
-  Height.mulHeightAff_pos _
-
-theorem mulHeightAff_ne_zero [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : mulHeightAff A ≠ 0 :=
-  Height.mulHeightAff_ne_zero _
-
-theorem logHeightAff_nonneg [Finite ι] [Finite ι'] (A : Matrix ι ι' K) : 0 ≤ logHeightAff A :=
-  Height.logHeightAff_nonneg _
 
 /-- **Every entry of a matrix has height at most the affine height of the matrix.** -/
 theorem mulHeight₁_le_mulHeightAff [Finite ι] [Finite ι'] (A : Matrix ι ι' K) (i : ι) (j : ι') :

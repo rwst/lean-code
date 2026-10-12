@@ -268,7 +268,7 @@ theorem le_abs_sub_of_le_abs_cycleProd {D : ℕ} (hD : 0 < D) {k : ℕ} {A : Fin
   rw [abs_cycleProd_eq hD, mul_comm, mul_div_assoc, div_self (ne_of_gt hpos), mul_one,
     ← Finset.mul_prod_erase _ _ (Finset.mem_univ j)]
   have hrest : ∏ i ∈ Finset.univ.erase j, |(r : ℝ) / 2 ^ n - (A i : ℝ) / (D : ℝ)| ≤ 1 :=
-    Finset.prod_le_one (fun i _ => abs_nonneg _) (fun i _ => hfar i)
+    Finset.prod_le_one₀ (fun i _ => abs_nonneg _) (fun i _ => hfar i)
   have hnn : (0 : ℝ) ≤ |(r : ℝ) / 2 ^ n - (A j : ℝ) / (D : ℝ)| := abs_nonneg _
   nlinarith [hrest, hnn]
 
@@ -314,7 +314,7 @@ theorem abs_cycleProd_le_of_near {D : ℕ} (hD : 0 < D) {k : ℕ} {A : Fin k →
     calc (1 / (2 * (D : ℝ))) ^ (k - 1)
         = ∏ _i ∈ Finset.univ.erase j, (1 / (2 * (D : ℝ))) := by
           rw [Finset.prod_const, hcard]
-      _ ≤ _ := Finset.prod_le_prod (fun i _ => by positivity) hfar
+      _ ≤ _ := Finset.prod_le_prod₀ (fun i _ => by positivity) hfar
   have hpos : (0 : ℝ) < ((D : ℝ) * 2 ^ n) ^ k := by positivity
   rw [abs_cycleProd_eq hD, ← Finset.mul_prod_erase _ _ (Finset.mem_univ j)]
   have hnn : (0 : ℝ) ≤ |(r : ℝ) / 2 ^ n - (A j : ℝ) / (D : ℝ)| := abs_nonneg _
@@ -406,7 +406,7 @@ theorem exists_odd_abs_cycleProd_le {D : ℕ} (hD : 0 < D) {k : ℕ} (hk : 0 < k
       ≤ (2 * (D : ℤ) * 2 ^ n) ^ (k - 1) := by
     calc ∏ i ∈ Finset.univ.erase j, |tgtNum D (A i) n r|
         ≤ ∏ _i ∈ Finset.univ.erase j, (2 * (D : ℤ) * 2 ^ n) :=
-          Finset.prod_le_prod (fun i _ => abs_nonneg _) hstep
+          Finset.prod_le_prod₀ (fun i _ => abs_nonneg _) hstep
       _ = (2 * (D : ℤ) * 2 ^ n) ^ (k - 1) := by rw [Finset.prod_const, hcard]
   have hnn : (0 : ℤ) ≤ ∏ i ∈ Finset.univ.erase j, |tgtNum D (A i) n r| :=
     Finset.prod_nonneg fun i _ => abs_nonneg _

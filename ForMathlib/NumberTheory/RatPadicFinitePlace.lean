@@ -76,7 +76,8 @@ theorem place_embedding_primeSpectrum :
       rw [IsDedekindDomain.HeightOneSpectrum.maxPowDividing_eq_pow_multiplicity
             (by simpa using hp0 : Ideal.span {(p : 𝓞 ℚ)} ≠ ⊥) (primeSpectrum p),
           show multiplicity (primeSpectrum p).asIdeal (Ideal.span {(p : 𝓞 ℚ)}) = 1 by
-            rw [← hasIdeal]; exact multiplicity_self,
+            rw [← hasIdeal]
+            exact multiplicity_self (.of_prime_left (primeSpectrum p).prime (primeSpectrum p).ne_bot),
           pow_one, hasIdeal, Ideal.absNorm_span_singleton,
           show (p : 𝓞 ℚ) = algebraMap ℤ (𝓞 ℚ) p by rw [map_natCast], Algebra.norm_algebraMap]
       simp [NumberField.RingOfIntegers.rank]

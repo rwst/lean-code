@@ -4,7 +4,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function Filter
+open BL Function Filter
 
 @[category research solved, AMS 11 37, ref "BL96", group "b3_missing_lemma"]
 theorem binaryDigit_prefixBlockVal_lt_eq_of_dvd {v : ℤ_[2]} {A t c p : ℕ} {e : ℕ → ℕ}

@@ -4,84 +4,54 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Mathlib.Data.Set.Finite.Basic
-import Mathlib.NumberTheory.Ostrowski
 import CITED.CorvajaZannier
 import CITED.CorvajaZannierAlgebraic
-import CITED.Ridout
-import ForMathlib.NumberTheory.AdjoinRealPlace
+import CITED.SubspaceTheorem
+import CorvajaZannier2004.MainTheorem
+import ArithmeticHeights.Absolute
+import ArithmeticHeights.Extension
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
 /-!
-# Deriving the Corvaja–Zannier Main Theorem from Ridout / the Subspace Theorem
+# The Corvaja–Zannier Main Theorem at `Γ = ⟨2, 3⟩`, from the Subspace-Theorems library
 
-Second step of the one-axiom refactor (`report-formalize-subspace.html` §6):
-turn `CZ.pseudoPisot_approx` from a cited `axiom` into a **theorem** resting only
-on `Subspace.evertseSchlickewei` (via `Ridout.finite_ratios`).  The `ℚ`,
-`δ ∈ ℚ`, `Γ = ⟨2,3⟩` case of the Main Theorem is a single application of
-**Ridout's theorem** (`report-formalize-subspace.html` §3), so no new axiom is
-needed.
+[CZ04]'s Main Theorem in the specialization this corpus uses — `u = 2ˣ3ʸ`, `q ∈ ℕ`, multiplier
+`δ` rational (`CZ.pseudoPisot_approx_of_subspace`) or real algebraic (`CZ.pseudoPisot_approx_alg`)
+— and the toolkit around it.  Footprint `std3`.
 
-**Status: COMPLETE (2026-07-14).**  `pseudoPisot_approx_of_subspace` below is
-**sorry-free** with footprint `std3 + Subspace.evertseSchlickewei`.  The proof:
+**History.**  Both statements were cited axioms until 2026-07-14 (`δ ∈ ℚ`) and 2026-08-07
+(`δ` algebraic), then theorems of a 1800-line derivation through Ridout's theorem
+(`Ridout.finite_ratios`, `Ridout.finite_ratios_alg`) resting on the cited axioms
+`Subspace.evertseSchlickewei` and `Subspace.schmidt1D'`.  Since 2026-10-12 both are corollaries
+of the Subspace-Theorems library's `finite_setOf_not_isPseudoPisot` (`CorvajaZannier2004/`), the
+Main Theorem for every finitely generated `Γ ≤ ℝˣ` of algebraic numbers, and the Ridout chain is
+gone.
 
-* *shape reduction* — the pseudo-Pisot exclusion clause only shrinks the
-  exceptional set, so finiteness reduces to the pure approximation core;
-* *the key cancellation* (`key_num_le`) — on the coprime representative
-  `(A, B)` of the orbit ratio `p₀/(q·2^x·3^y)` the Subspace-product numerator
-  collapses **exactly** to `‖v‖·A₆′·B₆′/|p₀| ≤ ‖v‖·q` (prime-to-6 parts via
-  `ordCompl`; the p-adic factors are computed, never bounded by `1`);
-* *Ridout membership* (`orbit_mem_ratios`) — with the height bound
-  `M ≤ (|δ|+1)·q·h ≤ (q·h)²` (valid once `q·h ≥ |δ|+1`) and `ε' := ε/2`,
-  every good triple's orbit point solves the `S = {∞, 2, 3}` Subspace
-  inequality `approxProduct ≤ M^{-2-ε'}`;
-* *fibres* (`fibre_finite`, `small_finite`) — on the fibre over a ratio `ρ`,
-  `‖v‖ ≥ |δρ − 1| > 0` bounds `height23` and `q`, so each fibre is finite;
-  the finitely many small triples (`q·h < |δ|+1`) are absorbed directly.
+**The specialization.**  `Γ = ⟨2, 3⟩` is finitely generated and rational
+(`gamma23_fg`, `gamma23_isAlgebraic`); `(q, x, y) ↦ (q, 2ˣ3ʸ)` is injective
+(`unit23_injective`, via the `2`- and `3`-adic absolute values); `u = 2ˣ3ʸ` has degree
+`[ℚ(u) : ℚ] = 1` (`finrank_adjoin_ratCast`) and absolute height `H(u) ≤ height23 x y`
+(`absMulHeight₁_unit23_le`), so the library's `H(u)^{-ε} |q|^{-[ℚ(u):ℚ]-ε}` is at least this
+file's `height23^{-ε} q^{-1-ε}`.  The rational case follows from the algebraic one, a rational
+`δqu` being pseudo-Pisot only if it is an integer.
 
-The bespoke cited axiom `CZ.pseudoPisot_approx` has been **retired** (deleted
-from `CITED/CorvajaZannier.lean`, 2026-07-14) and the live consumers in
-`TH/GapSlices.lean` repointed to the theorem below — completing the one-axiom
-refactor for the CZ side.
-
-## The algebraic multiplier (2026-08-07)
-
-The second half of the file does the same for `δ` **real algebraic**, retiring the
-cited axiom `CZ.pseudoPisot_approx_alg` of `CITED/CorvajaZannierAlgebraic.lean`:
-`CZ.pseudoPisot_approx_alg` is now a theorem here, with footprint
-`std3 + Subspace.schmidt1D'`.
-
-The port is mechanical because the data of this specialization is **rational** —
-`q ∈ ℕ`, `u = 2^x3^y ∈ ℚ*` — so the orbit point, its coprime representative, the
-`ordCompl` cancellation, the divisibilities, the height bound and the fibre count are
-all blind to `δ`.  Exactly one linear form changes: `X₀ − δ·X₁` acquires coefficients in
-`ℚ(δ)`, so the engine becomes Schmidt's Theorem 1D′ (`Ridout.finite_ratios_alg`, from
-`Subspace.schmidt1D'`) rather than its `ℚ`-coefficient sibling.  Instantiating the
-number-field form `Subspace.evertseSchlickewei` at `K = ℚ(δ)` would *not* work: on
-rational points it loses the factor `[K:ℚ]` in the exponent.
-
-As over `ℚ`, the derived statement does not need the pseudo-Pisot exclusion: finiteness
-holds for the pure approximation core.  That clause is what [CZ04] needs for a general
-`Γ ⊂ 𝔸*`, where `u` may have degree `> 1`; at `Γ ⊂ ℚ*` the conjugates `δ⁽ⁱ⁾qu` grow with
-`qu`, so pseudo-Pisot values are confined to a bounded window.
+**The toolkit** kept from the Ridout derivation is consumed elsewhere: the `height23` bounds
+(`finite_height23_le`, `u_le_height23`, `one_le_height23`; NKR), the `p`-adic values of
+`2ˣ3ʸ` (`padic_two_sUnit`, `padic_three_sUnit`) and the closed form of the `S = {∞, 2, 3}`
+Subspace product on a coprime pair (`approxProduct_pair_eq`, `approxProduct_smul`;
+`CITED/SubspaceTriple.lean`, `RB/AnchoredPlaces.lean`).
 
 ## References
 
-* [CZ04] Corvaja–Zannier, Acta Math. **193** (2004), 175–191
-  (`CITED/CorvajaZannier.lean` carries the statement vocabulary; the Main
-  Theorem is derived below).
-* [Rid57] Ridout, Mathematika **4** (1957) (`CITED/Ridout.lean`
-  — `Ridout.finite_ratios`, the engine; `Ridout.finite_ratios_alg` for the algebraic
-  multiplier).
-* [S] W. M. Schmidt, LNM **1467**, Ch. V, Thm 1D′ (`CITED/SchmidtSubspace.lean`) — the
-  engine of the algebraic half.
-* `report-formalize-subspace.html` (this repository, 2026-07): §3 (CZ → Ridout),
-  §6 (the one-axiom refactor).
+* [CZ04] Corvaja–Zannier, Acta Math. **193** (2004), 175–191 (`CITED/CorvajaZannier.lean`
+  carries the statement vocabulary).
+* Subspace-Theorems, `CorvajaZannier2004/MainTheorem.lean` — the Main Theorem in full.
 -/
 
 namespace CZ
 
-open Ridout Subspace Rat.AbsoluteValue Height
+open Subspace Rat.AbsoluteValue Height
 
 /-- `2 ^ |x| ≤ height23 x y`: the height dominates the `2`-part of the `S`-unit. -/
 private lemma two_pow_natAbs_le_height23 (x y : ℤ) : 2 ^ x.natAbs ≤ height23 x y := by
@@ -110,10 +80,8 @@ private lemma three_pow_natAbs_le_height23 (x y : ℤ) : 3 ^ y.natAbs ≤ height
       _ ≤ _ := le_max_right _ _
 
 /-- **Finitely many `S`-unit exponent pairs of bounded height** ([CZ04], ℚ-case):
-for any real `B`, only finitely many `(x, y) ∈ ℤ²` have `height23 x y ≤ B`.  This
-is the finiteness leaf of the ratios→triples reduction: once Ridout bounds the
-height of the `S`-unit `u = 2^x 3^y`, its exponents `(x, y)` are confined to a
-box (from `2^{|x|}, 3^{|y|} ≤ height23 x y`). -/
+for any real `B`, only finitely many `(x, y) ∈ ℤ²` have `height23 x y ≤ B`: the
+exponents are confined to a box (from `2^{|x|}, 3^{|y|} ≤ height23 x y`). -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 theorem finite_height23_le (B : ℝ) :
     {q : ℤ × ℤ | (height23 q.1 q.2 : ℝ) ≤ B}.Finite := by
@@ -132,21 +100,8 @@ theorem finite_height23_le (B : ℝ) :
   exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨by omega, by omega⟩,
     Set.mem_Icc.mpr ⟨by omega, by omega⟩⟩
 
-/-- **Projective height of a rational pair = affine height of the ratio**:
-`mulHeight ![a, b] = mulHeight₁ (a / b)` for `b ≠ 0`.  Combined with
-`Rat.mulHeight₁_eq_max` this computes the RHS of the Ridout bound for the orbit
-point `ξ = ![p₀, q·2^x·3^y]`, namely `mulHeight ξ = max(num, den)` of the ratio
-`p₀ / (q·2^x·3^y)`.  (Uses Mathlib's `Height` API for `ℚ`.) -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-theorem mulHeight_pair_eq (a b : ℚ) (hb : b ≠ 0) :
-    Height.mulHeight ![a, b] = Height.mulHeight₁ (a / b) := by
-  have hsm : ![a, b] = b • ![a / b, 1] := by
-    ext i; fin_cases i <;> simp [smul_eq_mul]; field_simp
-  rw [hsm, Height.mulHeight_smul_eq_mulHeight _ hb, ← Height.mulHeight₁_eq_mulHeight]
-
 /-- **The 2-adic absolute value of the `S`-unit `2^x 3^y` is `2^{-x}`**
-(`|·|₂ = Rat.AbsoluteValue.padic 2 = padicNorm 2`).  A finite-place factor of the
-Ridout `approxProduct` for the CZ orbit point. -/
+(`|·|₂ = Rat.AbsoluteValue.padic 2 = padicNorm 2`). -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 theorem padic_two_sUnit (x y : ℤ) :
     padic 2 ((2 : ℚ) ^ x * (3 : ℚ) ^ y) = (2 : ℝ) ^ (-x) := by
@@ -159,8 +114,7 @@ theorem padic_two_sUnit (x y : ℤ) :
   have h3 : padic 2 (3 : ℚ) = 1 := by rw [padic_eq_padicNorm, h3q]; norm_num
   rw [map_mul, map_zpow₀, map_zpow₀, h2, h3, one_zpow, mul_one, inv_zpow, ← zpow_neg]
 
-/-- **The 3-adic absolute value of the `S`-unit `2^x 3^y` is `3^{-y}`**.  The other
-finite-place factor of the Ridout `approxProduct` for the CZ orbit point. -/
+/-- **The 3-adic absolute value of the `S`-unit `2^x 3^y` is `3^{-y}`**. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 theorem padic_three_sUnit (x y : ℤ) :
     padic 3 ((2 : ℚ) ^ x * (3 : ℚ) ^ y) = (3 : ℝ) ^ (-y) := by
@@ -173,35 +127,18 @@ theorem padic_three_sUnit (x y : ℤ) :
   have h2 : padic 3 (2 : ℚ) = 1 := by rw [padic_eq_padicNorm, h2q]; norm_num
   rw [map_mul, map_zpow₀, map_zpow₀, h2, h3, one_zpow, one_mul, inv_zpow, ← zpow_neg]
 
-/-- **Archimedean form factor**: at the real place, the form `x₀ − δ·x₁` at the CZ
-orbit point `ξ = ![round(δ·q·2^x·3^y), q·2^x·3^y]` evaluates to the nearest-integer
-distance `‖·‖`, since `x₀ − δ·x₁ = round(sval) − sval`:
-`real (round w − w) = distToNearestInt w`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-theorem real_round_sub_eq_dist (w : ℚ) :
-    real ((round w : ℚ) - w) = (w.distToNearestInt : ℝ) := by
-  rw [real_eq_abs, Rat.distToNearestInt, abs_sub_comm]
-
 /-!
-### The Subspace product on the coprime-integer representative (the STEP-2 core)
+### The Subspace product on a coprime pair
 
-The one genuinely deep obstacle to the CZ derivation was relating the `S = {∞,2,3}`
-Subspace product `approxProduct` to Mathlib's `Height.mulHeight`, which is a product over
-*all* places of `ℚ` (`InfinitePlace`/`FinitePlace`).  For a general representative of the
-orbit point this needs the full product formula over the infinitely many places outside `S`.
-
-The resolution (`report-formalize-subspace.html` §3): evaluate the (scale-invariant)
-`approxProduct` and `mulHeight` on the **coprime-integer representative** `![A, B]` of the
-projective point.  There every finite local norm is `1` (`coprime_padic_max`), so the
-product formula collapses and both sides become elementary:
-`mulHeight ![A,B] = max(|A|,|B|)` (`Rat.mulHeight_eq_max_abs_of_gcd_eq_one`) and
-`approxProduct` has the closed form of `approxProduct_pair_eq` below.  This discharges the
-product-formula step; what remains (`hcore`) is the elementary `M`-bound and fibre count.
+At the places `S = {∞, 2, 3}`, with the forms `X₀ − δX₁, X₁` at `∞` and the coordinates at `2`
+and `3`, the Subspace product of a coprime integer pair has a closed form
+(`approxProduct_pair_eq`): every finite local norm of a coprime pair is `1`
+(`coprime_padic_max`).
 -/
 
 attribute [local instance] Classical.propDecidable
 
-/-- The per-place linear forms of the CZ Ridout application: at the real place the pair
+/-- The per-place linear forms of the CZ Subspace application: at the real place the pair
 `X₀ − δ·X₁, X₁` (so the first form measures `p₀ − δ·qu`, whose size is `‖sval‖`), and at
 every other place the coordinate forms `X₀, X₁` (measuring the `p`-adic sizes of the two
 coordinates). -/
@@ -210,24 +147,6 @@ noncomputable def Lforms (δ : ℚ) (v : AbsoluteValue ℚ ℝ) : Fin 2 → ((Fi
   if v = Rat.AbsoluteValue.real
   then ![LinearMap.proj 0 - δ • LinearMap.proj 1, LinearMap.proj 1]
   else ![LinearMap.proj 0, LinearMap.proj 1]
-
-/-- Both per-place pairs of `Lforms` are linearly independent, so `Lforms` satisfies the
-hypothesis of `Ridout.finite_ratios` at every place. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma lforms_linearIndependent (δ : ℚ) (v : AbsoluteValue ℚ ℝ) :
-    LinearIndependent ℚ (Lforms δ v) := by
-  unfold Lforms
-  by_cases h : v = Rat.AbsoluteValue.real
-  · rw [ite_eq_left h, LinearIndependent.pair_iff]
-    intro a b hab
-    have h1 := LinearMap.congr_fun hab ![1, 0]
-    have h2 := LinearMap.congr_fun hab ![0, 1]
-    simp at h1 h2
-    exact ⟨h1, by rw [h1] at h2; simpa using h2⟩
-  · rw [ite_eq_right h, LinearIndependent.pair_iff]
-    intro a b hab
-    exact ⟨by have := LinearMap.congr_fun hab ![1, 0]; simpa using this,
-      by have := LinearMap.congr_fun hab ![0, 1]; simpa using this⟩
 
 /-- The local sup-norm of a pair `‖![a,b]‖_v = max(|a|_v, |b|_v)`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
@@ -293,9 +212,7 @@ lemma padic2_ne_padic3 : (padic 2) ≠ padic 3 := by
 /-- **The Subspace product on the coprime-integer representative, in closed form.**
 For coprime integers `A, B`, the `S = {∞, 2, 3}` double product of `Lforms δ` at the point
 `![A, B]` collapses (all finite local norms are `1`, by `coprime_padic_max`) to
-`|A − δB|·|B| / max(|A|,|B|)² · |A|₂|B|₂ · |A|₃|B|₃`.  This is the ℚ-specialization of the
-Subspace product that the Ridout bound is compared against — the product-formula step
-(`report-formalize-subspace.html` §3) already discharged. -/
+`|A − δB|·|B| / max(|A|,|B|)² · |A|₂|B|₂ · |A|₃|B|₃`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 lemma approxProduct_pair_eq (δ : ℚ) (A B : ℤ) (hAB : IsCoprime A B) :
     approxProduct {Rat.AbsoluteValue.real, padic 2, padic 3} (Lforms δ) ![(A : ℚ), (B : ℚ)]
@@ -319,40 +236,7 @@ lemma approxProduct_pair_eq (δ : ℚ) (A B : ℤ) (hAB : IsCoprime A B) :
     LinearMap.smul_apply, LinearMap.proj_apply, smul_eq_mul]
   ring
 
-/-- **The Ridout engine, wired to the Corvaja–Zannier forms** (sorry-free, resting only on
-`Subspace.evertseSchlickewei` via `Ridout.finite_ratios`): for every `ε' > 0` the ratios
-`x₁/x₀` of the nonzero rational solutions of the `S = {∞,2,3}` Subspace inequality with forms
-`Lforms δ` form a **finite set**.  This is the whole `Subspace → Ridout → CZ-forms` chain,
-assembled.  Discharging `hcore` is now exactly: show each good triple's orbit point is one of
-these solutions — the `M`-bound `approxProduct ≤ mulHeight^{-2-ε'}` of
-`report-formalize-subspace.html` §3, which via `approxProduct_pair_eq` reduces to the
-elementary `|A − δB| ≤ max(|A|,|B|)^{-1-ε'}` — and that the fibres of `triple ↦ ratio` are
-finite (bounding `height23` and `q`, via `finite_height23_le`). -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma finite_ratios_cz (δ : ℚ) (ε' : ℝ) (hε' : 0 < ε') :
-    {r : ℚ | ∃ x : Fin 2 → ℚ, x ≠ 0 ∧ x 0 ≠ 0 ∧ r = x 1 / x 0 ∧
-      approxProduct {Rat.AbsoluteValue.real, padic 2, padic 3} (Lforms δ) x
-        ≤ Height.mulHeight x ^ (-(2 : ℝ) - ε')}.Finite :=
-  Ridout.finite_ratios _ (Lforms δ) (fun v _ => lforms_linearIndependent δ v) ε' hε'
-
-/-!
-### STEP 3 tooling — scale invariance and the height bound
-
-Writing `M := mulHeight ![p₀, q·2^x·3^y]` and `Φ := |A|₂|B|₂·|A|₃|B|₃` for the finite-place
-factors of `approxProduct_pair_eq`, and using `|A−δB| = B·‖sval‖/(q·2^x·3^y)`, the Subspace
-product on the coprime representative is
-  `approxProduct = B²·‖sval‖·Φ / (q·2^x·3^y · M²)`.
-**Caution (corrected 2026-07-13).** One must *not* bound `Φ ≤ 1` here: that discards the p-adic
-gain and the ε-inequality then fails (it would demand `height23^{-1-ε} ≤ height23^{-2-ε'}`).  The
-p-adic factor is `Φ = 2^{-|v₂(r)|}·3^{-|v₃(r)|}` (`r = p₀/(q·2^x·3^y)`), which supplies exactly the
-missing `1/height23`; `Φ` is *anti-correlated* with `M` (when the `S`-unit cancels into `p₀`,
-`Φ → 1` but `M → q`).  So `hkey` needs the p-adic valuations computed, not bounded — the genuine
-Corvaja–Zannier content.  **Executed below** (`key_num_le`) via `ordCompl` prime-to-6 parts on
-the coprime representative directly: `|m|₂·|m|₃·|m| = m₆′` exactly, and the divisibilities
-`A ∣ p₀·2^{x⁻}3^{y⁻}`, `B ∣ q·2^{x⁺}3^{y⁺}` give `A₆′ ≤ |p₀|`, `B₆′ ≤ q`.
-`approxProduct_smul` (below) and the polynomial height bound `mulHeight_orbit_le` are retained
-as API (the executed route bounds the height linearly inside `orbit_mem_ratios` instead).
--/
+/-! ### Scale invariance of the Subspace product -/
 
 /-- The local sup-norm scales by `|c|_v`: `‖c • x‖_v = |c|_v · ‖x‖_v`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
@@ -363,8 +247,7 @@ lemma localNorm_smul {n : ℕ} (v : AbsoluteValue ℚ ℝ) (c : ℚ) (x : Fin n 
   rw [Real.mul_iSup_of_nonneg (v.nonneg c)]
 
 /-- **`approxProduct` is scale-invariant** (a projective quantity): `approxProduct S L (c•x) =
-approxProduct S L x` for `c ≠ 0`.  This lets the Subspace product be evaluated on the
-integer representative `![P,Q]` of the orbit point instead of `![p₀, q·2^x·3^y]`. -/
+approxProduct S L x` for `c ≠ 0`, so it may be evaluated on a coprime integer representative. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
 lemma approxProduct_smul {n : ℕ} (S : Finset (AbsoluteValue ℚ ℝ))
     (L : AbsoluteValue ℚ ℝ → Fin n → ((Fin n → ℚ) →ₗ[ℚ] ℚ)) (c : ℚ) (hc : c ≠ 0)
@@ -377,14 +260,7 @@ lemma approxProduct_smul {n : ℕ} (S : Finset (AbsoluteValue ℚ ℝ))
   rw [localNorm_smul, hL, map_mul]
   exact mul_div_mul_left _ _ hvc
 
-/-!
-### STEP 3: the height (`M`-)bound — the orbit point's height is polynomially bounded
-
-`mulHeight_orbit_le` bounds `M = mulHeight ![p₀, q·2^x·3^y] ≤ (|δ|+2)·(q·height23)³`, reached via
-Mathlib's `mulHeight₁_mul_le` / `mulHeight₁_zpow` with no gcd bookkeeping.  (This lossy bound is
-*not* by itself the key inequality — see the caution above — but it feeds the Northcott
-small-`M` case.)
--/
+/-! ### Bounds for `height23` -/
 
 /-- The `S`-unit `2^x·3^y` is bounded by its height `height23`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
@@ -405,710 +281,176 @@ lemma u_le_height23 (x y : ℤ) : (2 : ℚ) ^ x * (3 : ℚ) ^ y ≤ (height23 x 
 lemma one_le_height23 (x y : ℤ) : 1 ≤ height23 x y := by
   rw [height23]; exact le_max_of_le_left (Nat.one_le_iff_ne_zero.mpr (by positivity))
 
-/-- `2^{|x|}·3^{|y|} ≤ height23²` (the numerator·denominator of the `S`-unit). -/
+/-! ## The Main Theorem, from the Subspace-Theorems library
+
+`Γ = ⟨2, 3⟩ ≤ ℝˣ`, the injective encoding `(q, x, y) ↦ (q, 2ˣ3ʸ)`, and the two facts about
+`u = 2ˣ3ʸ` that turn the library's general bound `H(u)^{-ε} |q|^{-[ℚ(u):ℚ]-ε}` into this file's
+`height23^{-ε} q^{-1-ε}`. -/
+
+section MainTheorem
+
+open NumberField IntermediateField
+
+/-- The group `Γ = ⟨2, 3⟩ ≤ ℝˣ` of the Main Theorem in this specialization. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma pow_natAbs_le_height23_sq (x y : ℤ) :
-    2 ^ x.natAbs * 3 ^ y.natAbs ≤ (height23 x y) ^ 2 := by
-  have hx : x.natAbs = x.toNat + (-x).toNat := by omega
-  have hy : y.natAbs = y.toNat + (-y).toNat := by omega
-  rw [hx, hy, pow_add, pow_add]
-  have e1 : 2 ^ x.toNat * 3 ^ y.toNat ≤ height23 x y := by rw [height23]; exact le_max_left _ _
-  have e2 : 2 ^ (-x).toNat * 3 ^ (-y).toNat ≤ height23 x y := by
-    rw [height23]; exact le_max_right _ _
-  calc 2 ^ x.toNat * 2 ^ (-x).toNat * (3 ^ y.toNat * 3 ^ (-y).toNat)
-      = (2 ^ x.toNat * 3 ^ y.toNat) * (2 ^ (-x).toNat * 3 ^ (-y).toNat) := by ring
-    _ ≤ height23 x y * height23 x y := Nat.mul_le_mul e1 e2
-    _ = (height23 x y) ^ 2 := by ring
+noncomputable def gamma23 : Subgroup ℝˣ :=
+  Subgroup.closure {Units.mk0 (2 : ℝ) two_ne_zero, Units.mk0 (3 : ℝ) three_ne_zero}
 
-/-- The height of the `S`-unit part: `H(2^x·3^y) ≤ height23²`. -/
+/-- `Γ = ⟨2, 3⟩` is finitely generated. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma mulHeight₁_sUnit_le (x y : ℤ) :
-    mulHeight₁ ((2:ℚ)^x * (3:ℚ)^y) ≤ ((height23 x y : ℕ) : ℝ) ^ 2 := by
-  have hmul : mulHeight₁ ((2:ℚ)^x * (3:ℚ)^y) ≤ mulHeight₁ ((2:ℚ)^x) * mulHeight₁ ((3:ℚ)^y) :=
-    mulHeight₁_mul_le _ _
-  rw [mulHeight₁_zpow, mulHeight₁_zpow] at hmul
-  have h2 : mulHeight₁ (2:ℚ) = 2 := by
-    rw [show (2:ℚ) = ((2:ℕ):ℚ) by norm_num]; exact_mod_cast Rat.mulHeight₁_natCast 2
-  have h3 : mulHeight₁ (3:ℚ) = 3 := by
-    rw [show (3:ℚ) = ((3:ℕ):ℚ) by norm_num]; exact_mod_cast Rat.mulHeight₁_natCast 3
-  rw [h2, h3] at hmul
-  refine hmul.trans ?_
-  calc (2:ℝ) ^ x.natAbs * (3:ℝ) ^ y.natAbs
-      = ((2 ^ x.natAbs * 3 ^ y.natAbs : ℕ) : ℝ) := by push_cast; ring
-    _ ≤ (((height23 x y) ^ 2 : ℕ) : ℝ) := by exact_mod_cast pow_natAbs_le_height23_sq x y
-    _ = ((height23 x y : ℕ) : ℝ) ^ 2 := by push_cast; ring
+lemma gamma23_fg : gamma23.FG :=
+  (Subgroup.fg_iff _).mpr ⟨_, rfl, Set.toFinite _⟩
 
-/-- The height of the denominator side `q·2^x·3^y ≤ q·height23²`. -/
+/-- Every element of `Γ = ⟨2, 3⟩` is algebraic (it is rational). -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma mulHeight₁_qu_le (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) :
-    mulHeight₁ ((q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y)) ≤ (q:ℝ) * ((height23 x y : ℕ) : ℝ) ^ 2 := by
-  have : NeZero q := ⟨by omega⟩
-  have hqh : mulHeight₁ ((q:ℚ)) = (q:ℝ) := Rat.mulHeight₁_natCast q
-  calc mulHeight₁ ((q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y))
-      ≤ mulHeight₁ ((q:ℚ)) * mulHeight₁ ((2:ℚ)^x * (3:ℚ)^y) := mulHeight₁_mul_le _ _
-    _ = (q:ℝ) * mulHeight₁ ((2:ℚ)^x * (3:ℚ)^y) := by rw [hqh]
-    _ ≤ (q:ℝ) * ((height23 x y : ℕ) : ℝ) ^ 2 := by gcongr; exact mulHeight₁_sUnit_le x y
+lemma gamma23_isAlgebraic : ∀ u ∈ gamma23, IsAlgebraic ℚ (u : ℝ) := by
+  intro u hu
+  induction hu using Subgroup.closure_induction with
+  | mem x hx =>
+    rcases hx with rfl | rfl
+    · simpa using isAlgebraic_algebraMap (R := ℚ) (A := ℝ) (2 : ℚ)
+    · simpa using isAlgebraic_algebraMap (R := ℚ) (A := ℝ) (3 : ℚ)
+  | one => simpa using isAlgebraic_one
+  | mul x y _ _ hx hy => simpa using hx.mul hy
+  | inv x _ hx => simpa using hx.inv
 
-/-- The height of the numerator side `p₀ = round(sval) ≤ (|δ|+2)·q·height23`
-(from `|round w| ≤ |w| + ½` and `2^x·3^y ≤ height23`). -/
+/-- The element `2ˣ3ʸ` of `Γ`: the exponent encoding of `CZ.sval`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma mulHeight₁_p0_le (δ : ℚ) (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) :
-    mulHeight₁ ((round (sval δ q x y) : ℤ) : ℚ) ≤ (|δ| + 2) * q * (height23 x y : ℝ) := by
-  set w := sval δ q x y with hw
-  rw [Rat.cast_abs]
-  have hmh : mulHeight₁ ((round w : ℤ) : ℚ) = max ((round w).natAbs : ℝ) 1 := by
-    rw [Rat.mulHeight₁_eq_max]; simp [Rat.num_intCast, Rat.den_intCast, Nat.cast_max]
-  rw [hmh]
-  have hroundQ : |((round w : ℤ) : ℚ)| ≤ |w| + 1/2 := by
-    have h := abs_sub_round w
-    have h2 := abs_sub_abs_le_abs_sub ((round w : ℤ) : ℚ) w
-    rw [abs_sub_comm] at h2; linarith
-  have hround : |((round w : ℤ) : ℝ)| ≤ |(w : ℝ)| + 1/2 := by
-    have h : ((|((round w : ℤ) : ℚ)| : ℚ) : ℝ) ≤ ((|w| + 1/2 : ℚ) : ℝ) := Rat.cast_le.mpr hroundQ
-    push_cast at h; exact h
-  have hu : (2:ℝ)^x * (3:ℝ)^y ≤ (height23 x y : ℝ) := by
-    calc (2:ℝ)^x*(3:ℝ)^y = (((2:ℚ)^x*(3:ℚ)^y : ℚ) : ℝ) := by push_cast; ring
-      _ ≤ ((height23 x y : ℚ) : ℝ) := by exact_mod_cast u_le_height23 x y
-      _ = (height23 x y : ℝ) := by push_cast; ring
-  have hwabs : |(w : ℝ)| ≤ |(δ:ℝ)| * q * (height23 x y : ℝ) := by
-    have hexp : (0:ℝ) < (2:ℝ)^x * (3:ℝ)^y := by positivity
-    have hcast : (w : ℝ) = (δ : ℝ) * q * ((2:ℝ)^x * (3:ℝ)^y) := by rw [hw, sval]; push_cast; ring
-    rw [hcast, abs_mul, abs_mul, abs_of_nonneg (by positivity : (0:ℝ) ≤ (q:ℝ)), abs_of_pos hexp]
-    gcongr
-  have hnatabs : ((round w).natAbs : ℝ) = |((round w : ℤ) : ℝ)| := by
-    rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-  have hmax : max ((round w).natAbs : ℝ) 1 ≤ ((round w).natAbs : ℝ) + 1 := by
-    have : (0:ℝ) ≤ ((round w).natAbs : ℝ) := by positivity
-    exact max_le (by linarith) (by linarith)
-  have hh1 : (1:ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-  have hq1 : (1:ℝ) ≤ (q:ℝ) := by exact_mod_cast hq
-  calc max ((round w).natAbs : ℝ) 1
-      ≤ ((round w).natAbs : ℝ) + 1 := hmax
-    _ = |((round w : ℤ) : ℝ)| + 1 := by rw [hnatabs]
-    _ ≤ (|(δ:ℝ)| * q * (height23 x y : ℝ) + 1/2) + 1 := by linarith
-    _ ≤ (|(δ:ℝ)| + 2) * q * (height23 x y : ℝ) := by
-        have hqh : (1:ℝ) ≤ (q:ℝ) * (height23 x y : ℝ) :=
-          hq1.trans (le_mul_of_one_le_right (by positivity) hh1)
-        have hexp : (|(δ:ℝ)| + 2) * q * (height23 x y : ℝ)
-            = |(δ:ℝ)| * q * (height23 x y : ℝ) + 2 * ((q:ℝ) * (height23 x y : ℝ)) := by ring
-        rw [hexp]; linarith
+noncomputable def unit23 (x y : ℤ) : gamma23 :=
+  ⟨Units.mk0 (2 : ℝ) two_ne_zero ^ x * Units.mk0 (3 : ℝ) three_ne_zero ^ y,
+    gamma23.mul_mem (gamma23.zpow_mem (Subgroup.subset_closure (by simp)) x)
+      (gamma23.zpow_mem (Subgroup.subset_closure (by simp)) y)⟩
 
-/-- **The orbit point's projective height is polynomially bounded** by `q·height23`:
-`mulHeight ![p₀, q·2^x·3^y] ≤ (|δ|+2)·(q·height23)³`, where `p₀ = round(sval δ q x y)`.  This
-is the `M`-bound of `report-formalize-subspace.html` §3 — lossy but polynomial, which is all the
-ε-juggling needs (`ε' < ε/3`).  It combines the numerator/denominator height factors
-(`mulHeight₁_p0_le`, `mulHeight₁_qu_le`) via `mulHeight₁_mul_le`, sidestepping the gcd/coprime
-reduction entirely. -/
+/-- `2ˣ3ʸ ∈ Γ` is the real number `2ˣ3ʸ`, a rational. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma mulHeight_orbit_le (δ : ℚ) (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) :
-    mulHeight ![((round (sval δ q x y) : ℤ) : ℚ), (q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y)]
-      ≤ (|δ| + 2) * ((q:ℝ) * (height23 x y : ℝ)) ^ 3 := by
-  set p₀ : ℚ := ((round (sval δ q x y) : ℤ) : ℚ) with hp₀
-  set qu : ℚ := (q:ℚ) * ((2:ℚ)^x * (3:ℚ)^y) with hqu
-  have hprod : mulHeight ![p₀, qu] ≤ mulHeight₁ p₀ * mulHeight₁ qu := by
-    rw [← mulHeight₁_div_eq_mulHeight, div_eq_mul_inv]
-    exact (mulHeight₁_mul_le _ _).trans (le_of_eq (by rw [mulHeight₁_inv]))
-  have hp0 := mulHeight₁_p0_le δ q hq x y
-  have hqub := mulHeight₁_qu_le q hq x y
-  have hh1 : (1:ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-  have hq1 : (1:ℝ) ≤ (q:ℝ) := by exact_mod_cast hq
-  refine hprod.trans (le_trans (mul_le_mul hp0 hqub (by positivity) (by positivity)) ?_)
-  have hqh0 : (0:ℝ) ≤ (q:ℝ) * (height23 x y : ℝ) := by positivity
-  have hδ : (0:ℝ) ≤ |δ| + 2 := by positivity
-  nlinarith [mul_nonneg hqh0 hqh0, hq1, hh1, sq_nonneg ((q:ℝ)*(height23 x y:ℝ)),
-    mul_le_mul_of_nonneg_left hq1 (mul_nonneg hδ (mul_nonneg hqh0 hqh0))]
+lemma unit23_val (x y : ℤ) :
+    (((unit23 x y : gamma23) : ℝˣ) : ℝ) = (((2 : ℚ) ^ x * (3 : ℚ) ^ y : ℚ) : ℝ) := by
+  simp [unit23, Units.val_zpow_eq_zpow_val]
 
-/-!
-### STEP 3, the `hkey` cancellation: prime-to-6 parts and the exact p-adic identity
-
-The p-adic factors of the Subspace product are **computed exactly** (see the caution above):
-for a nonzero integer `m`, `|m|₂·|m|₃·|m| = m₆′`, the prime-to-6 part of `m`
-(`padic_mul_padic_natAbs`).  Together with the divisibilities `A ∣ p₀·D`, `B ∣ q·N`
-(`D = 2^{x⁻}3^{y⁻}`, `N = 2^{x⁺}3^{y⁺}`) of the coprime representative, the Subspace-product
-numerator collapses **exactly** to `‖v‖·A₆′·B₆′/|p₀| ≤ ‖v‖·q` (`key_num_le`) — this is the
-Corvaja–Zannier cancellation, where the `1/height23` earned by the `S`-unit denominator is
-supplied by the p-adic places.
--/
-
-/-- The prime-to-6 part of a natural number: divide out all factors `2` and `3`. -/
-private def sixCompl (n : ℕ) : ℕ := ordCompl[3] (ordCompl[2] n)
-
-private lemma sixCompl_pos {n : ℕ} (hn : n ≠ 0) : 0 < sixCompl n :=
-  Nat.ordCompl_pos 3 (Nat.ordCompl_pos 2 hn).ne'
-
-private lemma sixCompl_le (n : ℕ) : sixCompl n ≤ n :=
-  le_trans (Nat.ordCompl_le _ 3) (Nat.ordCompl_le n 2)
-
-private lemma sixCompl_dvd_sixCompl {m n : ℕ} (h : m ∣ n) : sixCompl m ∣ sixCompl n :=
-  Nat.ordCompl_dvd_ordCompl_of_dvd (Nat.ordCompl_dvd_ordCompl_of_dvd h 2) 3
-
-private lemma ordCompl_two_pow_three (b : ℕ) : ordCompl[2] (3 ^ b) = 3 ^ b := by
-  refine (Nat.ordCompl_eq_self_iff_zero_or_not_dvd _ Nat.prime_two).mpr (Or.inr ?_)
-  intro h
-  have := Nat.Prime.dvd_of_dvd_pow Nat.prime_two h
-  norm_num at this
-
-private lemma sixCompl_mul_pow23 (n a b : ℕ) : sixCompl (n * (2 ^ a * 3 ^ b)) = sixCompl n := by
-  unfold sixCompl
-  rw [Nat.ordCompl_mul, Nat.ordCompl_mul (2 ^ a), Nat.ordCompl_self_pow Nat.prime_two,
-    one_mul, ordCompl_two_pow_three, Nat.ordCompl_mul, Nat.ordCompl_self_pow Nat.prime_three,
-    mul_one]
-
-private lemma sixCompl_le_of_dvd_mul {m n : ℕ} (a b : ℕ) (hn : n ≠ 0)
-    (h : m ∣ n * (2 ^ a * 3 ^ b)) : sixCompl m ≤ n :=
-  le_trans (Nat.le_of_dvd (sixCompl_pos hn)
-    ((sixCompl_mul_pow23 n a b) ▸ sixCompl_dvd_sixCompl h)) (sixCompl_le n)
-
-private lemma padic_int_zpow (p : ℕ) [Fact p.Prime] (m : ℤ) (hm : m ≠ 0) :
-    padic p (m : ℚ) = (p : ℝ) ^ (-(padicValNat p m.natAbs : ℤ)) := by
-  rw [padic_eq_padicNorm,
-    padicNorm.eq_zpow_of_nonzero (by exact_mod_cast hm), padicValRat.of_int]
-  push_cast [padicValInt]
-  norm_num
-
-/-- The exact p-adic identity: `|m|₂ · |m|₃ · |m| = m₆′`, the prime-to-6 part of `m`. -/
-private lemma padic_mul_padic_natAbs (m : ℤ) (hm : m ≠ 0) :
-    padic 2 (m : ℚ) * padic 3 (m : ℚ) * (m.natAbs : ℝ) = (sixCompl m.natAbs : ℝ) := by
-  set n := m.natAbs with hndef
-  have hn0 : n ≠ 0 := Int.natAbs_ne_zero.mpr hm
-  set a := n.factorization 2 with hadef
-  set b := n.factorization 3 with hbdef
-  have hva : padicValNat 2 n = a := (Nat.factorization_def n Nat.prime_two).symm
-  have hvb : padicValNat 3 n = b := (Nat.factorization_def n Nat.prime_three).symm
-  -- decomposition n = 2^a * (3^b * sixCompl n)
-  have hd2 : 2 ^ a * ordCompl[2] n = n := Nat.ordProj_mul_ordCompl_eq_self n 2
-  have hb' : (ordCompl[2] n).factorization 3 = b := by
-    rw [Nat.factorization_ordCompl, Finsupp.erase_ne (by norm_num : (3 : ℕ) ≠ 2)]
-  have hd3 : 3 ^ b * sixCompl n = ordCompl[2] n := by
-    conv_lhs => rw [← hb']
-    exact Nat.ordProj_mul_ordCompl_eq_self (ordCompl[2] n) 3
-  have hn_eq : n = 2 ^ a * (3 ^ b * sixCompl n) := by rw [hd3, hd2]
-  rw [padic_int_zpow 2 m hm, padic_int_zpow 3 m hm, hva, hvb]
-  rw [show ((n : ℝ)) = ((2 ^ a * (3 ^ b * sixCompl n) : ℕ) : ℝ) from by rw [← hn_eq]]
-  push_cast
-  rw [zpow_neg, zpow_neg, zpow_natCast, zpow_natCast]
-  have h2 : ((2 : ℝ) ^ a) ≠ 0 := by positivity
-  have h3 : ((3 : ℝ) ^ b) ≠ 0 := by positivity
-  field_simp
-
-/-! ### Round of a value of modulus `> 1` is nonzero -/
-
-private lemma round_ne_zero_of_one_lt_abs {w : ℚ} (h : 1 < |w|) : round w ≠ 0 := by
-  intro h0
-  have h1 := abs_sub_round w
-  rw [h0] at h1
-  simp only [Int.cast_zero, sub_zero] at h1
-  linarith
-
-/-! ### The key numerator bound -/
-
-/-- **The Corvaja–Zannier cancellation**: for the coprime representative `(A, B)` of the
-orbit ratio `p₀/(q·2^x·3^y)`, the Subspace-product numerator collapses to
-`‖v‖·A₆′·B₆′/|p₀| ≤ ‖v‖·q`.  The p-adic factors are *computed* (via the prime-to-6 parts),
-not bounded by `1`. -/
-private lemma key_num_le (δ : ℚ) (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) (A B : ℤ)
-    (hA : A ≠ 0) (hB : 0 < B)
-    (hcross : (A : ℚ) * ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y))
-      = (B : ℚ) * ((round (sval δ q x y) : ℤ) : ℚ))
-    (hAdvd : A.natAbs ∣ (round (sval δ q x y)).natAbs * (2 ^ (-x).toNat * 3 ^ (-y).toNat))
-    (hBdvd : B.natAbs ∣ q * (2 ^ x.toNat * 3 ^ y.toNat))
-    (hp₀ : round (sval δ q x y) ≠ 0) :
-    real ((A : ℚ) - δ * (B : ℚ)) * real ((B : ℤ) : ℚ)
-      * (padic 2 (A : ℚ) * padic 2 (B : ℚ)) * (padic 3 (A : ℚ) * padic 3 (B : ℚ))
-      ≤ ((sval δ q x y).distToNearestInt : ℝ) * q := by
-  set v := sval δ q x y with hvdef
-  set p₀ := round v with hp₀def
-  set u : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y with hudef
-  have hu0 : (0 : ℚ) < u := by positivity
-  have hq0 : (0 : ℚ) < (q : ℚ) := by exact_mod_cast hq
-  have hqu0 : (0 : ℚ) < (q : ℚ) * u := mul_pos hq0 hu0
-  have hBQ : (0 : ℚ) < (B : ℚ) := by exact_mod_cast hB
-  -- six-part bounds
-  have ha6 : sixCompl A.natAbs ≤ p₀.natAbs :=
-    sixCompl_le_of_dvd_mul _ _ (Int.natAbs_ne_zero.mpr hp₀) hAdvd
-  have hb6 : sixCompl B.natAbs ≤ q :=
-    sixCompl_le_of_dvd_mul _ _ (by omega) hBdvd
-  -- exact p-adic identities
-  have hA6 := padic_mul_padic_natAbs A hA
-  have hB6 := padic_mul_padic_natAbs B hB.ne'
-  -- archimedean identity (in ℚ): |A − δB| · (q·u) = B · ‖v‖
-  have harch : |(A : ℚ) - δ * B| * ((q : ℚ) * u) = (B : ℚ) * v.distToNearestInt := by
-    have hveq : v = δ * ((q : ℚ) * u) := by rw [hvdef, sval, hudef]; ring
-    have h1 : ((A : ℚ) - δ * B) * ((q : ℚ) * u) = (B : ℚ) * ((p₀ : ℚ) - v) := by
-      calc ((A : ℚ) - δ * B) * ((q : ℚ) * u)
-          = (A : ℚ) * ((q : ℚ) * u) - (B : ℚ) * (δ * ((q : ℚ) * u)) := by ring
-        _ = (B : ℚ) * (p₀ : ℚ) - (B : ℚ) * v := by rw [hcross, ← hveq]
-        _ = (B : ℚ) * ((p₀ : ℚ) - v) := by ring
-    calc |(A : ℚ) - δ * B| * ((q : ℚ) * u)
-        = |((A : ℚ) - δ * B) * ((q : ℚ) * u)| := by rw [abs_mul, abs_of_pos hqu0]
-      _ = |(B : ℚ) * ((p₀ : ℚ) - v)| := by rw [h1]
-      _ = (B : ℚ) * |v - (p₀ : ℚ)| := by rw [abs_mul, abs_of_pos hBQ, abs_sub_comm]
-      _ = (B : ℚ) * v.distToNearestInt := by rw [Rat.distToNearestInt, ← hp₀def]
-  -- |A| cross identity (in ℚ): |A| · (q·u) = B · |p₀|
-  have hcrossAbs : (A.natAbs : ℚ) * ((q : ℚ) * u) = (B : ℚ) * (p₀.natAbs : ℚ) := by
-    have h2 := congrArg abs hcross
-    rw [abs_mul (A : ℚ), abs_mul (B : ℚ), abs_of_pos hqu0, abs_of_pos hBQ] at h2
-    have hAabs : |(A : ℚ)| = (A.natAbs : ℚ) := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    have hPabs : |((p₀ : ℤ) : ℚ)| = (p₀.natAbs : ℚ) := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    rw [hAabs, hPabs] at h2
-    exact h2
-  -- move to ℝ: push everything into the common `push_cast` normal form
-  have hd0 : (0 : ℝ) ≤ (v.distToNearestInt : ℝ) := by
-    exact_mod_cast v.distToNearestInt_nonneg
-  have hα0 : (0 : ℝ) < (A.natAbs : ℝ) := by
-    exact_mod_cast Int.natAbs_pos.mpr hA
-  have hu0R : (0 : ℝ) < (u : ℝ) := by exact_mod_cast hu0
-  have hq0R : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq0
-  have hBR : (0 : ℝ) < ((B : ℤ) : ℝ) := by exact_mod_cast hB
-  have hBZ : (B.natAbs : ℤ) = B := Int.natAbs_of_nonneg hB.le
-  have hBcast : ((B.natAbs : ℕ) : ℝ) = ((B : ℤ) : ℝ) := by
-    conv_rhs => rw [← hBZ]
-    rw [Int.cast_natCast]
-  have F1 : |(A : ℝ) - (δ : ℝ) * ((B : ℤ) : ℝ)| * ((q : ℝ) * (u : ℝ))
-      = ((B : ℤ) : ℝ) * (v.distToNearestInt : ℝ) := by
-    exact_mod_cast harch
-  have F2 : ((A.natAbs : ℕ) : ℝ) * ((q : ℝ) * (u : ℝ))
-      = ((B : ℤ) : ℝ) * ((p₀.natAbs : ℕ) : ℝ) := by
-    have h := congrArg (fun z : ℚ => (z : ℝ)) hcrossAbs
-    push_cast at h
-    exact h
-  rw [hBcast] at hB6
-  -- assemble
-  rw [real_eq_abs, real_eq_abs]
-  push_cast
-  rw [abs_of_pos hBR]
-  refine le_of_mul_le_mul_right ?_ (mul_pos hα0 (mul_pos hq0R hu0R))
-  calc |(A : ℝ) - (δ : ℝ) * (B : ℝ)| * (B : ℝ)
-        * (padic 2 (A : ℚ) * padic 2 (B : ℚ)) * (padic 3 (A : ℚ) * padic 3 (B : ℚ))
-        * ((A.natAbs : ℝ) * ((q : ℝ) * (u : ℝ)))
-      = (|(A : ℝ) - (δ : ℝ) * (B : ℝ)| * ((q : ℝ) * (u : ℝ)))
-        * ((padic 2 (A : ℚ) * padic 3 (A : ℚ)) * (A.natAbs : ℝ))
-        * ((padic 2 (B : ℚ) * padic 3 (B : ℚ)) * (B : ℝ)) := by ring
-    _ = ((B : ℝ) * (v.distToNearestInt : ℝ))
-        * (sixCompl A.natAbs : ℝ) * (sixCompl B.natAbs : ℝ) := by
-        rw [F1, hA6, hB6]
-    _ ≤ ((B : ℝ) * (v.distToNearestInt : ℝ)) * (p₀.natAbs : ℝ) * (q : ℝ) := by
-        have h6a : (sixCompl A.natAbs : ℝ) ≤ (p₀.natAbs : ℝ) := by exact_mod_cast ha6
-        have h6b : (sixCompl B.natAbs : ℝ) ≤ (q : ℝ) := by exact_mod_cast hb6
-        have hBd : (0 : ℝ) ≤ (B : ℝ) * (v.distToNearestInt : ℝ) :=
-          mul_nonneg hBR.le hd0
-        have h6b0 : (0 : ℝ) ≤ (sixCompl B.natAbs : ℝ) := by positivity
-        have hP0 : (0 : ℝ) ≤ (p₀.natAbs : ℝ) := by positivity
-        exact mul_le_mul (mul_le_mul_of_nonneg_left h6a hBd) h6b h6b0
-          (mul_nonneg hBd hP0)
-    _ = ((v.distToNearestInt : ℝ) * (q : ℝ)) * ((B : ℝ) * (p₀.natAbs : ℝ)) := by ring
-    _ = ((v.distToNearestInt : ℝ) * (q : ℝ)) * ((A.natAbs : ℝ) * ((q : ℝ) * (u : ℝ))) := by
-        rw [← F2]
-
-
-/-! ### The orbit point solves the Ridout inequality (`hkey`, assembled) -/
-
-/-- **The Ridout membership of the orbit point** — the `hkey` inequality of
-`report-formalize-subspace.html` §3, discharged: for every good triple `(q, x, y)` with
-`q·height23 ≥ |δ| + 1`, the coprime representative `![A, B]` of the orbit point
-`[p₀ : q·2^x·3^y]` (`p₀ = round(sval)`) solves the `S = {∞, 2, 3}` Subspace inequality
-`approxProduct ≤ mulHeight^{-2-ε/2}`, so its ratio `q·2^x·3^y/p₀` lies in the finite ratio set
-of `finite_ratios_cz δ (ε/2)`.  Combines `key_num_le` (the exact p-adic cancellation), the
-linear height bound `M ≤ (|δ|+1)·q·h ≤ (q·h)²`, and the approximation hypothesis
-`‖v‖ < h^{-ε}·q^{-1-ε}`. -/
+/-- `aˣ = a^{x⁺} / a^{x⁻}`. -/
 @[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma orbit_mem_ratios (δ : ℚ) (ε : ℝ) (hε : 0 < ε) (q : ℕ) (x y : ℤ) (hq : 1 ≤ q)
-    (hv1 : 1 < |sval δ q x y|)
-    (hlt : ((sval δ q x y).distToNearestInt : ℝ)
-      < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε))
-    (hlarge : |(δ : ℝ)| + 1 ≤ (q : ℝ) * (height23 x y : ℝ)) :
-    ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y)) / ((round (sval δ q x y) : ℤ) : ℚ) ∈
-      {r : ℚ | ∃ x' : Fin 2 → ℚ, x' ≠ 0 ∧ x' 0 ≠ 0 ∧ r = x' 1 / x' 0 ∧
-        approxProduct {Rat.AbsoluteValue.real, padic 2, padic 3} (Lforms δ) x'
-          ≤ mulHeight x' ^ (-(2 : ℝ) - ε / 2)} := by
-  set v := sval δ q x y with hvdef
-  set p₀ := round v with hp₀def
-  have hp₀ : p₀ ≠ 0 := round_ne_zero_of_one_lt_abs hv1
-  set u : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y with hudef
-  have hu0 : (0 : ℚ) < u := by positivity
-  have hq0 : (0 : ℚ) < (q : ℚ) := by exact_mod_cast hq
-  have hqu0 : (0 : ℚ) < (q : ℚ) * u := mul_pos hq0 hu0
-  set r : ℚ := ((p₀ : ℤ) : ℚ) / ((q : ℚ) * u) with hrdef
-  have hr0 : r ≠ 0 := div_ne_zero (Int.cast_ne_zero.mpr hp₀) hqu0.ne'
-  set A : ℤ := r.num with hAdef
-  set B : ℤ := (r.den : ℤ) with hBdef
-  have hA : A ≠ 0 := Rat.num_ne_zero.mpr hr0
-  have hB : 0 < B := by
-    rw [hBdef]
-    exact_mod_cast Nat.pos_of_ne_zero r.den_nz
-  have hAB : IsCoprime A B := by
-    rw [Int.isCoprime_iff_gcd_eq_one, hAdef, hBdef]
-    simpa [Int.gcd, Int.natAbs_natCast] using r.reduced
-  have hAeq : (A : ℚ) / ((B : ℤ) : ℚ) = r := by
-    rw [hAdef, hBdef]
+lemma zpow_eq_div_toNat (a : ℚ) (x : ℤ) : a ^ x = a ^ x.toNat / a ^ (-x).toNat := by
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg x <;> simp
+
+/-- **The absolute height of `2ˣ3ʸ` is at most `height23 x y`** (in fact equal): `H` of a
+rational is `max(|num|, den)`, and `2ˣ3ʸ = A / B` with `max(A, B) = height23 x y`. -/
+@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
+lemma absMulHeight₁_unit23_le (x y : ℤ) :
+    absMulHeight₁ ((((2 : ℚ) ^ x * (3 : ℚ) ^ y : ℚ) : ℝ)) ≤ height23 x y := by
+  set r : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y
+  have hcomp := absMulHeight₁_comp (Algebra.ofId ℚ ℝ) r
+  rw [show (Algebra.ofId ℚ ℝ) r = (r : ℝ) from rfl] at hcomp
+  rw [hcomp]
+  have h := absMulHeight₁_pow_finrank r
+  rw [Module.finrank_self, pow_one, Rat.mulHeight₁_eq_max] at h
+  rw [h]
+  set A : ℤ := 2 ^ x.toNat * 3 ^ y.toNat
+  set B : ℤ := 2 ^ (-x).toNat * 3 ^ (-y).toNat
+  have hA : 0 < A := by positivity
+  have hB : 0 < B := by positivity
+  have hr : r = Rat.divInt A B := by
+    rw [Rat.divInt_eq_div]
+    simp only [r, A, B, zpow_eq_div_toNat (2 : ℚ) x, zpow_eq_div_toNat (3 : ℚ) y]
     push_cast
-    exact r.num_div_den
-  -- the cross identity in ℚ
-  have hcross : (A : ℚ) * ((q : ℚ) * u) = ((B : ℤ) : ℚ) * ((p₀ : ℤ) : ℚ) := by
-    have h : (A : ℚ) / ((B : ℤ) : ℚ) = ((p₀ : ℤ) : ℚ) / ((q : ℚ) * u) := by
-      rw [hAeq, hrdef]
-    rw [div_eq_div_iff (Int.cast_ne_zero.mpr hB.ne') hqu0.ne'] at h
-    linear_combination h
-  -- the S-unit denominator/numerator identity  u·D = N
-  have hND : u * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)
-      = ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ) := by
-    push_cast
-    rw [hudef,
-      show ((2 : ℚ) ^ ((-x).toNat)) = (2 : ℚ) ^ (((-x).toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((3 : ℚ) ^ ((-y).toNat)) = (3 : ℚ) ^ (((-y).toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((2 : ℚ) ^ (x.toNat)) = (2 : ℚ) ^ ((x.toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((3 : ℚ) ^ (y.toNat)) = (3 : ℚ) ^ ((y.toNat : ℤ)) from (zpow_natCast _ _).symm,
-      mul_mul_mul_comm, ← zpow_add₀ (by norm_num : (2 : ℚ) ≠ 0),
-      ← zpow_add₀ (by norm_num : (3 : ℚ) ≠ 0),
-      show x + ((-x).toNat : ℤ) = (x.toNat : ℤ) by omega,
-      show y + ((-y).toNat : ℤ) = (y.toNat : ℤ) by omega]
-  -- the cross identity in ℤ
-  have hcrossZ : A * ((q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ))
-      = B * (p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ)) := by
-    have h2 : (A : ℚ) * ((q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ))
-        = ((B : ℤ) : ℚ) * (((p₀ : ℤ) : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)) := by
-      calc (A : ℚ) * ((q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ))
-          = (A : ℚ) * ((q : ℚ) * (u * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ))) := by
-            rw [hND]
-        _ = ((A : ℚ) * ((q : ℚ) * u)) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by
-            ring
-        _ = (((B : ℤ) : ℚ) * ((p₀ : ℤ) : ℚ)) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by
-            rw [hcross]
-        _ = ((B : ℤ) : ℚ) * (((p₀ : ℤ) : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)) := by
-            ring
-    exact_mod_cast h2
-  -- divisibilities
-  have hAdvdZ : A ∣ p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ) :=
-    hAB.dvd_of_dvd_mul_left
-      ⟨(q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ), hcrossZ.symm⟩
-  have hBdvdZ : B ∣ (q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ) :=
-    hAB.symm.dvd_of_dvd_mul_left
-      ⟨p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ), hcrossZ⟩
-  have hAdvdN : A.natAbs ∣ p₀.natAbs * (2 ^ (-x).toNat * 3 ^ (-y).toNat) := by
-    have h := Int.natAbs_dvd_natAbs.mpr hAdvdZ
-    rwa [Int.natAbs_mul, Int.natAbs_natCast] at h
-  have hBdvdN : B.natAbs ∣ q * (2 ^ x.toNat * 3 ^ y.toNat) := by
-    have h := Int.natAbs_dvd_natAbs.mpr hBdvdZ
-    rwa [Int.natAbs_mul, Int.natAbs_natCast, Int.natAbs_natCast] at h
-  -- the key numerator bound
-  have hnum := key_num_le δ q hq x y A B hA hB hcross hAdvdN hBdvdN hp₀
-  -- size bounds for the height
-  have hNleh : (2 ^ x.toNat * 3 ^ y.toNat : ℕ) ≤ height23 x y := by
-    rw [height23]; exact le_max_left _ _
-  have hDleh : (2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) ≤ height23 x y := by
-    rw [height23]; exact le_max_right _ _
-  have hh1 : (1 : ℚ) ≤ (height23 x y : ℚ) := by exact_mod_cast one_le_height23 x y
-  have hq1 : (1 : ℚ) ≤ (q : ℚ) := by exact_mod_cast hq
-  have hp₀le : (p₀.natAbs : ℚ) ≤ |δ| * ((q : ℚ) * u) + 1 / 2 := by
-    have habs : ((p₀.natAbs : ℕ) : ℚ) = |((p₀ : ℤ) : ℚ)| := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    have h1 : |((p₀ : ℤ) : ℚ)| ≤ |v| + 1 / 2 := by
-      have h := abs_sub_round v
-      have h2 := abs_sub_abs_le_abs_sub ((round v : ℤ) : ℚ) v
-      rw [abs_sub_comm] at h2
-      rw [hp₀def]
-      linarith
-    have hveq : |v| = |δ| * ((q : ℚ) * u) := by
-      rw [hvdef, sval, ← hudef]
-      rw [show δ * (q : ℚ) * u = δ * ((q : ℚ) * u) from by ring, abs_mul,
-        abs_of_pos hqu0]
-    rw [habs]
-    linarith
-  have hAsize : (A.natAbs : ℚ)
-      ≤ (p₀.natAbs : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by
-    have h := Nat.le_of_dvd
-      (Nat.mul_pos (Int.natAbs_pos.mpr hp₀) (by positivity)) hAdvdN
-    exact_mod_cast h
-  have hBsize : (B.natAbs : ℚ) ≤ (q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ) := by
-    have h := Nat.le_of_dvd (Nat.mul_pos (by omega) (by positivity)) hBdvdN
-    exact_mod_cast h
-  -- M ≤ (|δ|+1)·q·h in ℚ
-  have hMQ : ((max r.num.natAbs r.den : ℕ) : ℚ)
-      ≤ (|δ| + 1) * ((q : ℚ) * (height23 x y : ℚ)) := by
-    rw [Nat.cast_max]
-    have hNQ : ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ) ≤ (height23 x y : ℚ) := by
-      exact_mod_cast hNleh
-    have hDQ : ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) ≤ (height23 x y : ℚ) := by
-      exact_mod_cast hDleh
-    have hD0 : (0 : ℚ) ≤ ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by positivity
-    apply max_le
-    · calc (r.num.natAbs : ℚ)
-          ≤ (p₀.natAbs : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := hAsize
-        _ ≤ (|δ| * ((q : ℚ) * u) + 1 / 2) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) :=
-            mul_le_mul_of_nonneg_right hp₀le hD0
-        _ = |δ| * (q : ℚ) * (u * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ))
-            + ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) / 2 := by ring
-        _ = |δ| * (q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ)
-            + ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) / 2 := by rw [hND]
-        _ ≤ |δ| * (q : ℚ) * (height23 x y : ℚ) + (height23 x y : ℚ) / 2 := by
-            gcongr
-        _ ≤ (|δ| + 1) * ((q : ℚ) * (height23 x y : ℚ)) := by
-            have hqh_h : (height23 x y : ℚ) ≤ (q : ℚ) * (height23 x y : ℚ) :=
-              le_mul_of_one_le_left (by linarith) hq1
-            nlinarith [hqh_h]
-    · calc (r.den : ℚ) = (B.natAbs : ℚ) := by rw [hBdef, Int.natAbs_natCast]
-        _ ≤ (q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ) := hBsize
-        _ ≤ (q : ℚ) * (height23 x y : ℚ) := by gcongr
-        _ ≤ (|δ| + 1) * ((q : ℚ) * (height23 x y : ℚ)) := by
-            refine le_mul_of_one_le_left ?_ ?_
-            · positivity
-            · linarith [abs_nonneg δ]
-  -- cast the M-bound to ℝ and square it
-  have hMR : ((max r.num.natAbs r.den : ℕ) : ℝ)
-      ≤ (|(δ : ℝ)| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := by
-    exact_mod_cast hMQ
-  have hqh1 : (1 : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_trans (by linarith [abs_nonneg ((δ : ℝ))]) hlarge
-  have hqh0 : (0 : ℝ) < (q : ℝ) * (height23 x y : ℝ) := lt_of_lt_of_le one_pos hqh1
-  have hM2 : ((max r.num.natAbs r.den : ℕ) : ℝ) ≤ ((q : ℝ) * (height23 x y : ℝ)) ^ 2 := by
-    calc ((max r.num.natAbs r.den : ℕ) : ℝ)
-        ≤ (|(δ : ℝ)| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := hMR
-      _ ≤ ((q : ℝ) * (height23 x y : ℝ)) * ((q : ℝ) * (height23 x y : ℝ)) :=
-          mul_le_mul_of_nonneg_right hlarge hqh0.le
-      _ = ((q : ℝ) * (height23 x y : ℝ)) ^ 2 := by ring
-  have hM1 : (1 : ℝ) ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-    have h : 1 ≤ max r.num.natAbs r.den :=
-      le_max_of_le_right (Nat.one_le_iff_ne_zero.mpr r.den_nz)
-    exact_mod_cast h
-  have hM0 : (0 : ℝ) < ((max r.num.natAbs r.den : ℕ) : ℝ) := lt_of_lt_of_le one_pos hM1
-  -- the rpow chain: dist·q < (qh)^{-ε} ≤ M^{-ε/2}
-  have hq0R : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq0
-  have hh0R : (0 : ℝ) < (height23 x y : ℝ) := by
-    have := one_le_height23 x y
-    exact_mod_cast lt_of_lt_of_le zero_lt_one (by exact_mod_cast this)
-  have h1 : (v.distToNearestInt : ℝ) * q < ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε) := by
-    have hq_id : (q : ℝ) ^ (-1 - ε) * (q : ℝ) = (q : ℝ) ^ (-ε) := by
-      nth_rewrite 2 [show ((q : ℝ)) = (q : ℝ) ^ (1 : ℝ) from (Real.rpow_one _).symm]
-      rw [← Real.rpow_add hq0R]
-      congr 1
-      ring
-    calc (v.distToNearestInt : ℝ) * q
-        < ((height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε)) * q :=
-          mul_lt_mul_of_pos_right hlt hq0R
-      _ = (height23 x y : ℝ) ^ (-ε) * ((q : ℝ) ^ (-1 - ε) * q) := by ring
-      _ = (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-ε) := by rw [hq_id]
-      _ = ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε) := by
-          rw [Real.mul_rpow hq0R.le hh0R.le]
-          ring
-  have h2 : ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε)
-      ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2)) := by
-    have hstep : ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (ε / 2)
-        ≤ (((q : ℝ) * (height23 x y : ℝ)) ^ 2) ^ (ε / 2) :=
-      Real.rpow_le_rpow hM0.le hM2 (by positivity)
-    have hqh2 : ((((q : ℝ) * (height23 x y : ℝ)) ^ 2 : ℝ)) ^ (ε / 2)
-        = ((q : ℝ) * (height23 x y : ℝ)) ^ ε := by
-      rw [← Real.rpow_natCast ((q : ℝ) * (height23 x y : ℝ)) 2,
-        ← Real.rpow_mul hqh0.le]
-      congr 1
-      ring
-    rw [Real.rpow_neg hqh0.le, Real.rpow_neg hM0.le]
-    exact inv_anti₀ (Real.rpow_pos_of_pos hM0 _) (hqh2 ▸ hstep)
-  -- membership
-  refine ⟨![(A : ℚ), ((B : ℤ) : ℚ)], ?_, ?_, ?_, ?_⟩
-  · intro hzero
-    have h0 := congrFun hzero 0
-    simp only [Matrix.cons_val_zero, Pi.zero_apply] at h0
-    exact hA (by exact_mod_cast h0)
-  · simp only [Matrix.cons_val_zero]
-    exact Int.cast_ne_zero.mpr hA
-  · simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
-    have h2' : ((B : ℤ) : ℚ) / (A : ℚ) = ((q : ℚ) * u) / ((p₀ : ℤ) : ℚ) := by
-      rw [div_eq_div_iff (Int.cast_ne_zero.mpr hA) (Int.cast_ne_zero.mpr hp₀)]
-      linear_combination - hcross
-    exact h2'.symm
-  · rw [approxProduct_pair_eq δ A B hAB]
-    have hmaxeq : max (real (A : ℚ)) (real ((B : ℤ) : ℚ))
-        = ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-      rw [real_eq_abs, real_eq_abs, Nat.cast_max]
-      congr 1
-      · rw [show |((A : ℤ) : ℚ)| = ((A.natAbs : ℕ) : ℚ) from by
-          rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]]
-        rw [hAdef]
-        push_cast
-        ring
-      · rw [show |((B : ℤ) : ℚ)| = ((B.natAbs : ℕ) : ℚ) from by
-          rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]]
-        rw [hBdef, Int.natAbs_natCast]
-        push_cast
-        ring
-    have hM : mulHeight ![(A : ℚ), ((B : ℤ) : ℚ)] = ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-      rw [mulHeight_pair_eq _ _ (Int.cast_ne_zero.mpr hB.ne'), hAeq,
-        Rat.mulHeight₁_eq_max]
-    rw [hM, hmaxeq]
-    have hRHS : ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(2 : ℝ) - ε / 2)
-        = ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2))
-          / ((max r.num.natAbs r.den : ℕ) : ℝ) ^ 2 := by
-      rw [eq_div_iff (ne_of_gt (pow_pos hM0 2)), ← Real.rpow_natCast
-        ((max r.num.natAbs r.den : ℕ) : ℝ) 2, ← Real.rpow_add hM0]
-      congr 1
-      push_cast
-      ring
-    rw [hRHS, div_mul_eq_mul_div, div_mul_eq_mul_div, div_eq_mul_inv,
-      div_eq_mul_inv]
-    refine mul_le_mul_of_nonneg_right ?_ (inv_nonneg.mpr (by positivity))
-    calc real ((A : ℚ) - δ * ((B : ℤ) : ℚ)) * real ((B : ℤ) : ℚ)
-          * (padic 2 (A : ℚ) * padic 2 ((B : ℤ) : ℚ))
-          * (padic 3 (A : ℚ) * padic 3 ((B : ℤ) : ℚ))
-        ≤ (v.distToNearestInt : ℝ) * q := hnum
-      _ ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2)) := le_trans h1.le h2
+    field_simp
+  have hnum : r.num.natAbs ≤ A.natAbs := by
+    rw [hr]; exact Int.natAbs_le_of_dvd_ne_zero (Rat.num_dvd A hB.ne') hA.ne'
+  have hden : (r.den : ℤ) ≤ B := by
+    rw [hr]; exact Int.le_of_dvd hB (Rat.den_dvd A B)
+  have hmax : max r.num.natAbs r.den ≤ height23 x y := by
+    unfold height23
+    refine max_le_max ?_ ?_
+    · have : A.natAbs = 2 ^ x.toNat * 3 ^ y.toNat := by simp [A, Int.natAbs_mul, Int.natAbs_pow]
+      omega
+    · have : (B : ℤ) = ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ) := by push_cast [B]; rfl
+      omega
+  exact_mod_cast hmax
 
+/-- A rational number generates the trivial extension: `[ℚ(r) : ℚ] = 1`. -/
+@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
+lemma finrank_adjoin_ratCast (r : ℚ) : Module.finrank ℚ ℚ⟮(r : ℝ)⟯ = 1 := by
+  rw [IntermediateField.adjoin_simple_eq_bot_iff.mpr ⟨r, by simp⟩, IntermediateField.finrank_bot]
 
-/-! ### STEP 4: fibre and small-set finiteness -/
+/-- The exponents are determined by `2ˣ3ʸ`, through its `2`- and `3`-adic absolute values. -/
+@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
+lemma unit23_injective {x y x' y' : ℤ} (h : unit23 x y = unit23 x' y') : x = x' ∧ y = y' := by
+  have hv := congrArg (fun u : gamma23 ↦ (((u : ℝˣ) : ℝ))) h
+  simp only [unit23_val, Rat.cast_inj] at hv
+  have h2 := padic_two_sUnit x y
+  have h3 := padic_three_sUnit x y
+  rw [hv, padic_two_sUnit] at h2
+  rw [hv, padic_three_sUnit] at h3
+  exact ⟨neg_injective (zpow_right_injective₀ (by norm_num : (0 : ℝ) < 2) (by norm_num) h2).symm,
+    neg_injective (zpow_right_injective₀ (by norm_num : (0 : ℝ) < 3) (by norm_num) h3).symm⟩
 
-private lemma small_finite (δ : ℚ) :
+/-- **The Corvaja–Zannier Main Theorem, `Γ = ⟨2, 3⟩`, algebraic multiplier** ([CZ04]): for real
+algebraic `δ ≠ 0` and `ε > 0`, only finitely many `(q, x, y)` with `q ≥ 1` have `|δqu| > 1`,
+`δqu` not pseudo-Pisot and `0 < ‖δqu‖ < H(u)^{-ε} q^{-1-ε}`, where `u = 2ˣ3ʸ`.
+
+The specialization of the Subspace-Theorems library's `finite_setOf_not_isPseudoPisot` (the Main
+Theorem for every finitely generated `Γ ≤ ℝˣ` of algebraic numbers) at `Γ = ⟨2, 3⟩`:
+`(q, x, y) ↦ (q, 2ˣ3ʸ)` is injective (`unit23_injective`), `[ℚ(u) : ℚ] = 1`
+(`finrank_adjoin_ratCast`) and `H(u) ≤ height23 x y` (`absMulHeight₁_unit23_le`).  The
+predicates `CZ.IsPseudoPisot` and the library's `IsPseudoPisot` have the same definition.  The
+finiteness is ineffective. -/
+@[category research solved, AMS 11, ref "CZ04" "Schmidt91", group "rb_rational_base"]
+theorem pseudoPisot_approx_alg (δ : ℝ) (hδalg : IsAlgebraic ℚ δ) (hδ : δ ≠ 0)
+    (ε : ℝ) (hε : 0 < ε) :
     {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      (p.1 : ℝ) * (height23 p.2.1 p.2.2 : ℝ) < |(δ : ℝ)| + 1}.Finite := by
-  apply Set.Finite.subset
-    ((Set.finite_Icc 1 ⌊(|(δ : ℝ)| + 1)⌋₊).prod (finite_height23_le (|(δ : ℝ)| + 1)))
-  rintro ⟨q, x, y⟩ ⟨hq1, hlt⟩
-  have hh1 : (1 : ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-  have hq1R : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
-  have hqh_q : (q : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_mul_of_one_le_right (by linarith) hh1
-  have hqh_h : (height23 x y : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_mul_of_one_le_left (by linarith) hq1R
-  exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, Nat.le_floor (by linarith)⟩,
-    by simp only [Set.mem_ofPred_eq]; linarith⟩
+      1 < |svalR δ p.1 p.2.1 p.2.2| ∧
+      ¬ IsPseudoPisot (svalR δ p.1 p.2.1 p.2.2) ∧
+      0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
+      distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
+        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
+  have hST := _root_.finite_setOf_not_isPseudoPisot gamma23_fg gamma23_isAlgebraic hδalg hδ hε
+  set g : ℕ × ℤ × ℤ → ℤ × gamma23 := fun p ↦ ((p.1 : ℤ), unit23 p.2.1 p.2.2) with hg
+  have hginj : Function.Injective g := by
+    rintro ⟨q, x, y⟩ ⟨q', x', y'⟩ h
+    simp only [hg, Prod.mk.injEq, Nat.cast_inj] at h
+    obtain ⟨rfl, hu⟩ := h
+    obtain ⟨rfl, rfl⟩ := unit23_injective hu
+    rfl
+  refine (hST.preimage hginj.injOn).subset ?_
+  rintro ⟨q, x, y⟩ ⟨hq, h1, hPP, h0, hlt⟩
+  have hsv : svalR δ q x y = δ * ((q : ℤ) : ℝ) * (((unit23 x y : gamma23) : ℝˣ) : ℝ) := by
+    rw [unit23_val]; push_cast [svalR]; ring
+  simp only [Set.mem_preimage, Set.mem_ofPred_eq, hg]
+  rw [← hsv]
+  refine ⟨h1, hPP, h0, lt_of_lt_of_le hlt ?_⟩
+  rw [unit23_val, finrank_adjoin_ratCast]
+  have hH1 : (1 : ℝ) ≤ absMulHeight₁ ((((2 : ℚ) ^ x * (3 : ℚ) ^ y : ℚ) : ℝ)) := one_le_absMulHeight₁ _
+  have hq0 : (0 : ℝ) < q := by exact_mod_cast hq
+  rw [Int.cast_natCast, abs_of_pos hq0, Nat.cast_one]
+  refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+  exact Real.rpow_le_rpow_of_nonpos (by linarith) (absMulHeight₁_unit23_le x y) (by linarith)
 
-private lemma fibre_finite (δ : ℚ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
-    {p : ℕ × ℤ × ℤ | (1 ≤ p.1 ∧ 1 < |sval δ p.1 p.2.1 p.2.2| ∧
-        0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
-        ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
-          < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)) ∧
-      ((p.1 : ℚ) * ((2 : ℚ) ^ p.2.1 * (3 : ℚ) ^ p.2.2))
-        / ((round (sval δ p.1 p.2.1 p.2.2) : ℤ) : ℚ) = ρ}.Finite := by
-  by_cases hδρ : δ * ρ = 1
-  · -- the fibre is empty: `δ·ρ = 1` forces `v = round v`, contradicting `0 < ‖v‖`
-    convert Set.finite_empty
-    ext ⟨q, x, y⟩
-    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
-    rintro ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
-    have hp₀ : round (sval δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs hv1
-    have hp₀Q : ((round (sval δ q x y) : ℤ) : ℚ) ≠ 0 := Int.cast_ne_zero.mpr hp₀
-    have hvp : sval δ q x y = ((round (sval δ q x y) : ℤ) : ℚ) := by
-      have h1 : δ * (((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y))
-          / ((round (sval δ q x y) : ℤ) : ℚ)) = 1 := by rw [hρ]; exact hδρ
-      rw [← mul_div_assoc, div_eq_one_iff_eq hp₀Q] at h1
-      rw [← h1, sval]
-      ring
-    rw [hvp] at hd
-    simp at hd
-  · set c : ℚ := |δ * ρ - 1| with hcdef
-    have hc0 : (0 : ℚ) < c := abs_pos.mpr (sub_ne_zero.mpr hδρ)
-    have hc0R : (0 : ℝ) < (c : ℝ) := by exact_mod_cast hc0
-    apply Set.Finite.subset ((Set.finite_Icc 1 ⌊((c : ℝ))⁻¹⌋₊).prod
-      (finite_height23_le (((c : ℝ))⁻¹ ^ (1 / ε))))
-    rintro ⟨q, x, y⟩ ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
-    have hp₀ : round (sval δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs hv1
-    have hp₀Q : ((round (sval δ q x y) : ℤ) : ℚ) ≠ 0 := Int.cast_ne_zero.mpr hp₀
-    -- `c ≤ ‖v‖` on the fibre
-    have hδρ_eq : (δ * ρ - 1) * ((round (sval δ q x y) : ℤ) : ℚ)
-        = sval δ q x y - ((round (sval δ q x y) : ℤ) : ℚ) := by
-      rw [← hρ, ← mul_div_assoc]
-      field_simp
-      rw [sval]
-      ring
-    have hcd : c * |((round (sval δ q x y) : ℤ) : ℚ)|
-        = (sval δ q x y).distToNearestInt := by
-      rw [hcdef, ← abs_mul, hδρ_eq, Rat.distToNearestInt]
-    have h1p₀ : (1 : ℚ) ≤ |((round (sval δ q x y) : ℤ) : ℚ)| := by
-      rw [← Int.cast_abs]
-      exact_mod_cast Int.one_le_abs (by exact hp₀)
-    have hcle : c ≤ (sval δ q x y).distToNearestInt := by
-      calc c = c * 1 := by ring
-        _ ≤ c * |((round (sval δ q x y) : ℤ) : ℚ)| :=
-            mul_le_mul_of_nonneg_left h1p₀ hc0.le
-        _ = (sval δ q x y).distToNearestInt := hcd
-    have hcleR : (c : ℝ) ≤ ((sval δ q x y).distToNearestInt : ℝ) := by exact_mod_cast hcle
-    have hh1 : (1 : ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-    have hq1R : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
-    have hh0 : (0 : ℝ) < (height23 x y : ℝ) := lt_of_lt_of_le one_pos hh1
-    have hq0R : (0 : ℝ) < (q : ℝ) := lt_of_lt_of_le one_pos hq1R
-    have hchain : (c : ℝ) < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) :=
-      lt_of_le_of_lt hcleR hlt
-    have hhle1 : (height23 x y : ℝ) ^ (-ε) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos hh1 (by linarith)
-    have hqle1 : (q : ℝ) ^ (-1 - ε) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos hq1R (by linarith)
-    have hrpow_pos_h : (0 : ℝ) < (height23 x y : ℝ) ^ (-ε) := Real.rpow_pos_of_pos hh0 _
-    have hrpow_pos_q : (0 : ℝ) < (q : ℝ) ^ (-1 - ε) := Real.rpow_pos_of_pos hq0R _
-    -- `q` is bounded
-    have hcq : (c : ℝ) < (q : ℝ)⁻¹ := by
-      have h1 : (c : ℝ) < (q : ℝ) ^ (-1 - ε) := by
-        calc (c : ℝ) < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) := hchain
-          _ ≤ 1 * (q : ℝ) ^ (-1 - ε) := mul_le_mul_of_nonneg_right hhle1 hrpow_pos_q.le
-          _ = (q : ℝ) ^ (-1 - ε) := one_mul _
-      have h2 : (q : ℝ) ^ (-1 - ε) ≤ (q : ℝ) ^ (-1 : ℝ) :=
-        Real.rpow_le_rpow_of_exponent_le hq1R (by linarith)
-      rw [Real.rpow_neg_one] at h2
-      linarith
-    have hqK : q ≤ ⌊((c : ℝ))⁻¹⌋₊ := by
-      apply Nat.le_floor
-      have hmul : (c : ℝ) * (q : ℝ) < 1 := by
-        have h := mul_lt_mul_of_pos_right hcq hq0R
-        rwa [inv_mul_cancel₀ hq0R.ne'] at h
-      rw [inv_eq_one_div, le_div_iff₀ hc0R]
-      linarith [hmul]
-    -- `height23` is bounded
-    have hch : (c : ℝ) < (height23 x y : ℝ) ^ (-ε) := by
-      calc (c : ℝ) < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) := hchain
-        _ ≤ (height23 x y : ℝ) ^ (-ε) * 1 := mul_le_mul_of_nonneg_left hqle1 hrpow_pos_h.le
-        _ = (height23 x y : ℝ) ^ (-ε) := mul_one _
-    have hhK : (height23 x y : ℝ) ≤ ((c : ℝ))⁻¹ ^ (1 / ε) := by
-      have h1 : (height23 x y : ℝ) ^ ε ≤ ((c : ℝ))⁻¹ := by
-        rw [Real.rpow_neg hh0.le] at hch
-        have hmul : (c : ℝ) * (height23 x y : ℝ) ^ ε < 1 := by
-          have h := mul_lt_mul_of_pos_right hch (Real.rpow_pos_of_pos hh0 ε)
-          rwa [inv_mul_cancel₀ (Real.rpow_pos_of_pos hh0 ε).ne'] at h
-        rw [inv_eq_one_div, le_div_iff₀ hc0R]
-        linarith [hmul]
-      have hpow : (height23 x y : ℝ) = ((height23 x y : ℝ) ^ ε) ^ (1 / ε) := by
-        rw [← Real.rpow_mul hh0.le, mul_one_div, div_self hε.ne', Real.rpow_one]
-      calc (height23 x y : ℝ) = ((height23 x y : ℝ) ^ ε) ^ (1 / ε) := hpow
-        _ ≤ ((c : ℝ))⁻¹ ^ (1 / ε) :=
-          Real.rpow_le_rpow (Real.rpow_pos_of_pos hh0 ε).le h1 (by positivity)
-    exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, hqK⟩,
-      by simp only [Set.mem_ofPred_eq]; exact hhK⟩
-
-
-/-- **The Corvaja–Zannier Main Theorem, ℚ-specialized, derived** — same statement
-as the cited axiom `CZ.pseudoPisot_approx`, here **proved sorry-free** from Ridout's
-theorem `Ridout.finite_ratios`, i.e. from `Subspace.evertseSchlickewei` at `n = 2`
-(the only non-std3 axiom in its footprint).
-
-The pseudo-Pisot integrality clause (`v ∉ ℤ`) only *removes* points from the
-exceptional set, so finiteness follows from the pure approximation core `hcore`:
-split off the finitely many small triples (`q·h < |δ|+1`, `small_finite`); every
-large triple's orbit ratio lies in the finite ratio set of `finite_ratios_cz`
-(`orbit_mem_ratios` = the Ridout application), and each ratio fibre is finite
-(`fibre_finite`).  The hypothesis `δ ≠ 0` is inherited from the axiom's statement
-(fidelity) but is not needed: for `δ = 0` the clause `1 < |v|` already empties the set. -/
+/-- **The Corvaja–Zannier Main Theorem, `Γ = ⟨2, 3⟩`, rational multiplier** ([CZ04]): for
+`δ ∈ ℚ*` and `ε > 0`, only finitely many `(q, x, y)` with `q ≥ 1` have `|δqu| > 1`, `δqu ∉ ℤ`
+and `0 < ‖δqu‖ < H(u)^{-ε} q^{-1-ε}`, `u = 2ˣ3ʸ`.  The case `δ ∈ ℚ` of `pseudoPisot_approx_alg`:
+a rational `δqu` is pseudo-Pisot only if it is an integer (`isPseudoPisot_ratCast_iff`). -/
 @[category research solved, AMS 11, ref "CZ04", group "three_halves_m4"]
-theorem pseudoPisot_approx_of_subspace (δ : ℚ) (_hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
+theorem pseudoPisot_approx_of_subspace (δ : ℚ) (hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
     {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
       1 < |sval δ p.1 p.2.1 p.2.2| ∧
       ¬ (∃ n : ℤ, sval δ p.1 p.2.1 p.2.2 = n) ∧
       0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
       ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
         < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
-  have hcore : {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      1 < |sval δ p.1 p.2.1 p.2.2| ∧
-      0 < (sval δ p.1 p.2.1 p.2.2).distToNearestInt ∧
-      ((sval δ p.1 p.2.1 p.2.2).distToNearestInt : ℝ)
-        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
-    have hR := finite_ratios_cz δ (ε / 2) (by positivity)
-    apply Set.Finite.subset ((small_finite δ).union
-      (hR.biUnion (fun ρ _ => fibre_finite δ ε hε ρ)))
-    intro p hp
-    obtain ⟨hq1, hv1, hd, hlt⟩ := hp
-    rcases le_or_gt (|(δ : ℝ)| + 1) ((p.1 : ℝ) * (height23 p.2.1 p.2.2 : ℝ)) with hlg | hsm
-    case inr => exact Or.inl ⟨hq1, hsm⟩
-    case inl => exact Or.inr (Set.mem_biUnion
-        (orbit_mem_ratios δ ε hε p.1 p.2.1 p.2.2 hq1 hv1 hlt hlg)
-        ⟨⟨hq1, hv1, hd, hlt⟩, rfl⟩)
-  exact hcore.subset (fun p hp => ⟨hp.1, hp.2.1, hp.2.2.2.1, hp.2.2.2.2⟩)
+  refine (pseudoPisot_approx_alg (δ : ℝ) (by simpa using isAlgebraic_algebraMap (A := ℝ) δ)
+    (by exact_mod_cast hδ) ε hε).subset ?_
+  rintro ⟨q, x, y⟩ ⟨hq, h1, hn, h0, hlt⟩
+  have hsv : svalR (δ : ℝ) q x y = ((sval δ q x y : ℚ) : ℝ) := by
+    push_cast [sval, svalR]; ring
+  have hd : distToNearestInt ((sval δ q x y : ℚ) : ℝ)
+      = (((sval δ q x y).distToNearestInt : ℚ) : ℝ) := by
+    simp [distToNearestInt, Rat.distToNearestInt, Rat.round_cast]
+  refine ⟨hq, ?_, ?_, ?_, ?_⟩ <;> simp only [hsv]
+  · exact_mod_cast h1
+  · rw [isPseudoPisot_ratCast_iff]; exact fun h ↦ hn h.2
+  · rw [hd]; exact_mod_cast h0
+  · rw [hd]; exact hlt
+
+end MainTheorem
 
 /-! ## The exceptional set, named
 
@@ -1129,691 +471,10 @@ def approxSet (δ : ℚ) (ε : ℝ) : Set (ℕ × ℤ × ℤ) :=
       < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}
 
 /-- The Corvaja–Zannier exceptional set is finite (qualitative theorem, restated on the named
-set).  Footprint `std3 + Subspace.evertseSchlickewei`. -/
+set).  Footprint `std3`. -/
 @[category research solved, AMS 11, ref "CZ04", group "three_halves_m4"]
 theorem approxSet_finite (δ : ℚ) (hδ : δ ≠ 0) (ε : ℝ) (hε : 0 < ε) :
     (approxSet δ ε).Finite :=
   pseudoPisot_approx_of_subspace δ hδ ε hε
-
-/-!
-## The algebraic-multiplier case
-
-Everything above runs at `δ ∈ ℚ`.  This section repeats it for `δ` **real algebraic**, which
-retires the cited axiom `CZ.pseudoPisot_approx_alg` (`CITED/CorvajaZannierAlgebraic.lean`).
-
-The point is that almost nothing changes.  The data of the Main Theorem in this specialization
-is **rational** — `q ∈ ℕ` and `u = 2^x3^y ∈ ℚ*`, hence `d = [ℚ(u):ℚ] = 1` — and only the
-multiplier is algebraic.  So the orbit point `[p₀ : q·u]` is still a rational point, its
-coprime representative `(A, B)` is still a pair of integers, and every arithmetic step of the
-derivation above (the `ordCompl` cancellation, the divisibilities, the height bound, the fibre
-count) is *blind to* `δ`.  What changes is exactly one linear form: at the archimedean place
-`X₀ − δ·X₁` now has an algebraic coefficient, so the engine must be Schmidt's Theorem 1D′
-(`Ridout.finite_ratios_alg`, from `Subspace.schmidt1D'`) instead of its `ℚ`-coefficient
-sibling.  Instantiating the number-field form `Subspace.evertseSchlickewei` at `K = ℚ(δ)` would
-*not* do: on rational points it loses the factor `[K:ℚ]` in the exponent
-(`CITED/SchmidtSubspace.lean`, module doc).
-
-Two further notes.
-
-* The derived statement **drops the pseudo-Pisot clause**: as over `ℚ`, the exceptional set is
-  finite without it (`hcoreAlg`).  That clause is what [CZ04] needs for a general finitely
-  generated `Γ ⊂ 𝔸*`, where `u` may be algebraic of degree `> 1` and `αⁿ` for `α` Pisot is a
-  genuine counterexample; at `Γ ⊂ ℚ*` the conjugates of `α = δqu` are `δ⁽ⁱ⁾qu` and grow with
-  `qu`, so pseudo-Pisot values are confined to a bounded window.
-* The multiplier is allowed to be any nonzero real algebraic number, and `ℚ⟮δ⟯` is a number
-  field by `NumberField.numberField_adjoin_of_isAlgebraic`.
--/
-
-section Algebraic
-
-open NumberField IntermediateField
-
-/-- The archimedean forms of the CZ application with an **algebraic** multiplier: `X₀ − γ·X₁`
-and `X₁`, over the coefficient field `F` (which will be `ℚ(δ)`).  The `ℚ`-coefficient sibling
-is the `v = real` branch of `CZ.Lforms`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-noncomputable def LformsAlg {F : Type*} [Field F] (γ : F) : Fin 2 → ((Fin 2 → F) →ₗ[F] F) :=
-  ![LinearMap.proj 0 - γ • LinearMap.proj 1, LinearMap.proj 1]
-
-/-- The algebraic archimedean forms are linearly independent, for every coefficient `γ`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma lformsAlg_linearIndependent {F : Type*} [Field F] (γ : F) :
-    LinearIndependent F (LformsAlg γ) := by
-  unfold LformsAlg
-  rw [LinearIndependent.pair_iff]
-  intro a b hab
-  have h1 := LinearMap.congr_fun hab ![1, 0]
-  have h2 := LinearMap.congr_fun hab ![0, 1]
-  simp at h1 h2
-  exact ⟨h1, by rw [h1] at h2; simpa using h2⟩
-
-/-- The coordinate forms `X₀, X₁` over `ℚ`, used at the finite places `2`, `3`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-noncomputable def coordForms2 : Fin 2 → ((Fin 2 → ℚ) →ₗ[ℚ] ℚ) :=
-  ![LinearMap.proj 0, LinearMap.proj 1]
-
-/-- The coordinate forms are linearly independent. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma coordForms2_linearIndependent : LinearIndependent ℚ coordForms2 := by
-  unfold coordForms2
-  rw [LinearIndependent.pair_iff]
-  intro a b hab
-  exact ⟨by have := LinearMap.congr_fun hab ![1, 0]; simpa using this,
-    by have := LinearMap.congr_fun hab ![0, 1]; simpa using this⟩
-
-/-- The multiplier `δ` as an element of the coefficient field `ℚ(δ)`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-noncomputable def genAlg (δ : ℝ) : ℚ⟮δ⟯ := AdjoinSimple.gen ℚ δ
-
-/-- Under the defining embedding, `CZ.genAlg δ` is `δ`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma genAlg_coe (δ : ℝ) : ((genAlg δ : ℚ⟮δ⟯) : ℝ) = δ := rfl
-
-/-- The rational entries of the orbit pair, seen in `ℚ(δ)` and then in `ℝ`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma intCast_adjoin_coe (δ : ℝ) (n : ℤ) : ((((n : ℚ) : ℚ⟮δ⟯)) : ℝ) = (n : ℝ) := by
-  rw [SubfieldClass.coe_ratCast]
-  push_cast
-  ring
-
-/-- **The archimedean numerator with an algebraic multiplier**: at the pair `![A, B]` the two
-forms evaluate to `A − δB` and `B`. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma prod_lformsAlg_pair (δ : ℝ) (A B : ℤ) :
-    (∏ i, realEmbeddingPlace δ (LformsAlg (genAlg δ) i
-        (fun j ↦ ((![(A : ℚ), ((B : ℤ) : ℚ)] j : ℚ) : ℚ⟮δ⟯))))
-      = |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * |((B : ℤ) : ℝ)| := by
-  rw [Fin.prod_univ_two]
-  unfold LformsAlg
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, LinearMap.sub_apply,
-    LinearMap.smul_apply, LinearMap.proj_apply, smul_eq_mul]
-  rw [realEmbeddingPlace_apply, realEmbeddingPlace_apply]
-  -- the two coercions `ℚ → ℚ⟮δ⟯ → ℝ` and `CZ.genAlg δ ↦ δ` are definitional
-  push_cast [genAlg_coe]
-  rfl
-
-/-- **The finite places with coordinate forms**, on a coprime pair: the local norms are `1`
-(`CZ.coprime_padic_max`), so the product is just the four coordinate values. -/
-@[category API, AMS 11, ref "CZ04", group "three_halves_m4"]
-lemma approxProduct_coord_pair (A B : ℤ) (hAB : IsCoprime A B) :
-    approxProduct {padic 2, padic 3} (fun _ ↦ coordForms2) ![(A : ℚ), ((B : ℤ) : ℚ)]
-      = (padic 2 (A : ℚ) * padic 2 ((B : ℤ) : ℚ))
-        * (padic 3 (A : ℚ) * padic 3 ((B : ℤ) : ℚ)) := by
-  have hLN2 : localNorm (padic 2) ![(A : ℚ), ((B : ℤ) : ℚ)] = 1 := by
-    rw [localNorm_pair]; exact coprime_padic_max 2 A B hAB
-  have hLN3 : localNorm (padic 3) ![(A : ℚ), ((B : ℤ) : ℚ)] = 1 := by
-    rw [localNorm_pair]; exact coprime_padic_max 3 A B hAB
-  unfold approxProduct
-  rw [show ({padic 2, padic 3} : Finset (AbsoluteValue ℚ ℝ)) = insert (padic 2) {padic 3} from rfl,
-    Finset.prod_insert (by simp [padic2_ne_padic3]), Finset.prod_singleton]
-  rw [hLN2, hLN3]
-  simp only [coordForms2, Fin.prod_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one,
-    LinearMap.proj_apply, div_one]
-
-/-- **The Schmidt-1D′ left-hand side on the coprime representative, in closed form** — the
-algebraic-multiplier twin of `CZ.approxProduct_pair_eq`. -/
-@[category API, AMS 11, ref "CZ04" "Schmidt91", group "three_halves_m4"]
-lemma algProduct_pair_eq (δ : ℝ) (A B : ℤ) (hAB : IsCoprime A B) :
-    (∏ i, realEmbeddingPlace δ (LformsAlg (genAlg δ) i
-          (fun j ↦ ((![(A : ℚ), ((B : ℤ) : ℚ)] j : ℚ) : ℚ⟮δ⟯)))
-        / localNorm Rat.AbsoluteValue.real ![(A : ℚ), ((B : ℤ) : ℚ)])
-      * approxProduct {padic 2, padic 3} (fun _ ↦ coordForms2) ![(A : ℚ), ((B : ℤ) : ℚ)]
-    = |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * |((B : ℤ) : ℝ)|
-        / (max (real (A : ℚ)) (real ((B : ℤ) : ℚ))) ^ 2
-      * (padic 2 (A : ℚ) * padic 2 ((B : ℤ) : ℚ))
-      * (padic 3 (A : ℚ) * padic 3 ((B : ℤ) : ℚ)) := by
-  rw [Finset.prod_div_distrib, Finset.prod_const, Finset.card_univ, Fintype.card_fin,
-    prod_lformsAlg_pair, approxProduct_coord_pair A B hAB, localNorm_pair]
-  ring
-
-/-- Round of a real of modulus `> 1` is nonzero. -/
-private lemma round_ne_zero_of_one_lt_abs_real {w : ℝ} (h : 1 < |w|) : round w ≠ 0 := by
-  intro h0
-  have h1 := abs_sub_round w
-  rw [h0] at h1
-  simp only [Int.cast_zero, sub_zero] at h1
-  linarith
-
-/-- **The Corvaja–Zannier cancellation, real multiplier** — `CZ.key_num_le` with `δ : ℝ`.
-The proof is the same: the archimedean factor is `|B|·‖v‖/(q·u)` by the cross identity, the
-`p`-adic factors are *computed* through the prime-to-6 parts, and the divisibilities give
-`A₆′ ≤ |p₀|`, `B₆′ ≤ q`.  Nothing here sees the arithmetic nature of `δ` — only the value
-`v = δ·q·u` and its nearest integer enter. -/
-private lemma key_num_le_alg (δ : ℝ) (q : ℕ) (hq : 1 ≤ q) (x y : ℤ) (A B : ℤ)
-    (hA : A ≠ 0) (hB : 0 < B)
-    (hcross : (A : ℚ) * ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y))
-      = (B : ℚ) * ((round (svalR δ q x y) : ℤ) : ℚ))
-    (hAdvd : A.natAbs ∣ (round (svalR δ q x y)).natAbs * (2 ^ (-x).toNat * 3 ^ (-y).toNat))
-    (hBdvd : B.natAbs ∣ q * (2 ^ x.toNat * 3 ^ y.toNat))
-    (hp₀ : round (svalR δ q x y) ≠ 0) :
-    |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * |((B : ℤ) : ℝ)|
-      * (padic 2 (A : ℚ) * padic 2 (B : ℚ)) * (padic 3 (A : ℚ) * padic 3 (B : ℚ))
-      ≤ distToNearestInt (svalR δ q x y) * q := by
-  set v := svalR δ q x y with hvdef
-  set p₀ := round v with hp₀def
-  set U : ℝ := (2 : ℝ) ^ x * (3 : ℝ) ^ y with hUdef
-  have hU0 : (0 : ℝ) < U := by rw [hUdef]; positivity
-  have hq0R : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq
-  have hqU0 : (0 : ℝ) < (q : ℝ) * U := mul_pos hq0R hU0
-  have hBR : (0 : ℝ) < ((B : ℤ) : ℝ) := by exact_mod_cast hB
-  have hBQ : (0 : ℚ) < (B : ℚ) := by exact_mod_cast hB
-  have hqu0 : (0 : ℚ) < (q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y) := by positivity
-  -- six-part bounds
-  have ha6 : sixCompl A.natAbs ≤ p₀.natAbs :=
-    sixCompl_le_of_dvd_mul _ _ (Int.natAbs_ne_zero.mpr hp₀) hAdvd
-  have hb6 : sixCompl B.natAbs ≤ q :=
-    sixCompl_le_of_dvd_mul _ _ (by omega) hBdvd
-  -- exact p-adic identities
-  have hA6 := padic_mul_padic_natAbs A hA
-  have hB6 := padic_mul_padic_natAbs B hB.ne'
-  -- the cross identity, in ℝ
-  have hcrossR : (A : ℝ) * ((q : ℝ) * U) = ((B : ℤ) : ℝ) * ((p₀ : ℤ) : ℝ) := by
-    have h := congrArg (fun z : ℚ => (z : ℝ)) hcross
-    push_cast at h
-    rw [hUdef]
-    linear_combination h
-  -- the value in terms of the S-unit
-  have hvR : v = δ * ((q : ℝ) * U) := by
-    rw [hvdef, svalR, hUdef]; ring
-  -- archimedean identity: |A − δB| · (q·U) = B · ‖v‖
-  have F1 : |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * ((q : ℝ) * U)
-      = ((B : ℤ) : ℝ) * distToNearestInt v := by
-    have h1 : ((A : ℝ) - δ * ((B : ℤ) : ℝ)) * ((q : ℝ) * U)
-        = ((B : ℤ) : ℝ) * (((p₀ : ℤ) : ℝ) - v) := by
-      calc ((A : ℝ) - δ * ((B : ℤ) : ℝ)) * ((q : ℝ) * U)
-          = (A : ℝ) * ((q : ℝ) * U) - ((B : ℤ) : ℝ) * (δ * ((q : ℝ) * U)) := by ring
-        _ = ((B : ℤ) : ℝ) * ((p₀ : ℤ) : ℝ) - ((B : ℤ) : ℝ) * v := by rw [hcrossR, ← hvR]
-        _ = ((B : ℤ) : ℝ) * (((p₀ : ℤ) : ℝ) - v) := by ring
-    calc |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * ((q : ℝ) * U)
-        = |((A : ℝ) - δ * ((B : ℤ) : ℝ)) * ((q : ℝ) * U)| := by
-          rw [abs_mul, abs_of_pos hqU0]
-      _ = |((B : ℤ) : ℝ) * (((p₀ : ℤ) : ℝ) - v)| := by rw [h1]
-      _ = ((B : ℤ) : ℝ) * |v - ((p₀ : ℤ) : ℝ)| := by
-          rw [abs_mul, abs_of_pos hBR, abs_sub_comm]
-      _ = ((B : ℤ) : ℝ) * distToNearestInt v := by rw [distToNearestInt, ← hp₀def]
-  -- |A| cross identity
-  have hcrossAbs : (A.natAbs : ℚ) * ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y))
-      = (B : ℚ) * (p₀.natAbs : ℚ) := by
-    have h2 := congrArg abs hcross
-    rw [abs_mul (A : ℚ), abs_mul (B : ℚ), abs_of_pos hqu0, abs_of_pos hBQ] at h2
-    have hAabs : |(A : ℚ)| = (A.natAbs : ℚ) := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    have hPabs : |((p₀ : ℤ) : ℚ)| = (p₀.natAbs : ℚ) := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    rw [hAabs, hPabs] at h2
-    exact h2
-  have F2 : ((A.natAbs : ℕ) : ℝ) * ((q : ℝ) * U)
-      = ((B : ℤ) : ℝ) * ((p₀.natAbs : ℕ) : ℝ) := by
-    have h := congrArg (fun z : ℚ => (z : ℝ)) hcrossAbs
-    push_cast at h
-    rw [hUdef]
-    linear_combination h
-  -- assemble
-  have hd0 : (0 : ℝ) ≤ distToNearestInt v := distToNearestInt_nonneg v
-  have hα0 : (0 : ℝ) < (A.natAbs : ℝ) := by exact_mod_cast Int.natAbs_pos.mpr hA
-  have hBZ : (B.natAbs : ℤ) = B := Int.natAbs_of_nonneg hB.le
-  have hBcast : ((B.natAbs : ℕ) : ℝ) = ((B : ℤ) : ℝ) := by
-    conv_rhs => rw [← hBZ]
-    rw [Int.cast_natCast]
-  rw [hBcast] at hB6
-  rw [abs_of_pos hBR]
-  refine le_of_mul_le_mul_right ?_ (mul_pos hα0 hqU0)
-  calc |(A : ℝ) - δ * (B : ℝ)| * (B : ℝ)
-        * (padic 2 (A : ℚ) * padic 2 (B : ℚ)) * (padic 3 (A : ℚ) * padic 3 (B : ℚ))
-        * ((A.natAbs : ℝ) * ((q : ℝ) * U))
-      = (|(A : ℝ) - δ * (B : ℝ)| * ((q : ℝ) * U))
-        * ((padic 2 (A : ℚ) * padic 3 (A : ℚ)) * (A.natAbs : ℝ))
-        * ((padic 2 (B : ℚ) * padic 3 (B : ℚ)) * (B : ℝ)) := by ring
-    _ = ((B : ℝ) * distToNearestInt v)
-        * (sixCompl A.natAbs : ℝ) * (sixCompl B.natAbs : ℝ) := by
-        rw [F1, hA6, hB6]
-    _ ≤ ((B : ℝ) * distToNearestInt v) * (p₀.natAbs : ℝ) * (q : ℝ) := by
-        have h6a : (sixCompl A.natAbs : ℝ) ≤ (p₀.natAbs : ℝ) := by exact_mod_cast ha6
-        have h6b : (sixCompl B.natAbs : ℝ) ≤ (q : ℝ) := by exact_mod_cast hb6
-        have hBd : (0 : ℝ) ≤ (B : ℝ) * distToNearestInt v := mul_nonneg hBR.le hd0
-        have h6b0 : (0 : ℝ) ≤ (sixCompl B.natAbs : ℝ) := by positivity
-        have hP0 : (0 : ℝ) ≤ (p₀.natAbs : ℝ) := by positivity
-        exact mul_le_mul (mul_le_mul_of_nonneg_left h6a hBd) h6b h6b0 (mul_nonneg hBd hP0)
-    _ = (distToNearestInt v * (q : ℝ)) * ((B : ℝ) * (p₀.natAbs : ℝ)) := by ring
-    _ = (distToNearestInt v * (q : ℝ)) * ((A.natAbs : ℝ) * ((q : ℝ) * U)) := by rw [← F2]
-
-/-- **The Ridout engine at algebraic coefficients, wired to the CZ forms**: the `n = 2` case of
-Schmidt's Theorem 1D′ at the place set `{∞, 2, 3}`, with `X₀ − δ·X₁, X₁` over `ℚ(δ)` at the
-archimedean place and the coordinate forms at `2` and `3`. -/
-@[category API, AMS 11, ref "CZ04" "Schmidt91", group "three_halves_m4"]
-lemma finite_ratios_cz_alg (δ : ℝ) [NumberField ℚ⟮δ⟯] (ε' : ℝ) (hε' : 0 < ε') :
-    {r : ℚ | ∃ x : Fin 2 → ℚ, x ≠ 0 ∧ x 0 ≠ 0 ∧ r = x 1 / x 0 ∧
-      (∏ i, realEmbeddingPlace δ (LformsAlg (genAlg δ) i (fun j ↦ ((x j : ℚ) : ℚ⟮δ⟯)))
-          / localNorm Rat.AbsoluteValue.real x)
-        * approxProduct {padic 2, padic 3} (fun _ ↦ coordForms2) x
-      ≤ Height.mulHeight x ^ (-(2 : ℝ) - ε')}.Finite :=
-  Ridout.finite_ratios_alg Rat.AbsoluteValue.real (realEmbeddingPlace δ)
-    (realEmbeddingPlace_ratCast δ) (LformsAlg (genAlg δ)) (lformsAlg_linearIndependent _)
-    {padic 2, padic 3} (by simp [real_ne_padic2, real_ne_padic3])
-    (fun _ ↦ coordForms2) (fun _ _ ↦ coordForms2_linearIndependent) ε' hε'
-
-/-- **The Ridout membership of the orbit point, real multiplier** — `CZ.orbit_mem_ratios` with
-`δ : ℝ` algebraic.  Same three ingredients: the exact `p`-adic cancellation
-(`CZ.key_num_le_alg`), the linear height bound `M ≤ (|δ|+1)·q·h ≤ (q·h)²`, and the
-approximation hypothesis. -/
-@[category API, AMS 11, ref "CZ04" "Schmidt91", group "three_halves_m4"]
-lemma orbit_mem_ratios_alg (δ : ℝ) [NumberField ℚ⟮δ⟯] (ε : ℝ) (hε : 0 < ε) (q : ℕ) (x y : ℤ)
-    (hq : 1 ≤ q)
-    (hv1 : 1 < |svalR δ q x y|)
-    (hlt : distToNearestInt (svalR δ q x y)
-      < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε))
-    (hlarge : |δ| + 1 ≤ (q : ℝ) * (height23 x y : ℝ)) :
-    ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y)) / ((round (svalR δ q x y) : ℤ) : ℚ) ∈
-      {r : ℚ | ∃ x' : Fin 2 → ℚ, x' ≠ 0 ∧ x' 0 ≠ 0 ∧ r = x' 1 / x' 0 ∧
-        (∏ i, realEmbeddingPlace δ (LformsAlg (genAlg δ) i (fun j ↦ ((x' j : ℚ) : ℚ⟮δ⟯)))
-            / localNorm Rat.AbsoluteValue.real x')
-          * approxProduct {padic 2, padic 3} (fun _ ↦ coordForms2) x'
-        ≤ Height.mulHeight x' ^ (-(2 : ℝ) - ε / 2)} := by
-  set v := svalR δ q x y with hvdef
-  set p₀ := round v with hp₀def
-  have hp₀ : p₀ ≠ 0 := round_ne_zero_of_one_lt_abs_real hv1
-  set u : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y with hudef
-  have hu0 : (0 : ℚ) < u := by positivity
-  have hq0 : (0 : ℚ) < (q : ℚ) := by exact_mod_cast hq
-  have hqu0 : (0 : ℚ) < (q : ℚ) * u := mul_pos hq0 hu0
-  set U : ℝ := (2 : ℝ) ^ x * (3 : ℝ) ^ y with hUdef
-  have hU0 : (0 : ℝ) < U := by rw [hUdef]; positivity
-  have hq0R : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq
-  have huUR : ((u : ℚ) : ℝ) = U := by rw [hudef, hUdef]; push_cast; ring
-  set r : ℚ := ((p₀ : ℤ) : ℚ) / ((q : ℚ) * u) with hrdef
-  have hr0 : r ≠ 0 := div_ne_zero (Int.cast_ne_zero.mpr hp₀) hqu0.ne'
-  set A : ℤ := r.num with hAdef
-  set B : ℤ := (r.den : ℤ) with hBdef
-  have hA : A ≠ 0 := Rat.num_ne_zero.mpr hr0
-  have hB : 0 < B := by
-    rw [hBdef]
-    exact_mod_cast Nat.pos_of_ne_zero r.den_nz
-  have hAB : IsCoprime A B := by
-    rw [Int.isCoprime_iff_gcd_eq_one, hAdef, hBdef]
-    simpa [Int.gcd, Int.natAbs_natCast] using r.reduced
-  have hAeq : (A : ℚ) / ((B : ℤ) : ℚ) = r := by
-    rw [hAdef, hBdef]
-    push_cast
-    exact r.num_div_den
-  -- the cross identity in ℚ
-  have hcross : (A : ℚ) * ((q : ℚ) * u) = ((B : ℤ) : ℚ) * ((p₀ : ℤ) : ℚ) := by
-    have h : (A : ℚ) / ((B : ℤ) : ℚ) = ((p₀ : ℤ) : ℚ) / ((q : ℚ) * u) := by
-      rw [hAeq, hrdef]
-    rw [div_eq_div_iff (Int.cast_ne_zero.mpr hB.ne') hqu0.ne'] at h
-    linear_combination h
-  -- the S-unit denominator/numerator identity  u·D = N
-  have hND : u * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)
-      = ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ) := by
-    push_cast
-    rw [hudef,
-      show ((2 : ℚ) ^ ((-x).toNat)) = (2 : ℚ) ^ (((-x).toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((3 : ℚ) ^ ((-y).toNat)) = (3 : ℚ) ^ (((-y).toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((2 : ℚ) ^ (x.toNat)) = (2 : ℚ) ^ ((x.toNat : ℤ)) from (zpow_natCast _ _).symm,
-      show ((3 : ℚ) ^ (y.toNat)) = (3 : ℚ) ^ ((y.toNat : ℤ)) from (zpow_natCast _ _).symm,
-      mul_mul_mul_comm, ← zpow_add₀ (by norm_num : (2 : ℚ) ≠ 0),
-      ← zpow_add₀ (by norm_num : (3 : ℚ) ≠ 0),
-      show x + ((-x).toNat : ℤ) = (x.toNat : ℤ) by omega,
-      show y + ((-y).toNat : ℤ) = (y.toNat : ℤ) by omega]
-  -- the cross identity in ℤ
-  have hcrossZ : A * ((q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ))
-      = B * (p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ)) := by
-    have h2 : (A : ℚ) * ((q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ))
-        = ((B : ℤ) : ℚ) * (((p₀ : ℤ) : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)) := by
-      calc (A : ℚ) * ((q : ℚ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℚ))
-          = (A : ℚ) * ((q : ℚ) * (u * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ))) := by
-            rw [hND]
-        _ = ((A : ℚ) * ((q : ℚ) * u)) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by
-            ring
-        _ = (((B : ℤ) : ℚ) * ((p₀ : ℤ) : ℚ)) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ) := by
-            rw [hcross]
-        _ = ((B : ℤ) : ℚ) * (((p₀ : ℤ) : ℚ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℚ)) := by
-            ring
-    exact_mod_cast h2
-  -- divisibilities
-  have hAdvdZ : A ∣ p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ) :=
-    hAB.dvd_of_dvd_mul_left
-      ⟨(q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ), hcrossZ.symm⟩
-  have hBdvdZ : B ∣ (q : ℤ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℤ) :=
-    hAB.symm.dvd_of_dvd_mul_left
-      ⟨p₀ * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℤ), hcrossZ⟩
-  have hAdvdN : A.natAbs ∣ p₀.natAbs * (2 ^ (-x).toNat * 3 ^ (-y).toNat) := by
-    have h := Int.natAbs_dvd_natAbs.mpr hAdvdZ
-    rwa [Int.natAbs_mul, Int.natAbs_natCast] at h
-  have hBdvdN : B.natAbs ∣ q * (2 ^ x.toNat * 3 ^ y.toNat) := by
-    have h := Int.natAbs_dvd_natAbs.mpr hBdvdZ
-    rwa [Int.natAbs_mul, Int.natAbs_natCast, Int.natAbs_natCast] at h
-  -- the key numerator bound
-  have hnum := key_num_le_alg δ q hq x y A B hA hB hcross hAdvdN hBdvdN hp₀
-  -- size bounds for the height, in ℝ
-  have hNleh : (2 ^ x.toNat * 3 ^ y.toNat : ℕ) ≤ height23 x y := by
-    rw [height23]; exact le_max_left _ _
-  have hDleh : (2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) ≤ height23 x y := by
-    rw [height23]; exact le_max_right _ _
-  have hh1 : (1 : ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-  have hq1 : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq
-  have hNDR : U * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ)
-      = ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℝ) := by
-    rw [← huUR]
-    exact_mod_cast congrArg (fun z : ℚ => (z : ℝ)) hND
-  have hp₀le : (p₀.natAbs : ℝ) ≤ |δ| * ((q : ℝ) * U) + 1 / 2 := by
-    have habs : ((p₀.natAbs : ℕ) : ℝ) = |((p₀ : ℤ) : ℝ)| := by
-      rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]
-    have h1 : |((p₀ : ℤ) : ℝ)| ≤ |v| + 1 / 2 := by
-      have h := abs_sub_round v
-      have h2 := abs_sub_abs_le_abs_sub ((round v : ℤ) : ℝ) v
-      rw [abs_sub_comm] at h2
-      rw [hp₀def]
-      linarith
-    have hveq : |v| = |δ| * ((q : ℝ) * U) := by
-      rw [hvdef, svalR, ← hUdef]
-      rw [show δ * (q : ℝ) * U = δ * ((q : ℝ) * U) from by ring, abs_mul,
-        abs_of_pos (by positivity : (0:ℝ) < (q : ℝ) * U)]
-    rw [habs]
-    linarith
-  have hAsize : (A.natAbs : ℝ)
-      ≤ (p₀.natAbs : ℝ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) := by
-    have h := Nat.le_of_dvd
-      (Nat.mul_pos (Int.natAbs_pos.mpr hp₀) (by positivity)) hAdvdN
-    exact_mod_cast h
-  have hBsize : (B.natAbs : ℝ) ≤ (q : ℝ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℝ) := by
-    have h := Nat.le_of_dvd (Nat.mul_pos (by omega) (by positivity)) hBdvdN
-    exact_mod_cast h
-  -- M ≤ (|δ|+1)·q·h
-  have hMR : ((max r.num.natAbs r.den : ℕ) : ℝ)
-      ≤ (|δ| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := by
-    rw [Nat.cast_max]
-    have hNQ : ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℝ) ≤ (height23 x y : ℝ) := by
-      exact_mod_cast hNleh
-    have hDQ : ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) ≤ (height23 x y : ℝ) := by
-      exact_mod_cast hDleh
-    have hD0 : (0 : ℝ) ≤ ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) := by positivity
-    apply max_le
-    · calc (r.num.natAbs : ℝ)
-          ≤ (p₀.natAbs : ℝ) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) := hAsize
-        _ ≤ (|δ| * ((q : ℝ) * U) + 1 / 2) * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) :=
-            mul_le_mul_of_nonneg_right hp₀le hD0
-        _ = |δ| * (q : ℝ) * (U * ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ))
-            + ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) / 2 := by ring
-        _ = |δ| * (q : ℝ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℝ)
-            + ((2 ^ (-x).toNat * 3 ^ (-y).toNat : ℕ) : ℝ) / 2 := by rw [hNDR]
-        _ ≤ |δ| * (q : ℝ) * (height23 x y : ℝ) + (height23 x y : ℝ) / 2 := by
-            gcongr
-        _ ≤ (|δ| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := by
-            have hqh_h : (height23 x y : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-              le_mul_of_one_le_left (by linarith) hq1
-            nlinarith [hqh_h]
-    · calc (r.den : ℝ) = (B.natAbs : ℝ) := by rw [hBdef, Int.natAbs_natCast]
-        _ ≤ (q : ℝ) * ((2 ^ x.toNat * 3 ^ y.toNat : ℕ) : ℝ) := hBsize
-        _ ≤ (q : ℝ) * (height23 x y : ℝ) := by gcongr
-        _ ≤ (|δ| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := by
-            refine le_mul_of_one_le_left ?_ ?_
-            · positivity
-            · linarith [abs_nonneg δ]
-  have hqh1 : (1 : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_trans (by linarith [abs_nonneg δ]) hlarge
-  have hqh0 : (0 : ℝ) < (q : ℝ) * (height23 x y : ℝ) := lt_of_lt_of_le one_pos hqh1
-  have hM2 : ((max r.num.natAbs r.den : ℕ) : ℝ) ≤ ((q : ℝ) * (height23 x y : ℝ)) ^ 2 := by
-    calc ((max r.num.natAbs r.den : ℕ) : ℝ)
-        ≤ (|δ| + 1) * ((q : ℝ) * (height23 x y : ℝ)) := hMR
-      _ ≤ ((q : ℝ) * (height23 x y : ℝ)) * ((q : ℝ) * (height23 x y : ℝ)) :=
-          mul_le_mul_of_nonneg_right hlarge hqh0.le
-      _ = ((q : ℝ) * (height23 x y : ℝ)) ^ 2 := by ring
-  have hM1 : (1 : ℝ) ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-    have h : 1 ≤ max r.num.natAbs r.den :=
-      le_max_of_le_right (Nat.one_le_iff_ne_zero.mpr r.den_nz)
-    exact_mod_cast h
-  have hM0 : (0 : ℝ) < ((max r.num.natAbs r.den : ℕ) : ℝ) := lt_of_lt_of_le one_pos hM1
-  have hh0R : (0 : ℝ) < (height23 x y : ℝ) := lt_of_lt_of_le one_pos hh1
-  -- the rpow chain: dist·q < (qh)^{-ε} ≤ M^{-ε/2}
-  have h1 : distToNearestInt v * q < ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε) := by
-    have hq_id : (q : ℝ) ^ (-1 - ε) * (q : ℝ) = (q : ℝ) ^ (-ε) := by
-      nth_rewrite 2 [show ((q : ℝ)) = (q : ℝ) ^ (1 : ℝ) from (Real.rpow_one _).symm]
-      rw [← Real.rpow_add hq0R]
-      congr 1
-      ring
-    calc distToNearestInt v * q
-        < ((height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε)) * q :=
-          mul_lt_mul_of_pos_right hlt hq0R
-      _ = (height23 x y : ℝ) ^ (-ε) * ((q : ℝ) ^ (-1 - ε) * q) := by ring
-      _ = (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-ε) := by rw [hq_id]
-      _ = ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε) := by
-          rw [Real.mul_rpow hq0R.le hh0R.le]
-          ring
-  have h2 : ((q : ℝ) * (height23 x y : ℝ)) ^ (-ε)
-      ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2)) := by
-    have hstep : ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (ε / 2)
-        ≤ (((q : ℝ) * (height23 x y : ℝ)) ^ 2) ^ (ε / 2) :=
-      Real.rpow_le_rpow hM0.le hM2 (by positivity)
-    have hqh2 : ((((q : ℝ) * (height23 x y : ℝ)) ^ 2 : ℝ)) ^ (ε / 2)
-        = ((q : ℝ) * (height23 x y : ℝ)) ^ ε := by
-      rw [← Real.rpow_natCast ((q : ℝ) * (height23 x y : ℝ)) 2,
-        ← Real.rpow_mul hqh0.le]
-      congr 1
-      ring
-    rw [Real.rpow_neg hqh0.le, Real.rpow_neg hM0.le]
-    exact inv_anti₀ (Real.rpow_pos_of_pos hM0 _) (hqh2 ▸ hstep)
-  -- membership
-  refine ⟨![(A : ℚ), ((B : ℤ) : ℚ)], ?_, ?_, ?_, ?_⟩
-  · intro hzero
-    have h0 := congrFun hzero 0
-    simp only [Matrix.cons_val_zero, Pi.zero_apply] at h0
-    exact hA (by exact_mod_cast h0)
-  · simp only [Matrix.cons_val_zero]
-    exact Int.cast_ne_zero.mpr hA
-  · simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
-    have h2' : ((B : ℤ) : ℚ) / (A : ℚ) = ((q : ℚ) * u) / ((p₀ : ℤ) : ℚ) := by
-      rw [div_eq_div_iff (Int.cast_ne_zero.mpr hA) (Int.cast_ne_zero.mpr hp₀)]
-      linear_combination - hcross
-    exact h2'.symm
-  · rw [algProduct_pair_eq δ A B hAB]
-    have hmaxeq : max (real (A : ℚ)) (real ((B : ℤ) : ℚ))
-        = ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-      rw [real_eq_abs, real_eq_abs, Nat.cast_max]
-      congr 1
-      · rw [show |((A : ℤ) : ℚ)| = ((A.natAbs : ℕ) : ℚ) from by
-          rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]]
-        rw [hAdef]
-        push_cast
-        ring
-      · rw [show |((B : ℤ) : ℚ)| = ((B.natAbs : ℕ) : ℚ) from by
-          rw [← Int.cast_abs, ← Int.natCast_natAbs, Int.cast_natCast]]
-        rw [hBdef, Int.natAbs_natCast]
-        push_cast
-        ring
-    have hM : mulHeight ![(A : ℚ), ((B : ℤ) : ℚ)] = ((max r.num.natAbs r.den : ℕ) : ℝ) := by
-      rw [mulHeight_pair_eq _ _ (Int.cast_ne_zero.mpr hB.ne'), hAeq,
-        Rat.mulHeight₁_eq_max]
-    rw [hM, hmaxeq]
-    have hRHS : ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(2 : ℝ) - ε / 2)
-        = ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2))
-          / ((max r.num.natAbs r.den : ℕ) : ℝ) ^ 2 := by
-      rw [eq_div_iff (ne_of_gt (pow_pos hM0 2)), ← Real.rpow_natCast
-        ((max r.num.natAbs r.den : ℕ) : ℝ) 2, ← Real.rpow_add hM0]
-      congr 1
-      push_cast
-      ring
-    rw [hRHS, div_mul_eq_mul_div, div_mul_eq_mul_div, div_eq_mul_inv, div_eq_mul_inv]
-    refine mul_le_mul_of_nonneg_right ?_ (inv_nonneg.mpr (by positivity))
-    calc |(A : ℝ) - δ * ((B : ℤ) : ℝ)| * |((B : ℤ) : ℝ)|
-          * (padic 2 (A : ℚ) * padic 2 ((B : ℤ) : ℚ))
-          * (padic 3 (A : ℚ) * padic 3 ((B : ℤ) : ℚ))
-        ≤ distToNearestInt v * q := hnum
-      _ ≤ ((max r.num.natAbs r.den : ℕ) : ℝ) ^ (-(ε / 2)) := le_trans h1.le h2
-
-/-! ### Fibre and small-set finiteness, real multiplier -/
-
-private lemma small_finite_alg (δ : ℝ) :
-    {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      (p.1 : ℝ) * (height23 p.2.1 p.2.2 : ℝ) < |δ| + 1}.Finite := by
-  apply Set.Finite.subset
-    ((Set.finite_Icc 1 ⌊(|δ| + 1)⌋₊).prod (finite_height23_le (|δ| + 1)))
-  rintro ⟨q, x, y⟩ ⟨hq1, hlt⟩
-  have hh1 : (1 : ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-  have hq1R : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
-  have hqh_q : (q : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_mul_of_one_le_right (by linarith) hh1
-  have hqh_h : (height23 x y : ℝ) ≤ (q : ℝ) * (height23 x y : ℝ) :=
-    le_mul_of_one_le_left (by linarith) hq1R
-  exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, Nat.le_floor (by linarith)⟩,
-    by simp only [Set.mem_ofPred_eq]; linarith⟩
-
-private lemma fibre_finite_alg (δ : ℝ) (ε : ℝ) (hε : 0 < ε) (ρ : ℚ) :
-    {p : ℕ × ℤ × ℤ | (1 ≤ p.1 ∧ 1 < |svalR δ p.1 p.2.1 p.2.2| ∧
-        0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
-        distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
-          < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)) ∧
-      ((p.1 : ℚ) * ((2 : ℚ) ^ p.2.1 * (3 : ℚ) ^ p.2.2))
-        / ((round (svalR δ p.1 p.2.1 p.2.2) : ℤ) : ℚ) = ρ}.Finite := by
-  -- on the fibre the defect is `|δρ − 1|·|p₀|`, so `|δρ − 1| ≤ ‖v‖`
-  have hkey : ∀ q : ℕ, ∀ x y : ℤ, 1 ≤ q →
-      ((q : ℚ) * ((2 : ℚ) ^ x * (3 : ℚ) ^ y))
-        / ((round (svalR δ q x y) : ℤ) : ℚ) = ρ →
-      round (svalR δ q x y) ≠ 0 →
-      (δ * (ρ : ℝ) - 1) * ((round (svalR δ q x y) : ℤ) : ℝ)
-        = svalR δ q x y - ((round (svalR δ q x y) : ℤ) : ℝ) := by
-    intro q x y _ hρ hp₀
-    set P : ℤ := round (svalR δ q x y) with hPdef
-    have hPR : ((P : ℤ) : ℝ) ≠ 0 := Int.cast_ne_zero.mpr hp₀
-    have hρR : ((q : ℝ) * ((2 : ℝ) ^ x * (3 : ℝ) ^ y)) / ((P : ℤ) : ℝ) = (ρ : ℝ) := by
-      have h := congrArg (fun z : ℚ => (z : ℝ)) hρ
-      push_cast at h
-      exact h
-    have hp : (ρ : ℝ) * ((P : ℤ) : ℝ) = (q : ℝ) * ((2 : ℝ) ^ x * (3 : ℝ) ^ y) := by
-      rw [← hρR]
-      field_simp
-    have hv : svalR δ q x y = δ * ((q : ℝ) * ((2 : ℝ) ^ x * (3 : ℝ) ^ y)) := by
-      rw [svalR]; ring
-    rw [hv]
-    linear_combination δ * hp
-  by_cases hδρ : δ * (ρ : ℝ) = 1
-  · -- the fibre is empty: `δ·ρ = 1` forces `v = p₀`, contradicting `0 < ‖v‖`
-    convert Set.finite_empty
-    ext ⟨q, x, y⟩
-    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
-    rintro ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
-    have hp₀ : round (svalR δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs_real hv1
-    have h0 := hkey q x y hq1 hρ hp₀
-    rw [hδρ] at h0
-    simp only [sub_self, zero_mul] at h0
-    have hle : distToNearestInt (svalR δ q x y)
-        ≤ |svalR δ q x y - ((round (svalR δ q x y) : ℤ) : ℝ)| :=
-      distToNearestInt_le_abs_sub_intCast _ _
-    rw [← h0] at hle
-    simp only [abs_zero] at hle
-    linarith
-  · set c : ℝ := |δ * (ρ : ℝ) - 1| with hcdef
-    have hc0R : (0 : ℝ) < c := abs_pos.mpr (sub_ne_zero.mpr hδρ)
-    apply Set.Finite.subset ((Set.finite_Icc 1 ⌊c⁻¹⌋₊).prod
-      (finite_height23_le (c⁻¹ ^ (1 / ε))))
-    rintro ⟨q, x, y⟩ ⟨⟨hq1, hv1, hd, hlt⟩, hρ⟩
-    have hp₀ : round (svalR δ q x y) ≠ 0 := round_ne_zero_of_one_lt_abs_real hv1
-    have h0 := hkey q x y hq1 hρ hp₀
-    -- `c ≤ ‖v‖` on the fibre
-    have hcd : c * |((round (svalR δ q x y) : ℤ) : ℝ)| = distToNearestInt (svalR δ q x y) := by
-      rw [hcdef, ← abs_mul, h0, distToNearestInt]
-    have h1p₀ : (1 : ℝ) ≤ |((round (svalR δ q x y) : ℤ) : ℝ)| := by
-      rw [← Int.cast_abs]
-      exact_mod_cast Int.one_le_abs hp₀
-    have hcle : c ≤ distToNearestInt (svalR δ q x y) := by
-      calc c = c * 1 := by ring
-        _ ≤ c * |((round (svalR δ q x y) : ℤ) : ℝ)| :=
-            mul_le_mul_of_nonneg_left h1p₀ hc0R.le
-        _ = distToNearestInt (svalR δ q x y) := hcd
-    have hh1 : (1 : ℝ) ≤ (height23 x y : ℝ) := by exact_mod_cast one_le_height23 x y
-    have hq1R : (1 : ℝ) ≤ (q : ℝ) := by exact_mod_cast hq1
-    have hh0 : (0 : ℝ) < (height23 x y : ℝ) := lt_of_lt_of_le one_pos hh1
-    have hq0R : (0 : ℝ) < (q : ℝ) := lt_of_lt_of_le one_pos hq1R
-    have hchain : c < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) :=
-      lt_of_le_of_lt hcle hlt
-    have hhle1 : (height23 x y : ℝ) ^ (-ε) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos hh1 (by linarith)
-    have hqle1 : (q : ℝ) ^ (-1 - ε) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos hq1R (by linarith)
-    have hrpow_pos_h : (0 : ℝ) < (height23 x y : ℝ) ^ (-ε) := Real.rpow_pos_of_pos hh0 _
-    have hrpow_pos_q : (0 : ℝ) < (q : ℝ) ^ (-1 - ε) := Real.rpow_pos_of_pos hq0R _
-    -- `q` is bounded
-    have hcq : c < (q : ℝ)⁻¹ := by
-      have h1 : c < (q : ℝ) ^ (-1 - ε) := by
-        calc c < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) := hchain
-          _ ≤ 1 * (q : ℝ) ^ (-1 - ε) := mul_le_mul_of_nonneg_right hhle1 hrpow_pos_q.le
-          _ = (q : ℝ) ^ (-1 - ε) := one_mul _
-      have h2 : (q : ℝ) ^ (-1 - ε) ≤ (q : ℝ) ^ (-1 : ℝ) :=
-        Real.rpow_le_rpow_of_exponent_le hq1R (by linarith)
-      rw [Real.rpow_neg_one] at h2
-      linarith
-    have hqK : q ≤ ⌊c⁻¹⌋₊ := by
-      apply Nat.le_floor
-      have hmul : c * (q : ℝ) < 1 := by
-        have h := mul_lt_mul_of_pos_right hcq hq0R
-        rwa [inv_mul_cancel₀ hq0R.ne'] at h
-      rw [inv_eq_one_div, le_div_iff₀ hc0R]
-      linarith [hmul]
-    -- `height23` is bounded
-    have hch : c < (height23 x y : ℝ) ^ (-ε) := by
-      calc c < (height23 x y : ℝ) ^ (-ε) * (q : ℝ) ^ (-1 - ε) := hchain
-        _ ≤ (height23 x y : ℝ) ^ (-ε) * 1 := mul_le_mul_of_nonneg_left hqle1 hrpow_pos_h.le
-        _ = (height23 x y : ℝ) ^ (-ε) := mul_one _
-    have hhK : (height23 x y : ℝ) ≤ c⁻¹ ^ (1 / ε) := by
-      have h1 : (height23 x y : ℝ) ^ ε ≤ c⁻¹ := by
-        rw [Real.rpow_neg hh0.le] at hch
-        have hmul : c * (height23 x y : ℝ) ^ ε < 1 := by
-          have h := mul_lt_mul_of_pos_right hch (Real.rpow_pos_of_pos hh0 ε)
-          rwa [inv_mul_cancel₀ (Real.rpow_pos_of_pos hh0 ε).ne'] at h
-        rw [inv_eq_one_div, le_div_iff₀ hc0R]
-        linarith [hmul]
-      have hpow : (height23 x y : ℝ) = ((height23 x y : ℝ) ^ ε) ^ (1 / ε) := by
-        rw [← Real.rpow_mul hh0.le, mul_one_div, div_self hε.ne', Real.rpow_one]
-      calc (height23 x y : ℝ) = ((height23 x y : ℝ) ^ ε) ^ (1 / ε) := hpow
-        _ ≤ c⁻¹ ^ (1 / ε) :=
-          Real.rpow_le_rpow (Real.rpow_pos_of_pos hh0 ε).le h1 (by positivity)
-    exact Set.mem_prod.mpr ⟨Set.mem_Icc.mpr ⟨hq1, hqK⟩,
-      by simp only [Set.mem_ofPred_eq]; exact hhK⟩
-
-/-! ### The Main Theorem for an algebraic multiplier, derived -/
-
-/-- **The Corvaja–Zannier Main Theorem, algebraic-multiplier specialization, derived** — the
-statement recorded as the cited axiom `CZ.pseudoPisot_approx_alg` until 2026-08-07, here
-**proved** from `Subspace.schmidt1D'` (Schmidt LNM 1467, Thm 1D′) via
-`Ridout.finite_ratios_alg`.
-
-The proof is `CZ.pseudoPisot_approx_of_subspace` with `δ : ℚ` replaced by a real algebraic
-`δ`: the pseudo-Pisot clause only *removes* points from the exceptional set, so finiteness
-follows from the pure approximation core; the finitely many small triples are absorbed
-(`CZ.small_finite_alg`), every large triple's orbit ratio lies in the finite ratio set of
-`CZ.finite_ratios_cz_alg` (`CZ.orbit_mem_ratios_alg`), and each ratio fibre is finite
-(`CZ.fibre_finite_alg`).
-
-What changed against the rational case is one linear form — `X₀ − δ·X₁` now has coefficients
-in `ℚ(δ)` — and hence the engine, 1D′ instead of its `ℚ`-coefficient sibling.  The hypothesis
-`δ ≠ 0` is inherited from the axiom's statement (fidelity) but is not needed: for `δ = 0` the
-clause `1 < |δqu|` already empties the set.  The finiteness is ineffective. -/
-@[category research solved, AMS 11, ref "CZ04" "Schmidt91", group "rb_rational_base"]
-theorem pseudoPisot_approx_alg (δ : ℝ) (hδalg : IsAlgebraic ℚ δ) (_hδ : δ ≠ 0)
-    (ε : ℝ) (hε : 0 < ε) :
-    {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      1 < |svalR δ p.1 p.2.1 p.2.2| ∧
-      ¬ IsPseudoPisot (svalR δ p.1 p.2.1 p.2.2) ∧
-      0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
-      distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
-        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
-  have : NumberField ℚ⟮δ⟯ := numberField_adjoin_of_isAlgebraic hδalg
-  have hcore : {p : ℕ × ℤ × ℤ | 1 ≤ p.1 ∧
-      1 < |svalR δ p.1 p.2.1 p.2.2| ∧
-      0 < distToNearestInt (svalR δ p.1 p.2.1 p.2.2) ∧
-      distToNearestInt (svalR δ p.1 p.2.1 p.2.2)
-        < (height23 p.2.1 p.2.2 : ℝ) ^ (-ε) * (p.1 : ℝ) ^ (-1 - ε)}.Finite := by
-    have hR := finite_ratios_cz_alg δ (ε / 2) (by positivity)
-    apply Set.Finite.subset ((small_finite_alg δ).union
-      (hR.biUnion (fun ρ _ => fibre_finite_alg δ ε hε ρ)))
-    intro p hp
-    obtain ⟨hq1, hv1, hd, hlt⟩ := hp
-    rcases le_or_gt (|δ| + 1) ((p.1 : ℝ) * (height23 p.2.1 p.2.2 : ℝ)) with hlg | hsm
-    case inr => exact Or.inl ⟨hq1, hsm⟩
-    case inl => exact Or.inr (Set.mem_biUnion
-        (orbit_mem_ratios_alg δ ε hε p.1 p.2.1 p.2.2 hq1 hv1 hlt hlg)
-        ⟨⟨hq1, hv1, hd, hlt⟩, rfl⟩)
-  exact hcore.subset (fun p hp => ⟨hp.1, hp.2.1, hp.2.2.2.1, hp.2.2.2.2⟩)
-
-end Algebraic
 
 end CZ

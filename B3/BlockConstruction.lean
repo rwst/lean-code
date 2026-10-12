@@ -1,5 +1,5 @@
 import B3.PeriodicMatching
-import AB.StammeringSequences
+import B3.ConditionStar
 import Mathlib.Data.Nat.BitIndices
 import Mathlib.Data.List.GetD
 import Corpus.Util.Attributes.Basic
@@ -7,7 +7,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function Filter PadicInt
+open BL Function Filter PadicInt
 
 @[category API, AMS 11 68, ref "AB07"]
 theorem sum_range_length_getD (L : List ℕ) (f : ℕ → ℕ) :

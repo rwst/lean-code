@@ -81,7 +81,8 @@ theorem coeff_coeff_optionEquivRight (Q : MvPolynomial (Option σ) R) (ν : σ �
       · rw [ite_eq_right hν, Polynomial.coeff_zero, eq_comm, ite_eq_right]
         intro h
         exact hν (by rw [h, Finsupp.some_optionElim])
-  | add p q hp hq => simp only [map_add, Polynomial.coeff_add, coeff_add, hp, hq]
+  | add p q hp hq => simp only [map_add, Polynomial.coeff_add, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, hp,
+    hq]
 
 /-- The coefficient dictionary read backwards: a coefficient of the polynomial in `Option σ`
 variables attached to `P : MvPolynomial σ R[X]`. -/

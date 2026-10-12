@@ -94,6 +94,31 @@ conditional on an explicit per-line hypothesis (`BB13/FailureCount.lean`).  See
 `plans/plan2-BB13.html`, and `plans/report-BB13.md`, `plans/report2-BB13.md` for the two referee
 reports that identified the error.
 
+## Why this stays an axiom (checked 2026-10-12)
+
+The Subspace-Theorems package (ST) does not yet prove Cor. 5.2, so the axiom cannot be derived
+from it the way `CITED/CorvajaZannierProof.lean` derives Corvaja–Zannier.  What ST has:
+
+* qualitative Ridout (`Real.finite_setOf_ridout`): finiteness only, no count;
+* the Bugeaud–Evertse Appendix count for systems in two variables
+  (`QuantitativeSubspace/SubspaceCountTwo.lean`,
+  `NumberField.exists_finset_submodule_of_isNormalizedSystem_two_evertse`, closed form
+  `systemLargeCountTwo_evertse_le`), unconditional, of the `δ⁻³ log · log` shape;
+* EF13's count of the large solutions (`QuantitativeSubspace/FormSystemCount.lean`,
+  `efLargeCount_le_ef`), which supersedes ES02.  Of ES02 itself ST has only the three lemmas EF13
+  cites (Cor. 7.2, Lemma 6.3, Lemma 9.2).
+
+The count is not the obstacle; the **threshold** is.  BE08 count the solutions above Evertse's
+large-solution threshold `max(2H, n^{2n/δ})` (DA's `NumberField.IsLargeSolution`), which here is
+(5.12), `y > max(2H(ξ), 2^{4/ε})`.  ST's counts hold only above its own thresholds
+(`systemThresholdTwo`, `efSystemThreshold`), which are linear in `log H` with large explicit
+coefficients and carry the field and `S`-unit terms that ES02's reduction removes.  The BB13
+consumers need the small threshold: in the `(3/2)ⁿ` frame (5.12) holds from `n = 10` on
+(`BB13.two_rpow_four_div_epsStar_lt`), so the line cover starts at `n = 10`, and they use
+`lineBound` numerically (`BB13/Constants.lean`).  An ST
+theorem "EF13's count above `IsLargeSolution`" would discharge this axiom with a better count;
+it is listed as a possible addition in ST's `QuantitativeSubspace/README.md` (Layer Q4, Q4.4).
+
 ## References
 
 * [BE08] Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta
@@ -101,7 +126,7 @@ reports that identified the error.
 * [ES02] J.-H. Evertse, H. P. Schlickewei, *A quantitative version of the Absolute Subspace
   Theorem*, J. reine angew. Math. **548** (2002), 21–127 — the engine behind Thm 5.1.
 * [Rid57] D. Ridout, *The p-adic generalization of the Thue–Siegel–Roth theorem*, Mathematika **4**
-  (1957), 125–131 — the qualitative ancestor (`CITED/Ridout.lean`).
+  (1957), 125–131 — the qualitative ancestor (Subspace-Theorems, `Real.finite_setOf_ridout`).
 -/
 
 namespace BugeaudEvertse

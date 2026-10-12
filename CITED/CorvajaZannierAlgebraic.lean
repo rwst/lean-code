@@ -31,11 +31,12 @@ multiplier `δ` **algebraic** rather than rational, which is how the source stat
 ## Status: derived, not cited (2026-08-07)
 
 **`CZ.pseudoPisot_approx_alg` is no longer an axiom.**  It is a theorem of
-`CITED/CorvajaZannierProof.lean`, resting on `std3 + Subspace.schmidt1D'` — the same
-footprint as the anchored/RPF lane.  This file keeps the *statement vocabulary*
-(`CZ.svalR`, `CZ.IsPseudoPisot`) and the pseudo-Pisot conjugate computation; the theorem
-itself lives next to its `δ ∈ ℚ` sibling `CZ.pseudoPisot_approx_of_subspace`, whose proof
-it reuses almost verbatim.
+`CITED/CorvajaZannierProof.lean`, footprint `std3`: since 2026-10-12 a corollary of the
+Subspace-Theorems library's Main Theorem (before that, of `Subspace.schmidt1D'` through Ridout).
+This file keeps the *statement vocabulary* (`CZ.svalR`, `CZ.IsPseudoPisot`, the library's
+`IsPseudoPisot` under the same definition) and the pseudo-Pisot conjugate computation; the
+theorem itself lives next to its `δ ∈ ℚ` sibling `CZ.pseudoPisot_approx_of_subspace`, which is
+now derived from it.
 
 The axiom existed from 2026-07-18 to 2026-08-07 on the following reasoning, recorded here
 because the reasoning was **wrong** and cost real work elsewhere: "for algebraic irrational
@@ -146,9 +147,8 @@ noncomputable def svalR (δ : ℝ) (q : ℕ) (x y : ℤ) : ℝ :=
 
 /-! **The Main Theorem itself is no longer stated here.**  It was a cited `axiom`
 `CZ.pseudoPisot_approx_alg` from 2026-07-18 until 2026-08-07, when it became a **theorem** of
-the same name in `CITED/CorvajaZannierProof.lean`, derived from `Subspace.schmidt1D'`.  See
-the module doc above for why the algebraic-`δ` case turned out to be a 1D′ application rather
-than a number-field one.  What remains in this file is the statement vocabulary — `CZ.svalR`,
+the same name in `CITED/CorvajaZannierProof.lean` (since 2026-10-12 from the Subspace-Theorems
+library's Main Theorem).  What remains in this file is the statement vocabulary — `CZ.svalR`,
 `CZ.IsPseudoPisot` — and the pseudo-Pisot discharge below, which the derivation does not need
 but which records the conjugate computation faithfully. -/
 

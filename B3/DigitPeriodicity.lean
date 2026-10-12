@@ -1,12 +1,12 @@
 import B3.AutomaticParityVectors
-import AB.StammeringSequences
+import B3.ConditionStar
 import L90.DivergentAperiodic
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function
+open BL Function
 
 @[category API, AMS 11 37, ref "BL96"]
 theorem digitExpansion_injective {x y : ℤ_[2]}
@@ -48,7 +48,7 @@ theorem shiftPeriodicPoint_mem_ratInt {w : ℤ_[2]} {p : ℕ} (hp : 0 < p)
 
 @[category research solved, AMS 11, ref "AB07" "BL96", group "b3_missing_lemma"]
 theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
-    ¬ AB.IsEventuallyPeriodic (binaryDigit v) := by
+    ¬ Function.IsEventuallyPeriodic (binaryDigit v) := by
   intro hper
   apply h
   obtain ⟨N, p, hp, hper⟩ := hper
@@ -75,12 +75,12 @@ theorem not_isEventuallyPeriodic_binaryDigit (v : ℤ_[2]) (h : v ∉ RatInt) :
 
 @[category research solved, AMS 11 37, ref "AB07" "BL96", group "b3_missing_lemma"]
 theorem ratInt_eventuallyPeriodic_binaryDigit {v : ℤ_[2]} (hv : v ∈ RatInt) :
-    AB.IsEventuallyPeriodic (binaryDigit v) := by
+    Function.IsEventuallyPeriodic (binaryDigit v) := by
   have hni : ¬ Injective (fun k => S^[k] v) :=
     fun hinj => (Set.infinite_range_of_injective hinj) (ratInt_S_orbit_finite hv)
   rw [Function.not_injective_iff] at hni
   obtain ⟨a, b, hfab, hne⟩ := hni
-  have key : ∀ i j : ℕ, i < j → S^[i] v = S^[j] v → AB.IsEventuallyPeriodic (binaryDigit v) := by
+  have key : ∀ i j : ℕ, i < j → S^[i] v = S^[j] v → Function.IsEventuallyPeriodic (binaryDigit v) := by
     intro i j hlt heq
     refine ⟨i, j - i, by omega, fun k hk => ?_⟩
     show binaryDigit v (k + (j - i)) = binaryDigit v k

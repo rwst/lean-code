@@ -4,7 +4,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function Filter
+open BL Function Filter
 
 @[category API, AMS 11 37, ref "BL96"]
 theorem S_natCast_add_two_mul (b : ℕ) (hb : b < 2) (y : ℤ_[2]) :

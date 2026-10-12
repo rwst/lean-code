@@ -115,7 +115,7 @@ lemma correction_ratio_bound_theorem_4_1 (j n m : ℕ) (hn : n > 0) (hm_pos : m 
   have hbound : ∏ k ∈ Finset.range j, oddFactor (T_iter k n)
       ≤ (1 + 1 / (3 * (m : ℚ))) ^ num_odd_steps j n := by
     rw [prod_range_oddFactor_eq_oddIdx, ← oddIdx_card, ← Finset.prod_const]
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro k _; exact (oddFactor_pos _).le
     · intro k hk
       simp only [oddIdx, Finset.mem_filter, Finset.mem_range] at hk

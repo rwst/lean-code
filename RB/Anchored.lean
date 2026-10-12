@@ -297,11 +297,12 @@ lemma nkForms_linearIndependent (γ₁ γ₂ : F) (w₀ v : AbsoluteValue F ℝ)
 /-- **The `n = 3` Subspace conclusion over a number field**: at any finite place set `S`,
 distinguished place `w₀`, and coefficients `γ₁, γ₂`, the nonzero solutions of the
 `approxProduct`/`mulHeight` inequality for `nkForms` lie in finitely many proper subspaces
-of `F³`.  Instantiates the cited axiom `Subspace.evertseSchlickewei`; this is the entire
+of `F³`, for `S` a set of places.  Instantiates `Subspace.evertseSchlickewei`; this is the entire
 Diophantine engine of the anchored family and of RPF, pinned at the exact forms the
 derivations will consume. -/
 @[category research solved, AMS 11, ref "Schmidt91" "B1E2a2", group "rb_anchored"]
-theorem nk_subspace [NumberField F] (S : Finset (AbsoluteValue F ℝ)) (γ₁ γ₂ : F)
+theorem nk_subspace [NumberField F] (S : Finset (AbsoluteValue F ℝ))
+    (hS : ∀ v ∈ S, Subspace.IsPlace v) (γ₁ γ₂ : F)
     (w₀ : AbsoluteValue F ℝ) (ε : ℝ) (hε : 0 < ε) :
     ∃ T : Finset (Submodule F (Fin 3 → F)),
       (∀ W ∈ T, W ≠ ⊤) ∧
@@ -309,7 +310,7 @@ theorem nk_subspace [NumberField F] (S : Finset (AbsoluteValue F ℝ)) (γ₁ γ
         Subspace.approxProduct S (nkForms γ₁ γ₂ w₀) x
           ≤ Height.mulHeight x ^ (-(3 : ℝ) - ε) →
         ∃ W ∈ T, x ∈ W :=
-  Subspace.evertseSchlickewei (by norm_num) S (nkForms γ₁ γ₂ w₀)
+  Subspace.evertseSchlickewei (by norm_num) S hS (nkForms γ₁ γ₂ w₀)
     (fun v _ => nkForms_linearIndependent γ₁ γ₂ w₀ v) ε hε
 
 end NumberFieldForms
@@ -339,6 +340,20 @@ noncomputable def anchoredPlaces : Finset (AbsoluteValue ℚ⟮δ⟯ ℝ) :=
   Finset.univ.image (fun v : InfinitePlace ℚ⟮δ⟯ => v.val) ∪
     ((FinitePlace.hasFiniteMulSupport
       (show (6 : ℚ⟮δ⟯) ≠ 0 by norm_num)).image Subtype.val).toFinset
+
+/-- Every member of `anchoredPlaces δ` is a place of `ℚ(δ)` — the hypothesis under which the
+Subspace Theorem holds. -/
+@[category API, AMS 11, ref "B1E2a2", group "rb_anchored"]
+theorem anchoredPlaces_isPlace : ∀ v ∈ anchoredPlaces δ, Subspace.IsPlace v := by
+  classical
+  intro v hv
+  unfold anchoredPlaces at hv
+  rcases Finset.mem_union.1 hv with h | h
+  · obtain ⟨w, -, rfl⟩ := Finset.mem_image.1 h
+    exact Or.inl ⟨w, rfl⟩
+  · rw [Set.Finite.mem_toFinset] at h
+    obtain ⟨w, -, rfl⟩ := h
+    exact Or.inr ⟨w, rfl⟩
 
 /-- The distinguished archimedean place of `ℚ(δ)`: the absolute value induced by the
 defining embedding `ℚ⟮δ⟯ ↪ ℝ`.  At this place the approximation form of `RB.nkForms` is
@@ -390,7 +405,8 @@ theorem anchored_rehearsal (ε : ℝ) (hε : 0 < ε) (b : ℕ) :
             (nkForms (genMultiplier δ b) (-(genMultiplier δ b)) (realPlace δ)) x
           ≤ Height.mulHeight x ^ (-(3 : ℝ) - ε) →
         ∃ W ∈ T, x ∈ W :=
-  nk_subspace (anchoredPlaces δ) (genMultiplier δ b) (-(genMultiplier δ b))
+  nk_subspace (anchoredPlaces δ) (anchoredPlaces_isPlace δ) (genMultiplier δ b)
+    (-(genMultiplier δ b))
     (realPlace δ) ε hε
 
 end Rehearsal

@@ -11,7 +11,7 @@ the paper's theorems are machine-checked?", and it is meant to be quotable in th
 ## Summary
 
     lake build BB47        # 12 files, 3145 lines, 166 declarations, sorry-free  (3231 jobs)
-    #                        + AB/ComplexityLowerBound.lean, CITED/BugeaudEvertseComplexity.lean
+    #                        + CITED/BugeaudEvertseComplexity.lean (+ Subspace-Theorems' DA)
     #                        + ForMathlib/Combinatorics/FineWilf.lean (Fine–Wilf, std3)
     #                        + ForMathlib/Dynamics/SymbolicDynamics/  (8 files, 3046 lines,
     #                          238 declarations, std3 — the subshift API, plan-subshift WP1–WP8, all)
@@ -43,7 +43,7 @@ a project of its own.
 | `Rauzy.lean` | the reduced Rauzy graph; strong connectivity; the out-closed exclusion. **Since 2026-09-14 it proves nothing**: `recFactorSet u = recurrentLanguage u` is `rfl`, so it re-exports `ForMathlib/Dynamics/SymbolicDynamics/Rauzy.lean` (`edgeSrc`/`edgeTgt` by `export`, one constant with two names) | — |
 | `Degrees.lean` | in/out-degrees as `Finset.card`s of fibres and the two degree sums — the part `ForMathlib` does not express — plus the unique right- and left-special block, now *derived* from `exists_isRightSpecial`/`eq_of_isRightSpecial` through `isRightSpecial_iff_two_le_outDeg` | — |
 | `LemmaA0.lean` | the repetition function `r(n,·)`, **Lemma A0**, and the [BK26] comparison | — |
-| `Cited.lean` | `AB.baseValue` wrapper; **[BK19] Thm. 10.4**, both clauses; imports the two complexity theorems | 2 |
+| `Cited.lean` | `value = Real.ofDigits`; `pComplexity_eq_complexity`, [AB07] Thm. 1 contrapositive (proved, from Subspace-Theorems); **[BK19] Thm. 10.4**, both clauses | 2 |
 | `TheoremA.lean` | **Theorems A and A′** (from [AB07]/[BE08]) and their `_via_repLen` twins (from [BK19]), the `n+k` ladder, the structure corollary | — |
 | `Certificate.lean` | the three M4 certificates and **the ceiling** | — |
 | `Sliver.lean` | the skew branch's Diophantine constraints; **Theorem D proved from Ridout** | 3 |
@@ -90,7 +90,7 @@ A window starting at `1`-based position `i` starts at `0`-based `i − 1`, so th
 | Rem. 3.4 / Ex. 3.5 — strong connectivity ⇏ transitivity, via `∏ₘ 0ᵐ1ᵐ` | ❌ **not formalized** | — |
 | **Lem. 4.1 — the horizon bound** `p(n,w) ≤ s_n + p_∞(n,w)` | ✅ | `pComplexity_le_horizon_add_pInf` |
 | **Lem. 4.2 = Lemma A0** — `r(n,w) ≤ p(n,w) + n ≤ s_n + n + p_∞(n,w)`; first half is [BK26, Lem. 2.2] | ✅ | `repLen_le_pComplexity_add`, `lemma_A0`, `hasRepetitionBy_horizon_add`, `pComplexity_add_le_lemma_A0_bound` |
-| Thm. 5.1 = [AB07, Thm. 1] — `p(n,ξ,b)/n → ∞` | 📚 **cited axiom** | `AB.tendsto_pComplexity_div_atTop` (`AB/ComplexityLowerBound.lean`) |
+| Thm. 5.1 = [AB07, Thm. 1] — `p(n,ξ,b)/n → ∞` | ✅ (Subspace-Theorems) | `Real.tendsto_complexity_div_atTop`; consumed as `BB47.transcendental_of_pComplexity_linear_io` |
 | Thm. 5.2 = [BE08, Thm. 2.1] | 📚 **cited axiom** | `BugeaudEvertse.exists_pComplexity_gt` (`CITED/BugeaudEvertseComplexity.lean`) |
 | Thm. 5.3 = [BK19, Thm. 10.4] | 📚 **cited axiom** ×2 | `transcendental_of_repLen_liminf`, `transcendental_of_repLen_limsup` |
 | **Thm. 6.1 = Theorem A** | 🔗 proved from Thm. 5.1 | `theorem_A`; second route `theorem_A_via_repLen` (Thm. 5.3) |
@@ -155,7 +155,6 @@ the other theorem of that paper the repository uses.
 
 | axiom | source | consumed by |
 |---|---|---|
-| `AB.tendsto_pComplexity_div_atTop` | **[AB07] Thm. 1**, `p(n,ξ,b)/n → +∞` (`p`-adic Subspace) | `theorem_A` |
 | `BugeaudEvertse.exists_pComplexity_gt` | **[BE08] Thm. 2.1**, the `(log n)^{1/11}` refinement (quantitative Subspace) | `theorem_Aprime` |
 | `transcendental_of_repLen_liminf` | [BK19] Thm. 10.4, clause 1 (← [AB07] Thm. 5) | `theorem_A_via_repLen` |
 | `transcendental_of_repLen_limsup` | [BK19] Thm. 10.4, clause 2 (← [BE08] Thm. 2.1) | `theorem_Aprime_via_repLen` |
@@ -189,7 +188,7 @@ Axiom audit (`#print axioms`):
         → [propext, Classical.choice, Quot.sound]              (std3)
 
     BB47.theorem_A, BB47.structure_of_algebraic, BB47.exists_pInf_ge_of_algebraic
-        → + AB.tendsto_pComplexity_div_atTop                   (one axiom, nothing else)
+        → [propext, Classical.choice, Quot.sound]              (std3, since 2026-10-12)
     BB47.theorem_Aprime, BB47.structure_of_algebraic_log
         → + BugeaudEvertse.exists_pComplexity_gt
     BB47.theorem_A_via_repLen
@@ -302,9 +301,10 @@ Lean absence is an infrastructure gap, and each is flagged as such in the table 
   import it; `Ω u` is `omegaLimitSubshift u` and `BB47.recFactorSet u = recurrentLanguage u` by
   `rfl`, so it is not a translation layer but the same objects under two names. `Minimal.lean`
   (WP7) has no BB47 consumer yet by design — it opens gap 4(a) rather than closing anything.
-* `AB/ExpansionsInIntegerBases.lean` — `AB.baseValue`. `BB47.value` is a thin wrapper, so this
-  root and the Adamczewski–Bugeaud root name the same real number, and the two cited
-  Subspace-theorem consequences sit side by side as the plan's §8 asked.
+* Subspace-Theorems (`DiophantineApproximation/ComplexityTranscendence.lean`) —
+  `Real.tendsto_complexity_div_atTop`, [AB07] Thm. 1 as a theorem. `BB47.value` is Mathlib's
+  `Real.ofDigits`, the number that library states it about (the former `AB/` root was retired
+  2026-10-12 in its favour).
 
 ## References
 
@@ -498,3 +498,11 @@ For §5, `ForMathlib/Topology/MetricSpace/BoxDimension.lean` already carries upp
 and `Metric.dimH_le_upperBoxDim`, so M5 Lem. 5.1 (cover the orbit closure by the `p(n)` closed
 `b`-adic intervals of rank `n`) is formalizable with what exists. Furstenberg's dimension formula
 is not needed anywhere in the note — only that inequality.
+
+## Addendum, 2026-10-12 — [AB07] Thm. 1 is a theorem
+
+The `AB/` root was retired in favour of the Subspace-Theorems library, which proves [AB07]
+Thms. 1, 2, 5, 6 (`Real.tendsto_complexity_div_atTop`, …). `BB47.value` became `Real.ofDigits`,
+`BB47.pComplexity_eq_complexity` identifies the two complexity functions, and `theorem_A`,
+`structure_of_algebraic`, `exists_pInf_ge_of_algebraic` are now **std3**. The remaining axioms are
+[BE08] Thm. 2.1 and the two [BK19] clauses.

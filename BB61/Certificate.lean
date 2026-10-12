@@ -86,6 +86,7 @@ theorem map_mixMeasure {Ω' : Type*} [MeasurableSpace Ω'] (a b : ℝ) (μ₀ μ
     Measure.map g (mixMeasure a b μ₀ μ₁)
       = mixMeasure a b (Measure.map g μ₀) (Measure.map g μ₁) := by
   rw [mixMeasure, mixMeasure, Measure.map_add _ _ hg, Measure.map_smul, Measure.map_smul]
+  all_goals exact hg.aemeasurable
 
 /-- The mixture of two probability measures. -/
 noncomputable def mix {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hab : a + b = 1)

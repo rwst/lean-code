@@ -4,7 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Mathlib.Tactic
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import ForMathlib.NumberTheory.ConjugatePowerSum
 import ForMathlib.Analysis.Equidistribution.ModOne
 import Corpus.Util.Attributes.Basic

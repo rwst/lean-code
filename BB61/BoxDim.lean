@@ -170,7 +170,7 @@ theorem two_pow_le_encard_cantorPoints (h2 : 2 < α) (M : ℕ) :
     simpa [extendW, i.2] using this
   have h := hinj.encard_range
   rw [ENat.card_eq_coe_fintype_card, Fintype.card_fun, Fintype.card_bool, Fintype.card_fin] at h
-  exact le_trans (by norm_cast) h
+  exact le_trans (by norm_cast) h.symm.le
 
 /-- **M1 Lemma 1(iv), separation form.**  The `2^M` points of `cantorPoints α M` are pairwise
 `g·α^{-M}` apart, in the strict sense the packing bound wants. -/

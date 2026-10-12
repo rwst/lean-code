@@ -4,7 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import BB61.RouteA
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 

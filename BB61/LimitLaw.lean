@@ -747,8 +747,8 @@ theorem ergodic_shiftN_bernN {p : ℝ} (h0 : 0 ≤ p) (h1 : p ≤ 1) :
   have hprob : IsProbabilityMeasure (bernN p) := isProbabilityMeasure_bernN h0 h1
   rcases ProbabilityTheory.measure_zero_or_one_of_measurableSet_limsup_atTop
     h_le h_indep htail with hz0 | hz1
-  · exact eventuallyConst_set'.mpr (Or.inl (by simpa using hz0))
-  · refine eventuallyConst_set'.mpr (Or.inr ?_)
+  · exact eventuallyEmptyOrUniv_iff'.mpr (Or.inl (by simpa using hz0))
+  · refine eventuallyEmptyOrUniv_iff'.mpr (Or.inr ?_)
     have hc : bernN p tᶜ = 0 := by
       rw [measure_compl ht (measure_ne_top _ _), hz1, measure_univ, tsub_self]
     simpa using hc

@@ -1,0 +1,60 @@
+<h1>plan-EVGQ17-M0, M6 &mdash; numerics past the horizon (gate G&#8209;1)</h1>
+<p class="subtitle">The 2026&#8209;09&#8209;11 readings re-measured with an independent exact program, from \(j\le24\) up to \(j=32\), in three seed windows. Verdict: <b>(a) confirmed; (b) confirmed in normalized form, but &ldquo;\(\beta_j\) bounded&rdquo; struck; (c) confirmed, but its &ldquo;slowly drifting runs&rdquo; are a feature of the origin window only.</b> Conjecture H\(_1\) keeps its support; the hope that \(|\beta_j|\) does not grow at all does not.</p>
+
+<div class="meta">
+  Written 2026&#8209;10&#8209;06 &middot; Parent: <code>plans/plan-EVGQ17-M0.html</code> &sect;0.3 (readings), &sect;3.1&ndash;3.2, &sect;5 (M6, G&#8209;1) &middot;
+  Code and data: <code>EVG25/numerics/</code> (<code>horizon.c</code>, <code>crosscheck.py</code>, <code>analyze.py</code>, <code>make_note.py</code>, <code>data/</code>) &middot;
+  G&#8209;1 exit criterion (verbatim): &ldquo;readings (a)&ndash;(c) of &sect;0.3 confirmed or struck at \(j=28\)&ndash;30&rdquo;.
+</div>
+
+<div class="box keyfact"><span class="label">G&#8209;1 verdict</span>
+<ul>
+<li><b>(a) Coin behaviour up to horizon \(3j\): confirmed.</b> Mean, variance and tails of \(S_k\) for \(k\le3j\) agree with \(k\) fair coins to sampling error, in all three windows. One systematic exception, explained by (b): tails just past the horizon are <em>lighter</em> than binomial (\(z=-4.2\) at \(j=30\), \(k=j+7\)).</li>
+<li><b>(b) Super-uniform boundary layer: confirmed, normalized.</b> For \(j\ge28\), \(|\beta_j|/(2^{j/2}/2)\le0.045\) in every window, and \(|z_{j,j+t}|\le0.1\) for \(t\le3\). The 8-letter block at position \(j\) has \(\chi^2/\mathrm{df}\) between 0.02 and 0.38 for \(j\ge22\), where a random sample gives \(1\pm0.09\). <b>Struck:</b> &ldquo;\(|\beta_j|\le173\)&rdquo; as a sign of boundedness (\(\beta_{25}=-867\), \(\beta_{31}=-795\)); and &ldquo;all of \(z_{j,j},\dots,z_{j,j+13}\) small&rdquo; (the layer is about 7 letters wide, and \(z_{27,38}=-2.22\)).</li>
+<li><b>(c) Coin scale further out: confirmed.</b> Beyond the layer, rms \(z\) is 0.7&ndash;1.1. <b>Struck as general:</b> &ldquo;slowly drifting runs of one sign&rdquo;. At \(N_0=0\) the lag-1 autocorrelation of \(z_{j,i}\) is \(+0.4\) to \(+0.6\); in the two generic windows it is between \(-0.2\) and \(+0.2\).</li>
+</ul>
+<p class="small">Consequence for M7: H\(_1\) (\(\beta_j=o(2^{j/2})\), or any \(o(2^j)\) bound) is as well supported as before; a fit gives \(|\beta_j|\approx2^{0.08j}\) over \(14\le j\le32\), but nineteen numbers cannot tell slow exponential growth from polynomial growth. The plan&rsquo;s remark (O1) that &ldquo;\(|\beta_j|\) may not grow at all&rdquo; is withdrawn. The pairing identity of &sect;3.2 holds exactly for every \(j\le32\) and in every window, not just at \(N_0=0\).</p>
+</div>
+
+<h2 id="method">1&ensp;Method</h2>
+<p><b>Engine.</b> <code>horizon.c</code> runs over all seeds \(n=N_0+r\), \(0\le r<2^j\), and over letters \(i<K=3j\), and keeps exact integer counts: \(\#\{r:U^i(n)\text{ odd}\}\), \(\sum D_k\) and \(\sum D_k^2\) with \(D_k=2S_k-k\), the tail count \(\#\{|S_k-\frac k2|>0.15k\}\), pair counts \(\#\{b_i\ne b_{i+d}\}\) for \(d\le3\), the histogram of the 8-letter block at position \(j\), and the pairing sum of &sect;3.2. Integers are kept mod \(2^{128}\). Since \(U(x)\bmod 2^{a-1}\) depends only on \(x\bmod2^a\), letter \(i\) is exact for \(i<128\). OpenMP, 6 threads, under 2 MB RSS; \(j=32\) (\(4.3\cdot10^9\) seeds, 96 letters) took 286 s.</p>
+<p><b>Independence (R&#8209;5/R&#8209;6).</b> The 2026&#8209;09&#8209;11 script <code>horizon.py</code> is not in the repository, so this is a fresh implementation. It is checked two ways. First, <code>crosscheck.py</code> recomputes every field with Python big integers and the literal definition \(\lfloor3n/2\rfloor+1\), with no modular arithmetic: it matches at \((j,K)=(10,30),(13,39)\), at \(N_0=10^{15}+12345\) and at \(N_0=\lfloor\sqrt2\cdot10^{37}\rfloor\) (\(j=12\)), and at \(N_0\approx2^{128}\) with \(K=120\), the wrap-around limit. Second, all eleven published \(\beta_j\) (\(14\le j\le24\)) are reproduced exactly. As a further sanity check, for \(k\le j\) every letter count equals \(2^{j-1}\) and every tail fraction equals the binomial tail exactly, as Theorem 1 (<code>EVG25.M0.uPrefix_bijective</code>) requires.</p>
+<p><b>Windows.</b> \(N_0=0\) for \(8\le j\le32\); \(N_0=10^{15}+12345\) (the plan&rsquo;s offset) and \(N_0=\lfloor\sqrt2\cdot10^{37}\rfloor=14142135623730950488016887242096980785\) for even \(j\) in \(14..28\) and \(14..30\). A first choice \(N_0=2^{100}+277\) was discarded: \(N_0\equiv277\pmod{2^{3j+1}}\), so it is the origin window shifted by 277 and not independent.</p>
+<p><b>Normalization.</b> \(z_{j,i}=(\#\{r:b_i\text{ odd}\}-2^{j-1})/(2^{j/2}/2)\), which is \(N(0,1)\) for \(2^j\) independent fair coins; \(\beta_j\) is the numerator at \(i=j\), and \(t=i-j\) is the distance past the horizon.</p>
+
+<h2 id="beta">2&ensp;The first letter past the horizon</h2>
+@T1@
+@FIG@
+<p class="small">\(\beta_j/(2^{j/2}/2)\) in three windows; shaded \(\pm1\sigma\), \(\pm2\sigma\) for fair coins. From \(j=20\) on the points stay inside \(\pm0.3\); from \(j=28\) inside \(\pm0.05\).</p>
+<p>The ratio to coin scale keeps shrinking, so super-uniformity of the first letter persists to \(j=32\). The absolute size does not stay bounded: \(|\beta_j|\) jumps from 63 at \(j=24\) to 867 at \(j=25\) and stays in the hundreds, with \(\beta_{32}=9\). The least-squares slope of \(\log_2|\beta_j|\) on \(14\le j\le32\) is 0.077. That is far below the coin exponent \(\frac12\) and also far below the \(\theta<\frac12\) that O1 targets; but with this many points it supports no exponent claim.</p>
+
+<h2 id="layer">3&ensp;The boundary layer</h2>
+<p>\(z_{j,j+t}\) for \(t=0..13\). Green: \(|z|\le0.1\). Amber: \(|z|\ge1\).</p>
+@T3@
+<p>The layer of strongly suppressed bias is about seven letters wide for \(j\ge28\), in both windows, and inside it \(|z|\) shrinks with \(j\) (\(\le0.05\) for \(t\le3\) at \(j=30\)&ndash;32). After it, the bias is at coin scale within a few letters. The 2026&#8209;09&#8209;11 observation that all fourteen values were small at \(j=24\) was a coincidence of that \(j\): at \(j=26\)&ndash;28 the window \(t\le13\) already reaches \(|z|\approx1\)&ndash;2.</p>
+
+<h2 id="summary">4&ensp;All windows</h2>
+@T2@
+<p class="small">&ldquo;Layer width&rdquo; is the first \(t\) with \(|z_{j,j+t}|>0.25\). Variance and tail columns compare \(D_k\) with \(k\) fair coins on \(k\in(j,3j]\); \(\mathrm{Var}/k-1\) has sampling error \(\approx\sqrt{2/2^j}\) (\(4\cdot10^{-5}\) at \(j=30\)). Tail \(z\)-scores are against the exact binomial tail with binomial sampling error, and are strongly correlated across \(k\).</p>
+
+<h2 id="thm2">5&ensp;Exact binomial counts for Theorem 2</h2>
+<p>Plan L14 noted that the Hoeffding form of Theorem 2(b) is asymptotic: \(\sum_{k\ge k_0}2e^{-2\varepsilon^2k}<1\) only from \(k_0=231\) at \(\varepsilon=0.1\). Because Theorem 1 makes the count at each \(k\) <em>exactly</em> binomial, the union bound can use the exact tails \(p_k=P(|\mathrm{Bin}(k,\frac12)-\frac k2|>\varepsilon k)\):</p>
+<table>
+<tr><th>\(\varepsilon\)</th><th>least \(k_0\) with \(\sum_{k\ge k_0}p_k<1\) (exact)</th><th>same with Hoeffding \(2e^{-2\varepsilon^2k}\)</th></tr>
+<tr><td>0.10</td><td>129</td><td>231</td></tr>
+<tr><td>0.15</td><td>43</td><td>85</td></tr>
+<tr><td>0.20</td><td>18</td><td>41</td></tr>
+</table>
+<p>Numerical statements in the paper should use the exact column.</p>
+
+<h2 id="pair">6&ensp;Pairing identity</h2>
+<p>The &sect;3.2 identity \(\beta_j=\sum_{r<2^{j-1},\,b_{j-1}(r)=[j\text{ odd}]}(2b_j(r)-1)\) holds exactly in every run: \(8\le j\le32\) at \(N_0=0\) (previously checked to \(j\le18\)), and at both offsets. That is expected, since F7 holds at every base point; the plan states it only at the origin and should say so in general.</p>
+
+<h2 id="repro">7&ensp;Reproduce</h2>
+<pre style="white-space:pre-wrap;background:var(--code);padding:.8rem;border-radius:4px;font-size:.85rem">cd EVG25/numerics
+gcc -O3 -march=native -fopenmp -o horizon horizon.c
+for j in $(seq 8 32); do ./horizon $j $((3*j)) 0 6 &gt; data/j${j}_0.json; done      # j=32: ~5 min, 6 threads
+for j in 14 16 18 20 22 24 26 28; do ./horizon $j $((3*j)) 1000000000000012345 6 &gt; data/j${j}_1e15.json; done
+for j in 14 16 18 20 22 24 26 28 30; do ./horizon $j $((3*j)) 14142135623730950488016887242096980785 6 &gt; data/j${j}_sqrt2.json; done
+python3 crosscheck.py ./horizon 13 39            # independent big-integer check
+python3 analyze.py &amp;&amp; python3 make_note.py      # tables + this note</pre>

@@ -7,7 +7,7 @@ import Mathlib.Tactic
 import Mathlib.RingTheory.Localization.Integral
 import Mathlib.RingTheory.Polynomial.Content
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import Corpus.Util.Attributes.Basic
 import Corpus.Util.Attributes.Database
 

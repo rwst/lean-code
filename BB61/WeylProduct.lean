@@ -163,9 +163,9 @@ theorem abs_prod_sub_prod_le {ι : Type*} (s : Finset ι) (f g : ι → ℝ)
   set F : ℝ := ∏ i ∈ s, f i with hF
   set G : ℝ := ∏ i ∈ s, g i with hG
   have hFnn : 0 ≤ F := Finset.prod_nonneg fun i _ => hf0 i
-  have hF1 : F ≤ 1 := Finset.prod_le_one (fun i _ => hf0 i) fun i _ => hf1 i
+  have hF1 : F ≤ 1 := Finset.prod_le_one₀ (fun i _ => hf0 i) fun i _ => hf1 i
   have hGnn : 0 ≤ G := Finset.prod_nonneg fun i _ => hg0 i
-  have hG1 : G ≤ 1 := Finset.prod_le_one (fun i _ => hg0 i) fun i _ => hg1 i
+  have hG1 : G ≤ 1 := Finset.prod_le_one₀ (fun i _ => hg0 i) fun i _ => hg1 i
   have hkey : f a * F - g a * G = (f a - g a) * F + g a * (F - G) := by ring
   have habsF : |F| ≤ 1 := by rw [abs_of_nonneg hFnn]; exact hF1
   have habsga : |g a| ≤ 1 := by rw [abs_of_nonneg (hg0 a)]; exact hg1 a

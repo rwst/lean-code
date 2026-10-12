@@ -4,7 +4,7 @@ import Corpus.Util.Attributes.Database
 
 namespace B3
 
-open BL AB Function Filter
+open BL Function Filter
 
 @[category API, AMS 11 37, ref "BL96"]
 theorem binaryDigit_zero (x : ℤ_[2]) : binaryDigit x 0 = parity x := by

@@ -78,7 +78,7 @@ family.  Ineffective throughout.
 
 namespace NKR
 
-open Subspace Rat.AbsoluteValue Height CZ
+open Subspace Rat.AbsoluteValue Height CZ SubspaceTriple
 
 attribute [local instance] Classical.propDecidable
 
@@ -142,7 +142,8 @@ theorem pair_finite (α₁ α₂ : ℚ) (ε₁ : ℝ) (hε₁ : 0 < ε₁)
   have hbig : (𝒩 \ small).Infinite := hinf.sdiff hsmall
   -- the Subspace theorem at n = 3
   obtain ⟨T, hTproper, hTcover⟩ := evertseSchlickewei_rat (n := 3) (by norm_num)
-    {Rat.AbsoluteValue.real, padic 2, padic 3} (Lforms3 α₁ α₂)
+    {Rat.AbsoluteValue.real, padic 2, padic 3} Subspace.isPlace_real_padic_two_three
+    (Lforms3 α₁ α₂)
     (fun v _ => lforms3_linearIndependent α₁ α₂ v) (ε₁ / 4) (by positivity)
   set xv : (ℤ × ℤ) × (ℤ × ℤ) → (Fin 3 → ℚ) := fun q =>
     ![((round (α₁ * uval q.1.1 q.1.2 + α₂ * uval q.2.1 q.2.2) : ℤ) : ℚ),

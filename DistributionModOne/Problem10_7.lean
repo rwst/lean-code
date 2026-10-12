@@ -15,7 +15,7 @@ limitations under the License.
 -/
 
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
-import ForMathlib.NumberTheory.PisotNumber
+import STForMathlib.NumberTheory.PisotNumber
 import Corpus.Util.Attributes.Database
 import Corpus.Util.Attributes.Basic
 

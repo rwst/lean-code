@@ -4,7 +4,7 @@ Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import AB.ComplexityLowerBound
+import DiophantineApproximation.ComplexityTranscendence
 import CITED.BugeaudEvertseComplexity
 import BB47.LemmaA0
 
@@ -21,12 +21,14 @@ Theorems A and A′ need no repetition function: the hypothesis on `s_n + p_∞(
 hypothesis on the ordinary complexity, and the two theorems that forbid it for algebraic
 irrationals are
 
-* `AB.tendsto_pComplexity_div_atTop` — **[AB07, Thm. 1]**, `p(n, ξ, b)/n → +∞`
-  (`AB/ComplexityLowerBound.lean`), and
+* `Real.tendsto_complexity_div_atTop` — **[AB07, Thm. 1]**, `p(n, ξ, b)/n → +∞`, a theorem of
+  the Subspace-Theorems library (`DiophantineApproximation/ComplexityTranscendence.lean`), used
+  here through `BB47.transcendental_of_pComplexity_linear_io`, and
 * `BugeaudEvertse.exists_pComplexity_gt` — **[BE08, Thm. 2.1]**, the `(log n)^{1/11}` refinement
   (`CITED/BugeaudEvertseComplexity.lean`).
 
-Both are imported here so that every cited input of this root is visible from one file.  They are
+Both are imported here so that every Diophantine input of this root is visible from one file;
+the first is proved, the second is a cited axiom.  They are
 what `BB47.theorem_A` and `BB47.theorem_Aprime` actually use; see `BB47/L0.md` §5.1 and
 [M1M2, §5].
 
@@ -57,9 +59,9 @@ subject to the position-versus-period loss that caps the Ferenczi–Mauduit rout
 ## Faithfulness of the transcription
 
 [BK19] allows any finite set of integers as the alphabet.  Here the alphabet is `Fin b`, the digit
-set — the only case Problem 10.47 concerns — and the value is `BB47.value b w`, defined through
-`AB.baseValue` so that the Subspace-theorem citations of the `AB/` root and this one name the same
-object.
+set — the only case Problem 10.47 concerns — and the value is `BB47.value b w`, Mathlib's `Real.ofDigits w`,
+the object the Subspace-Theorems library and `CITED/BugeaudEvertseComplexity.lean` state their
+theorems about.
 
 The hypotheses are transcribed in their equivalent quantifier form rather than as `Filter.liminf`
 and `Filter.limsup` of a real sequence:
@@ -92,17 +94,45 @@ namespace BB47
 open ForMathlib.SubwordComplexity
 
 /-- The real number in `[0, 1)` whose base-`b` expansion is the digit word `w`, i.e.
-`∑ₖ wₖ b^{-(k+1)}`.  A thin wrapper on `AB.baseValue`, so that this root and the Adamczewski–
-Bugeaud root name the same real number. -/
+`∑ₖ wₖ b^{-(k+1)}`: Mathlib's `Real.ofDigits`, the number about which the Subspace-Theorems
+library states [AB07]. -/
 @[category API, AMS 11 37 68, ref "Bug12" "AB07", group "bugeaud_10_47"]
-noncomputable def value (b : ℕ) (w : ℕ → Fin b) : ℝ := AB.baseValue b (fun k => (w k : ℕ))
+noncomputable def value (b : ℕ) (w : ℕ → Fin b) : ℝ := Real.ofDigits w
+
+/-- The complexity of `ForMathlib.SubwordComplexity` (factors as `Fin n → α`) is the complexity
+of the Subspace-Theorems library (factors as lists): `List.ofFn` matches the two factor sets. -/
+@[category API, AMS 68]
+theorem pComplexity_eq_complexity {α : Type*} (w : ℕ → α) (n : ℕ) :
+    pComplexity w n = Function.complexity w n := by
+  have h : Function.factors w n = List.ofFn '' factorSet w n := by
+    ext l
+    simp only [Function.factors, Function.factor, factorSet, Set.mem_range, Set.mem_image,
+      exists_exists_eq_and]
+    rfl
+  rw [Function.complexity, h, Set.ncard_image_of_injective _ List.ofFn_injective, pComplexity]
+
+/-- **[AB07, Thm. 1], contrapositive.**  If the complexity of the digit word is at most `C·n` for
+infinitely many `n`, an irrational `value b w` is transcendental.  Formerly derived from the cited
+axiom `AB.tendsto_pComplexity_div_atTop`; now from the Subspace-Theorems library's
+`Real.transcendental_ofDigits_of_frequently_complexity_le` ([AB07, Thm. 5] and Thm. 1). -/
+@[category research solved, AMS 11 68, ref "AB07", group "ab_complexity_thm1"]
+theorem transcendental_of_pComplexity_linear_io {b : ℕ} (hb : 2 ≤ b) (w : ℕ → Fin b)
+    (hirr : Irrational (value b w)) (C : ℝ)
+    (h : ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧ (pComplexity w n : ℝ) ≤ C * n) :
+    Transcendental ℚ (value b w) :=
+  Real.transcendental_ofDigits_of_frequently_complexity_le hb
+    ((Real.irrational_ofDigits_iff hb).mp hirr)
+    (Filter.frequently_atTop.mpr fun N ↦ by
+      obtain ⟨n, hn, hle⟩ := h N
+      exact ⟨n, hn, pComplexity_eq_complexity w n ▸ hle⟩)
 
 /-- **[BK19, Thm. 10.4], clause 1.**  If the repetition function of a non-eventually-periodic
 digit word is `O(n)` along a subsequence, the number it defines is transcendental.
 
 Cited axiom: the proof rests on the Adamczewski–Bugeaud combinatorial transcendence criterion
 [AB07, Thm. 5] and hence on the `p`-adic Subspace theorem — the same engine as
-`AB.irrational_automatic_transcendental` and `AB.transcendental_of_conditionStar`. -/
+`Real.transcendental_ofDigits_of_isAutomatic` and `Padic.transcendental_ofDigits_of_isStammering`
+in the Subspace-Theorems library. -/
 @[category research solved, AMS 11 37 68, ref "BK19" "AB07", group "bugeaud_10_47"]
 axiom transcendental_of_repLen_liminf {b : ℕ} (hb : 2 ≤ b) (w : ℕ → Fin b)
     (hw : ¬ IsEventuallyPeriodic w) (C : ℕ)

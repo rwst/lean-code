@@ -356,8 +356,7 @@ private theorem map_proj_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsPro
 /-- The digit map carries Haar to the i.i.d. uniform product measure. -/
 private theorem map_dig (μ : Measure ℤ_[2]) [μ.IsAddHaarMeasure] [IsProbabilityMeasure μ] :
     μ.map dig = Measure.infinitePi (fun _ : ℕ => uZMod2) := by
-  have : IsProbabilityMeasure (μ.map dig) :=
-    Measure.isProbabilityMeasure_map measurable_dig.aemeasurable
+  have : IsProbabilityMeasure (μ.map dig) := inferInstance
   refine ext_of_generate_finite _ generateFrom_measurableCylinders.symm
     isPiSystem_measurableCylinders ?_ (by rw [measure_univ, measure_univ])
   intro s hs

@@ -227,12 +227,12 @@ the orbit gives for free; recovering `σ₂`-invariance is the open input **H-in
 architecture (plan-A1+ §2.3, L8). -/
 @[category research solved, AMS 11, ref "A1plus", group "th_solenoid_limitmeasures"]
 theorem limitMeasures_T32_invariant {ξ : ℝ} {ν : ProbabilityMeasure S6} (hν : ν ∈ limitMeasures ξ) :
-    ν.map (measurable_T32.aemeasurable (μ := (ν : Measure S6))) = ν := by
-  refine tendsto_nhds_unique (l := (atTop : Filter ℕ)) (f := fun _ : ℕ => ν.map
-    (measurable_T32.aemeasurable (μ := (ν : Measure S6)))) tendsto_const_nhds ?_
+    ν.map T32 = ν := by
+  refine tendsto_nhds_unique (l := (atTop : Filter ℕ)) (f := fun _ : ℕ => ν.map T32)
+    tendsto_const_nhds ?_
   rw [ProbabilityMeasure.tendsto_iff_forall_integral_tendsto]
   intro f
-  have hmap : ∫ x, f x ∂((ν.map (measurable_T32.aemeasurable (μ := (ν : Measure S6)))) : Measure S6)
+  have hmap : ∫ x, f x ∂((ν.map T32 : ProbabilityMeasure S6) : Measure S6)
       = ∫ x, f x ∂(ν : Measure S6) := by
     rw [ProbabilityMeasure.toMeasure_map, integral_map measurable_T32.aemeasurable
       f.continuous.aestronglyMeasurable]

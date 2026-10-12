@@ -61,7 +61,7 @@ def IsStronglyMixing (f : α → α) (μ : Measure α) : Prop :=
 `A = B = s` gives `μ s = μ s · μ s`, forcing `μ s ∈ {0, 1}`. -/
 theorem IsStronglyMixing.ergodic {f : α → α} {μ : Measure α} [IsProbabilityMeasure μ]
     (h : IsStronglyMixing f μ) : Ergodic f μ := by
-  refine ⟨h.1, ⟨fun s hs hinv => ?_⟩⟩
+  refine Ergodic.of_preimage_eq h.1 fun s hs hinv => ?_
   have hiter : ∀ n, f^[n] ⁻¹' s = s := by
     intro n; induction n with
     | zero => simp
@@ -75,7 +75,7 @@ theorem IsStronglyMixing.ergodic {f : α → α} {μ : Measure α} [IsProbabilit
     rcases eq_or_ne (μ s) 0 with h0 | h0
     · exact Or.inl h0
     · exact Or.inr ((ENNReal.mul_eq_left h0 (measure_ne_top μ s)).mp huniq.symm)
-  rw [eventuallyConst_set]
+  rw [eventuallyEmptyOrUniv_iff]
   rcases hdich with h0 | hs1
   · exact Or.inr (by rw [ae_iff]; simpa using h0)
   · exact Or.inl (by rw [ae_iff, show {a | a ∉ s} = sᶜ from rfl,
@@ -165,7 +165,7 @@ injection `· + 1`, which `Measure.map_infinitePi_infinitePi_of_inj` sends to th
 private lemma seqShift_measurePreserving :
     MeasurePreserving seqShift (Measure.infinitePi (fun _ : ℕ => ν))
       (Measure.infinitePi (fun _ : ℕ => ν)) := by
-  refine ⟨measurable_pi_lambda _ fun n => measurable_pi_apply (n + 1), ?_⟩
+  refine ⟨Measurable.of_eval fun n => measurable_pi_apply (n + 1), ?_⟩
   have h := Measure.map_infinitePi_infinitePi_of_inj (P := fun _ : ℕ => ν) (add_left_injective 1)
   exact h
 
@@ -184,7 +184,7 @@ private lemma seqShift_eventually_indep (I J : Finset ℕ) (S : Set (∀ _ : I, 
   have hmemK : ∀ i : I, (i : ℕ) + n ∈ K := fun i => Finset.mem_map_of_mem e i.2
   -- Reindexing the cylinder set from `K` back to `I`.
   let ρ : (∀ _ : K, α) → (∀ _ : I, α) := fun g i => g ⟨(i : ℕ) + n, hmemK i⟩
-  have hρ : Measurable ρ := measurable_pi_lambda _ fun i => measurable_pi_apply _
+  have hρ : Measurable ρ := Measurable.of_eval fun i => measurable_pi_apply _
   -- The shifted cylinder is the `K`-block cylinder over `ρ ⁻¹' S`.
   have hset : seqShift^[n] ⁻¹' cylinder I S = cylinder K (ρ ⁻¹' S) := by
     ext x

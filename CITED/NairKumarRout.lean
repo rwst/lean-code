@@ -7,6 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Set.Finite.Basic
 import ForMathlib.Data.Rat.NearestInt
 import CITED.CorvajaZannier
+import CITED.SubspaceTriple
 
 /-!
 # The Nair–Kumar–Rout S-unit tuple theorem (arXiv 2506.02898): vocabulary and refutation
@@ -30,8 +31,9 @@ Lemma 2.2 requires one fixed `ε`.
 repaired theorem is **provable** from the `S`-arithmetic Subspace Theorem at `n = 3`
 — no axiom needed.  See `CITED/NairKumarRoutProof.lean`
 (`NKR.pair_finite`, `NKR.sUnit_pair_integrality_of_subspace`; machinery in
-`CITED/NairKumarRoutLemmas.lean`); the consumer `TH/GapDichotomy.lean` discharges
-positivity by parity.  [NKR25] remains cited as the statement template and for
+`CITED/NairKumarRoutLemmas.lean` and `CITED/SubspaceTriple.lean`); the former
+consumer `TH/GapDichotomy.lean` is superseded by the direct route
+`TH/KernelDirect.lean`, which needs no NKR input.  [NKR25] remains cited as the statement template and for
 attribution — not as authority.
 
 **The authors' own correction (private communication, 2026; preprint unrevised).**
@@ -47,7 +49,7 @@ serve the consumer equally well and without the positivity side condition, since
 
 ## Statement conventions (the ℚ-specialization)
 
-* **Group**: `Γ = ⟨2, 3⟩ ≤ ℚ*`, exponent-encoded — `NKR.uval x y = 2^x·3^y`
+* **Group**: `Γ = ⟨2, 3⟩ ≤ ℚ*`, exponent-encoded — `SubspaceTriple.uval x y = 2^x·3^y`
   (a bijection onto `Γ`, so an infinite encoded set is an infinite tuple set).
 * **Tuple length**: `m = 2` (all our uses), coefficients `α₁, α₂ ∈ ℚ*`.
 * **(P1)** is vacuous over `ℚ`; **(P2)** over `ℚ` reduces to `u₁ ≠ -u₂`.
@@ -56,8 +58,8 @@ serve the consumer equally well and without the positivity side condition, since
 
 ## Contents
 
-* `NKR.uval` — the value `2^x·3^y` under the exponent encoding of `Γ = ⟨2,3⟩`.
-* `NKR.uval_neg_natCast` — the consumer's instance `uval (-n) n = (3/2)^n`.
+* (`SubspaceTriple.uval`, the value `2^x·3^y` under the exponent encoding of
+  `Γ = ⟨2,3⟩`, lives in `CITED/SubspaceTriple.lean`.)
 * `NKR.thm13i_unrepaired_false` — **the refutation** of the unrepaired
   Theorem 1.3(i) transcription (the retired axiom's exact statement).
 
@@ -73,19 +75,10 @@ serve the consumer equally well and without the positivity side condition, since
 
 namespace NKR
 
-/-- The value `u = 2^x·3^y` of the Main-Theorem tuples under the exponent
-encoding of `Γ = ⟨2, 3⟩`. -/
-@[category API, AMS 11, ref "NKR25", group "three_halves_m4"]
-def uval (x y : ℤ) : ℚ := (2 : ℚ) ^ x * (3 : ℚ) ^ y
-
-/-- The consumer's instance of the encoding: `uval (-n) n = (3/2)^n`. -/
-@[category API, AMS 11, ref "NKR25", group "three_halves_m4"]
-lemma uval_neg_natCast (n : ℕ) : uval (-(n : ℤ)) n = (3 / 2 : ℚ) ^ n := by
-  unfold uval
-  rw [zpow_neg, zpow_natCast, zpow_natCast, div_pow, inv_mul_eq_div]
+open SubspaceTriple
 
 private lemma uval_neg_one_pow (m : ℤ) : uval (-1) m = 2⁻¹ * (3 : ℚ) ^ m := by
-  unfold NKR.uval
+  unfold SubspaceTriple.uval
   rw [zpow_neg_one]
 
 private lemma cast_pow_eq_zpow (n : ℕ) : (((3 : ℤ) ^ n : ℤ) : ℚ) = (3 : ℚ) ^ ((n : ℕ) : ℤ) := by
