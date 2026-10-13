@@ -1,0 +1,273 @@
+[
+ {
+  "name": "b3_2_nu1_2_P2_5",
+  "p": 3,
+  "q": 2,
+  "nu": "1/2",
+  "P": [
+   2,
+   5
+  ],
+  "D": 24,
+  "title": "Base 3/2, \u03bd = 1/2, \ud835\udcab = {2,5} (machine re-check of T1)",
+  "core": 16,
+  "det": 7,
+  "J": 6,
+  "parts": 1
+ },
+ {
+  "name": "b7_5_nu1_2_P2_3_5_11",
+  "p": 7,
+  "q": 5,
+  "nu": "1/2",
+  "P": [
+   2,
+   3,
+   5,
+   11
+  ],
+  "D": 96,
+  "title": "Base 7/5, \u03bd = 1/2, \ud835\udcab = {2,3,5,11} ([DN05] Thm 4(iii), machine re-check)",
+  "core": 124,
+  "det": 75,
+  "J": 21,
+  "parts": 20
+ },
+ {
+  "name": "b3_2_num1_P2_3",
+  "p": 3,
+  "q": 2,
+  "nu": "-1",
+  "P": [
+   2,
+   3
+  ],
+  "D": 3,
+  "title": "Base 3/2, \u03bd = \u22121, \ud835\udcab = {2,3}",
+  "core": 2,
+  "det": 1,
+  "J": 1,
+  "parts": 1
+ },
+ {
+  "name": "b4_3_num1_P2_3",
+  "p": 4,
+  "q": 3,
+  "nu": "-1",
+  "P": [
+   2,
+   3
+  ],
+  "D": 4,
+  "title": "Base 4/3, \u03bd = \u22121, \ud835\udcab = {2,3}",
+  "core": 3,
+  "det": 2,
+  "J": 1,
+  "parts": 1
+ },
+ {
+  "name": "b3_2_num1_P2_7",
+  "p": 3,
+  "q": 2,
+  "nu": "-1",
+  "P": [
+   2,
+   7
+  ],
+  "D": 3,
+  "title": "Base 3/2, \u03bd = \u22121, \ud835\udcab = {2,7}",
+  "core": 9,
+  "det": 12,
+  "J": 3,
+  "parts": 1
+ },
+ {
+  "name": "b6_5_num1_P2_3_5",
+  "p": 6,
+  "q": 5,
+  "nu": "-1",
+  "P": [
+   2,
+   3,
+   5
+  ],
+  "D": 6,
+  "title": "Base 6/5, \u03bd = \u22121, \ud835\udcab = {2,3,5} ([DN05] Thm 3, [Nov12] Thm 1.4, machine re-check)",
+  "core": 8,
+  "det": 6,
+  "J": 1,
+  "parts": 1
+ },
+ {
+  "name": "b4_3_nu0_P2_3_5",
+  "p": 4,
+  "q": 3,
+  "nu": "0",
+  "P": [
+   2,
+   3,
+   5
+  ],
+  "D": 4,
+  "title": "Base 4/3, floor, \ud835\udcab = {2,3,5} ([FS67], [DN05] Thm 1, machine re-check)",
+  "core": 7,
+  "det": 7,
+  "J": 4,
+  "parts": 1
+ },
+ {
+  "name": "b5_2_num1_P2_3_5",
+  "p": 5,
+  "q": 2,
+  "nu": "-1",
+  "P": [
+   2,
+   3,
+   5
+  ],
+  "D": 5,
+  "title": "Base 5/2, \u03bd = \u22121, \ud835\udcab = {2,3,5} ([DN05] Thm 3, [Nov12] Thm 1.4, machine re-check)",
+  "core": 5,
+  "det": 4,
+  "J": 2,
+  "parts": 1
+ },
+ {
+  "name": "b4_3_nu1_2_P2_5",
+  "p": 4,
+  "q": 3,
+  "nu": "1/2",
+  "P": [
+   2,
+   5
+  ],
+  "D": 8,
+  "title": "Base 4/3, \u03bd = 1/2, \ud835\udcab = {2,5}",
+  "core": 24,
+  "det": 37,
+  "J": 2,
+  "parts": 1
+ },
+ {
+  "name": "b5_3_nu1_2_P2_3",
+  "p": 5,
+  "q": 3,
+  "nu": "1/2",
+  "P": [
+   2,
+   3
+  ],
+  "D": 40,
+  "title": "Base 5/3, \u03bd = 1/2, \ud835\udcab = {2,3} ([DN05] Thm 4(ii), machine re-check)",
+  "core": 22,
+  "det": 7,
+  "J": 3,
+  "parts": 1
+ },
+ {
+  "name": "b5_3_nu1_2_P2_5",
+  "p": 5,
+  "q": 3,
+  "nu": "1/2",
+  "P": [
+   2,
+   5
+  ],
+  "D": 40,
+  "title": "Base 5/3, \u03bd = 1/2, \ud835\udcab = {2,5}",
+  "core": 26,
+  "det": 7,
+  "J": 3,
+  "parts": 1
+ },
+ {
+  "name": "b3_2_nu0_P2_5_7_11",
+  "p": 3,
+  "q": 2,
+  "nu": "0",
+  "P": [
+   2,
+   5,
+   7,
+   11
+  ],
+  "D": 3,
+  "title": "Base 3/2, floor, \ud835\udcab = {2,5,7,11} ([FS67], [DN05] Thm 1, machine re-check)",
+  "core": 43,
+  "det": 53,
+  "J": 13,
+  "parts": 2
+ },
+ {
+  "name": "b5_2_nu1_2_P2_3_7_11",
+  "p": 5,
+  "q": 2,
+  "nu": "1/2",
+  "P": [
+   2,
+   3,
+   7,
+   11
+  ],
+  "D": 10,
+  "title": "Base 5/2, \u03bd = 1/2, \ud835\udcab = {2,3,7,11}",
+  "core": 52,
+  "det": 133,
+  "J": 12,
+  "parts": 4
+ },
+ {
+  "name": "b3_2_nu0_P2_7_11_13",
+  "p": 3,
+  "q": 2,
+  "nu": "0",
+  "P": [
+   2,
+   7,
+   11,
+   13
+  ],
+  "D": 6,
+  "title": "Base 3/2, floor, \ud835\udcab = {2,7,11,13}",
+  "core": 50,
+  "det": 33,
+  "J": 28,
+  "parts": 8
+ },
+ {
+  "name": "b3_2_nu0_P3_5_7_11",
+  "p": 3,
+  "q": 2,
+  "nu": "0",
+  "P": [
+   3,
+   5,
+   7,
+   11
+  ],
+  "D": 12,
+  "title": "Base 3/2, floor, \ud835\udcab = {3,5,7,11}",
+  "core": 264,
+  "det": 269,
+  "J": 17,
+  "parts": 35
+ },
+ {
+  "name": "b7_5_nu1_2_P2_3_5_13",
+  "p": 7,
+  "q": 5,
+  "nu": "1/2",
+  "P": [
+   2,
+   3,
+   5,
+   13
+  ],
+  "D": 224,
+  "title": "Base 7/5, \u03bd = 1/2, \ud835\udcab = {2,3,5,13}",
+  "core": 548,
+  "det": 153,
+  "J": 22,
+  "parts": 201
+ }
+]

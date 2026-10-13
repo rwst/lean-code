@@ -1,0 +1,2 @@
+{"p": 3, "q": 2, "nu": "1/3", "minimal": [{"P": [2, 5, 11], "D": 18, "v": "CERT", "core": 85, "det": 79, "total": 2063}, {"P": [2, 5, 13], "D": 18, "v": "CERT", "core": 46, "det": 24, "total": 598}], "tried": 156, "truncated": true, "secs": 292.1}
+{"p": 3, "q": 2, "nu": "2/3", "minimal": [{"P": [2, 5, 11], "D": 18, "v": "CERT", "core": 85, "det": 79, "total": 2063}, {"P": [2, 5, 13], "D": 18, "v": "CERT", "core": 46, "det": 24, "total": 598}], "tried": 144, "truncated": true, "secs": 414.4}

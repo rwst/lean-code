@@ -1,0 +1,285 @@
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 3], "cert": {"D": 3, "core": 2, "det": 1, "nV": 9}, "Dlast": 3, "secs": 0.0}
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 192, "secs": 0.01}
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 7], "cert": {"D": 3, "core": 9, "det": 12, "nV": 21}, "Dlast": 3, "secs": 0.0}
+{"p": 3, "q": 2, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 192, "secs": 0.03}
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 3, 5], "cert": {"D": 3, "core": 6, "det": 1, "nV": 45}, "Dlast": 3, "secs": 0.0}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 3], "cert": {"D": 4, "core": 3, "det": 2, "nV": 8}, "Dlast": 4, "secs": 0.0}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 256, "secs": 0.05}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 256, "secs": 0.2}
+{"p": 4, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 256, "secs": 0.1}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": {"D": 4, "core": 3, "det": 1, "nV": 40}, "Dlast": 4, "secs": 0.0}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 320, "secs": 0.01}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 320, "secs": 0.01}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 320, "secs": 0.08}
+{"p": 5, "q": 2, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 320, "secs": 0.06}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 3, 5], "cert": {"D": 5, "core": 5, "det": 4, "nV": 75}, "Dlast": 5, "secs": 0.0}
+{"p": 5, "q": 3, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 320, "secs": 0.0}
+{"p": 5, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 320, "secs": 0.04}
+{"p": 5, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 320, "secs": 0.24}
+{"p": 5, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 320, "secs": 0.04}
+{"p": 5, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 320, "secs": 0.02}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 320, "secs": 0.13}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 320, "secs": 0.14}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 320, "secs": 0.23}
+{"p": 5, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 320, "secs": 0.14}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 320, "secs": 0.16}
+{"p": 6, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 384, "secs": 0.14}
+{"p": 6, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 384, "secs": 0.16}
+{"p": 6, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 384, "secs": 0.34}
+{"p": 6, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 384, "secs": 0.18}
+{"p": 6, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": {"D": 6, "core": 8, "det": 6, "nV": 36}, "Dlast": 6, "secs": 0.0}
+{"p": 7, "q": 2, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 448, "secs": 0.01}
+{"p": 7, "q": 2, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 448, "secs": 0.04}
+{"p": 7, "q": 2, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 448, "secs": 0.04}
+{"p": 7, "q": 2, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 448, "secs": 0.21}
+{"p": 7, "q": 2, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 448, "secs": 0.05}
+{"p": 7, "q": 3, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 448, "secs": 0.01}
+{"p": 7, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 448, "secs": 0.19}
+{"p": 7, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 448, "secs": 0.15}
+{"p": 7, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 448, "secs": 0.46}
+{"p": 7, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 448, "secs": 0.05}
+{"p": 7, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 448, "secs": 0.19}
+{"p": 7, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 448, "secs": 0.38}
+{"p": 7, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 448, "secs": 0.2}
+{"p": 7, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 448, "secs": 0.5}
+{"p": 7, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 448, "secs": 0.2}
+{"p": 7, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 448, "secs": 0.22}
+{"p": 7, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 448, "secs": 0.24}
+{"p": 7, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 448, "secs": 0.29}
+{"p": 7, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 448, "secs": 0.21}
+{"p": 7, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 448, "secs": 0.18}
+{"p": 7, "q": 6, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 448, "secs": 0.14}
+{"p": 7, "q": 6, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 448, "secs": 0.28}
+{"p": 7, "q": 6, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 448, "secs": 0.21}
+{"p": 7, "q": 6, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 448, "secs": 0.26}
+{"p": 7, "q": 6, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 448, "secs": 0.23}
+{"p": 8, "q": 3, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 512, "secs": 0.01}
+{"p": 8, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 512, "secs": 0.1}
+{"p": 8, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 512, "secs": 0.5}
+{"p": 8, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 512, "secs": 0.31}
+{"p": 8, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 512, "secs": 0.04}
+{"p": 8, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 512, "secs": 0.31}
+{"p": 8, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 512, "secs": 0.16}
+{"p": 8, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 512, "secs": 0.97}
+{"p": 8, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 512, "secs": 0.34}
+{"p": 8, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 512, "secs": 0.09}
+{"p": 8, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 512, "secs": 0.23}
+{"p": 8, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 512, "secs": 0.37}
+{"p": 8, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 512, "secs": 0.21}
+{"p": 8, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 512, "secs": 0.44}
+{"p": 8, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 512, "secs": 0.44}
+{"p": 9, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 576, "secs": 0.07}
+{"p": 9, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 576, "secs": 0.63}
+{"p": 9, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 576, "secs": 1.11}
+{"p": 9, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 576, "secs": 0.7}
+{"p": 9, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 576, "secs": 0.26}
+{"p": 9, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 576, "secs": 0.41}
+{"p": 9, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 576, "secs": 0.42}
+{"p": 9, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 576, "secs": 1.01}
+{"p": 9, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 576, "secs": 0.48}
+{"p": 9, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 576, "secs": 0.12}
+{"p": 9, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 576, "secs": 0.3}
+{"p": 9, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 576, "secs": 0.5}
+{"p": 9, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 576, "secs": 0.28}
+{"p": 9, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 576, "secs": 0.55}
+{"p": 9, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 576, "secs": 0.48}
+{"p": 9, "q": 8, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 576, "secs": 0.26}
+{"p": 9, "q": 8, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 576, "secs": 0.45}
+{"p": 9, "q": 8, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 576, "secs": 0.64}
+{"p": 9, "q": 8, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 576, "secs": 0.54}
+{"p": 9, "q": 8, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 576, "secs": 0.47}
+{"p": 10, "q": 3, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 640, "secs": 0.02}
+{"p": 10, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 640, "secs": 0.07}
+{"p": 10, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 640, "secs": 1.17}
+{"p": 10, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 640, "secs": 0.14}
+{"p": 10, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 640, "secs": 0.05}
+{"p": 10, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 640, "secs": 0.41}
+{"p": 10, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 640, "secs": 0.39}
+{"p": 10, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 640, "secs": 0.34}
+{"p": 10, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 640, "secs": 0.51}
+{"p": 10, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 640, "secs": 0.48}
+{"p": 10, "q": 9, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 640, "secs": 0.22}
+{"p": 10, "q": 9, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 640, "secs": 0.32}
+{"p": 10, "q": 9, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 640, "secs": 0.83}
+{"p": 10, "q": 9, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 640, "secs": 0.28}
+{"p": 10, "q": 9, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 640, "secs": 0.35}
+{"p": 11, "q": 3, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.02}
+{"p": 11, "q": 3, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.39}
+{"p": 11, "q": 3, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.55}
+{"p": 11, "q": 3, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 1.0}
+{"p": 11, "q": 3, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.08}
+{"p": 11, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.4}
+{"p": 11, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.92}
+{"p": 11, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.53}
+{"p": 11, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 1.37}
+{"p": 11, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.71}
+{"p": 11, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.55}
+{"p": 11, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.51}
+{"p": 11, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.59}
+{"p": 11, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.66}
+{"p": 11, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.52}
+{"p": 11, "q": 6, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.49}
+{"p": 11, "q": 6, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.81}
+{"p": 11, "q": 6, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.47}
+{"p": 11, "q": 6, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.73}
+{"p": 11, "q": 6, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.86}
+{"p": 11, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.49}
+{"p": 11, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.81}
+{"p": 11, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 0.49}
+{"p": 11, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.98}
+{"p": 11, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.55}
+{"p": 11, "q": 8, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.43}
+{"p": 11, "q": 8, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.64}
+{"p": 11, "q": 8, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.11}
+{"p": 11, "q": 8, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.85}
+{"p": 11, "q": 8, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.9}
+{"p": 11, "q": 9, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.33}
+{"p": 11, "q": 9, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.61}
+{"p": 11, "q": 9, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 1.06}
+{"p": 11, "q": 9, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.58}
+{"p": 11, "q": 9, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.58}
+{"p": 11, "q": 10, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 704, "secs": 0.38}
+{"p": 11, "q": 10, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 704, "secs": 0.29}
+{"p": 11, "q": 10, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 704, "secs": 0.99}
+{"p": 11, "q": 10, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 704, "secs": 0.33}
+{"p": 11, "q": 10, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 704, "secs": 0.4}
+{"p": 12, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 768, "secs": 0.38}
+{"p": 12, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 768, "secs": 0.49}
+{"p": 12, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 768, "secs": 2.05}
+{"p": 12, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 768, "secs": 0.63}
+{"p": 12, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 768, "secs": 0.13}
+{"p": 12, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 768, "secs": 0.69}
+{"p": 12, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 768, "secs": 0.95}
+{"p": 12, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 768, "secs": 0.51}
+{"p": 12, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 768, "secs": 1.06}
+{"p": 12, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 768, "secs": 0.59}
+{"p": 12, "q": 11, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 768, "secs": 0.36}
+{"p": 12, "q": 11, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 768, "secs": 0.59}
+{"p": 12, "q": 11, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 768, "secs": 0.98}
+{"p": 12, "q": 11, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 768, "secs": 0.75}
+{"p": 12, "q": 11, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 768, "secs": 0.46}
+{"p": 13, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.46}
+{"p": 13, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 1.25}
+{"p": 13, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 2.46}
+{"p": 13, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 1.64}
+{"p": 13, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.68}
+{"p": 13, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.74}
+{"p": 13, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.59}
+{"p": 13, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 2.3}
+{"p": 13, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 0.88}
+{"p": 13, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.7}
+{"p": 13, "q": 6, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.64}
+{"p": 13, "q": 6, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 1.26}
+{"p": 13, "q": 6, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 2.07}
+{"p": 13, "q": 6, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 1.14}
+{"p": 13, "q": 6, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 1.08}
+{"p": 13, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.75}
+{"p": 13, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 1.06}
+{"p": 13, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 0.86}
+{"p": 13, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 1.36}
+{"p": 13, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.75}
+{"p": 13, "q": 8, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.67}
+{"p": 13, "q": 8, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.99}
+{"p": 13, "q": 8, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 1.65}
+{"p": 13, "q": 8, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 1.21}
+{"p": 13, "q": 8, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 1.4}
+{"p": 13, "q": 9, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.48}
+{"p": 13, "q": 9, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.92}
+{"p": 13, "q": 9, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 1.62}
+{"p": 13, "q": 9, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 0.79}
+{"p": 13, "q": 9, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.82}
+{"p": 13, "q": 10, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.53}
+{"p": 13, "q": 10, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.39}
+{"p": 13, "q": 10, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 1.25}
+{"p": 13, "q": 10, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 0.45}
+{"p": 13, "q": 10, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.54}
+{"p": 13, "q": 11, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.46}
+{"p": 13, "q": 11, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.76}
+{"p": 13, "q": 11, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 1.15}
+{"p": 13, "q": 11, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 1.1}
+{"p": 13, "q": 11, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.59}
+{"p": 13, "q": 12, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 832, "secs": 0.36}
+{"p": 13, "q": 12, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 832, "secs": 0.67}
+{"p": 13, "q": 12, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 832, "secs": 1.1}
+{"p": 13, "q": 12, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 832, "secs": 0.72}
+{"p": 13, "q": 12, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 832, "secs": 0.82}
+{"p": 14, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 896, "secs": 1.05}
+{"p": 14, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 896, "secs": 0.68}
+{"p": 14, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 896, "secs": 1.23}
+{"p": 14, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 896, "secs": 1.02}
+{"p": 14, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 896, "secs": 0.46}
+{"p": 14, "q": 9, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 896, "secs": 0.76}
+{"p": 14, "q": 9, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 896, "secs": 1.08}
+{"p": 14, "q": 9, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 896, "secs": 0.69}
+{"p": 14, "q": 9, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 896, "secs": 0.97}
+{"p": 14, "q": 9, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 896, "secs": 1.19}
+{"p": 14, "q": 11, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 896, "secs": 0.57}
+{"p": 14, "q": 11, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 896, "secs": 0.83}
+{"p": 14, "q": 11, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 896, "secs": 0.64}
+{"p": 14, "q": 11, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 896, "secs": 1.27}
+{"p": 14, "q": 11, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 896, "secs": 0.68}
+{"p": 14, "q": 13, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 896, "secs": 0.53}
+{"p": 14, "q": 13, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 896, "secs": 0.69}
+{"p": 14, "q": 13, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 896, "secs": 0.65}
+{"p": 14, "q": 13, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 896, "secs": 1.0}
+{"p": 14, "q": 13, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 896, "secs": 0.57}
+{"p": 15, "q": 4, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 0.23}
+{"p": 15, "q": 4, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 0.79}
+{"p": 15, "q": 4, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 3.2}
+{"p": 15, "q": 4, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 1.41}
+{"p": 15, "q": 4, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 0.45}
+{"p": 15, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 1.12}
+{"p": 15, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 1.08}
+{"p": 15, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 1.1}
+{"p": 15, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 1.37}
+{"p": 15, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 0.53}
+{"p": 15, "q": 8, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 1.07}
+{"p": 15, "q": 8, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 1.01}
+{"p": 15, "q": 8, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 2.62}
+{"p": 15, "q": 8, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 1.25}
+{"p": 15, "q": 8, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 1.17}
+{"p": 15, "q": 11, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 0.67}
+{"p": 15, "q": 11, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 0.68}
+{"p": 15, "q": 11, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 1.68}
+{"p": 15, "q": 11, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 0.92}
+{"p": 15, "q": 11, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 0.52}
+{"p": 15, "q": 13, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 0.48}
+{"p": 15, "q": 13, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 0.65}
+{"p": 15, "q": 13, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 1.49}
+{"p": 15, "q": 13, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 0.88}
+{"p": 15, "q": 13, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 0.46}
+{"p": 15, "q": 14, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 960, "secs": 0.5}
+{"p": 15, "q": 14, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 960, "secs": 0.64}
+{"p": 15, "q": 14, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 960, "secs": 0.52}
+{"p": 15, "q": 14, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 960, "secs": 0.82}
+{"p": 15, "q": 14, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 960, "secs": 0.73}
+{"p": 16, "q": 5, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 0.45}
+{"p": 16, "q": 5, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 0.24}
+{"p": 16, "q": 5, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 4.22}
+{"p": 16, "q": 5, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 0.82}
+{"p": 16, "q": 5, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 0.23}
+{"p": 16, "q": 7, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 1.58}
+{"p": 16, "q": 7, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 2.16}
+{"p": 16, "q": 7, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 0.99}
+{"p": 16, "q": 7, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 2.23}
+{"p": 16, "q": 7, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 1.51}
+{"p": 16, "q": 9, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 1.22}
+{"p": 16, "q": 9, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 1.79}
+{"p": 16, "q": 9, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 2.95}
+{"p": 16, "q": 9, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 1.36}
+{"p": 16, "q": 9, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 1.9}
+{"p": 16, "q": 11, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 0.91}
+{"p": 16, "q": 11, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 1.41}
+{"p": 16, "q": 11, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 2.07}
+{"p": 16, "q": 11, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 1.82}
+{"p": 16, "q": 11, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 1.15}
+{"p": 16, "q": 13, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 0.79}
+{"p": 16, "q": 13, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 1.13}
+{"p": 16, "q": 13, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 1.93}
+{"p": 16, "q": 13, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 1.42}
+{"p": 16, "q": 13, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 0.86}
+{"p": 16, "q": 15, "nu": "-1", "P": [2, 3], "cert": null, "Dlast": 1024, "secs": 0.49}
+{"p": 16, "q": 15, "nu": "-1", "P": [2, 5], "cert": null, "Dlast": 1024, "secs": 0.53}
+{"p": 16, "q": 15, "nu": "-1", "P": [2, 7], "cert": null, "Dlast": 1024, "secs": 1.96}
+{"p": 16, "q": 15, "nu": "-1", "P": [3, 5], "cert": null, "Dlast": 1024, "secs": 0.37}
+{"p": 16, "q": 15, "nu": "-1", "P": [2, 3, 5], "cert": null, "Dlast": 1024, "secs": 0.51}

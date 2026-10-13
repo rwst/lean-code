@@ -1,0 +1,24 @@
+{"p": 5, "q": 3, "nu": "0", "minimal": [], "truncated": false, "secs": 75.8}
+{"p": 5, "q": 3, "nu": "1/2", "minimal": [{"P": [2, 3], "D": 40, "core": 22, "det": 7, "nV": 80}, {"P": [2, 5], "D": 40, "core": 26, "det": 7, "nV": 400}], "truncated": false, "secs": 44.8}
+{"p": 5, "q": 3, "nu": "-1", "minimal": [], "truncated": false, "secs": 95.1}
+{"p": 7, "q": 4, "nu": "0", "minimal": [], "truncated": false, "secs": 94.8}
+{"p": 7, "q": 4, "nu": "1/2", "minimal": [], "truncated": false, "secs": 91.0}
+{"p": 7, "q": 4, "nu": "-1", "minimal": [], "truncated": false, "secs": 95.8}
+{"p": 7, "q": 6, "nu": "0", "minimal": [], "truncated": false, "secs": 104.8}
+{"p": 7, "q": 6, "nu": "1/2", "minimal": [], "truncated": false, "secs": 107.3}
+{"p": 7, "q": 6, "nu": "-1", "minimal": [], "truncated": false, "secs": 109.6}
+{"p": 9, "q": 4, "nu": "0", "minimal": [], "truncated": false, "secs": 144.9}
+{"p": 9, "q": 4, "nu": "1/2", "minimal": [], "truncated": false, "secs": 149.7}
+{"p": 9, "q": 4, "nu": "-1", "minimal": [], "truncated": false, "secs": 153.2}
+{"p": 9, "q": 7, "nu": "0", "minimal": [], "truncated": false, "secs": 123.6}
+{"p": 9, "q": 7, "nu": "1/2", "minimal": [], "truncated": false, "secs": 134.1}
+{"p": 9, "q": 7, "nu": "-1", "minimal": [], "truncated": false, "secs": 124.6}
+{"p": 10, "q": 7, "nu": "0", "minimal": [], "truncated": false, "secs": 110.1}
+{"p": 10, "q": 7, "nu": "1/2", "minimal": [], "truncated": false, "secs": 105.4}
+{"p": 10, "q": 7, "nu": "-1", "minimal": [], "truncated": false, "secs": 97.9}
+{"p": 11, "q": 4, "nu": "0", "minimal": [], "truncated": false, "secs": 105.0}
+{"p": 11, "q": 4, "nu": "1/2", "minimal": [], "truncated": false, "secs": 95.4}
+{"p": 11, "q": 4, "nu": "-1", "minimal": [], "truncated": false, "secs": 96.6}
+{"p": 13, "q": 7, "nu": "0", "minimal": [], "truncated": false, "secs": 94.2}
+{"p": 13, "q": 7, "nu": "1/2", "minimal": [], "truncated": false, "secs": 98.8}
+{"p": 13, "q": 7, "nu": "-1", "minimal": [], "truncated": false, "secs": 99.7}

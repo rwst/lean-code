@@ -1,0 +1,145 @@
+{"p": 3, "q": 2, "P": [2, 3], "nu": "0", "letters": [-1, 1], "cert": null, "words": 88123, "wlen": 27, "ratio": 1.49997}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/24", "letters": [-1, 1], "cert": null, "words": 62094, "wlen": 26, "ratio": 1.49982}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/12", "letters": [-1, 1], "cert": null, "words": 66069, "wlen": 26, "ratio": 1.49969}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/8", "letters": [-1, 1], "cert": null, "words": 70830, "wlen": 26, "ratio": 1.49997}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/6", "letters": [-1, 1], "cert": null, "words": 64480, "wlen": 26, "ratio": 1.50023}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/24", "letters": [-1, 1], "cert": null, "words": 70105, "wlen": 25, "ratio": 1.49993}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/4", "letters": [-1, 1], "cert": null, "words": 89486, "wlen": 26, "ratio": 1.50003}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/24", "letters": [-1, 1], "cert": null, "words": 66626, "wlen": 25, "ratio": 1.50001}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/3", "letters": [-1, 1], "cert": null, "words": 64676, "wlen": 25, "ratio": 1.50074}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "3/8", "letters": [-1, 1], "cert": null, "words": 67700, "wlen": 25, "ratio": 1.50011}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/12", "letters": [-1, 1], "cert": null, "words": 69412, "wlen": 25, "ratio": 1.50002}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/24", "letters": [-1, 1], "cert": null, "words": 84967, "wlen": 26, "ratio": 1.50002}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1/2", "letters": [-1, 1], "cert": null, "words": 74910, "wlen": 26, "ratio": 1.49934}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/24", "letters": [-1, 1], "cert": null, "words": 84967, "wlen": 26, "ratio": 1.50002}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/12", "letters": [-1, 1], "cert": null, "words": 69412, "wlen": 25, "ratio": 1.50002}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/8", "letters": [-1, 1], "cert": null, "words": 67700, "wlen": 25, "ratio": 1.50011}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "2/3", "letters": [-1, 1], "cert": null, "words": 64676, "wlen": 25, "ratio": 1.50074}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/24", "letters": [-1, 1], "cert": null, "words": 66626, "wlen": 25, "ratio": 1.50001}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "3/4", "letters": [-1, 1], "cert": null, "words": 89486, "wlen": 26, "ratio": 1.50003}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "19/24", "letters": [-1, 1], "cert": null, "words": 70105, "wlen": 25, "ratio": 1.49993}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/6", "letters": [-1, 1], "cert": null, "words": 64480, "wlen": 26, "ratio": 1.50023}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/8", "letters": [-1, 1], "cert": null, "words": 70830, "wlen": 26, "ratio": 1.49997}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/12", "letters": [-1, 1], "cert": null, "words": 66069, "wlen": 26, "ratio": 1.49969}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "23/24", "letters": [-1, 1], "cert": null, "words": 62094, "wlen": 26, "ratio": 1.49982}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "1", "letters": [-1, 1], "cert": null, "words": 88123, "wlen": 27, "ratio": 1.49997}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "25/24", "letters": [-1, 1], "cert": null, "words": 76985, "wlen": 28, "ratio": 1.46557}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/12", "letters": [-1, 1], "cert": null, "words": 39852, "wlen": 28, "ratio": 1.44172}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "9/8", "letters": [-1, 1], "cert": null, "words": 20834, "wlen": 28, "ratio": 1.39957}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/6", "letters": [-1, 1], "cert": null, "words": 13201, "wlen": 28, "ratio": 1.38028}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "29/24", "letters": [-1, 1], "cert": null, "words": 4980, "wlen": 28, "ratio": 1.32447}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/4", "letters": [-1, 1], "cert": null, "words": 2206, "wlen": 28, "ratio": 1.28555}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "31/24", "letters": [-1, 1], "cert": null, "words": 1083, "wlen": 28, "ratio": 1.25638}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "4/3", "letters": [-1, 1], "cert": 6, "words": 13, "wlen": 12, "ratio": 1.08333}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/8", "letters": [-1, 1], "cert": 6, "words": 6, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/12", "letters": [-1, 1], "cert": 6, "words": 4, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "35/24", "letters": [-1, 1], "cert": 6, "words": 4, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "3/2", "letters": [-1, 1], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "37/24", "letters": [-1, 1], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "19/12", "letters": [-1, 1], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/8", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/3", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "41/24", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/4", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "43/24", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/6", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "15/8", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "23/12", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "47/24", "letters": [-1, 1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "2", "letters": [-1], "cert": 6, "words": 1, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "49/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "25/12", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/8", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/6", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "53/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "9/4", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "55/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/3", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "19/8", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "29/12", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "59/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5/2", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "61/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "31/12", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "21/8", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "8/3", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "65/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/4", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "67/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/6", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "23/8", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "35/12", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "71/24", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "3", "letters": [-1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "73/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "37/12", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "25/8", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "19/6", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "77/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/4", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "79/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "10/3", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "27/8", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "41/12", "letters": [-5, -1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "83/24", "letters": [-5, -1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "7/2", "letters": [-5, -1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "85/24", "letters": [-5, -1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "43/12", "letters": [-5, -1], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "29/8", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/3", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "89/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "15/4", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "91/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "23/6", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "31/8", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "47/12", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "95/24", "letters": [-5, -1], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "4", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "97/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "49/12", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "33/8", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "25/6", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "101/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/4", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "103/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "13/3", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "35/8", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "53/12", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "107/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "9/2", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "109/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "55/12", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "37/8", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "14/3", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "113/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "19/4", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "115/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "29/6", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "39/8", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "59/12", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "119/24", "letters": [-5], "cert": 6, "words": 0, "wlen": 12, "ratio": null}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "5", "letters": [-5], "cert": 6, "words": 1, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "121/24", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "61/12", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "41/8", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "31/6", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "125/24", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "21/4", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "127/24", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "16/3", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "43/8", "letters": [-7, -5], "cert": 6, "words": 2, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "65/12", "letters": [-7, -5], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "131/24", "letters": [-7, -5], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "11/2", "letters": [-7, -5], "cert": 6, "words": 3, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "133/24", "letters": [-7, -5], "cert": 6, "words": 4, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "67/12", "letters": [-7, -5], "cert": 6, "words": 4, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "45/8", "letters": [-7, -5], "cert": 6, "words": 6, "wlen": 12, "ratio": 1.0}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "17/3", "letters": [-7, -5], "cert": 6, "words": 13, "wlen": 12, "ratio": 1.08333}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "137/24", "letters": [-7, -5], "cert": null, "words": 1083, "wlen": 28, "ratio": 1.25638}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "23/4", "letters": [-7, -5], "cert": null, "words": 2206, "wlen": 28, "ratio": 1.28555}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "139/24", "letters": [-7, -5], "cert": null, "words": 4980, "wlen": 28, "ratio": 1.32447}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "35/6", "letters": [-7, -5], "cert": null, "words": 13201, "wlen": 28, "ratio": 1.38028}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "47/8", "letters": [-7, -5], "cert": null, "words": 20834, "wlen": 28, "ratio": 1.39957}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "71/12", "letters": [-7, -5], "cert": null, "words": 39852, "wlen": 28, "ratio": 1.44172}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "143/24", "letters": [-7, -5], "cert": null, "words": 76985, "wlen": 28, "ratio": 1.46557}
+{"p": 3, "q": 2, "P": [2, 3], "nu": "6", "letters": [-7, -5], "cert": null, "words": 88123, "wlen": 27, "ratio": 1.49997}

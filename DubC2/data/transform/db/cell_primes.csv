@@ -1,0 +1,48 @@
+cell,prime,role,sccs
+b3_2_nu1_2_P2_5,2,alphabet(pq),divides q
+b3_2_nu1_2_P2_5,5,invariant,"[[[1, 2], [-1, 1]], [[3, 4], [-1, 1]]]"
+b7_5_nu1_2_P2_3_5_11,2,alphabet(res),"[[[1], [-4, -2, 2, 4]]]"
+b7_5_nu1_2_P2_3_5_11,3,orientation,"[[[1], [-2, 4]], [[2], [-4, 2]]]"
+b7_5_nu1_2_P2_3_5_11,5,alphabet(pq),divides q
+b7_5_nu1_2_P2_3_5_11,11,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [-4, -2, 2, 4]]]"
+b3_2_num1_P2_3,2,alphabet(pq),divides q
+b3_2_num1_P2_3,3,alphabet(pq),divides p
+b4_3_num1_P2_3,2,alphabet(pq),divides p
+b4_3_num1_P2_3,3,alphabet(pq),divides q
+b3_2_num1_P2_7,2,alphabet(pq),divides q
+b3_2_num1_P2_7,7,orientation,"[[[1, 2, 3, 5], [1, 3]], [[4], [3]], [[6], [1]]]"
+b6_5_num1_P2_3_5,2,alphabet(pq),divides p
+b6_5_num1_P2_3_5,3,alphabet(pq),divides p
+b6_5_num1_P2_3_5,5,alphabet(pq),divides q
+b4_3_nu0_P2_3_5,2,alphabet(pq),divides p
+b4_3_nu0_P2_3_5,3,alphabet(pq),divides q
+b4_3_nu0_P2_3_5,5,orientation,"[[[1], [-1]], [[2, 3], [-1, 1]], [[4], [1]]]"
+b5_2_num1_P2_3_5,2,alphabet(pq),divides q
+b5_2_num1_P2_3_5,3,alphabet(res)+invariant,"[[[1], [3]], [[2], [3]]]"
+b5_2_num1_P2_3_5,5,alphabet(pq),divides p
+b4_3_nu1_2_P2_5,2,alphabet(pq),divides p
+b4_3_nu1_2_P2_5,5,word,"[[[1, 2, 3, 4], [-3, -1, 1, 3]]]"
+b5_3_nu1_2_P2_3,2,alphabet(res),"[[[1], [-2, 2]]]"
+b5_3_nu1_2_P2_3,3,alphabet(pq),divides q
+b5_3_nu1_2_P2_5,2,alphabet(res),"[[[1], [-2, 2]]]"
+b5_3_nu1_2_P2_5,5,alphabet(pq),divides p
+b3_2_nu0_P2_5_7_11,2,alphabet(pq),divides q
+b3_2_nu0_P2_5_7_11,5,invariant,"[[[1, 2], [-1, 1]], [[3, 4], [-1, 1]]]"
+b3_2_nu0_P2_5_7_11,7,invariant,"[[[1, 2, 5, 6], [-1, 1]], [[3, 4], [-1, 1]]]"
+b3_2_nu0_P2_5_7_11,11,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [-1, 1]]]"
+b5_2_nu1_2_P2_3_7_11,2,alphabet(pq),divides q
+b5_2_nu1_2_P2_3_7_11,3,word,"[[[1, 2], [-3, -1, 1, 3]]]"
+b5_2_nu1_2_P2_3_7_11,7,word,"[[[1, 2, 3, 4, 5, 6], [-3, -1, 1, 3]]]"
+b5_2_nu1_2_P2_3_7_11,11,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [-3, -1, 1, 3]]]"
+b3_2_nu0_P2_7_11_13,2,alphabet(pq),divides q
+b3_2_nu0_P2_7_11_13,7,invariant,"[[[1, 2, 5, 6], [-1, 1]], [[3, 4], [-1, 1]]]"
+b3_2_nu0_P2_7_11_13,11,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [-1, 1]]]"
+b3_2_nu0_P2_7_11_13,13,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [-1, 1]]]"
+b3_2_nu0_P3_5_7_11,3,alphabet(pq),divides p
+b3_2_nu0_P3_5_7_11,5,word,"[[[1, 2, 3, 4], [-1, 1, 2]]]"
+b3_2_nu0_P3_5_7_11,7,word,"[[[1, 2, 3, 4, 5, 6], [-1, 1, 2]]]"
+b3_2_nu0_P3_5_7_11,11,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [-1, 1, 2]]]"
+b7_5_nu1_2_P2_3_5_13,2,alphabet(res),"[[[1], [-4, -2, 2, 4]]]"
+b7_5_nu1_2_P2_3_5_13,3,orientation,"[[[1], [-2, 4]], [[2], [-4, 2]]]"
+b7_5_nu1_2_P2_3_5_13,5,alphabet(pq),divides q
+b7_5_nu1_2_P2_3_5_13,13,word,"[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [-4, -2, 2, 4]]]"

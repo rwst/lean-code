@@ -1,0 +1,54 @@
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+import DubC2.NuAtlas.b3_2_P2_5_D384_j1343.Part23
+
+/-! Certificate pieces for `DubC2.NuAtlas.b3_2_P2_5_D384_j1343`, part 24/30 — generated; do not edit. -/
+
+namespace DubC2.Atlas
+
+open DubC2.Gen
+
+theorem b3_2_P2_5_D384_j1343_d5_u56 : (List.range' 56 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u84 : (List.range' 84 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u112 : (List.range' 112 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u140 : (List.range' 140 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u168 : (List.range' 168 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u196 : (List.range' 196 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5_u224 : (List.range' 224 26).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 5 50) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d5 : (List.range' 5 1).all (detOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C) = true :=
+  all_range'_one (detOK_of_rows (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (all_glue _ 0 112 138 250 (all_glue _ 0 56 56 112 (all_glue _ 0 28 28 56 b3_2_P2_5_D384_j1343_d5_u0 b3_2_P2_5_D384_j1343_d5_u28 rfl) (all_glue _ 56 28 28 56 b3_2_P2_5_D384_j1343_d5_u56 b3_2_P2_5_D384_j1343_d5_u84 rfl) rfl) (all_glue _ 112 56 82 138 (all_glue _ 112 28 28 56 b3_2_P2_5_D384_j1343_d5_u112 b3_2_P2_5_D384_j1343_d5_u140 rfl) (all_glue _ 168 28 54 82 b3_2_P2_5_D384_j1343_d5_u168 (all_glue _ 196 28 26 54 b3_2_P2_5_D384_j1343_d5_u196 b3_2_P2_5_D384_j1343_d5_u224 rfl) rfl) rfl) rfl))
+
+theorem b3_2_P2_5_D384_j1343_d6_u0 : (List.range' 0 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 6 31) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d6_u28 : (List.range' 28 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 6 31) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d6_u56 : (List.range' 56 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 6 31) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d6_u84 : (List.range' 84 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 6 31) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D384_j1343_d6_u112 : (List.range' 112 28).all (detRowOK b3_2_P2_5_D384_j1343P b3_2_P2_5_D384_j1343C 6 31) = true := by
+  decide +kernel
+
+end DubC2.Atlas

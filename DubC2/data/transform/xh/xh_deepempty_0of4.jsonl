@@ -1,0 +1,15 @@
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13, 17], "lmax": 28, "witness": null, "recheck": null, "engine": null, "secs": 1.67, "words": 50, "nodes": 34823, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13, 17], "lmax": 32, "witness": null, "recheck": null, "engine": null, "secs": 2.44, "words": 54, "nodes": 48410, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13, 17], "lmax": 36, "witness": null, "recheck": null, "engine": null, "secs": 3.2, "words": 69, "nodes": 62085, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13], "lmax": 28, "witness": null, "recheck": null, "engine": null, "secs": 1.65, "words": 74, "nodes": 34915, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13], "lmax": 32, "witness": null, "recheck": null, "engine": null, "secs": 2.39, "words": 81, "nodes": 48852, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 13], "lmax": 36, "witness": null, "recheck": null, "engine": null, "secs": 3.2, "words": 105, "nodes": 63415, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 17], "lmax": 28, "witness": null, "recheck": null, "engine": null, "secs": 2.84, "words": 75, "nodes": 62830, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 17], "lmax": 32, "witness": null, "recheck": null, "engine": null, "secs": 5.56, "words": 110, "nodes": 116871, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 11, 17], "lmax": 36, "witness": null, "recheck": null, "engine": null, "secs": 9.88, "words": 159, "nodes": 203170, "cut": false, "pairs": 2, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 13, 17], "lmax": 28, "witness": null, "recheck": null, "engine": null, "secs": 3.24, "words": 85, "nodes": 67163, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 13, 17], "lmax": 32, "witness": null, "recheck": null, "engine": null, "secs": 6.36, "words": 89, "nodes": 125994, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 5, 7, 13, 17], "lmax": 36, "witness": null, "recheck": null, "engine": null, "secs": 11.56, "words": 139, "nodes": 220504, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 7, 11, 13, 17], "lmax": 28, "witness": null, "recheck": null, "engine": null, "secs": 7.11, "words": 92, "nodes": 148568, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 7, 11, 13, 17], "lmax": 32, "witness": null, "recheck": null, "engine": null, "secs": 12.51, "words": 96, "nodes": 262977, "cut": false, "pairs": 0, "pair_cut": false}
+{"p": 5, "q": 4, "nu": "-1", "P": [2, 3, 7, 11, 13, 17], "lmax": 36, "witness": null, "recheck": null, "engine": null, "secs": 20.85, "words": 165, "nodes": 425353, "cut": false, "pairs": 0, "pair_cut": false}

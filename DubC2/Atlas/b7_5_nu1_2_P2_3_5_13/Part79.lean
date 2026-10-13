@@ -1,0 +1,27 @@
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+import DubC2.Atlas.b7_5_nu1_2_P2_3_5_13.Part78
+
+/-! Certificate pieces for `DubC2.Atlas.b7_5_nu1_2_P2_3_5_13`, part 79/201 — generated; do not edit. -/
+
+namespace DubC2.Atlas
+
+open DubC2.Gen
+
+theorem b7_5_nu1_2_P2_3_5_13_d0_u6020 : (List.range' 6020 8).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 0 548) = true := by
+  decide +kernel
+
+theorem b7_5_nu1_2_P2_3_5_13_d0 : (List.range' 0 1).all (detOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C) = true :=
+  all_range'_one (detOK_of_rows (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (all_glue _ 0 3010 3018 6028 (all_glue _ 0 1462 1548 3010 (all_glue _ 0 688 774 1462 (all_glue _ 0 344 344 688 (all_glue _ 0 172 172 344 (all_glue _ 0 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u0 b7_5_nu1_2_P2_3_5_13_d0_u86 rfl) (all_glue _ 172 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u172 b7_5_nu1_2_P2_3_5_13_d0_u258 rfl) rfl) (all_glue _ 344 172 172 344 (all_glue _ 344 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u344 b7_5_nu1_2_P2_3_5_13_d0_u430 rfl) (all_glue _ 516 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u516 b7_5_nu1_2_P2_3_5_13_d0_u602 rfl) rfl) rfl) (all_glue _ 688 344 430 774 (all_glue _ 688 172 172 344 (all_glue _ 688 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u688 b7_5_nu1_2_P2_3_5_13_d0_u774 rfl) (all_glue _ 860 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u860 b7_5_nu1_2_P2_3_5_13_d0_u946 rfl) rfl) (all_glue _ 1032 172 258 430 (all_glue _ 1032 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u1032 b7_5_nu1_2_P2_3_5_13_d0_u1118 rfl) (all_glue _ 1204 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u1204 (all_glue _ 1290 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u1290 b7_5_nu1_2_P2_3_5_13_d0_u1376 rfl) rfl) rfl) rfl) rfl) (all_glue _ 1462 774 774 1548 (all_glue _ 1462 344 430 774 (all_glue _ 1462 172 172 344 (all_glue _ 1462 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u1462 b7_5_nu1_2_P2_3_5_13_d0_u1548 rfl) (all_glue _ 1634 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u1634 b7_5_nu1_2_P2_3_5_13_d0_u1720 rfl) rfl) (all_glue _ 1806 172 258 430 (all_glue _ 1806 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u1806 b7_5_nu1_2_P2_3_5_13_d0_u1892 rfl) (all_glue _ 1978 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u1978 (all_glue _ 2064 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u2064 b7_5_nu1_2_P2_3_5_13_d0_u2150 rfl) rfl) rfl) rfl) (all_glue _ 2236 344 430 774 (all_glue _ 2236 172 172 344 (all_glue _ 2236 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u2236 b7_5_nu1_2_P2_3_5_13_d0_u2322 rfl) (all_glue _ 2408 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u2408 b7_5_nu1_2_P2_3_5_13_d0_u2494 rfl) rfl) (all_glue _ 2580 172 258 430 (all_glue _ 2580 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u2580 b7_5_nu1_2_P2_3_5_13_d0_u2666 rfl) (all_glue _ 2752 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u2752 (all_glue _ 2838 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u2838 b7_5_nu1_2_P2_3_5_13_d0_u2924 rfl) rfl) rfl) rfl) rfl) rfl) (all_glue _ 3010 1548 1470 3018 (all_glue _ 3010 774 774 1548 (all_glue _ 3010 344 430 774 (all_glue _ 3010 172 172 344 (all_glue _ 3010 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3010 b7_5_nu1_2_P2_3_5_13_d0_u3096 rfl) (all_glue _ 3182 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3182 b7_5_nu1_2_P2_3_5_13_d0_u3268 rfl) rfl) (all_glue _ 3354 172 258 430 (all_glue _ 3354 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3354 b7_5_nu1_2_P2_3_5_13_d0_u3440 rfl) (all_glue _ 3526 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u3526 (all_glue _ 3612 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3612 b7_5_nu1_2_P2_3_5_13_d0_u3698 rfl) rfl) rfl) rfl) (all_glue _ 3784 344 430 774 (all_glue _ 3784 172 172 344 (all_glue _ 3784 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3784 b7_5_nu1_2_P2_3_5_13_d0_u3870 rfl) (all_glue _ 3956 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u3956 b7_5_nu1_2_P2_3_5_13_d0_u4042 rfl) rfl) (all_glue _ 4128 172 258 430 (all_glue _ 4128 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u4128 b7_5_nu1_2_P2_3_5_13_d0_u4214 rfl) (all_glue _ 4300 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u4300 (all_glue _ 4386 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u4386 b7_5_nu1_2_P2_3_5_13_d0_u4472 rfl) rfl) rfl) rfl) rfl) (all_glue _ 4558 774 696 1470 (all_glue _ 4558 344 430 774 (all_glue _ 4558 172 172 344 (all_glue _ 4558 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u4558 b7_5_nu1_2_P2_3_5_13_d0_u4644 rfl) (all_glue _ 4730 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u4730 b7_5_nu1_2_P2_3_5_13_d0_u4816 rfl) rfl) (all_glue _ 4902 172 258 430 (all_glue _ 4902 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u4902 b7_5_nu1_2_P2_3_5_13_d0_u4988 rfl) (all_glue _ 5074 86 172 258 b7_5_nu1_2_P2_3_5_13_d0_u5074 (all_glue _ 5160 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u5160 b7_5_nu1_2_P2_3_5_13_d0_u5246 rfl) rfl) rfl) rfl) (all_glue _ 5332 344 352 696 (all_glue _ 5332 172 172 344 (all_glue _ 5332 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u5332 b7_5_nu1_2_P2_3_5_13_d0_u5418 rfl) (all_glue _ 5504 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u5504 b7_5_nu1_2_P2_3_5_13_d0_u5590 rfl) rfl) (all_glue _ 5676 172 180 352 (all_glue _ 5676 86 86 172 b7_5_nu1_2_P2_3_5_13_d0_u5676 b7_5_nu1_2_P2_3_5_13_d0_u5762 rfl) (all_glue _ 5848 86 94 180 b7_5_nu1_2_P2_3_5_13_d0_u5848 (all_glue _ 5934 86 8 94 b7_5_nu1_2_P2_3_5_13_d0_u5934 b7_5_nu1_2_P2_3_5_13_d0_u6020 rfl) rfl) rfl) rfl) rfl) rfl) rfl))
+
+theorem b7_5_nu1_2_P2_3_5_13_d1_u0 : (List.range' 0 86).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 1 103) = true := by
+  decide +kernel
+
+theorem b7_5_nu1_2_P2_3_5_13_d1_u86 : (List.range' 86 86).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 1 103) = true := by
+  decide +kernel
+
+end DubC2.Atlas

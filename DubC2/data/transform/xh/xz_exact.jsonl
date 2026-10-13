@@ -1,0 +1,12 @@
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 3], "follower_states": 2, "DF": 1, "MD": 3, "det_states": 2, "ok": true}
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 3, 5], "follower_states": 2, "DF": 1, "MD": 15, "det_states": 2, "ok": true}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 3], "follower_states": 3, "DF": 9, "MD": 18, "det_states": 3, "ok": true}
+{"p": 3, "q": 2, "nu": "-1", "P": [2, 3, 7], "follower_states": 6, "DF": 1, "MD": 21, "det_states": 6, "ok": true}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 3, 5], "follower_states": 4, "DF": 2, "MD": 30, "det_states": 4, "ok": true}
+{"p": 5, "q": 3, "nu": "1/2", "P": [2, 3], "follower_states": 7, "DF": 27, "MD": 54, "det_states": 7, "ok": true}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 3, 5], "follower_states": 9, "DF": 9, "MD": 90, "det_states": 9, "ok": true}
+{"p": 4, "q": 3, "nu": "-1", "P": [2, 3, 7], "follower_states": 6, "DF": 9, "MD": 126, "det_states": 6, "ok": true}
+{"p": 3, "q": 2, "nu": "1/2", "P": [2, 5], "follower_states": 23, "DF": 32, "MD": 160, "det_states": 23, "ok": true}
+{"p": 5, "q": 2, "nu": "-1", "P": [2, 3, 5, 7], "follower_states": 7, "DF": 2, "MD": 210, "det_states": 7, "ok": true}
+{"p": 5, "q": 3, "nu": "1/2", "P": [2, 3, 5], "follower_states": 7, "DF": 27, "MD": 270, "det_states": 7, "ok": true}
+{"p": 5, "q": 3, "nu": "1/2", "P": [2, 5], "follower_states": 7, "DF": 27, "MD": 270, "det_states": 7, "ok": true}

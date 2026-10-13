@@ -1,0 +1,35 @@
+# X-DB ranked shortlist (certdb.py); KNOWN/trivial patterns listed after
+  2.75  R2  n= 33  [p>=8] no divisor set certifies (scan ladder)
+  2.05  R6  n= 15  cells: min_period <= J (equality 4/15)
+  1.50  R2  n= 36  [p-q>=3 & q>=3] no divisor set certifies (scan ladder)
+  1.19  R6  n= 15  cells: n_realized <= max_period (equality 5/15)
+  0.90  R6  n= 16  cells: n_realized <= J (equality 4/16)
+  0.85  R6  n= 15  cells: max_period <= core (equality 0/15)
+  0.78  R6  n= 15  cells: min_period <= M (equality 1/15)
+  0.75  R2  n= 18  [q even & q>=3] no divisor set certifies (scan ladder)
+  0.75  R1  n=  4  [nu=-1] no minimal certified P contains 11
+  0.67  R2  n= 16  [nu=0 & p-q>=2] no divisor set certifies (scan ladder)
+  0.45  R3  n=  3  |P_min(nu=-1)| <= |P_min(nu=1/2)| where both certify
+  0.39  R1  n=  4  [nu=-1] no minimal certified P contains 13
+  0.34  R5  n= 16  cells: J determines res_free
+  0.30  R3  n=  2  |P_min(nu=-1)| <= |P_min(nu=0)| where both certify
+  0.29  R2  n=  7  [nu=-1 & p-q even] no divisor set certifies (scan ladder)
+  0.16  R1  n=  7  [nu not in Z] every minimal certified P contains 2
+  0.11  R1  n=  5  [nu=1/2] every minimal certified P contains 2
+  0.09  R1  n=  4  [nu=-1] every minimal certified P contains 2
+ 10.02  R7  n=145  4/3, P=[2, 3]: certified nu-set invariant under nu -> 1 - nu (mod 6); 55/145 grid points certified  [KNOWN: theorem: Mirror.frequently_mirror_iff (Mirror.lean), xi -> -xi]
+  9.28  R7  n=241  6/5, P=[2, 3, 5]: certified nu-set invariant under nu -> 1 - nu (mod 30); 44/241 grid points certified  [KNOWN: theorem: Mirror.frequently_mirror_iff (Mirror.lean), xi -> -xi]
+  8.03  R7  n=145  3/2, P=[2, 3]: certified nu-set invariant under nu -> 1 - nu (mod 6); 105/145 grid points certified  [KNOWN: theorem: Mirror.frequently_mirror_iff (Mirror.lean), xi -> -xi]
+  3.22  R7  n=121  5/2, P=[2, 5]: certified nu-set invariant under nu -> 1 - nu (mod 10); 15/121 grid points certified  [KNOWN: theorem: Mirror.frequently_mirror_iff (Mirror.lean), xi -> -xi]
+  2.75  R4  n= 63  Thm 42 kills nothing  <=>  nu=1/2 & p-q=1  [KNOWN: witness shape: x* = s0/(p-q) + nu in [0,1] forces s0 = 0]
+  2.14  R6  n= 15  cells: min_period <= max_period (equality 7/15)  [KNOWN: trivial / theorem]
+  1.91  R6  n= 16  cells: J <= det (equality 1/16)  [KNOWN: trivial / theorem]
+  1.60  R6  n= 15  cells: max_period <= det (equality 1/15)  [KNOWN: trivial / theorem]
+  1.31  R6  n= 16  cells: n_realized <= n_det_cycles (equality 6/16)  [KNOWN: theorem (soundness + X-C)]
+  1.22  R6  n= 16  cells: J <= core (equality 0/16)  [KNOWN: trivial / theorem]
+  0.92  R6  n= 15  cells: min_period <= det (equality 1/15)  [KNOWN: trivial / theorem]
+  0.91  R4  n= 21  [nu=-1] Thm 42 kills P=[3] on every row  [KNOWN: theorem: Gen.not_checked_three_of_int (ObstructionTwo.lean)]
+  0.91  R4  n= 21  [nu=0] Thm 42 kills P=[3] on every row  [KNOWN: theorem: Gen.not_checked_three_of_int (ObstructionTwo.lean)]
+  0.75  R4  n= 21  [nu=-1] Thm 42 kills P=[2] on every row  [KNOWN: theorem: Gen.not_checked_two_of_int (ObstructionTwo.lean)]
+  0.75  R4  n= 21  [nu=0] Thm 42 kills P=[2] on every row  [KNOWN: theorem: Gen.not_checked_two_of_int (ObstructionTwo.lean)]
+  0.30  R3  n=  2  |P_min(nu=1/2)| <= |P_min(nu=0)| where both certify  [KNOWN: C-2 form]

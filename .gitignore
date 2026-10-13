@@ -13,3 +13,7 @@ scripts/app.html
 papers/
 */__pycache__/
 .gitignore
+old-plans/
+plans/
+publ/
+

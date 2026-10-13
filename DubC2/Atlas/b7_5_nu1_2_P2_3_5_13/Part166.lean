@@ -1,0 +1,34 @@
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+import DubC2.Atlas.b7_5_nu1_2_P2_3_5_13.Part165
+
+/-! Certificate pieces for `DubC2.Atlas.b7_5_nu1_2_P2_3_5_13`, part 166/201 — generated; do not edit. -/
+
+namespace DubC2.Atlas
+
+open DubC2.Gen
+
+theorem b7_5_nu1_2_P2_3_5_13_d36_u86 : (List.range' 86 68).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 36 14) = true := by
+  decide +kernel
+
+theorem b7_5_nu1_2_P2_3_5_13_d36 : (List.range' 36 1).all (detOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C) = true :=
+  all_range'_one (detOK_of_rows (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (all_glue _ 0 86 68 154 b7_5_nu1_2_P2_3_5_13_d36_u0 b7_5_nu1_2_P2_3_5_13_d36_u86 rfl))
+
+theorem b7_5_nu1_2_P2_3_5_13_d37_u0 : (List.range' 0 86).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 37 8) = true := by
+  decide +kernel
+
+theorem b7_5_nu1_2_P2_3_5_13_d37_u86 : (List.range' 86 2).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 37 8) = true := by
+  decide +kernel
+
+theorem b7_5_nu1_2_P2_3_5_13_d37 : (List.range' 37 1).all (detOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C) = true :=
+  all_range'_one (detOK_of_rows (by decide +kernel) (by decide +kernel)
+    (by decide +kernel) (all_glue _ 0 86 2 88 b7_5_nu1_2_P2_3_5_13_d37_u0 b7_5_nu1_2_P2_3_5_13_d37_u86 rfl))
+
+theorem b7_5_nu1_2_P2_3_5_13_d38_u0 : (List.range' 0 86).all (detRowOK b7_5_nu1_2_P2_3_5_13P b7_5_nu1_2_P2_3_5_13C 38 13) = true := by
+  decide +kernel
+
+end DubC2.Atlas

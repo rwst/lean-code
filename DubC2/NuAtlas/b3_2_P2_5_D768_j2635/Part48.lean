@@ -1,0 +1,50 @@
+/-
+(C) 2026 Ralf Stephan, in collaboration with Claude Code.
+Released under CC0 1.0 Universal (public-domain dedication).
+See https://creativecommons.org/publicdomain/zero/1.0/
+-/
+import DubC2.NuAtlas.b3_2_P2_5_D768_j2635.Part47
+
+/-! Certificate pieces for `DubC2.NuAtlas.b3_2_P2_5_D768_j2635`, part 48/80 — generated; do not edit. -/
+
+namespace DubC2.Atlas
+
+open DubC2.Gen
+
+theorem b3_2_P2_5_D768_j2635_d2_u2224 : (List.range' 2224 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2240 : (List.range' 2240 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2256 : (List.range' 2256 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2272 : (List.range' 2272 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2288 : (List.range' 2288 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2304 : (List.range' 2304 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2320 : (List.range' 2320 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2336 : (List.range' 2336 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2352 : (List.range' 2352 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2368 : (List.range' 2368 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2384 : (List.range' 2384 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+theorem b3_2_P2_5_D768_j2635_d2_u2400 : (List.range' 2400 16).all (detRowOK b3_2_P2_5_D768_j2635P b3_2_P2_5_D768_j2635C 2 710) = true := by
+  decide +kernel
+
+end DubC2.Atlas
