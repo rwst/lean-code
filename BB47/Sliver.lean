@@ -294,7 +294,10 @@ their §§2, 3, 6, 7 transcribe to base `b` unchanged — in particular [BBCP04,
 propagation of positivity, which uses only `A_D > 0` and `r_D ≥ 0`.  That transcription is the
 reason the *unsigned, unblocked* normal form of [M3, Thm. 7.1] matters: had the coefficients
 varied in sign, Lem. 6.2 would have failed and sparseness would have been destroyed by borrow
-propagation. -/
+propagation.
+
+The `D = 2` slice is a theorem: `BB47.QuadraticTails.bbcp_base_b_deg_two` (std3) proves this
+statement when `natDegree = 2`. The axiom is needed only for `D ≥ 3`. -/
 @[category research solved, AMS 11 37, ref "BBCP04", group "bugeaud_10_47"]
 axiom bbcp_base_b (b : ℕ) (hb : 2 ≤ b) (t : ℕ → ℕ) (ht : StrictMono t)
     (halg : IsAlgebraic ℚ (sparseValue b t))

@@ -19,9 +19,9 @@ the paper's theorems are machine-checked?", and it is meant to be quotable in th
 | | count |
 |---|---|
 | results tabulated below (M1M2 21, M3 18, M4 9) | 48 rows |
-| ✅ **machine-checked, no cited axiom** (`propext`, `Classical.choice`, `Quot.sound` only) | **20** (19 distinct: M3 Prop. 2.1 *is* M1M2 Prop. 3.2) — M1M2 Prop. 2.4 joined on 2026-09-14 |
-| 🔗 **proved from** a cited axiom | 7 |
-| 📚 quoted as a **cited `@[ref]` axiom** | 5 rows, **7 axioms**: [AB07], [BE08], [BK19]×2, [Rid57], [BBCP04], [Nes96] |
+| ✅ **machine-checked, no cited axiom** (`propext`, `Classical.choice`, `Quot.sound` only) | **27** (26 distinct: M3 Prop. 2.1 *is* M1M2 Prop. 3.2) — M1M2 Prop. 2.4 joined on 2026-09-14; Thm. 5.1 and Thm. 6.1 on 2026-10-12, Thm. 5.2, Thm. 6.2 and Cors. 6.3–6.5 on 2026-10-13 (axiom audit of that date) |
+| 🔗 **proved from** a cited axiom | 2 (Theorem D, the sliver); the `_via_repLen` twins of Theorems A and A′ still use [BK19] |
+| 📚 quoted as a **cited `@[ref]` axiom** | 3 rows, **5 axioms**: [BK19]×2, [Rid57], [BBCP04], [Nes96] ([AB07] and [BE08] are theorems since 2026-10-12/13) |
 | 🟡 partially formalized | 1 |
 | ❌ not formalized — nine results, four reasons, all listed below | 9 |
 | 📝 / 🔢 prose, tables, measured data | 6 |
@@ -43,7 +43,7 @@ a project of its own.
 | `Rauzy.lean` | the reduced Rauzy graph; strong connectivity; the out-closed exclusion. **Since 2026-09-14 it proves nothing**: `recFactorSet u = recurrentLanguage u` is `rfl`, so it re-exports `ForMathlib/Dynamics/SymbolicDynamics/Rauzy.lean` (`edgeSrc`/`edgeTgt` by `export`, one constant with two names) | — |
 | `Degrees.lean` | in/out-degrees as `Finset.card`s of fibres and the two degree sums — the part `ForMathlib` does not express — plus the unique right- and left-special block, now *derived* from `exists_isRightSpecial`/`eq_of_isRightSpecial` through `isRightSpecial_iff_two_le_outDeg` | — |
 | `LemmaA0.lean` | the repetition function `r(n,·)`, **Lemma A0**, and the [BK26] comparison | — |
-| `Cited.lean` | `value = Real.ofDigits`; `pComplexity_eq_complexity`, [AB07] Thm. 1 contrapositive (proved, from Subspace-Theorems); **[BK19] Thm. 10.4**, both clauses | 2 |
+| `Cited.lean` | `value = Real.ofDigits`; [AB07] Thm. 1 contrapositive (proved, from Subspace-Theorems); **[BK19] Thm. 10.4**, both clauses | 2 |
 | `TheoremA.lean` | **Theorems A and A′** (from [AB07]/[BE08]) and their `_via_repLen` twins (from [BK19]), the `n+k` ladder, the structure corollary | — |
 | `Certificate.lean` | the three M4 certificates and **the ceiling** | — |
 | `Sliver.lean` | the skew branch's Diophantine constraints; **Theorem D proved from Ridout** | 3 |
@@ -51,6 +51,7 @@ a project of its own.
 | `OmegaLimit.lean` | **(new 2026-09-14, WP8)** `Ω(u)` as a subshift in 10.47's vocabulary: **M1M2 Prop. 2.4** (`pInf_eq_complexity`), `Ω(u)` as an `ω`-limit set of any two-sided extension, `Ω = ⟵lim G'ₙ`, and **M3 Lem. 3.3 complete** (`orbit_eq_of_pInf_eq`, with `orbit_eq_of_pInf_succ_le` the sharper form) | — |
 | `TheoremZ.lean` | **(new 2026-09-14)** **Theorem Z** — `p` and `p_∞` have the same exponential growth rate, so under (H) the *whole* expansion has zero entropy. Carries the horizon bound `p(n) ≤ s_n + p_∞(n)`, the quantitative form `p(m·k) ≤ s_m + p_∞(m)^k`, the two growth rates `wordEntropy`/`pInfEntropy` as `EReal`s, the existence of both limits, and the contrapositive **positive entropy ⇒ ¬(H)** (`plans/plan2-1047.html` §3.1) | — |
 | `Confinement.lean` | **(new 2026-09-15)** **Proposition C(1)–(2)** — under (H) exactly two letters recur, so past `s_1` the word is two-letter and the other `#α − 2` letters are eventually omitted; and one of the two letters `a` has `aa` non-recurrent, so past `s_2` the tail avoids `aa` (the golden-mean SFT in base 2). `recLetters`, `ncard_recLetters` = `p_∞(1)`, `isEventuallyPeriodic_of_no_transition`, `exists_pair_forbidden_square` (`plans/plan2-1047.html` §3.2) | — |
+| `Isaac.lean` | **(new 2026-10-15)** **Condition (TU) of Isaac (2006) is false**, two proofs (`plans/report-sqrtnorm.html` §2.1). Not part of paper 1; it is the √2-normality side project that shares the root. `not_TU_bootstrap` (proof A, std3) and `not_TU_fourier` (proof B) | — (proof B uses the two new `CITED/` axioms below) |
 
 Dependency shape: `Basic → {Rauzy → Degrees → OmegaLimit → TheoremZ, LemmaA0 → Cited → TheoremA,
 Certificate, PeriodicOrbits → OmegaLimit}`; `Sliver` is independent of the rest (it is about a
@@ -91,13 +92,13 @@ A window starting at `1`-based position `i` starts at `0`-based `i − 1`, so th
 | **Lem. 4.1 — the horizon bound** `p(n,w) ≤ s_n + p_∞(n,w)` | ✅ | `pComplexity_le_horizon_add_pInf` |
 | **Lem. 4.2 = Lemma A0** — `r(n,w) ≤ p(n,w) + n ≤ s_n + n + p_∞(n,w)`; first half is [BK26, Lem. 2.2] | ✅ | `repLen_le_pComplexity_add`, `lemma_A0`, `hasRepetitionBy_horizon_add`, `pComplexity_add_le_lemma_A0_bound` |
 | Thm. 5.1 = [AB07, Thm. 1] — `p(n,ξ,b)/n → ∞` | ✅ (Subspace-Theorems) | `Real.tendsto_complexity_div_atTop`; consumed as `BB47.transcendental_of_pComplexity_linear_io` |
-| Thm. 5.2 = [BE08, Thm. 2.1] | 📚 **cited axiom** | `BugeaudEvertse.exists_pComplexity_gt` (`CITED/BugeaudEvertseComplexity.lean`) |
+| Thm. 5.2 = [BE08, Thm. 2.1] | ✅ (Subspace-Theorems, since 2026-10-13, with `1/7`) | `Real.frequently_lt_complexity`; consumed as `BugeaudEvertse.exists_pComplexity_gt` (`CITED/BugeaudEvertseComplexity.lean`) |
 | Thm. 5.3 = [BK19, Thm. 10.4] | 📚 **cited axiom** ×2 | `transcendental_of_repLen_liminf`, `transcendental_of_repLen_limsup` |
-| **Thm. 6.1 = Theorem A** | 🔗 proved from Thm. 5.1 | `theorem_A`; second route `theorem_A_via_repLen` (Thm. 5.3) |
-| **Thm. 6.2 = Theorem A′** | 🔗 proved from Thm. 5.2 | `theorem_Aprime`; second route `theorem_Aprime_via_repLen` (Thm. 5.3) |
-| Cor. 6.3 — minimal eventual complexity | 🔗 | `transcendental_of_minimal_pInf` |
-| Cor. 6.4 — the whole `n+k` ladder, uniformly | 🔗 | `transcendental_of_pInf_linear`, `transcendental_of_pInf_add_const` |
-| Cor. 6.5 — structure of hypothetical counterexamples | 🔗 | `structure_of_algebraic`, `structure_of_algebraic_log`, `exists_pInf_ge_of_algebraic` |
+| **Thm. 6.1 = Theorem A** | ✅ from Thm. 5.1 (std3 since 2026-10-12) | `theorem_A`; second route `theorem_A_via_repLen` (Thm. 5.3) |
+| **Thm. 6.2 = Theorem A′** | ✅ from Thm. 5.2 (std3 since 2026-10-13) | `theorem_Aprime`; second route `theorem_Aprime_via_repLen` (Thm. 5.3) |
+| Cor. 6.3 — minimal eventual complexity | ✅ (std3) | `transcendental_of_minimal_pInf` |
+| Cor. 6.4 — the whole `n+k` ladder, uniformly | ✅ (std3) | `transcendental_of_pInf_linear`, `transcendental_of_pInf_add_const` |
+| Cor. 6.5 — structure of hypothetical counterexamples | ✅ (std3) | `structure_of_algebraic`, `structure_of_algebraic_log`, `exists_pInf_ge_of_algebraic` |
 | Rem. 6.6, Rem. 6.7 (no irrationality measure) | 📝 prose | — |
 
 `exists_pInf_ge_of_algebraic` is the conditional form of **Theorem W**: for an algebraic value,
@@ -147,15 +148,16 @@ prefix, has `p_∞(n) = n+1` for every `n`, and has `s_n ≤ N`. So no function 
 of the expansion of `√2` can ever refute `p_∞(n, √2, b) = n+1`. All three certificates bound
 `s_n` from below; that is a theorem about finite data, not a limitation of the instruments.
 
-## The seven cited axioms
+## The five cited axioms
 
-Five carry `group "bugeaud_10_47"` and live in `BB47/`; two are general literature statements and
-live where the repository keeps such things — [AB07] on its own root, [BE08] in `CITED/` beside
-the other theorem of that paper the repository uses.
+All five carry `group "bugeaud_10_47"` and live in `BB47/`. Two more were cited axioms until
+October 2026 and are now theorems of the Subspace-Theorems library: [AB07] Thm. 1
+(`Real.tendsto_complexity_div_atTop`, 2026-10-12) and [BE08] Thm. 2.1
+(`Real.frequently_lt_complexity`, proved there with `1/7` in place of `1/11`, 2026-10-13; consumed
+through `BugeaudEvertse.exists_pComplexity_gt` in `CITED/BugeaudEvertseComplexity.lean`).
 
 | axiom | source | consumed by |
 |---|---|---|
-| `BugeaudEvertse.exists_pComplexity_gt` | **[BE08] Thm. 2.1**, the `(log n)^{1/11}` refinement (quantitative Subspace) | `theorem_Aprime` |
 | `transcendental_of_repLen_liminf` | [BK19] Thm. 10.4, clause 1 (← [AB07] Thm. 5) | `theorem_A_via_repLen` |
 | `transcendental_of_repLen_limsup` | [BK19] Thm. 10.4, clause 2 (← [BE08] Thm. 2.1) | `theorem_Aprime_via_repLen` |
 | `ridout` | [Rid57], the `μ=1, ν=0` case, for algebraic **irrational** `y` | `theorem_D` |
@@ -190,7 +192,7 @@ Axiom audit (`#print axioms`):
     BB47.theorem_A, BB47.structure_of_algebraic, BB47.exists_pInf_ge_of_algebraic
         → [propext, Classical.choice, Quot.sound]              (std3, since 2026-10-12)
     BB47.theorem_Aprime, BB47.structure_of_algebraic_log
-        → + BugeaudEvertse.exists_pComplexity_gt
+        → [propext, Classical.choice, Quot.sound]              (std3, since 2026-10-13)
     BB47.theorem_A_via_repLen
         → + BB47.transcendental_of_repLen_liminf
     BB47.theorem_Aprime_via_repLen
@@ -503,6 +505,128 @@ is not needed anywhere in the note — only that inequality.
 
 The `AB/` root was retired in favour of the Subspace-Theorems library, which proves [AB07]
 Thms. 1, 2, 5, 6 (`Real.tendsto_complexity_div_atTop`, …). `BB47.value` became `Real.ofDigits`,
-`BB47.pComplexity_eq_complexity` identifies the two complexity functions, and `theorem_A`,
+`pComplexity_eq_complexity` identifies the two complexity functions, and `theorem_A`,
 `structure_of_algebraic`, `exists_pInf_ge_of_algebraic` are now **std3**. The remaining axioms are
 [BE08] Thm. 2.1 and the two [BK19] clauses.
+
+**2026-10-13.** [BE08] Thm. 2.1 is discharged as well: the Subspace-Theorems library proves it with
+`1/7` in place of `1/11` (`Real.frequently_lt_complexity`, `BugeaudEvertse2008/Theorem21.lean`),
+and `BugeaudEvertse.exists_pComplexity_gt` is derived from it. The bridge moved with it, to
+`BugeaudEvertse.pComplexity_eq_complexity` (`CITED/BugeaudEvertseComplexity.lean`).
+`theorem_Aprime` and `structure_of_algebraic_log` are therefore std3 too. The remaining axioms are
+the two [BK19] clauses (and `ridout`, `bbcp_base_b`, `nesterenko_theta` for the sliver).
+
+## Addendum, 2026-10-15 — `Isaac.lean`: (TU) is false
+
+`BB47/Isaac.lean` (1087 lines, 117 declarations, sorry-free) machine-checks the two refutations
+of Isaac's Condition (TU) from `plans/report-sqrtnorm.html` §2.1. It is not a paper-1 result and
+the tables above do not count it. It lives in `BB47/` because it is digit work beside
+`Sliver.lean`.
+
+| report item | Lean | axioms |
+|---|---|---|
+| Condition (TU), and its full-sequence form | `BB47.Isaac.TU`, `TUfull`, `TU.full` | — |
+| Isaac §2 at a point with dyadic square: (TU) ⇒ `f_N(y) ≥ 2/5` infinitely often | `frequently_freq_ge` | std3 |
+| `√(4^{n-1} + X²)` irrational, `X` odd, `X < 2^{n-2}` | `not_isSquare_add_four_pow`, `ysq_dyadic_irrational` | std3 |
+| `x²` irrational | `liouville_sq_xlim` (`x²` is a Liouville number) | std3 |
+| **Proof A**: ¬(TU) by bootstrap | **`not_TU_bootstrap`**, `not_TUfull_bootstrap` | **std3** |
+| **Proof B**: ¬(TU) by Fourier decay | **`not_TU_fourier`**, `not_TUfull_fourier` | std3 + [MS18] + [DEL63] |
+
+Proof B adds two cited axioms, both outside `BB47/`. Neither is counted in the paper-1 axiom
+tally:
+
+* `MS.fourierDecay_smoothImage` (`CITED/MosqueraShmerkin.lean`) is [MS18, Thm. 3.1]. A non-atomic
+  homogeneous self-similar measure, pushed forward by a `C²` map with `F'' > 0`, has power Fourier
+  decay. The statement was checked against arXiv:1710.06812, and the axiom is weaker than the
+  paper: no atoms at all instead of "not a single atom", and decay asserted only for `|u| ≥ 1`.
+* `DEL.ae_simplyNormal_of_fourierDecay` (`CITED/DavenportErdosLeVeque.lean`) is the power-decay
+  corollary of [DEL63]: almost every point is normal in base 2. Only simple normality is asserted.
+
+Two departures from the report's prose:
+
+* Proof A does not quote Isaac's Theorem 2 for `√s_j`. It reruns his §2 at `y_j = √(x_j² + 1/4)`
+  itself, through the pair `y/2 − 1/4`, `1 − y/8`. This works because `y_j²` is dyadic.
+* Proof B uses the ratio-`1/8` Cantor measure in place of Bernoulli(`p`). Its points have binary
+  ones only at multiples of 3 (`cnt_cantor8_le`), so the frequency bound needs no strong law.
+
+## Addendum, 2026-10-15 — the `D = 2` slice of `bbcp_base_b` is a theorem
+
+`plans/report-sqrtnorm.html` rank #2. Two new files, both sorry-free and **std3**, outside the
+paper-1 tables:
+
+* `BB47/Popcount.lean` (642 lines, 30 declarations) holds the base-`b` digit-sum calculus `ds`:
+  subadditivity, submultiplicativity, the split at position `e`, and the borrow block. It also has
+  the **larger-root** case by completing the square: `Z = 2AY + Bb^N` gives `Z² = Db^{2N} − R` with
+  `0 < R ≪ b^N`.
+* `BB47/QuadraticTails.lean` (1111 lines, 46 declarations) holds the **general** case. It is the
+  BBP-tail argument of [BBCP04] §§6–7 at `D = 2`. Liouville's inequality for quadratic
+  irrationals is proved in the file, so no cited input is used.
+
+| report item | Lean | axioms |
+|---|---|---|
+| `s_b(m+n) ≤ s_b(m)+s_b(n)`, `s_b(mn) ≤ s_b(m)s_b(n)`, borrow block | `Popcount.ds_add_le`, `ds_mul_le`, `ds_borrow_block` | std3 |
+| `t_j ≪ j²` for the larger root (incl. `y² ∈ ℚ`) | `Popcount.ones_bound_of_larger_root`, `ones_bound_of_sq_rat` | std3 |
+| `bbcp_base_b` conclusion, `y² ∈ ℚ` / larger root | `Popcount.bbcp_base_b_sq`, `bbcp_base_b_larger` | std3 |
+| BBP tail `T(R)`: integrality, recurrence, real form | `QuadraticTails.TT`, `tail_succ`, `tail_eq` | std3 |
+| [BBCP04] Lem. 6.2 at `D = 2` (positivity runs down zero digits) | `TT_pos_down` | std3 |
+| Liouville for quadratics, and the one in each long gap | `liouville_quadratic`, `gap_liouville` | std3 |
+| **[BBCP04] Thm. 7.1, `D = 2`, any base** | **`ones_bound_quadratic`**, **`bbcp_base_b_deg_two`** | **std3** |
+| Vandehey's constant: `√2` has `≥ √(2N) − 3/2` ones up to `N` | `sqrt_two_ones` (pairing, `ds_two_sq_le`) | std3 |
+
+`bbcp_base_b_deg_two` has the same hypotheses and conclusion as the axiom `bbcp_base_b`, plus
+`natDegree = 2`. The axiom therefore stays only for `D ≥ 3`. It is still used by `sliver`, which
+quantifies over all `D`, so the axiom count in the tables does not change. The general-case
+constant is `(2A)^{-1/2}`, as in [BBCP04].
+
+## Addendum, 2026-10-15 — an explicit effective exponent for `‖2ⁿ√2‖`
+
+`plans/report-sqrtnorm.html` rank #3. New file `BB47/EffectiveSqrtTwo.lean`, sorry-free, outside
+the paper-1 tables. It makes Bennett–Bugeaud's [BB12, Thm. 1.2] `τ` explicit for `ξ = √2`,
+`b = 2`, which their explicit Thms. 1.3–1.4 do not cover:
+
+  `|2ⁿ√2 − m| ≥ 2^{-(1-τ)n} / 24` for all `n ∈ ℕ`, `m ∈ ℤ`, with `τ = 2^{-42}`.
+
+The route is archimedean: Matveev's Theorem 2.1 (already cited in `CITED/Matveev.lean`, with the
+weighted `B` of his (1.3), i.e. Feldman's device) applied in `K = ℚ(√2) ⊂ ℝ` to
+`log β + k log(1+√2) − (2n+3) log √2`, where `m + 2ⁿ√2 = β η^k` and `β` has both conjugates
+`≤ η√|Δ|`, `Δ = m² − 2^{2n+1}`. A `p`-adic two-log bound would give a larger `τ`, but the corpus has
+Bugeaud–Laurent only over `ℚ`.
+
+| report item | Lean | axioms |
+|---|---|---|
+| heights in `ℤ[√2]`: `h(a+b√2) ≤ 2 log⁺(|a|+|b|√2)` | `logHeight_ι_le` | std3 |
+| `log √2, log η, log β` are `ℤ`-independent (`|N β|` odd `≥ 3`) | `log_indep` | std3 |
+| `|m² − 2^{2n+1}| ≥ 3` for odd `m`, `n ≥ 2` | `three_le_abs_Δ` | std3 |
+| core: `log|Δ| + 2 log η ≥ 2^{-43}(2n+4) log 2` | `core` | std3 + Matveev Thm 2.1 |
+| **explicit `τ = 2^{-42}`, constant `1/24`, all `n`** | **`dist_ge`** | std3 + Matveev Thm 2.1 |
+| runs of equal binary digits after position `n`: `L ≤ (1−τ)n + 5` | `run_le` | std3 + Matveev Thm 2.1 |
+
+The cited axiom `Matveev.linearForms_logs_indep` was re-checked against [Mat00] §2 for this use.
+The report's second corollary, `N_r ≤ (2−τ)r + C`, concerns Isaac's general quadratic `ω` and is
+not formalized; `dist_ge` covers `√2` only.
+
+## Addendum, 2026-10-15 — `√(8/π)` ones infinitely often for `√2`
+
+`plans/report-sqrtnorm.html` rank #4 (the constant frontier). New file
+`BB47/RestrictedSumset.lean`, sorry-free, **std3**, outside the paper-1 tables. It formalizes the
+current record, [Dub19, Thm. 3 (6)] for `d = 2` (announced in [Van18, Rem. 7.1]); this subsumes
+[Van18, Thm. 1.2] (`2/√(2√2−1) ≈ 1.479`).
+
+The sumset step is **not** Dubickas' minimax lemma (his Lemma 4 + Riemann sums + Beta integrals):
+`V(N) = ∑_{a ≤ N} U(N − a)`, Abel summation, and the antiderivative
+`(N/4) arccos(1 − 2x/N) − ½√(x(N − x))` of `√x / (2√(N − x))` give
+`V(N) ≤ (π/4) ω² N + 2ωC√N + C²` whenever `U(k) ≤ ω√k + C` on `[0, N]`. We have not checked
+whether this short proof is in print.
+
+| report item | Lean | axioms |
+|---|---|---|
+| Abel summation `∑_{a ≤ N}(g(a) − g(N)) = ∑_{k<N}(g(k) − g(k+1)) U(k)` | `abel` | std3 |
+| `∑_{k<N} √k (√(N−k) − √(N−k−1)) ≤ (π/4) N` | `arcsine_sum_le` | std3 |
+| restricted-sumset inequality ([Dub19, Thm. 1], `α = 1`, finite form) | `V_le` | std3 |
+| pairing: `2 s₂(H) ≤ V(N) + |A|` | `two_ds_H_le` | std3 |
+| `√2`: `2N ≤ V(N) + U(N) + 4(⌊log₂(N+1)⌋ + 1)` ([Van18, (6),(8)], [Dub19, (28)]) | `sqrt_two_V_ge` | std3 |
+| **`∀ ω < √(8/π)`, infinitely many `N` with `#ones in √2 at positions 0..N > ω√N`** | **`sqrt_two_ones_io`** | std3 |
+
+`BB47.QuadraticTails.sqrt_two_borrow` (`Y² + R = 2^{2N+1}`, `0 < R ≤ 2^{N+2}`) was factored out
+of `sqrt_two_ones` for reuse. Not formalized: the general `√d` case of [Dub19, Thm. 3], the
+optimality half of [Dub19, Thm. 1], and `α ≠ 1`.

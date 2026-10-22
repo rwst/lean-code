@@ -25,10 +25,11 @@ irrationals are
   the Subspace-Theorems library (`DiophantineApproximation/ComplexityTranscendence.lean`), used
   here through `BB47.transcendental_of_pComplexity_linear_io`, and
 * `BugeaudEvertse.exists_pComplexity_gt` — **[BE08, Thm. 2.1]**, the `(log n)^{1/11}` refinement
-  (`CITED/BugeaudEvertseComplexity.lean`).
+  (`CITED/BugeaudEvertseComplexity.lean`; a theorem since 2026-10-13, from the Subspace-Theorems
+  library, which proves it with `1/7`).
 
 Both are imported here so that every Diophantine input of this root is visible from one file;
-the first is proved, the second is a cited axiom.  They are
+both are proved (std3).  They are
 what `BB47.theorem_A` and `BB47.theorem_Aprime` actually use; see `BB47/L0.md` §5.1 and
 [M1M2, §5].
 
@@ -99,18 +100,6 @@ library states [AB07]. -/
 @[category API, AMS 11 37 68, ref "Bug12" "AB07", group "bugeaud_10_47"]
 noncomputable def value (b : ℕ) (w : ℕ → Fin b) : ℝ := Real.ofDigits w
 
-/-- The complexity of `ForMathlib.SubwordComplexity` (factors as `Fin n → α`) is the complexity
-of the Subspace-Theorems library (factors as lists): `List.ofFn` matches the two factor sets. -/
-@[category API, AMS 68]
-theorem pComplexity_eq_complexity {α : Type*} (w : ℕ → α) (n : ℕ) :
-    pComplexity w n = Function.complexity w n := by
-  have h : Function.factors w n = List.ofFn '' factorSet w n := by
-    ext l
-    simp only [Function.factors, Function.factor, factorSet, Set.mem_range, Set.mem_image,
-      exists_exists_eq_and]
-    rfl
-  rw [Function.complexity, h, Set.ncard_image_of_injective _ List.ofFn_injective, pComplexity]
-
 /-- **[AB07, Thm. 1], contrapositive.**  If the complexity of the digit word is at most `C·n` for
 infinitely many `n`, an irrational `value b w` is transcendental.  Formerly derived from the cited
 axiom `AB.tendsto_pComplexity_div_atTop`; now from the Subspace-Theorems library's
@@ -124,7 +113,7 @@ theorem transcendental_of_pComplexity_linear_io {b : ℕ} (hb : 2 ≤ b) (w : �
     ((Real.irrational_ofDigits_iff hb).mp hirr)
     (Filter.frequently_atTop.mpr fun N ↦ by
       obtain ⟨n, hn, hle⟩ := h N
-      exact ⟨n, hn, pComplexity_eq_complexity w n ▸ hle⟩)
+      exact ⟨n, hn, BugeaudEvertse.pComplexity_eq_complexity w n ▸ hle⟩)
 
 /-- **[BK19, Thm. 10.4], clause 1.**  If the repetition function of a non-eventually-periodic
 digit word is `O(n)` along a subsequence, the number it defines is transcendental.

@@ -60,10 +60,10 @@ periodic => rational, geometric series) would let `exists_pInf_ge_of_algebraic` 
 `¬ IsEventuallyPeriodic` it still carries alongside `Irrational`; the hard half (rational =>
 eventually periodic, long division) would let the twins merge back into the primaries.
 
-Separately, not missing but not proved here: the seven cited axioms, each a named literature
-theorem quoted with `@[ref]` -- `AB.tendsto_pComplexity_div_atTop` [AB07, Thm. 1] and
-`BugeaudEvertse.exists_pComplexity_gt` [BE08, Thm. 2.1] carry Theorems A and A' respectively, one
-each; `BB47.transcendental_of_repLen_liminf` / `_limsup` [BK19, Thm. 10.4] carry the `_via_repLen`
+Separately, not missing but not proved here: the cited axioms, each a named literature
+theorem quoted with `@[ref]`. [AB07, Thm. 1] and [BE08, Thm. 2.1], which carry Theorems A and A',
+were axioms until 2026-10-12/13 and are now theorems of the Subspace-Theorems library;
+`BB47.transcendental_of_repLen_liminf` / `_limsup` [BK19, Thm. 10.4] carry the `_via_repLen`
 twins; `BB47.ridout` [Rid57], `BB47.bbcp_base_b` [BBCP04] and `BB47.nesterenko_theta` [Nes96] carry
 the sliver.
 
@@ -120,3 +120,34 @@ aa past s_2 -- the golden-mean SFT in base 2).  The engine is
 Theorem-B chain.  Still missing from Proposition C: item (3), the nested self-similar sets,
 which needs [M3, Lem. 3.2] (the shape of G_n under (H)) together with a first-return
 decomposition of walks, and an IFS-attractor notion that the corpus does not have.
+
+Not missing (2026-10-15), and outside paper 1: Isaac's Condition (TU) is false, by two proofs, in
+`BB47/Isaac.lean`.  `BB47.Isaac.not_TU_bootstrap` is std3.  `BB47.Isaac.not_TU_fourier` rests on two
+new cited axioms, `MS.fourierDecay_smoothImage` [MS18, Thm. 3.1] and
+`DEL.ae_simplyNormal_of_fourierDecay` [DEL63], in `CITED/`.  Still missing from
+`plans/report-sqrtnorm.html`:
+- item 2.2: Isaac's Section 2 as a conditional theorem for sqrt s.  Proof A did not need it, because it
+  reruns the argument at a point whose square is dyadic.
+- item 2.3: the XOR countermodel and the Lemma-5 certificate.
+- the report's mu_p form of proof B.  This would need the strong law for binary digits, plus the
+  null event "eventually all ones"; the Cantor-1/8 version avoids both.
+
+Not missing (2026-10-15): report-sqrtnorm item 2.5 / rank #2.  The D = 2 slice of
+`BB47.bbcp_base_b` is a std3 theorem, `BB47.QuadraticTails.bbcp_base_b_deg_two` (every quadratic,
+any base, via the BBP tails of [BBCP04] sections 6-7).  The larger-root and y^2 in Q cases are also
+proved by completing the square (`BB47/Popcount.lean`).  Vandehey's sqrt(2N) - 3/2 for sqrt 2 is
+`BB47.QuadraticTails.sqrt_two_ones`.  Still missing: `bbcp_base_b` for D >= 3, where BBCP need
+Roth (their Thm. 3.1) in place of Liouville.
+
+Not missing (2026-10-15): report-sqrtnorm rank #3 for sqrt 2.  `BB47/EffectiveSqrtTwo.lean`
+proves |2^n sqrt 2 - m| >= 2^{-(1-tau)n}/24 with tau = 2^{-42} (`dist_ge`), and the run bound
+L <= (1-tau)n + 5 (`run_le`), on std3 + the cited Matveev Thm 2.1.  Still missing: the explicit
+tau for other quadratics / bases, and the prefix-window corollary N_r <= (2-tau)r + C for
+Isaac's general omega.
+
+Not missing (2026-10-15): report-sqrtnorm rank #4 base line for sqrt 2.  `BB47/RestrictedSumset.lean`
+proves, std3, that for every omega < sqrt(8/pi) infinitely many N have more than omega sqrt N ones
+among the binary digits of sqrt 2 at positions 0..N (`sqrt_two_ones_io`, [Dub19, Thm. 3 (6)];
+subsumes [Van18, Thm. 1.2]), via the finite restricted-sumset inequality `V_le` ([Dub19, Thm. 1],
+alpha = 1, by Abel summation).  Still missing: sqrt d for square-free d > 2, the optimality of
+4/pi, general alpha; and the open part of rank #4 (any constant above sqrt(8/pi)).
