@@ -3,7 +3,7 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import BB13.LineCoverRho
+import BB13.LineCoverSharp
 import BB13.CensusCount
 import BB13.DicksonSweep
 import BB13.SpanStrataSharp
@@ -16,12 +16,17 @@ line count `K(ε*) = 1 856 360 182 227` of [BE08] Cor. 5.2, a cited axiom
 (`BugeaudEvertse.ridout_line_cover`). Two counts replace it, both with no cited axiom:
 Subspace-Theorems' explicit two-variable count puts the exceptions `n ≥ 20` on at most
 `3 870 000 000` lines (`BB13.failures_line_cover_ST_num`, WP A3), and its interval result,
-counted with BB13's elementary gap `ρ₀ = 1.2618`, on at most `N = 1 050 000 000` lines
-(`BB13.failures_line_cover_rho_num`, WP A5). This file re-proves the four theorems:
+counted with BB13's elementary gap `ρ₀ = 1.2618`, on at most `1 050 000 000` lines
+(`BB13.failures_line_cover_rho_num`, WP A5). The same interval result at the frame's own
+parameters (item M3: exact weights, Chernoff by the variance, Siegel at the exponent `999`,
+Layer 5.2's pattern read per place) gives at most `N = 22 900` lines (`BB13.failures_line_cover_sharp_num`). This file re-proves the
+four theorems:
 
 * **A′** `failures_line_cover_ten_ST`: the exceptions `n ≥ 10` lie on at most `3.87·10⁹` lines
   (the generic count); **A″** `BB13.failures_line_cover_ten_rho`, `towersAbove_card_le_ten_rho`:
-  on at most `N` lines. The range `[10, 20)` holds no exception (`BB13.failures_up_to_256`).
+  on at most `1.05·10⁹` lines; **A‴** `BB13.failures_line_cover_ten_sharp`,
+  `towersAbove_card_le_ten_sharp`: on at most `N` lines. The range `[10, 20)` holds no exception
+  (`BB13.failures_up_to_256`).
 * **B′** `failures_card_le_ST`: `#𝓔 ≤ 5 + H·N`, `H` bounding the fibres above `10⁵`.
 * **C′** `waring_exceptions_card_le_ST`: at most `H·N` exceptions to the ideal Waring formula,
   `H` bounding the Dickson fibres above `10⁵`.
@@ -40,7 +45,7 @@ below `K(ε* + 2γθ)` for every `γ` up to the saturation point `log(3/2)/log 2
 As by-products, Mahler's finiteness for `(3/2, 3/4)` (`failures_finite_ST`) and the finiteness of
 the Dickson failures (`dickson_exceptions_finite_ST`) are now std3, with no cited axiom at all.
 
-Footprint: std3 for A′, A″, B′, D′ and the finiteness statements; std3 + `waringNumber_ideal_of_dickson`
+Footprint: std3 for A′, A″, A‴, B′, D′ and the finiteness statements; std3 + `waringNumber_ideal_of_dickson`
 ([Dic36]) for C′.
 
 ## References
@@ -48,7 +53,7 @@ Footprint: std3 for A′, A″, B′, D′ and the finiteness statements; std3 +
 * [BE08] Bugeaud–Evertse, Acta Arith. **133** (2008), Cor. 5.2 — the count replaced here.
 * [Bug12] Y. Bugeaud, *Distribution modulo one and Diophantine approximation*, 2012 (Prob. 10.13).
 * [Dic36] L. E. Dickson, Amer. J. Math. **58** (1936) — the ideal Waring formula under `(Dₙ)`.
-* `plans/plan-beyond-BB13.html`, §3.4, WPs A4, A5.
+* `plans/plan-beyond-BB13.html`, §3.4, WPs A4, A5; §7, item M3.
 -/
 
 namespace BB13
@@ -110,6 +115,21 @@ theorem towersAbove_card_le_ten_rho :
     _ = R.card := Set.ncard_coe_finset R
     _ ≤ 1050000000 := hcard
 
+/-- **Theorem A‴ in counting form**: the exceptions `n ≥ 10` span at most `22 900` scaling
+families (`BB13.failures_line_cover_ten_sharp`, Subspace-Theorems' interval result at the frame's
+own parameters, counted with the elementary gap `ρ₀`). -/
+@[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
+theorem towersAbove_card_le_ten_sharp :
+    {r : ℚ | ∃ n : ℕ, 10 ≤ n ∧ IsFailure 3 2 (3 / 4) n ∧ linePoint n = r}.ncard
+      ≤ 22900 := by
+  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_sharp
+  have hsub : {r : ℚ | ∃ n : ℕ, 10 ≤ n ∧ IsFailure 3 2 (3 / 4) n ∧ linePoint n = r} ⊆ ↑R := by
+    rintro r ⟨n, hn, hnf, rfl⟩; exact hR n hn hnf
+  calc {r : ℚ | ∃ n : ℕ, 10 ≤ n ∧ IsFailure 3 2 (3 / 4) n ∧ linePoint n = r}.ncard
+      ≤ (↑R : Set ℚ).ncard := Set.ncard_le_ncard hsub R.finite_toSet
+    _ = R.card := Set.ncard_coe_finset R
+    _ ≤ 22900 := hcard
+
 /-! ### Theorem B′: the conditional exception count -/
 
 /-- The exceptions above the census are finite, std3. -/
@@ -117,13 +137,13 @@ theorem towersAbove_card_le_ten_rho :
 theorem failuresHigh'_finite_ST : failuresHigh'.Finite :=
   failures_finite_ST.subset fun _ ⟨hn, hnf⟩ => ⟨by omega, hnf⟩
 
-/-- **Theorem B′: `#𝓔 ≤ 5 + H · 1 050 000 000`**, for any `H` bounding the number of exceptions
+/-- **Theorem B′: `#𝓔 ≤ 5 + H · 22 900`**, for any `H` bounding the number of exceptions
 `n ≥ 100001` on a single line. The `5` is the certified `𝓔 ∩ [1, 10⁵] = {1, 2, 3, 4, 7}`; the
-line count is `failures_line_cover_ten_rho`. Std3: no cited axiom. -/
+line count is `failures_line_cover_ten_sharp`. Std3: no cited axiom. -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem failures_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (highFibre' r).ncard ≤ H) :
-    {n : ℕ | 1 ≤ n ∧ IsFailure 3 2 (3 / 4) n}.ncard ≤ 5 + H * 1050000000 := by
-  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_rho
+    {n : ℕ | 1 ≤ n ∧ IsFailure 3 2 (3 / 4) n}.ncard ≤ 5 + H * 22900 := by
+  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_sharp
   have hfin := failuresHigh'_finite_ST
   have hfib' : ∀ r : ℚ, {n ∈ failuresHigh' | linePoint n = r}.ncard ≤ H := by
     intro r
@@ -135,14 +155,14 @@ theorem failures_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (highFibre' r).ncard 
     rw [heq]; exact hfib r
   have himg : linePoint '' failuresHigh' ⊆ ↑R := by
     rintro _ ⟨n, ⟨hn, hnf⟩, rfl⟩; exact hR n (by omega) hnf
-  have hhigh : failuresHigh'.ncard ≤ H * 1050000000 := by
+  have hhigh : failuresHigh'.ncard ≤ H * 22900 := by
     calc failuresHigh'.ncard
         ≤ H * (linePoint '' failuresHigh').ncard :=
           Set.ncard_le_mul_ncard_image hfin linePoint H hfib'
       _ ≤ H * (↑R : Set ℚ).ncard :=
           Nat.mul_le_mul (le_refl H) (Set.ncard_le_ncard himg R.finite_toSet)
       _ = H * R.card := by rw [Set.ncard_coe_finset]
-      _ ≤ H * 1050000000 := Nat.mul_le_mul (le_refl H) hcard
+      _ ≤ H * 22900 := Nat.mul_le_mul (le_refl H) hcard
   have hsub : {n : ℕ | 1 ≤ n ∧ IsFailure 3 2 (3 / 4) n} ⊆ failuresUpTo 100000 ∪ failuresHigh' := by
     rintro n ⟨h1, hf⟩
     rcases le_or_gt n 100000 with h | h
@@ -153,7 +173,7 @@ theorem failures_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (highFibre' r).ncard 
         Set.ncard_le_ncard hsub ((failuresUpTo_finite 100000).union hfin)
     _ ≤ (failuresUpTo 100000).ncard + failuresHigh'.ncard := Set.ncard_union_le _ _
     _ = 5 + failuresHigh'.ncard := by rw [failuresUpTo_100000_ncard]
-    _ ≤ 5 + H * 1050000000 := by omega
+    _ ≤ 5 + H * 22900 := by omega
 
 /-! ### Theorem C′: Dickson failures are exceptions -/
 
@@ -200,13 +220,13 @@ serves Theorems B′ and C′ together. -/
 theorem dicksonFibre'_subset_highFibre' (r : ℚ) : dicksonFibre' r ⊆ highFibre' r := by
   rintro n ⟨hn, hnd, hr⟩; exact ⟨hn, isFailure_of_notDickson (by omega) hnd, hr⟩
 
-/-- **The Waring line cover from Theorem A″**: the Dickson failures `n ≥ 10` lie on at most
-`1 050 000 000` lines (against `K(ε_W) ≈ 1.88·10¹²` in `BB13.notDickson_line_cover`). -/
+/-- **The Waring line cover from Theorem A‴**: the Dickson failures `n ≥ 10` lie on at most
+`22 900` lines (against `K(ε_W) ≈ 1.88·10¹²` in `BB13.notDickson_line_cover`). -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem notDickson_line_cover_ST :
-    ∃ R : Finset ℚ, R.card ≤ 1050000000 ∧
+    ∃ R : Finset ℚ, R.card ≤ 22900 ∧
       ∀ n : ℕ, 10 ≤ n → ¬ DicksonCond n → linePoint n ∈ R := by
-  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_rho
+  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_sharp
   exact ⟨R, hcard, fun n hn hnd => hR n hn (isFailure_of_notDickson (by omega) hnd)⟩
 
 /-- **The Dickson failures are finite, std3.** -/
@@ -218,11 +238,11 @@ theorem dickson_exceptions_finite_ST : {n : ℕ | 1 ≤ n ∧ ¬ DicksonCond n}.
   · exact Or.inl h
   · exact Or.inr ⟨h1, isFailure_of_notDickson h hnd⟩
 
-/-- **`#{n ≥ 1 : ¬(Dₙ)} ≤ 2 + H · 1 050 000 000`**, for any `H` bounding the Dickson failures
+/-- **`#{n ≥ 1 : ¬(Dₙ)} ≤ 2 + H · 22 900`**, for any `H` bounding the Dickson failures
 `n ≥ 100001` on a single line. The `2` is `n = 1, 2`. Std3. -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem dickson_exceptions_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (dicksonFibre' r).ncard ≤ H) :
-    {n : ℕ | 1 ≤ n ∧ ¬ DicksonCond n}.ncard ≤ 2 + H * 1050000000 := by
+    {n : ℕ | 1 ≤ n ∧ ¬ DicksonCond n}.ncard ≤ 2 + H * 22900 := by
   obtain ⟨R, hcard, hR⟩ := notDickson_line_cover_ST
   have hfin : dicksonHigh'.Finite :=
     dickson_exceptions_finite_ST.subset fun _ ⟨hn, hnd⟩ => ⟨by omega, hnd⟩
@@ -236,14 +256,14 @@ theorem dickson_exceptions_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (dicksonFib
     rw [heq]; exact hfib r
   have himg : linePoint '' dicksonHigh' ⊆ ↑R := by
     rintro _ ⟨n, ⟨hn, hnd⟩, rfl⟩; exact hR n (by omega) hnd
-  have hhigh : dicksonHigh'.ncard ≤ H * 1050000000 := by
+  have hhigh : dicksonHigh'.ncard ≤ H * 22900 := by
     calc dicksonHigh'.ncard
         ≤ H * (linePoint '' dicksonHigh').ncard :=
           Set.ncard_le_mul_ncard_image hfin linePoint H hfib'
       _ ≤ H * (↑R : Set ℚ).ncard :=
           Nat.mul_le_mul (le_refl H) (Set.ncard_le_ncard himg R.finite_toSet)
       _ = H * R.card := by rw [Set.ncard_coe_finset]
-      _ ≤ H * 1050000000 := Nat.mul_le_mul (le_refl H) hcard
+      _ ≤ H * 22900 := Nat.mul_le_mul (le_refl H) hcard
   have hsub : {n : ℕ | 1 ≤ n ∧ ¬ DicksonCond n} ⊆ ({1, 2} : Set ℕ) ∪ dicksonHigh' := by
     rintro n ⟨hn1, hnd⟩
     rcases lt_or_ge n 3 with h | h
@@ -255,11 +275,11 @@ theorem dickson_exceptions_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (dicksonFib
       ≤ (({1, 2} : Set ℕ) ∪ dicksonHigh').ncard :=
         Set.ncard_le_ncard hsub (((Set.finite_singleton 2).insert 1).union hfin)
     _ ≤ ({1, 2} : Set ℕ).ncard + dicksonHigh'.ncard := Set.ncard_union_le _ _
-    _ ≤ 2 + H * 1050000000 := by
+    _ ≤ 2 + H * 22900 := by
         have h2 : ({1, 2} : Set ℕ).ncard = 2 := Set.ncard_pair (by norm_num)
         omega
 
-/-- **Theorem C′: `#{n ≥ 2 : g(n) ≠ 2ⁿ + ⌊(3/2)ⁿ⌋ − 2} ≤ H · 1 050 000 000`**, with no additive
+/-- **Theorem C′: `#{n ≥ 2 : g(n) ≠ 2ⁿ + ⌊(3/2)ⁿ⌋ − 2} ≤ H · 22 900`**, with no additive
 constant, for any `H` bounding the Dickson failures `n ≥ 100001` on a single line (in particular
 for the `H` of Theorem B′, by `dicksonFibre'_subset_highFibre'`). Every exception fails `(Dₙ)`,
 the sweep clears `[3, 10⁵]`, and `n = 2` satisfies the formula. Footprint std3 +
@@ -267,7 +287,7 @@ the sweep clears `[3, 10⁵]`, and `n = 2` satisfies the formula. Footprint std3
 @[category research solved, AMS 11, ref "BE08" "Bug12" "Dic36", group "bugeaud_10_13"]
 theorem waring_exceptions_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (dicksonFibre' r).ncard ≤ H) :
     {n : ℕ | 2 ≤ n ∧ Nat.waringNumber n ≠ 2 ^ n + waringQuot n - 2}.ncard
-      ≤ H * 1050000000 := by
+      ≤ H * 22900 := by
   obtain ⟨R, hcard, hR⟩ := notDickson_line_cover_ST
   have hfin : dicksonHigh'.Finite :=
     dickson_exceptions_finite_ST.subset fun _ ⟨hn, hnd⟩ => ⟨by omega, hnd⟩
@@ -298,34 +318,34 @@ theorem waring_exceptions_card_le_ST (H : ℕ) (hfib : ∀ r : ℚ, (dicksonFibr
     _ ≤ H * (↑R : Set ℚ).ncard :=
         Nat.mul_le_mul (le_refl H) (Set.ncard_le_ncard himg R.finite_toSet)
     _ = H * R.card := by rw [Set.ncard_coe_finset]
-    _ ≤ H * 1050000000 := Nat.mul_le_mul (le_refl H) hcard
+    _ ≤ H * 22900 := Nat.mul_le_mul (le_refl H) hcard
 
 /-! ### Theorem D′: the tall towers -/
 
 /-- **Theorem D′.** For every `γ`, the bases `a ≥ 10` of relation-towers of span at least `γ·a`
-lie on at most `1 050 000 000` lines (against `K(ε* + γθ)`, `≤ 5.38·10¹¹` at `γ = 1/4`, in
+lie on at most `22 900` lines (against `K(ε* + γθ)`, `≤ 5.38·10¹¹` at `γ = 1/4`, in
 `BB13.tall_towerBases_card_le_decimal`). The base is an exception, so this is a subset of
-Theorem A″'s lines. -/
+Theorem A‴'s lines. -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem tall_towerBases_card_le_ST (γ : ℝ) :
     {r : ℚ | ∃ a b : ℕ, 10 ≤ a ∧ a < b ∧ IsFailure 3 2 (3 / 4) a ∧ SameTower a b ∧
-      γ * (a : ℝ) ≤ ((b - a : ℕ) : ℝ) ∧ linePoint a = r}.ncard ≤ 1050000000 := by
-  refine le_trans (Set.ncard_le_ncard ?_ ?_) towersAbove_card_le_ten_rho
+      γ * (a : ℝ) ≤ ((b - a : ℕ) : ℝ) ∧ linePoint a = r}.ncard ≤ 22900 := by
+  refine le_trans (Set.ncard_le_ncard ?_ ?_) towersAbove_card_le_ten_sharp
   · rintro r ⟨a, -, ha, -, hfa, -, -, rfl⟩; exact ⟨a, ha, hfa, rfl⟩
-  · obtain ⟨R, -, hR⟩ := failures_line_cover_ten_rho
+  · obtain ⟨R, -, hR⟩ := failures_line_cover_ten_sharp
     exact R.finite_toSet.subset fun r ⟨n, hn, hnf, hr⟩ => hr ▸ hR n hn hnf
 
 /-- **Theorem D′, sharp form.** The bases `a ≥ 10` of relation-towers of span at least `γ·a`
-topped by an exception lie on at most `1 050 000 000` lines (against `K(ε* + 2γθ)`, `≤ 2.5·10¹¹`
+topped by an exception lie on at most `22 900` lines (against `K(ε* + 2γθ)`, `≤ 2.5·10¹¹`
 at `γ = 1/4`). The base inherits the failure (`isFailure_of_sameTower_failure`). -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem tall_exception_towerBases_card_le_ST (γ : ℝ) :
     {r : ℚ | ∃ a b : ℕ, 10 ≤ a ∧ a < b ∧ IsFailure 3 2 (3 / 4) b ∧ SameTower a b ∧
-      γ * (a : ℝ) ≤ ((b - a : ℕ) : ℝ) ∧ linePoint a = r}.ncard ≤ 1050000000 := by
-  refine le_trans (Set.ncard_le_ncard ?_ ?_) towersAbove_card_le_ten_rho
+      γ * (a : ℝ) ≤ ((b - a : ℕ) : ℝ) ∧ linePoint a = r}.ncard ≤ 22900 := by
+  refine le_trans (Set.ncard_le_ncard ?_ ?_) towersAbove_card_le_ten_sharp
   · rintro r ⟨a, b, ha, hab, hfb, hsame, -, rfl⟩
     exact ⟨a, ha, isFailure_of_sameTower_failure hab hfb hsame, rfl⟩
-  · obtain ⟨R, -, hR⟩ := failures_line_cover_ten_rho
+  · obtain ⟨R, -, hR⟩ := failures_line_cover_ten_sharp
     exact R.finite_toSet.subset fun r ⟨n, hn, hnf, hr⟩ => hr ▸ hR n hn hnf
 
 end BB13

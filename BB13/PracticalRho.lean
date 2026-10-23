@@ -19,7 +19,7 @@ least exceptions of distinct lines above `10⁵` form a `ρ₀`-lacunary set, `�
 lines meeting `[1, N]` number at most `4 + 1 + ⌊log(N/100001)/log ρ₀⌋` (`linesUpTo_ncard_le`):
 the census contributes the four lines of `{1}, {2, 3}, {4}, {7}`, and `1/log ρ₀ ≤ 4.3005`. Hence
 
-`F(N) ≤ 5 + H · min(1.05·10⁹, 1 + ⌊4.3005 ln(N/100001)⌋)`   (`practical_bound_rho`),
+`F(N) ≤ 5 + H · min(22 900, 1 + ⌊4.3005 ln(N/100001)⌋)`   (`practical_bound_rho`),
 
 with the single parameter `H` of Theorems B and C.
 
@@ -182,10 +182,10 @@ theorem highLines_ncard_le_num (N : ℕ) :
   · rw [Nat.floor_of_nonpos (div_neg_of_neg_of_pos hx hρ).le]
     exact Nat.zero_le _
 
-/-- **At most `1.05·10⁹` lines** meet `[100001, N]`, for every `N` (Theorem A″). -/
+/-- **At most `22 900` lines** meet `[100001, N]`, for every `N` (Theorem A‴). -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
-theorem highLines_ncard_le_NA (N : ℕ) : (highLines N).ncard ≤ 1050000000 := by
-  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_rho
+theorem highLines_ncard_le_NA (N : ℕ) : (highLines N).ncard ≤ 22900 := by
+  obtain ⟨R, hcard, hR⟩ := failures_line_cover_ten_sharp
   refine (Set.ncard_le_ncard ?_ R.finite_toSet).trans (by rw [Set.ncard_coe_finset]; exact hcard)
   rintro _ ⟨n, ⟨h1, -, hf⟩, rfl⟩
   exact hR n (by omega) hf
@@ -256,12 +256,12 @@ theorem failuresUpTo_ncard_le_highLines (N H : ℕ) (hfib : ∀ r : ℚ, (highFi
     _ ≤ 5 + H * (highLines N).ncard := by rw [failuresUpTo_100000_ncard]; omega
 
 /-- **The one-parameter practical bound**:
-`F(N) ≤ 5 + H · min(1.05·10⁹, 1 + ⌊4.3005 ln(N/100001)⌋)`, for every `N`, with the single
+`F(N) ≤ 5 + H · min(22 900, 1 + ⌊4.3005 ln(N/100001)⌋)`, for every `N`, with the single
 height parameter `H` of Theorem B (the fibres of the slope map above `10⁵`). Std3. -/
 @[category research solved, AMS 11, ref "BE08" "Bug12", group "bugeaud_10_13"]
 theorem practical_bound_rho (N H : ℕ) (hfib : ∀ r : ℚ, (highFibre' r).ncard ≤ H) :
     (failuresUpTo N).ncard ≤
-      5 + H * min 1050000000 (1 + ⌊4.3005 * Real.log (N / 100001)⌋₊) :=
+      5 + H * min 22900 (1 + ⌊4.3005 * Real.log (N / 100001)⌋₊) :=
   (failuresUpTo_ncard_le_highLines N H hfib).trans <| Nat.add_le_add_left
     (Nat.mul_le_mul_left H (le_min (highLines_ncard_le_NA N) (highLines_ncard_le_num N))) 5
 
