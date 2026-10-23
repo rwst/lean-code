@@ -57,8 +57,7 @@ open Finset
 /-- `log ρ₀ ≥ 0.232539`: three terms of the series of `2 artanh(1309/11309)`. -/
 @[category API, AMS 11, ref "Bug12", group "bugeaud_10_13"]
 theorem log_rho_ge' : (0.232539 : ℝ) ≤ Real.log (6309 / 5000) := by
-  have h := Real.hasSum_log_one_add_inv (a := 5000 / 1309) (by norm_num)
-  have h0 := sum_le_hasSum (range 3) (fun k _ ↦ by positivity) h
+  have h0 := Real.sum_range_le_log_one_add_inv (a := 5000 / 1309) (by norm_num) 3
   have e : (1 : ℝ) + (5000 / 1309)⁻¹ = 6309 / 5000 := by norm_num
   rw [e] at h0
   norm_num [Finset.sum_range_succ] at h0
@@ -75,7 +74,16 @@ theorem card_le_of_gap_le {ρ A B : ℝ} (hρ : 1 < ρ) (hA : 0 < A) (hAB : A �
     div_nonneg (Real.log_nonneg ((one_le_div hA).2 hAB)) hlρ.le
   rcases s.eq_empty_or_nonempty with rfl | hs
   · simp only [card_empty, Nat.cast_zero]; linarith
-  obtain ⟨b, hb, hbA⟩ := exists_mem_pow_le_of_gap hρ.le s hgap hAs hs
+  obtain ⟨v, hv, hvA⟩ := Real.exists_mem_pow_mul_le_of_lacunary hρ.le
+    (s.image (Nat.cast : ℕ → ℝ))
+    (by
+      simp only [mem_image]
+      rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩ hab
+      exact hgap a ha b hb (by exact_mod_cast hab))
+    (by simp only [mem_image]; rintro _ ⟨a, ha, rfl⟩; exact hAs a ha) (hs.image _)
+  rw [card_image_of_injective _ Nat.cast_injective] at hvA
+  obtain ⟨b, hb, rfl⟩ := mem_image.1 hv
+  have hbA := hvA
   have hpow : ρ ^ (#s - 1) ≤ B / A := by
     rw [le_div_iff₀ hA]; exact hbA.trans (hBs b hb)
   have hlog : ((#s - 1 : ℕ) : ℝ) * Real.log ρ ≤ Real.log (B / A) := by

@@ -3,7 +3,6 @@
 Released under CC0 1.0 Universal (public-domain dedication).
 See https://creativecommons.org/publicdomain/zero/1.0/
 -/
-import BB13.IntervalST
 import BB13.ConstantsST
 import BB13.CensusSweep
 
@@ -21,7 +20,9 @@ a gap of ratio `ρ₀` in the log-height, against `1 + δ/4`: `log ρ₀ = 0.232
 
 This file reassembles the count with it:
 
-* the Subspace Theorem only as an **interval result** (`BB13.exists_interval_of_isNormalizedSystem_two`):
+* the Subspace Theorem only as an **interval result**
+  (`NumberField.exists_forall_mem_interval_systemSet_two`, first proved here as
+  `BB13.exists_interval_of_isNormalizedSystem_two`):
   above `X₀`, the frame points lie in two subspaces or have `log H` in `m` intervals of ratio
   `4σ⁻¹`, each meeting at most `1 + log(4σ⁻¹(1 + 10⁻⁵))/log ρ₀ ≈ 111` lines;
 * **below `X₀`** no Subspace input at all: the census leaves no exception in `[20, 10⁵]`, and the
@@ -31,6 +32,10 @@ The small-solutions term of the generic count (`1.5·10⁷`) disappears, since t
 the small range. At `δ = 13/50` the total is at most `1.05·10⁹` lines
 (`failures_line_cover_rho_num`), against `3.87·10⁹` from the generic count, `8.59·10¹⁰` from the
 computational record and `K(ε*) ≈ 1.86·10¹²` from [BE08] Cor. 5.2. Std3: no cited axiom.
+
+The interval result and the count of a lacunary set in a range
+(`Real.card_le_one_add_log_div_log_of_lacunary`) are Subspace-Theorems' (item M1 of
+`plans/plan-beyond-BB13.html` §7); this file supplies the gap `ρ₀` and the census.
 
 ## Main results
 
@@ -86,8 +91,7 @@ theorem rho_gap {a b : ℕ} (ha : 100001 ≤ a) (hab : a < b) (hfa : IsFailure 3
 /-- `log ρ₀ ≥ 0.23253`: three terms of the series of `2 artanh(1309/11309)`. -/
 @[category API, AMS 11, ref "Bug12", group "bugeaud_10_13"]
 theorem log_rho_ge : (0.23253 : ℝ) ≤ Real.log (6309 / 5000) := by
-  have h := Real.hasSum_log_one_add_inv (a := 5000 / 1309) (by norm_num)
-  have h0 := sum_le_hasSum (range 3) (fun k _ ↦ by positivity) h
+  have h0 := Real.sum_range_le_log_one_add_inv (a := 5000 / 1309) (by norm_num) 3
   have e : (1 : ℝ) + (5000 / 1309)⁻¹ = 6309 / 5000 := by norm_num
   rw [e] at h0
   norm_num [Finset.sum_range_succ] at h0
@@ -95,54 +99,24 @@ theorem log_rho_ge : (0.23253 : ℝ) ≤ Real.log (6309 / 5000) := by
 
 /-! ### Counting lacunary sets -/
 
-/-- In a set of naturals with gap ratio `ρ ≥ 1` and all elements `≥ A ≥ 0`, some element is at
-least `ρ^(#s − 1) A`. -/
-@[category API, AMS 11, ref "Bug12", group "bugeaud_10_13"]
-theorem exists_mem_pow_le_of_gap {ρ A : ℝ} (hρ : 1 ≤ ρ) (s : Finset ℕ) :
-    (∀ a ∈ s, ∀ b ∈ s, a < b → ρ * a ≤ b) → (∀ a ∈ s, A ≤ a) → s.Nonempty →
-      ∃ b ∈ s, ρ ^ (#s - 1) * A ≤ b := by
-  induction s using Finset.induction_on_max with
-  | empty => intro _ _ h; exact absurd h Finset.not_nonempty_empty
-  | insert a s ha ih =>
-    intro hgap hA _
-    have has : a ∉ s := fun h ↦ lt_irrefl a (ha a h)
-    rw [card_insert_of_notMem has]
-    rcases s.eq_empty_or_nonempty with rfl | hs
-    · exact ⟨a, mem_insert_self _ _, by simpa using hA a (mem_insert_self _ _)⟩
-    obtain ⟨b, hb, hbA⟩ := ih
-      (fun x hx y hy hxy ↦ hgap x (mem_insert_of_mem hx) y (mem_insert_of_mem hy) hxy)
-      (fun x hx ↦ hA x (mem_insert_of_mem hx)) hs
-    refine ⟨a, mem_insert_self _ _, ?_⟩
-    have hab := hgap b (mem_insert_of_mem hb) a (mem_insert_self _ _) (ha b hb)
-    have hcard : #s + 1 - 1 = (#s - 1) + 1 := by have := hs.card_pos; omega
-    rw [hcard, pow_succ]
-    calc ρ ^ (#s - 1) * ρ * A = ρ * (ρ ^ (#s - 1) * A) := by ring
-      _ ≤ ρ * b := mul_le_mul_of_nonneg_left hbA (by linarith)
-      _ ≤ a := hab
-
 /-- **A lacunary set in `[A, B)` is small**: a set of naturals in `[A, B)`, `0 < A ≤ B`, with gap
-ratio `ρ > 1` has at most `1 + log(B/A)/log ρ` elements. -/
+ratio `ρ > 1` has at most `1 + log(B/A)/log ρ` elements. Subspace-Theorems'
+`Real.card_le_one_add_log_div_log_of_lacunary` for the image in `ℝ`. -/
 @[category API, AMS 11, ref "Bug12", group "bugeaud_10_13"]
 theorem card_le_of_gap {ρ A B : ℝ} (hρ : 1 < ρ) (hA : 0 < A) (hAB : A ≤ B) (s : Finset ℕ)
     (hgap : ∀ a ∈ s, ∀ b ∈ s, a < b → ρ * a ≤ b) (hAs : ∀ a ∈ s, A ≤ a)
     (hBs : ∀ a ∈ s, (a : ℝ) < B) :
     (#s : ℝ) ≤ 1 + Real.log (B / A) / Real.log ρ := by
-  have hlρ : 0 < Real.log ρ := Real.log_pos hρ
-  have hBA : 0 ≤ Real.log (B / A) / Real.log ρ :=
-    div_nonneg (Real.log_nonneg ((one_le_div hA).2 hAB)) hlρ.le
-  rcases s.eq_empty_or_nonempty with rfl | hs
-  · simp only [card_empty, Nat.cast_zero]; linarith
-  obtain ⟨b, hb, hbA⟩ := exists_mem_pow_le_of_gap hρ.le s hgap hAs hs
-  have hpow : ρ ^ (#s - 1) < B / A := by
-    rw [lt_div_iff₀ hA]; exact hbA.trans_lt (hBs b hb)
-  have hlog : ((#s - 1 : ℕ) : ℝ) * Real.log ρ < Real.log (B / A) := by
-    rw [← Real.log_pow]; exact Real.log_lt_log (by positivity) hpow
-  have hc : (#s : ℝ) = ((#s - 1 : ℕ) : ℝ) + 1 := by
-    have := hs.card_pos
-    rw [Nat.cast_sub (by omega), Nat.cast_one]; ring
-  have : ((#s - 1 : ℕ) : ℝ) ≤ Real.log (B / A) / Real.log ρ := by
-    rw [le_div_iff₀ hlρ]; exact hlog.le
-  linarith
+  have h := Real.card_le_one_add_log_div_log_of_lacunary hρ hA hAB (s.image (Nat.cast : ℕ → ℝ))
+    (by
+      simp only [mem_image]
+      rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩ hab
+      exact hgap a ha b hb (by exact_mod_cast hab))
+    (by
+      simp only [mem_image]
+      rintro _ ⟨a, ha, rfl⟩
+      exact ⟨hAs a ha, hBs a ha⟩)
+  rwa [card_image_of_injective _ Nat.cast_injective] at h
 
 /-- **Exceptions in `[A, B)`, `A ≥ 100001`, meet at most `1 + log(B/A)/log ρ₀` lines.** The least
 exception of each line in the range form a `ρ₀`-lacunary set (`rho_gap`). -/
@@ -221,7 +195,7 @@ theorem failures_line_cover_rho {δ : ℝ} (hδ0 : 0 < δ) (hδ : δ ≤ epsStar
       ∀ n : ℕ, 20 ≤ n → IsFailure 3 2 (3 / 4) n → linePoint n ∈ R := by
   classical
   have hX₀2 : (200000 : ℝ) ≤ frameX0 δ := le_max_right _ _
-  obtain ⟨T, hT2, hTtop, 𝒯, h𝒯, h𝒯ge, hint⟩ := exists_interval_of_isNormalizedSystem_two
+  obtain ⟨T, hT2, hTtop, 𝒯, h𝒯, h𝒯ge, hint⟩ := exists_forall_mem_interval_systemSet_two
     frameRoth (Fintype.card_fin 2) frameS (fun v ↦ v) (fun v ↦ AbsoluteValue.liesOver_self _)
     (fun v _ ↦ AbsoluteValue.liesOver_self _) (frameSystem_isNormalized hδ0 hδ)
     (X₀ := frameX0 δ) (le_max_left _ _)
