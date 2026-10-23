@@ -20,7 +20,7 @@ require mathlib from git
 -- Heights, Roth, the Subspace Theorem and its applications, sorry-free and std3 (Tau Ceti rules,
 -- module system). Shares this package's Mathlib pin; its `ForMathlib/` must not collide with ours.
 require SubspaceTheorems from git
-  "https://github.com/rwst/Subspace-Theorems" @ "main"
+  "https://github.com/rwst/Subspace-Theorems" @ "09835cb23557ae5ae0cf55a9c4ab9055f5d60338"
 
 
 lean_lib Corpus where
